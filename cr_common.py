@@ -18,6 +18,7 @@ from __future__ import print_function
 import os
 import subprocess
 import sys
+import tempfile
 
 DEBUGGING = False
 
@@ -52,6 +53,15 @@ class ClickReview(object):
 
         self.click_report_output = "console"
 
+        self.unpack_dir = unpack_click(fn)
+        print("JAMIE: %s" % self.unpack_dir)
+        subprocess.call(['bash'])
+
+    def __del__(self):
+        '''Cleanup'''
+        if os.path.isdir(self.unpack_dir):
+            recursive_rm(self.unpack_dir)
+
     def set_review_type(self, name):
         '''Set review name'''
         self.review_type = name
@@ -72,7 +82,7 @@ class ClickReview(object):
 
         self.click_report[result_type][name] = result
 
-    def print_report(self):
+    def do_report(self):
         '''Print report'''
         if self.click_report_output == "console":
             # TODO: format better
@@ -81,6 +91,13 @@ class ClickReview(object):
         elif self.click_report_output == "json":
             import json
             msg(json.dumps(self.click_report))
+
+        rc = 0
+        if len(self.click_report['error']):
+            rc = 2
+        elif len(self.click_report['warn']):
+            rc = 1
+        return rc
 
     def do_checks(self):
         '''Perform checks'''
@@ -154,4 +171,34 @@ def cmd_pipe(command1, command2):
 
     return [sp2.returncode, out]
 
+def unpack_click(fn, dest=None):
+    '''Unpack click package'''
+    if not os.path.isfile(fn):
+        error("Could not find '%s'" % fn)
+    click_pkg = fn
+    if not click_pkg.startswith('/'):
+        click_pkg = os.path.absname(click_pkg)
+    if dest == None:
+        dest = tempfile.mkdtemp(prefix='clickreview-')
+    else:
+        if not os.path.isdir(dest):
+            error("Could not find '%s'" % dest)
 
+    os.chdir(dest)
+    (rc, out) = cmd(['dpkg-deb', '-R', click_pkg, dest])
+    if rc != 0:
+        error("dpkg-deb -R failed with '%d':\n%s" % (rc, out))
+
+    return dest
+
+def recursive_rm(dirPath, contents_only=False):
+    '''recursively remove directory'''
+    names = os.listdir(dirPath)
+    for name in names:
+        path = os.path.join(dirPath, name)
+        if os.path.islink(path) or not os.path.isdir(path):
+            os.unlink(path)
+        else:
+            recursive_rm(path)
+    if contents_only == False:
+        os.rmdir(dirPath)

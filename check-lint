@@ -20,6 +20,7 @@ from __future__ import print_function
 import cr_common
 import cr_lint
 import optparse
+import sys
 
 if __name__ == "__main__":
     parser = optparse.OptionParser()
@@ -33,4 +34,5 @@ if __name__ == "__main__":
     if opt.output_json:
         review.click_report_output = "json"
     review.do_checks()
-    review.print_report()
+    rc = review.do_report()
+    sys.exit(rc)
