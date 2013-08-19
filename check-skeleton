@@ -1,4 +1,5 @@
-'''cr_security.py: click security checks'''
+#!/usr/bin/python3
+'''check-skeleton: perform click skeleton checks'''
 #
 # Copyright (C) 2013 Canonical Ltd.
 #
@@ -16,14 +17,15 @@
 
 from __future__ import print_function
 
-from cr_common import ClickReview
+import cr_common
+import cr_skeleton
+import sys
 
-class ClickReviewSecurity(ClickReview):
-    '''This class represents click lint reviews'''
-    def __init__(self, fn):
-        ClickReview.__init__(self, fn, "security")
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        cr_common.error("Must give path to click package")
 
-    def do_checks(self):
-        '''Perform security checks'''
-        print("TODO")
-
+    review = cr_skeleton.ClickReviewSkeleton(sys.argv[1])
+    review.do_checks()
+    rc = review.do_report()
+    sys.exit(rc)

@@ -15,6 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+import codecs
+import json
 import os
 import subprocess
 import sys
@@ -41,8 +43,15 @@ class ClickReview(object):
             error("Could not find '%s'" % fn)
         self.click_package = fn
 
-        self.click_pkgname = ""
-        self.click_version = ""
+        tmp = os.path.basename(fn).split('_')
+        if len(tmp) != 3 or not tmp[2].endswith(".click"):
+            error("filename not of form: $pkgname_$version_$arch.click")
+        self.click_pkgname = tmp[0]
+        self.click_version = tmp[1]
+
+        self.click_arch = tmp[2].split('.')[0]
+        if self.click_arch not in ['amd64', 'i386', 'armhf', 'powerpc', 'all']:
+            error("not a valid architecture: %s" % self.click_arch)
 
         self.review_type = review_type
         self.click_report = dict()
@@ -51,11 +60,14 @@ class ClickReview(object):
         for r in self.result_types:
             self.click_report[r] = dict()
 
-        self.click_report_output = "console"
+        self.click_report_output = "json"
 
         self.unpack_dir = unpack_click(fn)
-        print("JAMIE: %s" % self.unpack_dir)
-        subprocess.call(['bash'])
+
+        m = os.path.join(self.unpack_dir, "DEBIAN/manifest")
+        if not os.path.isfile(m):
+            error("Could not find manifest file")
+        self.manifest = json.load(codecs.open(m, 'r', 'UTF-8'))
 
     def __del__(self):
         '''Cleanup'''
@@ -90,7 +102,10 @@ class ClickReview(object):
             pprint.pprint(self.click_report)
         elif self.click_report_output == "json":
             import json
-            msg(json.dumps(self.click_report))
+            msg(json.dumps(self.click_report,
+                           sort_keys=True,
+                           indent=2,
+                           separators=(',', ': ')))
 
         rc = 0
         if len(self.click_report['error']):
