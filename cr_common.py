@@ -16,11 +16,13 @@
 
 from __future__ import print_function
 import codecs
+import inspect
 import json
 import os
 import subprocess
 import sys
 import tempfile
+import types
 
 DEBUGGING = False
 
@@ -67,7 +69,7 @@ class ClickReview(object):
         m = os.path.join(self.unpack_dir, "DEBIAN/manifest")
         if not os.path.isfile(m):
             error("Could not find manifest file")
-        self.manifest = json.load(codecs.open(m, 'r', 'UTF-8'))
+        self.manifest = json.load(open_file_read(m))
 
     def __del__(self):
         '''Cleanup'''
@@ -115,8 +117,16 @@ class ClickReview(object):
         return rc
 
     def do_checks(self):
-        '''Perform checks'''
-        error("Must override do_checks()")
+        '''Run all methods that start with check_'''
+        methodList = [name for name, member in
+                      inspect.getmembers(self, inspect.ismethod)
+                      if isinstance(member, types.MethodType)]
+        for methodname in methodList:
+            if not methodname.startswith("check_"):
+                continue
+            func=getattr(self,methodname)
+            func()
+
 
 #
 # Utility functions
@@ -205,6 +215,15 @@ def unpack_click(fn, dest=None):
         error("dpkg-deb -R failed with '%d':\n%s" % (rc, out))
 
     return dest
+
+def open_file_read(path):
+    '''Open specified file read-only'''
+    try:
+        orig = codecs.open(path, 'r', "UTF-8")
+    except Exception:
+        raise
+
+    return orig
 
 def recursive_rm(dirPath, contents_only=False):
     '''recursively remove directory'''

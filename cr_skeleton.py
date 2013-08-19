@@ -23,8 +23,8 @@ class ClickReviewSkeleton(ClickReview):
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "skeleton")
 
-    def verify_foo(self):
-        '''Verify foo'''
+    def check_foo(self):
+        '''Check foo'''
         t = 'info'
         n = 'foo'
         s = "OK"
@@ -33,8 +33,8 @@ class ClickReviewSkeleton(ClickReview):
             s = "some message"
         self._add_result(t, n, s)
 
-    def verify_bar(self):
-        '''Verify bar'''
+    def check_bar(self):
+        '''Check bar'''
         t = 'info'
         n = 'bar'
         s = "OK"
@@ -43,12 +43,11 @@ class ClickReviewSkeleton(ClickReview):
             s = "some message"
         self._add_result(t, n, s)
 
-    def verify_baz(self):
-        '''Verify baz'''
+    def check_baz(self):
+        '''Check baz'''
         self._add_result('warn', 'baz', 'TODO')
 
-    def do_checks(self):
-        '''Perform checks'''
-        self.verify_foo()
-        self.verify_bar()
-        self.verify_baz()
+        # Spawn a shell to pause the script (run 'exit' to continue)
+        # import subprocess
+        # print(self.unpack_dir)
+        # subprocess.call(['bash'])
