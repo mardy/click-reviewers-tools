@@ -26,6 +26,7 @@ import types
 
 DEBUGGING = False
 
+
 #
 # Utility classes
 #
@@ -74,29 +75,30 @@ class ClickReview(object):
 
     def _verify_manifest_structure(self, manifest):
         '''Verify manifest has the expected structure'''
-        # http://bazaar.launchpad.net/~click-hackers/click/trunk/view/head:/doc/file-format.rst
+        # lp:click doc/file-format.rst
         if not isinstance(manifest, dict):
             error("manifest malformed")
 
-        required = ["name", "version", "framework", #  click required
-                    "title", "description", "maintainer" # appstore required
-                   ]
+        required = ["name", "version", "framework",        # click required
+                    "title", "description", "maintainer"]  # appstore required
         for f in required:
             if f not in manifest:
                 error("could not find required '%s' in manifest" % f)
             elif not isinstance(manifest[f], str):
                 error("manifest malformed: '%s' is not str" % f)
 
-        optional = [] # add appstore optional fileds here
+        optional = []  # add appstore optional fields here
         for f in optional:
             if f in manifest and not isinstance(manifest[f], str):
                 error("manifest malformed: '%s' is not str" % f)
 
-        # Not required by click, but required by appstore
+        # Not required by click, but required by appstore. 'hooks' is assumed
+        # to be present in other checks
         if 'hooks' not in manifest:
             error("could not find required '%s' in manifest" % f)
         if not isinstance(manifest['hooks'], dict):
             error("manifest malformed: 'hooks' is not dict")
+        # 'hooks' is assumed to be present and non-empty in other checks
         if len(manifest['hooks']) < 1:
             error("manifest malformed: 'hooks' is empty")
         for app in manifest['hooks']:
@@ -163,7 +165,7 @@ class ClickReview(object):
         for methodname in methodList:
             if not methodname.startswith("check_"):
                 continue
-            func=getattr(self,methodname)
+            func = getattr(self, methodname)
             func()
 
 
@@ -180,6 +182,7 @@ def error(out, exit_code=1, do_exit=True):
     if do_exit:
         sys.exit(exit_code)
 
+
 def warn(out):
     '''Print warning message'''
     try:
@@ -187,12 +190,14 @@ def warn(out):
     except IOError:
         pass
 
+
 def msg(out, output=sys.stdout):
     '''Print message'''
     try:
         print("%s" % (out), file=output)
     except IOError:
         pass
+
 
 def debug(out):
     '''Print debug message'''
@@ -202,6 +207,7 @@ def debug(out):
             print("DEBUG: %s" % (out), file=sys.stderr)
         except IOError:
             pass
+
 
 def cmd(command):
     '''Try to execute the given command.'''
@@ -235,6 +241,7 @@ def cmd_pipe(command1, command2):
 
     return [sp2.returncode, out]
 
+
 def unpack_click(fn, dest=None):
     '''Unpack click package'''
     if not os.path.isfile(fn):
@@ -242,7 +249,7 @@ def unpack_click(fn, dest=None):
     click_pkg = fn
     if not click_pkg.startswith('/'):
         click_pkg = os.path.absname(click_pkg)
-    if dest == None:
+    if dest is None:
         dest = tempfile.mkdtemp(prefix='clickreview-')
     else:
         if not os.path.isdir(dest):
@@ -255,6 +262,7 @@ def unpack_click(fn, dest=None):
 
     return dest
 
+
 def open_file_read(path):
     '''Open specified file read-only'''
     try:
@@ -263,6 +271,7 @@ def open_file_read(path):
         raise
 
     return orig
+
 
 def recursive_rm(dirPath, contents_only=False):
     '''recursively remove directory'''
@@ -273,5 +282,5 @@ def recursive_rm(dirPath, contents_only=False):
             os.unlink(path)
         else:
             recursive_rm(path)
-    if contents_only == False:
+    if contents_only is False:
         os.rmdir(dirPath)
