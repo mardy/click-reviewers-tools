@@ -13,7 +13,7 @@ In general, add or modify tests and report by using:
  self._add_result(<type>, <name>, <message>)
 
 Where <type> is one of 'info', 'warn', 'error'. <name> is the name of the
-test (prefixed by <review_type>_, which is set when creating a ClickReview
+test (prefixed by <review_type>_), which is set when creating a ClickReview
 object. After all tests are run, if there are any errors, the exit status is
 '2', if there are no errors but some warnings, the exit status is '1',
 otherwise it is '0.
