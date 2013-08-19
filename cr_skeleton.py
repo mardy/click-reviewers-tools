@@ -18,6 +18,7 @@ from __future__ import print_function
 
 from cr_common import ClickReview
 
+
 class ClickReviewSkeleton(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
