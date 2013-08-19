@@ -96,7 +96,7 @@ class ClickReviewLint(ClickReview):
                 s = "OK"
                 if f == "apparmor":
                     s = "OK (run check-security for more checks)"
-                elif f == "desktopr":
+                elif f == "desktop":
                     s = "OK (run check-desktop for more checks)"
 
                 if f not in self.manifest['hooks'][app]:
