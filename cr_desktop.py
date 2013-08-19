@@ -16,14 +16,26 @@
 
 from __future__ import print_function
 
-from cr_common import ClickReview
+from cr_common import ClickReview, error
+import os
+
 
 class ClickReviewDesktop(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "desktop")
 
+        self.desktop_files = dict()
+        for app in self.manifest['hooks']:
+            if 'desktop' not in self.manifest['hooks'][app]:
+                error("could not find desktop hook for '%s'" % app)
+            if not isinstance(self.manifest['hooks'][app]['desktop'], str):
+                error("manifest malformed: hooks/%s/desktop is not str" % app)
+            d = self.manifest['hooks'][app]['desktop']
+            self.desktop_files[app] = os.path.join(self.unpack_dir, d)
+
     def check_desktop_file(self):
         '''Check desktop file'''
-        self._add_result('warn', 'file', 'TODO')
-        #  TODO: perform automated checks
+        for app in sorted(self.desktop_files):
+            d = self.manifest['hooks'][app]['desktop']
+            self._add_result('warn', 'file_%s' % d, 'TODO')
