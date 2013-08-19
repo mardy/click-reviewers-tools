@@ -70,6 +70,45 @@ class ClickReview(object):
         if not os.path.isfile(m):
             error("Could not find manifest file")
         self.manifest = json.load(open_file_read(m))
+        self._verify_manifest_structure(self.manifest)
+
+    def _verify_manifest_structure(self, manifest):
+        '''Verify manifest has the expected structure'''
+        # http://bazaar.launchpad.net/~click-hackers/click/trunk/view/head:/doc/file-format.rst
+        if not isinstance(manifest, dict):
+            error("manifest malformed")
+
+        required = ["name", "version", "framework", #  click required
+                    "title", "description", "maintainer" # appstore required
+                   ]
+        for f in required:
+            if f not in manifest:
+                error("could not find required '%s' in manifest" % f)
+            elif not isinstance(manifest[f], str):
+                error("manifest malformed: '%s' is not str" % f)
+
+        optional = [] # add appstore optional fileds here
+        for f in optional:
+            if f in manifest and not isinstance(manifest[f], str):
+                error("manifest malformed: '%s' is not str" % f)
+
+        # Not required by click, but required by appstore
+        if 'hooks' not in manifest:
+            error("could not find required '%s' in manifest" % f)
+        if not isinstance(manifest['hooks'], dict):
+            error("manifest malformed: 'hooks' is not dict")
+        if len(manifest['hooks']) < 1:
+            error("manifest malformed: 'hooks' is empty")
+        for app in manifest['hooks']:
+            if not isinstance(manifest['hooks'][app], dict):
+                error("manifest malformed: hooks/%s is not dict" % app)
+            # let cr_lint.py handle required hooks
+            if len(manifest['hooks'][app]) < 1:
+                error("manifest malformed: hooks/%s is empty" % app)
+
+        for k in sorted(manifest):
+            if k not in required + optional + ['hooks']:
+                error("manifest malformed: unsupported field '%s'" % k)
 
     def __del__(self):
         '''Cleanup'''
