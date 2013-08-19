@@ -20,6 +20,7 @@ from cr_common import ClickReview
 import os
 import re
 
+
 class ClickReviewLint(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
@@ -112,18 +113,18 @@ class ClickReviewLint(ClickReview):
         n = 'pkgname_match'
         s = "OK"
         if p != self.click_pkgname:
-            t =' error'
+            t = 'error'
             s = "'%s' does not match '%s' from filename '%s'" % \
                 (p, self.click_pkgname,
                  os.path.basename(self.click_package))
         self._add_result(t, n, s)
 
-        # http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Source
+        # http://www.debian.org/doc/debian-policy/ch-controlfields.html
         t = 'info'
         n = 'pkgname_valid'
         s = "OK"
         if not re.search(r'^[a-z0-9][a-z0-9\+\-\.]+$', p):
-            t =' error'
+            t = 'error'
             s = "'%s' not properly formatted" % p
         self._add_result(t, n, s)
 
@@ -135,14 +136,15 @@ class ClickReviewLint(ClickReview):
         s = "OK"
         # This regex isn't perfect, but should be good enough
         if not re.search(r'^[0-9][0-9a-zA-Z+\.~:\-]*$', self.click_version):
-            t =' error'
+            t = 'error'
             s = "'%s' not properly formatted" % self.click_version
         self._add_result(t, n, s)
 
     def check_maintainer(self):
         '''Check maintainer()'''
         self._add_result('warn', 'maintainer_format', 'TODO')
-        self._add_result('warn', 'maintainer_domain', 'TODO: non-Ubuntu pkgname matches reverse domain of email')
+        self._add_result('warn', 'maintainer_domain',
+                         'TODO: non-Ubuntu pkgname != reverse domain of email')
 
     def check_title(self):
         '''Check title()'''
