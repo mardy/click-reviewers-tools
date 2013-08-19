@@ -24,26 +24,26 @@ class ClickReviewLint(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "lint")
+        self.control_files = dict()
+        files = ["control", "manifest", "md5sums", "preinst"]
+        for i in files:
+            self.control_files[i] = os.path.join(self.unpack_dir,
+                                                 "DEBIAN/%s" % i)
 
-    def verify_control_files(self):
-        '''Verify DEBIAN/* files'''
-        control = os.path.join(self.unpack_dir, "DEBIAN/control")
-        manifest = os.path.join(self.unpack_dir, "DEBIAN/manifest")
-        md5sums = os.path.join(self.unpack_dir, "DEBIAN/md5sums")
-        preinst = os.path.join(self.unpack_dir, "DEBIAN/preinst")
-
-        for f in [control, manifest, md5sums, preinst]:
+    def check_control_files(self):
+        '''Check DEBIAN/* files'''
+        for f in self.control_files:
             t = 'info'
-            n = 'DEBIAN_has_%s' % (os.path.basename(f))
+            n = 'DEBIAN_has_%s' % os.path.basename(f)
             s = "OK"
-            if not os.path.isfile(f):
+            if not os.path.isfile(self.control_files[os.path.basename(f)]):
                 t = 'error'
-                s = "'%s' not found in DEBIAN/" % (os.path.basename(f))
+                s = "'%s' not found in DEBIAN/" % os.path.basename(f)
             self._add_result(t, n, s)
-        self._add_result('warn', 'extrafiles', 'TODO')
+        self._add_result('warn', 'control_extrafiles', 'TODO')
 
-    def verify_manifest(self):
-        '''Verify click manifest'''
+    def check_manifest(self):
+        '''Check click manifest'''
         required = ['name', 'version', 'maintainer', 'title', 'framework']
         for f in required:
             t = 'info'
@@ -53,21 +53,25 @@ class ClickReviewLint(ClickReview):
                 t = 'error'
                 s = "'%s' entry not found in manifest" % f
             self._add_result(t, n, s)
+        self._add_result('warn', 'manifest_extrakeys', 'TODO')
 
-    def verify_control(self):
-        '''Verify control()'''
-        self._add_result('warn', 'control', 'TODO')
+    def check_control(self):
+        '''Check control()'''
+        self._add_result('info', 'control', 'TODO')
+        # TODO: perform automated checks
 
-    def verify_md5sums(self):
-        '''Verify md5sums()'''
+    def check_md5sums(self):
+        '''Check md5sums()'''
         self._add_result('warn', 'md5sums', 'TODO')
+        # TODO: perform automated checks
 
-    def verify_preinst(self):
-        '''Verify preinst()'''
+    def check_preinst(self):
+        '''Check preinst()'''
         self._add_result('warn', 'preinst', 'TODO')
+        # TODO: perform automated checks
 
-    def verify_hooks(self):
-        '''Verify click manifest hooks'''
+    def check_hooks(self):
+        '''Check click manifest hooks'''
         if 'hooks' not in self.manifest:
             self._add_result('error', 'hooks',
                              "could not find 'hooks' in manifest")
@@ -90,13 +94,18 @@ class ClickReviewLint(ClickReview):
                 t = 'info'
                 n = 'hooks_%s_%s' % (app, f)
                 s = "OK"
+                if f == "apparmor":
+                    s = "OK (run check-security for more checks)"
+                elif f == "desktopr":
+                    s = "OK (run check-desktop for more checks)"
+
                 if f not in self.manifest['hooks'][app]:
                     t = 'error'
                     s = "'%s' hook not found for '%s'" % (f, app)
                 self._add_result(t, n, s)
 
-    def verify_pkgname(self):
-        '''Verify package name matches manifest'''
+    def check_pkgname(self):
+        '''Check package name matches manifest'''
         p = self.manifest['name']
 
         t = 'info'
@@ -118,8 +127,8 @@ class ClickReviewLint(ClickReview):
             s = "'%s' not properly formatted" % p
         self._add_result(t, n, s)
 
-    def verify_version(self):
-        '''Verify package version matches manifest'''
+    def check_version(self):
+        '''Check package version matches manifest'''
         # deb-version(5)
         t = 'info'
         n = 'version_valid'
@@ -130,28 +139,15 @@ class ClickReviewLint(ClickReview):
             s = "'%s' not properly formatted" % self.click_version
         self._add_result(t, n, s)
 
-    def verify_maintainer(self):
-        '''Verify maintainer()'''
-        self._add_result('warn', 'maintainer', 'TODO')
+    def check_maintainer(self):
+        '''Check maintainer()'''
+        self._add_result('warn', 'maintainer_format', 'TODO')
+        self._add_result('warn', 'maintainer_domain', 'TODO: non-Ubuntu pkgname matches reverse domain of email')
 
-    def verify_title(self):
-        '''Verify title()'''
+    def check_title(self):
+        '''Check title()'''
         self._add_result('warn', 'title', 'TODO')
 
-    def verify_framework(self):
-        '''Verify framework()'''
+    def check_framework(self):
+        '''Check framework()'''
         self._add_result('warn', 'framework', 'TODO')
-
-    def do_checks(self):
-        '''Perform lint checks'''
-        self.verify_control_files()
-        self.verify_manifest()
-        self.verify_md5sums()
-        self.verify_control()
-        self.verify_preinst()
-        self.verify_hooks()
-        self.verify_pkgname()
-        self.verify_version()
-        self.verify_maintainer()
-        self.verify_title()
-        self.verify_framework()
