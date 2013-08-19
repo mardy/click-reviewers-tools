@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -z "$1"]; then
+if [ -z "$1" ]; then
     echo "Please specific path to click package"
     exit 1
 fi
