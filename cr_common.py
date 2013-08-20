@@ -53,7 +53,10 @@ class ClickReview(object):
         self.click_version = tmp[1]
 
         self.click_arch = tmp[2].split('.')[0]
-        if self.click_arch not in ['amd64', 'i386', 'armhf', 'powerpc', 'all']:
+        # LP: #1214380 - we only support 'all' for now
+        # valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc', 'all']
+        valid_architectures = ['all']
+        if self.click_arch not in valid_architectures:
             error("not a valid architecture: %s" % self.click_arch)
 
         self.review_type = review_type
