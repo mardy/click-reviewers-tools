@@ -91,24 +91,25 @@ class ClickReviewSecurity(ClickReview):
         '''Get security manifest and verify it has the expected structure'''
         rel_fn = os.path.relpath(fn, self.unpack_dir)
         m = json.load(cr_common.open_file_read(fn))
+        mp = json.dumps(m, sort_keys=True, indent=2, separators=(',', ': '))
         if not isinstance(m, dict):
-            error("'%s' malformed" % rel_fn)
+            error("'%s' malformed:\n%s" % (rel_fn, mp))
         for k in sorted(m):
             if k not in self.all_fields:
-                error("'%s' malformed: unsupported field '%s'" % (rel_fn, k))
+                error("'%s' malformed: unsupported field '%s':\n%s" % (rel_fn, k, mp))
             if k in ['abstractions', 'policy_groups', 'read_path',
                      'write_path']:
                 if not isinstance(m[k], list):
-                    error("'%s' malformed: '%s' is not list" % (rel_fn, k))
+                    error("'%s' malformed: '%s' is not list:\n%s" % (rel_fn, k, mp))
             elif k == 'template_variables':
                 if not isinstance(m[k], dict):
-                    error("'%s' malformed: '%s' is not dict" % (rel_fn, k))
+                    error("'%s' malformed: '%s' is not dict:\n%s" % (rel_fn, k, mp))
             elif k == "policy_version":
                 if not isinstance(m[k], float):
-                    error("'%s' malformed: '%s' is not float" % (rel_fn, k))
+                    error("'%s' malformed: '%s' is not float:\n%s" % (rel_fn, k, mp))
             else:
                 if not isinstance(m[k], str):
-                    error("'%s' malformed: '%s' is not str" % (rel_fn, k))
+                    error("'%s' malformed: '%s' is not str:\n%s" % (rel_fn, k, mp))
         return m
 
     def check_policy_vendor(self):
