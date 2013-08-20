@@ -16,9 +16,11 @@
 
 from __future__ import print_function
 import codecs
+from debian.deb822 import Deb822
 import inspect
 import json
 import os
+import pprint
 import subprocess
 import sys
 import tempfile
@@ -46,18 +48,8 @@ class ClickReview(object):
             error("Could not find '%s'" % fn)
         self.click_package = fn
 
-        tmp = os.path.basename(fn).split('_')
-        if len(tmp) != 3 or not tmp[2].endswith(".click"):
-            error("filename not of form: $pkgname_$version_$arch.click")
-        self.click_pkgname = tmp[0]
-        self.click_version = tmp[1]
-
-        self.click_arch = tmp[2].split('.')[0]
-        # LP: #1214380 - we only support 'all' for now
-        # valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc', 'all']
-        valid_architectures = ['all']
-        if self.click_arch not in valid_architectures:
-            error("not a valid architecture: %s" % self.click_arch)
+        if not self.click_package.endswith(".click"):
+            error("filename does not end with '.click'")
 
         self.review_type = review_type
         self.click_report = dict()
@@ -70,6 +62,18 @@ class ClickReview(object):
 
         self.unpack_dir = unpack_click(fn)
 
+        # Get some basic information from the control file
+        fh = open_file_read(os.path.join(self.unpack_dir, "DEBIAN/control"))
+        tmp = list(Deb822.iter_paragraphs(fh.readlines()))
+        fh.close()
+        if len(tmp) != 1:
+            error("malformed control file: too many paragraphs")
+        control = tmp[0]
+        self.click_pkgname = control['Package']
+        self.click_version = control['Version']
+        self.click_arch = control['Architecture']
+
+        # Parse and store the manifest
         m = os.path.join(self.unpack_dir, "DEBIAN/manifest")
         if not os.path.isfile(m):
             error("Could not find manifest file")
@@ -79,41 +83,42 @@ class ClickReview(object):
     def _verify_manifest_structure(self, manifest):
         '''Verify manifest has the expected structure'''
         # lp:click doc/file-format.rst
+        m = pprint.pformat(manifest)
         if not isinstance(manifest, dict):
-            error("manifest malformed")
+            error("manifest malformed:\n%s" % manifest)
 
-        required = ["name", "version", "framework",        # click required
-                    "title", "description", "maintainer"]  # appstore required
+        required = ["name", "version", "framework"]        # click required
         for f in required:
             if f not in manifest:
-                error("could not find required '%s' in manifest" % f)
+                error("could not find required '%s' in manifest:\n%s" % (f, m))
             elif not isinstance(manifest[f], str):
-                error("manifest malformed: '%s' is not str" % f)
+                error("manifest malformed: '%s' is not str:\n%s" % (f, m))
 
-        optional = []  # add appstore optional fields here
+        optional = ["title", "description", "maintainer"]  # appstore optional
+                                                           # fields here
         for f in optional:
             if f in manifest and not isinstance(manifest[f], str):
-                error("manifest malformed: '%s' is not str" % f)
+                error("manifest malformed: '%s' is not str:\n%s" % (f, m))
 
         # Not required by click, but required by appstore. 'hooks' is assumed
         # to be present in other checks
         if 'hooks' not in manifest:
-            error("could not find required '%s' in manifest" % f)
+            error("could not find required 'hooks' in manifest:\n%s" % m)
         if not isinstance(manifest['hooks'], dict):
-            error("manifest malformed: 'hooks' is not dict")
+            error("manifest malformed: 'hooks' is not dict:\n%s" % m)
         # 'hooks' is assumed to be present and non-empty in other checks
         if len(manifest['hooks']) < 1:
-            error("manifest malformed: 'hooks' is empty")
+            error("manifest malformed: 'hooks' is empty:\n%s" % m)
         for app in manifest['hooks']:
             if not isinstance(manifest['hooks'][app], dict):
-                error("manifest malformed: hooks/%s is not dict" % app)
+                error("manifest malformed: hooks/%s is not dict:\n%s" % (app, m))
             # let cr_lint.py handle required hooks
             if len(manifest['hooks'][app]) < 1:
-                error("manifest malformed: hooks/%s is empty" % app)
+                error("manifest malformed: hooks/%s is empty:\n%s" % (app, m))
 
         for k in sorted(manifest):
             if k not in required + optional + ['hooks']:
-                error("manifest malformed: unsupported field '%s'" % k)
+                error("manifest malformed: unsupported field '%s':\n%s" % (k, manifest))
 
     def __del__(self):
         '''Cleanup'''

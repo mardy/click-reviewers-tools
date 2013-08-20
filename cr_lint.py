@@ -32,6 +32,11 @@ class ClickReviewLint(ClickReview):
             self.control_files[i] = os.path.join(self.unpack_dir,
                                                  "DEBIAN/%s" % i)
 
+        # LP: #1214380 - we only support 'all' for now
+        # self.valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc',
+        #                             'all']
+        self.valid_architectures = ['all']
+
     def check_control_files(self):
         '''Check DEBIAN/* files'''
         for f in self.control_files:
@@ -105,38 +110,48 @@ class ClickReviewLint(ClickReview):
 
         t = 'info'
         n = 'control_package_match'
-        s = 'OK'
-        if control['Package'] != self.click_pkgname:
+        s = "OK"
+        if self.manifest['name'] != self.click_pkgname:
             t = 'error'
-            s = "Package=%s does not match package name=%s" % \
-                (control['Package'], self.click_pkgname)
+            s = "Package=%s does not match manifest name=%s" % \
+                (self.manifest['name'], self.click_pkgname)
         self._add_result(t, n, s)
 
         t = 'info'
         n = 'control_version_match'
-        s = 'OK'
-        if control['Version'] != self.click_version:
+        s = "OK"
+        if self.manifest['version'] != self.click_version:
             t = 'error'
-            s = "Version=%s does not match package version=%s" % \
-                (control['Version'], self.click_version)
+            s = "Version=%s does not match manifest version=%s" % \
+                (self.manifest['version'], self.click_version)
         self._add_result(t, n, s)
 
         t = 'info'
         n = 'control_maintainer_match'
         s = 'OK'
-        if control['Maintainer'] != self.manifest['maintainer']:
-            t = 'error'
-            s = "Maintainer=%s does not match manifest maintainer=%s" % \
-                (control['Maintainer'], self.manifest['maintainer'])
+        if 'maintainer' in self.manifest['maintainer']:
+            if control['Maintainer'] != self.manifest['maintainer']:
+                t = 'error'
+                s = "Maintainer=%s does not match manifest maintainer=%s" % \
+                    (control['Maintainer'], self.manifest['maintainer'])
+        else:
+            t = 'warn'
+            s = 'Skipped: maintainer not in manifest'
         self._add_result(t, n, s)
 
+        # TODO: click currently sets the Description to be the manifest title.
+        # Is this intended behavior?
         t = 'info'
         n = 'control_description_match'
         s = 'OK'
-        if control['Description'] != self.manifest['title']:
-            t = 'error'
-            s = "Description=%s does not match manifest title=%s" % \
-                (control['Description'], self.manifest['title'])
+        if 'title' in self.manifest:
+            if control['Description'] != self.manifest['title']:
+                t = 'error'
+                s = "Description=%s does not match manifest title=%s" % \
+                    (control['Description'], self.manifest['title'])
+        else:
+            t = 'warn'
+            s = 'Skipped: title not in manifest'
         self._add_result(t, n, s)
 
         valid_click_versions = ['0.1', '0.2', '0.3']
@@ -228,19 +243,8 @@ exit 1
                 self._add_result(t, n, s)
 
     def check_pkgname(self):
-        '''Check package name matches manifest'''
+        '''Check package name valid'''
         p = self.manifest['name']
-
-        t = 'info'
-        n = 'pkgname_match'
-        s = "OK"
-        if p != self.click_pkgname:
-            t = 'error'
-            s = "'%s' does not match '%s' from filename '%s'" % \
-                (p, self.click_pkgname,
-                 os.path.basename(self.click_package))
-        self._add_result(t, n, s)
-
         # http://www.debian.org/doc/debian-policy/ch-controlfields.html
         t = 'info'
         n = 'pkgname_valid'
@@ -251,7 +255,7 @@ exit 1
         self._add_result(t, n, s)
 
     def check_version(self):
-        '''Check package version matches manifest'''
+        '''Check package version is valid'''
         # deb-version(5)
         t = 'info'
         n = 'version_valid'
@@ -262,8 +266,27 @@ exit 1
             s = "'%s' not properly formatted" % self.click_version
         self._add_result(t, n, s)
 
+    def check_architecture(self):
+        '''Check package architecture is valid'''
+        t = 'info'
+        n = 'architecture_valid'
+        s = 'OK'
+        if self.click_arch not in self.valid_architectures:
+            t = 'error'
+            s = "not a valid architecture: %s" % self.click_arch
+        self._add_result(t, n, s)
+
     def check_maintainer(self):
         '''Check maintainer()'''
+        t = 'info'
+        n = 'maintainer_present'
+        s = 'OK'
+        if 'maintainer' not in self.manifest:
+            s = 'required maintainer field not specified in manifest'
+            self._add_result('error', n, s)
+            return
+        self._add_result(t, n, s)
+
         # Simple regex as used by python3-debian. If we wanted to be more
         # thorough we could use email_re from django.core.validators
         t = 'info'
@@ -311,6 +334,15 @@ exit 1
     def check_title(self):
         '''Check title()'''
         t = 'info'
+        n = 'title_present'
+        s = 'OK'
+        if 'title' not in self.manifest:
+            s = 'required title field not specified in manifest'
+            self._add_result('error', n, s)
+            return
+        self._add_result(t, n, s)
+
+        t = 'info'
         n = 'title'
         s = 'OK'
         pkgname_base = self.click_pkgname.split('.')[-1]
@@ -321,6 +353,17 @@ exit 1
 
     def check_description(self):
         '''Check description()'''
+        t = 'info'
+        n = 'description_present'
+        s = 'OK'
+        if 'description' not in self.manifest:
+            s = 'required description field not specified in manifest'
+            self._add_result('error', n, s)
+            return
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'title'
         t = 'info'
         n = 'description'
         s = 'OK'
@@ -344,3 +387,69 @@ exit 1
                 self.manifest['framework']
         self._add_result(t, n, s)
 
+    def check_package_filename(self):
+        '''Check filename of package'''
+        tmp = os.path.basename(self.click_package).split('_')
+        t = 'info'
+        n = 'package_filename_format'
+        s = 'OK'
+        if len(tmp) != 3:
+            t = 'warn'
+            s = "'%s' not of form $pkgname_$version_$arch.click" % \
+                os.path.basename(self.click_package)
+        self._add_result(t, n, s)
+
+        pkgname = tmp[0].partition('.click')[0]  # handle $pkgname.click
+        t = 'info'
+        n = 'package_filename_pkgname_match'
+        s = 'OK'
+        if pkgname != self.click_pkgname:
+            t = 'error'
+            s = "'%s' != '%s' from DEBIAN/control" % (pkgname,
+                                                      self.click_pkgname)
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'package_filename_version_match'
+        s = 'OK'
+        if len(tmp) >= 2:
+            version = tmp[1].partition('.click')[0]  # handle $pkgname_$version.click
+            if version != self.click_version:
+                t = 'error'
+                s = "'%s' != '%s' from DEBIAN/control" % (version,
+                                                          self.click_version)
+        else:
+            t = 'warn'
+            s = "could not determine version from '%s'" % \
+                os.path.basename(self.click_package)
+        self._add_result(t, n, s)
+
+
+        t = 'info'
+        n = 'package_filename_arch_valid'
+        s = 'OK'
+        if len(tmp) >= 3:
+            arch = tmp[2].partition('.click')[0]
+            if arch not in self.valid_architectures:
+                t = 'warn'
+                s = "not a valid architecture: %s" % arch
+        else:
+            t = 'warn'
+            s = "could not determine architecture from '%s'" % \
+                os.path.basename(self.click_package)
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'package_filename_arch_match'
+        s = 'OK'
+        if len(tmp) >= 3:
+            arch = tmp[2].partition('.click')[0]
+            if arch != self.click_arch:
+                t = 'error'
+                s = "'%s' != '%s' from DEBIAN/control" % (arch,
+                                                          self.click_arch)
+        else:
+            t = 'warn'
+            s = "could not determine architecture from '%s'" % \
+                os.path.basename(self.click_package)
+        self._add_result(t, n, s)
