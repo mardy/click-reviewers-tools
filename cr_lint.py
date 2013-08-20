@@ -178,6 +178,7 @@ class ClickReviewLint(ClickReview):
         curdir = os.getcwd()
         fh = open_file_read(self.control_files["md5sums"])
         badsums = []
+        os.chdir(self.unpack_dir)
         for line in fh.readlines():
             (sum, fn) = line.strip().split()
             (rc, out) = cmd(['md5sum', fn])
