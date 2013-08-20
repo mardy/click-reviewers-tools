@@ -96,20 +96,25 @@ class ClickReviewSecurity(ClickReview):
             error("'%s' malformed:\n%s" % (rel_fn, mp))
         for k in sorted(m):
             if k not in self.all_fields:
-                error("'%s' malformed: unsupported field '%s':\n%s" % (rel_fn, k, mp))
+                error("'%s' malformed: unsupported field '%s':\n%s" % (rel_fn,
+                                                                       k, mp))
             if k in ['abstractions', 'policy_groups', 'read_path',
                      'write_path']:
                 if not isinstance(m[k], list):
-                    error("'%s' malformed: '%s' is not list:\n%s" % (rel_fn, k, mp))
+                    error("'%s' malformed: '%s' is not list:\n%s" % (rel_fn,
+                                                                     k, mp))
             elif k == 'template_variables':
                 if not isinstance(m[k], dict):
-                    error("'%s' malformed: '%s' is not dict:\n%s" % (rel_fn, k, mp))
+                    error("'%s' malformed: '%s' is not dict:\n%s" % (rel_fn,
+                                                                     k, mp))
             elif k == "policy_version":
                 if not isinstance(m[k], float):
-                    error("'%s' malformed: '%s' is not float:\n%s" % (rel_fn, k, mp))
+                    error("'%s' malformed: '%s' is not float:\n%s" % (rel_fn,
+                                                                      k, mp))
             else:
                 if not isinstance(m[k], str):
-                    error("'%s' malformed: '%s' is not str:\n%s" % (rel_fn, k, mp))
+                    error("'%s' malformed: '%s' is not str:\n%s" % (rel_fn,
+                                                                    k, mp))
         return m
 
     def check_policy_vendor(self):

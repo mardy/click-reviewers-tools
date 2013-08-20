@@ -91,7 +91,8 @@ class ClickReview(object):
         required = ["name", "version", "framework"]        # click required
         for f in required:
             if f not in manifest:
-                error("could not find required '%s' in manifest:\n%s" % (f, mp))
+                error("could not find required '%s' in manifest:\n%s" % (f,
+                                                                         mp))
             elif not isinstance(manifest[f], str):
                 error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
@@ -112,14 +113,16 @@ class ClickReview(object):
             error("manifest malformed: 'hooks' is empty:\n%s" % mp)
         for app in manifest['hooks']:
             if not isinstance(manifest['hooks'][app], dict):
-                error("manifest malformed: hooks/%s is not dict:\n%s" % (app, mp))
+                error("manifest malformed: hooks/%s is not dict:\n%s" % (app,
+                                                                         mp))
             # let cr_lint.py handle required hooks
             if len(manifest['hooks'][app]) < 1:
                 error("manifest malformed: hooks/%s is empty:\n%s" % (app, mp))
 
         for k in sorted(manifest):
             if k not in required + optional + ['hooks']:
-                error("manifest malformed: unsupported field '%s':\n%s" % (k, mp))
+                error("manifest malformed: unsupported field '%s':\n%s" % (k,
+                                                                           mp))
 
     def __del__(self):
         '''Cleanup'''

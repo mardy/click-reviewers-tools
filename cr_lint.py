@@ -22,6 +22,7 @@ import os
 import re
 from debian.deb822 import Deb822
 
+
 class ClickReviewLint(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
@@ -315,11 +316,11 @@ exit 1
             print (domain_rev)
 
             pkg_domain_rev = self.click_pkgname.split('.')
-            if len(domain_rev) < 2: # don't impersonate .com
+            if len(domain_rev) < 2:  # don't impersonate .com
                 t = 'error'
                 s = "(MANUAL REVIEW) email domain too short: '%s'" % email
-            elif len(domain_rev) >= len(pkg_domain_rev): # also '=' to leave
-                                                         # room for app name
+            elif len(domain_rev) >= len(pkg_domain_rev):  # also '=' to leave
+                                                          # room for app name
                 t = 'error'
                 s = "(MANUAL REVIEW) email domain too long '%s' " % email + \
                     "for app name '%s'" % ".".join(pkg_domain_rev)
@@ -328,7 +329,7 @@ exit 1
                     ".".join(pkg_domain_rev))
             else:
                 t = 'error'
-                s = "email=%s does not match package domain=%s" %  (email,
+                s = "email=%s does not match package domain=%s" % (email,
                     ".".join(pkg_domain_rev))
         self._add_result(t, n, s)
 
@@ -374,7 +375,6 @@ exit 1
             s = "'%s' is too short" % self.manifest['description']
         self._add_result(t, n, s)
 
-
     def check_framework(self):
         '''Check framework()'''
         # FIXME: autodetect these
@@ -400,7 +400,8 @@ exit 1
                 os.path.basename(self.click_package)
         self._add_result(t, n, s)
 
-        pkgname = tmp[0].partition('.click')[0]  # handle $pkgname.click
+        #  handle $pkgname.click
+        pkgname = tmp[0].partition('.click')[0]
         t = 'info'
         n = 'package_filename_pkgname_match'
         s = 'OK'
@@ -414,7 +415,8 @@ exit 1
         n = 'package_filename_version_match'
         s = 'OK'
         if len(tmp) >= 2:
-            version = tmp[1].partition('.click')[0]  # handle $pkgname_$version.click
+            #  handle $pkgname_$version.click
+            version = tmp[1].partition('.click')[0]
             if version != self.click_version:
                 t = 'error'
                 s = "'%s' != '%s' from DEBIAN/control" % (version,
@@ -424,7 +426,6 @@ exit 1
             s = "could not determine version from '%s'" % \
                 os.path.basename(self.click_package)
         self._add_result(t, n, s)
-
 
         t = 'info'
         n = 'package_filename_arch_valid'

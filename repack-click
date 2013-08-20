@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 
+
 def repack_click(unpack_dir, click_package):
     '''Repack the click package'''
     if not os.path.isdir(unpack_dir):
@@ -38,8 +39,8 @@ def repack_click(unpack_dir, click_package):
     curdir = os.getcwd()
     os.chdir(tmpdir)
     (rc, out) = cr_common.cmd(['dpkg-deb', '-b', '--nocheck',
-                                os.path.abspath(unpack_dir),
-                                os.path.join(tmpdir, click_fn)])
+                               os.path.abspath(unpack_dir),
+                               os.path.join(tmpdir, click_fn)])
     os.chdir(curdir)
     if rc != 0:
         cr_common.recursive_rm(tmpdir)
@@ -52,7 +53,8 @@ def repack_click(unpack_dir, click_package):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        cr_common.error("%s <unpacked dir> <clickpkg>" % os.path.basename(sys.argv[0]))
+        cr_common.error("%s <unpacked dir> <clickpkg>" %
+                        os.path.basename(sys.argv[0]))
 
     dir = sys.argv[1]
     pkg = sys.argv[2]

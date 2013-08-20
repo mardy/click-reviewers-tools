@@ -43,7 +43,8 @@ if __name__ == "__main__":
     print("= hooks =")
     review_apparmor = cr_security.ClickReviewSecurity(sys.argv[1])
     for f in sorted(review_apparmor.security_manifests):
-        fh = cr_common.open_file_read(os.path.join(review_apparmor.unpack_dir, f))
+        fh = cr_common.open_file_read(os.path.join(review_apparmor.unpack_dir,
+                                                   f))
         print("== security: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
@@ -53,7 +54,8 @@ if __name__ == "__main__":
     review_desktop = cr_desktop.ClickReviewDesktop(sys.argv[1])
     for app in sorted(review_desktop.desktop_files):
         f = review_desktop.desktop_files[app]
-        fh = cr_common.open_file_read(os.path.join(review_desktop.unpack_dir, f))
+        fh = cr_common.open_file_read(os.path.join(review_desktop.unpack_dir,
+                                                   f))
         print("== desktop: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
