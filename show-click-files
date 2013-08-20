@@ -18,7 +18,9 @@
 from __future__ import print_function
 
 import cr_common
+import cr_desktop
 import cr_lint
+import cr_security
 import os
 import sys
 
@@ -33,6 +35,26 @@ if __name__ == "__main__":
     for i in sorted(review.control_files):
         fh = cr_common.open_file_read(review.control_files[i])
         print("= %s =" % os.path.basename(i))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+
+    print("= hooks =")
+    review_apparmor = cr_security.ClickReviewSecurity(sys.argv[1])
+    for f in sorted(review_apparmor.security_manifests):
+        fh = cr_common.open_file_read(os.path.join(review_apparmor.unpack_dir, f))
+        print("== security: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+
+    review_desktop = cr_desktop.ClickReviewDesktop(sys.argv[1])
+    for app in sorted(review_desktop.desktop_files):
+        f = review_desktop.desktop_files[app]
+        fh = cr_common.open_file_read(os.path.join(review_desktop.unpack_dir, f))
+        print("== desktop: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
         fh.close()
