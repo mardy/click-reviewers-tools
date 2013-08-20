@@ -453,3 +453,20 @@ exit 1
             s = "could not determine architecture from '%s'" % \
                 os.path.basename(self.click_package)
         self._add_result(t, n, s)
+
+    def check_vcs(self):
+        '''See if VCS files are in the click package'''
+        vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
+        t = 'info'
+        n = 'vcs files'
+        s = 'OK'
+        found = []
+        for d in vcs_dirs:
+            entries = glob.glob("%s/%s" % (self.unpack_dir, d))
+            if len(entries) > 0:
+                for i in entries:
+                    found.append(os.path.relpath(i, self.unpack_dir))
+        if len(found) > 0:
+            t = 'warn'
+            s = 'found VCS files in package: %s' % ", ".join(found)
+        self._add_result(t, n, s)
