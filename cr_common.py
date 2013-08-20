@@ -21,6 +21,7 @@ import inspect
 import json
 import os
 import pprint
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -257,16 +258,26 @@ def unpack_click(fn, dest=None):
     click_pkg = fn
     if not click_pkg.startswith('/'):
         click_pkg = os.path.absname(click_pkg)
-    if dest is None:
-        dest = tempfile.mkdtemp(prefix='clickreview-')
-    else:
-        if not os.path.isdir(dest):
-            error("Could not find '%s'" % dest)
 
-    os.chdir(dest)
-    (rc, out) = cmd(['dpkg-deb', '-R', click_pkg, dest])
+    if dest is not None and os.path.exists(dest):
+        error("'%s' exists. Aborting." % dest)
+
+    d = tempfile.mkdtemp(prefix='clickreview-')
+
+    curdir = os.getcwd()
+    os.chdir(d)
+    (rc, out) = cmd(['dpkg-deb', '-R', click_pkg, d])
+    os.chdir(curdir)
+
     if rc != 0:
+        if os.path.isdir(d):
+            recursive_rm(d)
         error("dpkg-deb -R failed with '%d':\n%s" % (rc, out))
+
+    if dest is None:
+        dest = d
+    else:
+        shutil.move(d, dest)
 
     return dest
 
