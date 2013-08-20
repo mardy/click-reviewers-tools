@@ -84,42 +84,42 @@ class ClickReview(object):
     def _verify_manifest_structure(self, manifest):
         '''Verify manifest has the expected structure'''
         # lp:click doc/file-format.rst
-        m = pprint.pformat(manifest)
+        mp = pprint.pformat(manifest)
         if not isinstance(manifest, dict):
             error("manifest malformed:\n%s" % manifest)
 
         required = ["name", "version", "framework"]        # click required
         for f in required:
             if f not in manifest:
-                error("could not find required '%s' in manifest:\n%s" % (f, m))
+                error("could not find required '%s' in manifest:\n%s" % (f, mp))
             elif not isinstance(manifest[f], str):
-                error("manifest malformed: '%s' is not str:\n%s" % (f, m))
+                error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
         optional = ["title", "description", "maintainer"]  # appstore optional
                                                            # fields here
         for f in optional:
             if f in manifest and not isinstance(manifest[f], str):
-                error("manifest malformed: '%s' is not str:\n%s" % (f, m))
+                error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
         # Not required by click, but required by appstore. 'hooks' is assumed
         # to be present in other checks
         if 'hooks' not in manifest:
-            error("could not find required 'hooks' in manifest:\n%s" % m)
+            error("could not find required 'hooks' in manifest:\n%s" % mp)
         if not isinstance(manifest['hooks'], dict):
-            error("manifest malformed: 'hooks' is not dict:\n%s" % m)
+            error("manifest malformed: 'hooks' is not dict:\n%s" % mp)
         # 'hooks' is assumed to be present and non-empty in other checks
         if len(manifest['hooks']) < 1:
-            error("manifest malformed: 'hooks' is empty:\n%s" % m)
+            error("manifest malformed: 'hooks' is empty:\n%s" % mp)
         for app in manifest['hooks']:
             if not isinstance(manifest['hooks'][app], dict):
-                error("manifest malformed: hooks/%s is not dict:\n%s" % (app, m))
+                error("manifest malformed: hooks/%s is not dict:\n%s" % (app, mp))
             # let cr_lint.py handle required hooks
             if len(manifest['hooks'][app]) < 1:
-                error("manifest malformed: hooks/%s is empty:\n%s" % (app, m))
+                error("manifest malformed: hooks/%s is empty:\n%s" % (app, mp))
 
         for k in sorted(manifest):
             if k not in required + optional + ['hooks']:
-                error("manifest malformed: unsupported field '%s':\n%s" % (k, manifest))
+                error("manifest malformed: unsupported field '%s':\n%s" % (k, mp))
 
     def __del__(self):
         '''Cleanup'''
