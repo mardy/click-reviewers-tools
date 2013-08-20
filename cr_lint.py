@@ -129,7 +129,7 @@ class ClickReviewLint(ClickReview):
         t = 'info'
         n = 'control_maintainer_match'
         s = 'OK'
-        if 'maintainer' in self.manifest['maintainer']:
+        if 'maintainer' in self.manifest:
             if control['Maintainer'] != self.manifest['maintainer']:
                 t = 'error'
                 s = "Maintainer=%s does not match manifest maintainer=%s" % \
