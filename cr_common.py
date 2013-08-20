@@ -78,7 +78,10 @@ class ClickReview(object):
         m = os.path.join(self.unpack_dir, "DEBIAN/manifest")
         if not os.path.isfile(m):
             error("Could not find manifest file")
-        self.manifest = json.load(open_file_read(m))
+        try:
+            self.manifest = json.load(open_file_read(m))
+        except Exception:
+            error("Could not load manifest file. Is it properly formatted?")
         self._verify_manifest_structure(self.manifest)
 
     def _verify_manifest_structure(self, manifest):
@@ -121,6 +124,10 @@ class ClickReview(object):
 
         for k in sorted(manifest):
             if k not in required + optional + ['hooks']:
+                # click supports local extensions via 'x-...', ignore those
+                # here but report in lint
+                if k.startswith('x-'):
+                    continue
                 error("manifest malformed: unsupported field '%s':\n%s" % (k,
                                                                            mp))
 

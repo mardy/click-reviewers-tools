@@ -305,15 +305,19 @@ exit 1
         s = 'OK'
         default = "com.ubuntu.developer"
 
+        # Some domains give out email addresses in their toplevel namespace
+        # (eg @ubuntu.com is used by Ubuntu members). Anything in these in
+        # domains should show a warning (for now)
+        special_domains = ['com.ubuntu', 'com.facebook']
+
         if self.click_pkgname.startswith(default + '.'):
-            # com.ubuntu.developer is our appstore-- people can use their own
-            # addresses
+            # com.ubuntu.developer is Ubuntu's appstore-- people can use their
+            # own addresses
             s = "OK (package domain=%s)" % default
         else:
             email = self.manifest['maintainer'].partition('<')[2].rstrip('>')
             domain_rev = email.partition('@')[2].split('.')
             domain_rev.reverse()
-            print (domain_rev)
 
             pkg_domain_rev = self.click_pkgname.split('.')
             if len(domain_rev) < 2:  # don't impersonate .com
@@ -325,8 +329,18 @@ exit 1
                 s = "(MANUAL REVIEW) email domain too long '%s' " % email + \
                     "for app name '%s'" % ".".join(pkg_domain_rev)
             elif domain_rev == pkg_domain_rev[:len(domain_rev)]:
-                s = "OK (email=%s, package domain=%s" % (email,
-                    ".".join(pkg_domain_rev))
+                is_special = False
+                for special in special_domains:
+                    if self.click_pkgname.startswith(special + '.'):
+                        is_special = True
+                        break
+                if is_special:
+                    t = 'warn'
+                    s = "email=%s matches special domain=%s" % (email,
+                        ".".join(pkg_domain_rev))
+                else:
+                    s = "OK (email=%s, package domain=%s" % (email,
+                        ".".join(pkg_domain_rev))
             else:
                 t = 'error'
                 s = "email=%s does not match package domain=%s" % (email,
@@ -386,6 +400,20 @@ exit 1
             t = 'error'
             s = "'%s' is not a supported framework" % \
                 self.manifest['framework']
+        self._add_result(t, n, s)
+
+    def check_click_local_extensions(self):
+        '''Report any click local extensions'''
+        t = 'info'
+        n = 'click_local_extensions'
+        s = 'OK'
+        found = []
+        for k in sorted(self.manifest):
+            if k.startswith('x-'):
+                found.append(k)
+        if len(found) > 0:
+            t = 'warn'
+            s = 'found %s' % ', '.join(found)
         self._add_result(t, n, s)
 
     def check_package_filename(self):

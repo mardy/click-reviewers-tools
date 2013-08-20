@@ -90,7 +90,10 @@ class ClickReviewSecurity(ClickReview):
     def _get_security_manifest(self, fn):
         '''Get security manifest and verify it has the expected structure'''
         rel_fn = os.path.relpath(fn, self.unpack_dir)
-        m = json.load(cr_common.open_file_read(fn))
+        try:
+            m = json.load(cr_common.open_file_read(fn))
+        except Exception:
+            error("Could not load '%s'. Is it properly formatted?" % rel_fn)
         mp = json.dumps(m, sort_keys=True, indent=2, separators=(',', ': '))
         if not isinstance(m, dict):
             error("'%s' malformed:\n%s" % (rel_fn, mp))
