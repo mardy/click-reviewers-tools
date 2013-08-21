@@ -233,7 +233,7 @@ exit 1
             t = 'info'
             n = 'hooks_%s_valid' % app
             s = "OK"
-            if not re.search(r'^[a-zA-Z0-9\+\-\.:~]+$', app):
+            if not re.search(r'^[A-Za-z0-9+-.:~-]+$', app):
                 t = 'error'
                 s = "malformed application name: '%s'" % app
             self._add_result(t, n, s)
@@ -262,7 +262,7 @@ exit 1
         t = 'info'
         n = 'pkgname_valid'
         s = "OK"
-        if not re.search(r'^[a-z0-9][a-z0-9\+\-\.]+$', p):
+        if not re.search(r'^[a-z0-9][a-z0-9+.-]+$', p):
             t = 'error'
             s = "'%s' not properly formatted" % p
         self._add_result(t, n, s)
@@ -273,8 +273,11 @@ exit 1
         t = 'info'
         n = 'version_valid'
         s = "OK"
-        # This regex isn't perfect, but should be good enough
-        if not re.search(r'^[0-9][0-9a-zA-Z\+\.~:\-]*$', self.click_version):
+        # From debian_support.py
+        re_valid_version = re.compile(r'^((\d+):)?'               # epoch
+                                       '([A-Za-z0-9.+:~-]+?)'     # upstream
+                                       '(-([A-Za-z0-9+.~]+))?$')  # debian
+        if not re_valid_version.match(self.click_version):
             t = 'error'
             s = "'%s' not properly formatted" % self.click_version
         self._add_result(t, n, s)
