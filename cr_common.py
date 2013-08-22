@@ -99,8 +99,9 @@ class ClickReview(object):
             elif not isinstance(manifest[f], str):
                 error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
-        optional = ["title", "description", "maintainer"]  # appstore optional
-                                                           # fields here
+        optional = ["title", "description", "maintainer",
+                    "architecture"]  # optional click fields here (may be
+                                     # required by appstore)
         for f in optional:
             if f in manifest and not isinstance(manifest[f], str):
                 error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
