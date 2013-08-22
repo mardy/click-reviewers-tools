@@ -75,6 +75,12 @@ class ClickReviewSecurity(ClickReview):
                                'template',
                                'template_variables',
                                'write_path']
+        self.warn_policy_groups = ['music_files',
+                                   'music_files_read',
+                                   'picture_files',
+                                   'picture_files_read',
+                                   'video_files',
+                                   'video_files_read']
 
         self.security_manifests = dict()
         for app in self.manifest['hooks']:
@@ -111,9 +117,13 @@ class ClickReviewSecurity(ClickReview):
                     error("'%s' malformed: '%s' is not dict:\n%s" % (rel_fn,
                                                                      k, mp))
             elif k == "policy_version":
-                if not isinstance(m[k], float):
-                    error("'%s' malformed: '%s' is not float:\n%s" % (rel_fn,
-                                                                      k, mp))
+                # python and Qt don't agree on the JSON output of floats that
+                # are integers (ie, 1.0 vs 1). LP: #1214618
+                if not isinstance(m[k], float) and not isinstance(m[k], int):
+                    error("'%s' malformed: '%s' is not a JSON number:\n%s" %
+                          (rel_fn, k, mp))
+                if isinstance(m[k], int):
+                    m[k] = float(m[k])
             else:
                 if not isinstance(m[k], str):
                     error("'%s' malformed: '%s' is not str:\n%s" % (rel_fn,
@@ -142,6 +152,7 @@ class ClickReviewSecurity(ClickReview):
                 self._add_result('error', n,
                                  'could not find policy_version in manifest')
                 continue
+
 
             t = 'info'
             s = "OK"
@@ -203,7 +214,7 @@ class ClickReviewSecurity(ClickReview):
                 templates = easyp.get_templates()
             except Exception:
                 t = 'error'
-                s = 'could not find policy_version=%s' % version
+                s = 'could not find policy for %s/%s' % (vendor, version)
                 self._add_result(t, n, s)
                 continue
             if len(templates) < 1:
@@ -223,6 +234,71 @@ class ClickReviewSecurity(ClickReview):
                 s = "specified unsupported template '%s'" % m['template']
 
             self._add_result(t, n, s)
+
+    def check_policy_groups(self):
+        '''Check policy_groups'''
+        for f in sorted(self.security_manifests):
+            m = self.security_manifests[f]
+
+            t = 'info'
+            n = 'policy_groups_exists (%s)' % f
+            if 'policy_groups' not in m:
+                # If template not specified, we just use the default
+                self._add_result('warn', n, 'no policy groups specified)')
+                continue
+            elif 'policy_version' not in m:
+                self._add_result('error', n,
+                                 'could not find policy_version in manifest')
+                continue
+
+            s = "OK"
+            vendor = "ubuntu"
+            if 'policy_vendor' in m:
+                vendor = m['policy_vendor']
+            version = str(m['policy_version'])
+            cmd_args = ['--list-policy-groups', '--policy-vendor=%s' % vendor,
+                        '--policy-version=%s' % version]
+            (options, args) = apparmor.easyprof.parse_args(cmd_args)
+            policy_groups = []
+            try:
+                easyp = apparmor.easyprof.AppArmorEasyProfile(None, options)
+                policy_groups = easyp.get_policy_groups()
+            except Exception:
+                t = 'error'
+                s = 'could not find policy for %s/%s' % (vendor, version)
+                self._add_result(t, n, s)
+                continue
+            if len(policy_groups) < 1:
+                t = 'error'
+                s = 'could not find policy groups'
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
+            # If we got here, we can see if valid policy groups were specified
+            m['policy_groups'].append("")
+            for i in m['policy_groups']:
+                t = 'info'
+                n = 'policy_groups_valid (%s)' % i
+                s = 'OK'
+                found = False
+                for j in policy_groups:
+                    if i == os.path.basename(j):
+                        found = True
+                        break
+                if not found:
+                    t = 'error'
+                    s = "unsupported policy_group '%s'" % i
+                self._add_result(t, n, s)
+
+                if found:
+                    t = 'info'
+                    n = 'policy_groups_safe (%s)' % i
+                    s = 'OK'
+                    if i in self.warn_policy_groups:
+                        t = 'error'
+                        s = "(MANUAL REVIEW) unsafe policy group: %s" % i
+                    self._add_result(t, n, s)
 
     def check_ignored(self):
         '''Check ignored fields'''
