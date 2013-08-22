@@ -513,10 +513,10 @@ exit 1
         self._add_result(t, n, s)
 
     def check_vcs(self):
-        '''See if VCS files are in the click package'''
+        '''Check for VCS files in the click package'''
         vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
         t = 'info'
-        n = 'vcs files'
+        n = 'vcs_files'
         s = 'OK'
         found = []
         for d in vcs_dirs:
@@ -527,4 +527,19 @@ exit 1
         if len(found) > 0:
             t = 'warn'
             s = 'found VCS files in package: %s' % ", ".join(found)
+        self._add_result(t, n, s)
+
+    def check_click_in_package(self):
+        '''Check for *.click files in the toplevel click package'''
+        t = 'info'
+        n = 'click_files'
+        s = 'OK'
+        found = []
+        entries = glob.glob("%s/*.click" % self.unpack_dir)
+        if len(entries) > 0:
+            for i in entries:
+                found.append(os.path.relpath(i, self.unpack_dir))
+        if len(found) > 0:
+            t = 'warn'
+            s = 'found click packages in toplevel dir: %s' % ", ".join(found)
         self._add_result(t, n, s)
