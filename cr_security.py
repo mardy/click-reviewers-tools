@@ -276,7 +276,6 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             # If we got here, we can see if valid policy groups were specified
-            m['policy_groups'].append("")
             for i in m['policy_groups']:
                 t = 'info'
                 n = 'policy_groups_valid (%s)' % i
