@@ -268,7 +268,7 @@ def unpack_click(fn, dest=None):
         error("Could not find '%s'" % fn)
     click_pkg = fn
     if not click_pkg.startswith('/'):
-        click_pkg = os.path.absname(click_pkg)
+        click_pkg = os.path.abspath(click_pkg)
 
     if dest is not None and os.path.exists(dest):
         error("'%s' exists. Aborting." % dest)
