@@ -488,6 +488,12 @@ exit 1
         s = 'OK'
         if len(tmp) >= 3:
             arch = tmp[2].partition('.click')[0]
+            if arch == "unknown":  # short-circuit here since the appstore
+                                   # doesn't determine the version yet
+                t = 'info'
+                s = "SKIP: architecture 'unknown'"
+                self._add_result(t, n, s)
+                return
             if arch not in self.valid_architectures:
                 t = 'warn'
                 s = "not a valid architecture: %s" % arch
