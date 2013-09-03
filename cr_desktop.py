@@ -36,6 +36,13 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_file(self):
         '''Check desktop file'''
+        t = 'info'
+        n = 'files_available'
+        s = 'OK'
+        if not self.desktop_files:
+            t = 'warn'
+            s = 'No .desktop files available.'
+        self._add_result(t, n, s)
         for app in sorted(self.desktop_files):
             d = self.manifest['hooks'][app]['desktop']
             full_fn = os.path.join(self.unpack_dir, d)
@@ -45,7 +52,7 @@ class ClickReviewDesktop(ClickReview):
                 # desktop_icon tests
                 icon_lines = list(filter(lambda l: l.startswith('Icon='), content))
                 t = 'info'
-                n = 'desktop_icon_specified'
+                n = 'icon_specified'
                 s = 'OK'
                 if not icon_lines:
                     t = 'warn'
@@ -53,7 +60,7 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
 
                 t = 'info'
-                n = 'desktop_one_icon_specified'
+                n = 'one_icon_specified'
                 s = 'OK'
                 if len(icon_lines) > 1:
                     t = 'warn'
@@ -63,10 +70,10 @@ class ClickReviewDesktop(ClickReview):
                 
                 # https://public.apps.ubuntu.com/download/com.ubuntu.developer.mhall119/uReadIt/com.ubuntu.developer.mhall119.uReadIt-0.9.1.click?noauth=1
                 t = 'info'
-                n = 'desktop_icon_full_path'
+                n = 'icon_full_path'
                 s = 'OK'
                 if icon_path.startswith('/'):
                     t = 'error'
                     s = 'Absolute path `%s` for icon given in .desktop file `%s`' % \
                             (icon_path, d)
-            self._add_result(t, n, s)
+                self._add_result(t, n, s)
