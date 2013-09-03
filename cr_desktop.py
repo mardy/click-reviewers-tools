@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from cr_common import ClickReview, error
+from cr_common import ClickReview, error, open_file_read
 import os
 
 
@@ -38,4 +38,21 @@ class ClickReviewDesktop(ClickReview):
         '''Check desktop file'''
         for app in sorted(self.desktop_files):
             d = self.manifest['hooks'][app]['desktop']
+            full_fn = os.path.join(self.unpack_dir, d)
+            if os.path.exists(full_fn):         # should always be in top level, right?
+                content = open_file_read(full_fn).readlines()
+
+                # desktop_icon tests
+                icon_lines = list(filter(lambda l: l.startswith('Icon='), content))
+                if not icon_lines:
+                    self._add_result('warn', 'desktop_icon_specified', 
+                                     'No icon specified in .desktop file.')
+                if len(icon_lines) > 1:
+                    self._add_result('warn', 'desktop_icon_specified', 
+                                     'More than one icon line specified in .desktop file.')
+                icon_path = icon_lines[0].split("=")[1].strip()
+                if icon_path.startswith('/'):
+                    self._add_result('error', 'desktop_icon_full_path', 
+                                     'Absolute path `%s` for icon given in .desktop file `%s`' % \
+                                             (icon_path, d))
             self._add_result('warn', 'file_%s' % d, 'TODO')
