@@ -169,7 +169,7 @@ class ClickReviewLint(ClickReview):
             s = 'Skipped: title not in manifest'
         self._add_result(t, n, s)
 
-        valid_click_versions = ['0.1', '0.2', '0.3']
+        valid_click_versions = ['0.1', '0.2', '0.3', '0.4']
         t = 'info'
         n = 'control_click_version'
         s = 'OK'
