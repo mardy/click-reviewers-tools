@@ -195,7 +195,9 @@ class ClickReviewLint(ClickReview):
         badsums = []
         os.chdir(self.unpack_dir)
         for line in fh.readlines():
-            (sum, fn) = line.strip().split()
+            split_line = line.strip().split()
+            sum = split_line[0]
+            fn = " ".join(split_line[1:])
             (rc, out) = cmd(['md5sum', fn])
             if line != out:
                 badsums.append(fn)
