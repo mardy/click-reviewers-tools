@@ -44,15 +44,29 @@ class ClickReviewDesktop(ClickReview):
 
                 # desktop_icon tests
                 icon_lines = list(filter(lambda l: l.startswith('Icon='), content))
+                t = 'info'
+                n = 'desktop_icon_specified'
+                s = 'OK'
                 if not icon_lines:
-                    self._add_result('warn', 'desktop_icon_specified', 
-                                     'No icon specified in .desktop file.')
+                    t = 'warn'
+                    s = 'No icon specified in .desktop file.'
+                self._add_result(t, n, s)
+
+                t = 'info'
+                n = 'desktop_one_icon_specified'
+                s = 'OK'
                 if len(icon_lines) > 1:
-                    self._add_result('warn', 'desktop_icon_specified', 
-                                     'More than one icon line specified in .desktop file.')
+                    t = 'warn'
+                    s = 'More than one icon line specified in .desktop file.'
+                self._add_result(t, n, s)
                 icon_path = icon_lines[0].split("=")[1].strip()
+                
+                # https://public.apps.ubuntu.com/download/com.ubuntu.developer.mhall119/uReadIt/com.ubuntu.developer.mhall119.uReadIt-0.9.1.click?noauth=1
+                t = 'info'
+                n = 'desktop_icon_full_path'
+                s = 'OK'
                 if icon_path.startswith('/'):
-                    self._add_result('error', 'desktop_icon_full_path', 
-                                     'Absolute path `%s` for icon given in .desktop file `%s`' % \
-                                             (icon_path, d))
-            self._add_result('warn', 'file_%s' % d, 'TODO')
+                    t = 'error'
+                    s = 'Absolute path `%s` for icon given in .desktop file `%s`' % \
+                            (icon_path, d)
+            self._add_result(t, n, s)
