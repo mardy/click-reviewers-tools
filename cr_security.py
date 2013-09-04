@@ -72,7 +72,6 @@ class ClickReviewSecurity(ClickReview):
                                'binary',
                                'policy_vendor',
                                'read_path',
-                               'template',
                                'template_variables',
                                'write_path']
         self.warn_policy_groups = ['music_files',
@@ -81,6 +80,10 @@ class ClickReviewSecurity(ClickReview):
                                    'picture_files_read',
                                    'video_files',
                                    'video_files_read']
+
+        self.redflag_templates = ['unconfined']
+        self.extraneous_templates = ['ubuntu-sdk',
+                                     'default']
 
         self.security_manifests = dict()
         for app in self.manifest['hooks']:
@@ -185,21 +188,31 @@ class ClickReviewSecurity(ClickReview):
             m = self.security_manifests[f]
 
             t = 'info'
-            n = 'template_exists (%s)' % f
+            n = 'template_with_policy_version (%s)' % f
+            s = "OK"
+            if 'policy_version' not in m:
+                self._add_result('error', n,
+                                 'could not find policy_version in manifest')
+                continue
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'template_valid (%s)' % f
+            s = "OK"
             if 'template' not in m:
                 # If template not specified, we just use the default
                 self._add_result(t, n, 'OK (none specified)')
                 continue
-            elif m['template'] == "unconfined":
-                # If template is specified as unconfined, manual review
-                self._add_result('error', n,
-                                 '(MANUAL REVIEW) unconfined not allowed')
-                continue
-            elif 'policy_version' not in m:
-                self._add_result('error', n,
-                                 'could not find policy_version in manifest')
-                continue
+            elif m['template'] in self.redflag_templates:
+                t = 'error'
+                s = "(MANUAL REVIEW) '%s' not allowed" % m['template']
+            elif m['template'] in self.extraneous_templates:
+                t = 'warn'
+                s = "No need to specify '%s' template" % m['template']
+            self._add_result(t, n, s)
 
+            t = 'info'
+            n = 'template_exists (%s)' % f
             s = "OK"
             vendor = "ubuntu"
             if 'policy_vendor' in m:
