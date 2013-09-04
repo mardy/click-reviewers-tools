@@ -196,7 +196,6 @@ class ClickReviewLint(ClickReview):
         os.chdir(self.unpack_dir)
         for line in fh.readlines():
             split_line = line.strip().split()
-            sum = split_line[0]
             fn = " ".join(split_line[1:])
             (rc, out) = cmd(['md5sum', fn])
             if line != out:
@@ -393,8 +392,8 @@ exit 1
         s = 'OK'
         pkgname_base = self.click_pkgname.split('.')[-1]
         if len(self.manifest['title']) < len(pkgname_base):
-            t = 'warn'
-            s = "'%s' is too short" % self.manifest['title']
+            t = 'info'
+            s = "'%s' may be too short" % self.manifest['title']
         self._add_result(t, n, s)
 
     def check_description(self):
