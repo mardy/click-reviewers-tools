@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from cr_common import ClickReview, error
+from cr_common import ClickReview, error, warn
 import cr_common
 import glob
 import json
@@ -74,6 +74,8 @@ class ClickReviewSecurity(ClickReview):
                                'read_path',
                                'template_variables',
                                'write_path']
+        # TODO: eventually look at 'Usage' meta information in the policy
+        #       group, but that needs click-apparmor 0.1.9
         self.warn_policy_groups = ['music_files',
                                    'music_files_read',
                                    'picture_files',
@@ -132,6 +134,31 @@ class ClickReviewSecurity(ClickReview):
                     error("'%s' malformed: '%s' is not str:\n%s" % (rel_fn,
                                                                     k, mp))
         return m
+
+    def _get_policy_group_meta(self, group, meta, vendor, version):
+        '''Get meta-information from the policy group'''
+        cmd_args = ['--show-policy-group', '--policy-groups=%s' % group,
+                    '--policy-version=%s' % version,
+                    '--policy-vendor=%s' % vendor]
+        (options, args) = apparmor.easyprof.parse_args(cmd_args)
+        try:
+            easyp = apparmor.easyprof.AppArmorEasyProfile(None, options)
+            tmp = easyp.get_policygroup(group)
+        except apparmor.easyprof.AppArmorException:
+            warn("'%s' failed" % " ".join(cmd_args))
+            return ""
+
+        text = ""
+        for line in tmp.splitlines():
+            if line.startswith("# %s: " % meta):
+                text = line.split(':', 1)[1].strip()
+            elif text != "":
+                if line.startswith("#  "):
+                    text += line[2:]
+                else:
+                    break
+
+        return text
 
     def check_policy_vendor(self):
         '''Check policy_vendor'''
@@ -308,8 +335,11 @@ class ClickReviewSecurity(ClickReview):
                     n = 'policy_groups_safe (%s)' % i
                     s = 'OK'
                     if i in self.warn_policy_groups:
+                        desc = self._get_policy_group_meta(i, "Description",
+                                                           vendor, version)
                         t = 'error'
-                        s = "(MANUAL REVIEW) unsafe policy group: %s" % i
+                        s = "(MANUAL REVIEW) reserved policy group " + \
+                            "'%s': %s" % (i, desc)
                     self._add_result(t, n, s)
 
     def check_ignored(self):
