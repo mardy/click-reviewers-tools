@@ -468,6 +468,19 @@ exit 1
                                                       self.click_pkgname)
         self._add_result(t, n, s)
 
+        # check if namespaces matches with filename
+        t = 'info'
+        n = 'package_filename_matches_namespace'
+        s = 'OK'
+        namespace_bits = self.click_pkgname.split('.')[:-1]
+        len_namespace = len(namespace_bits)
+        pkgname_bits = pkgname.split('.')[:len_namespace]
+        if namespace_bits != pkgname_bits:
+            t = 'error'
+            s = "Package name '%s' does not match namespace '%s'." % \
+                    ('.'.join(namespace_bits), '.'.join(pkgname_bits))
+        self._add_result(t, n, s)
+
         t = 'info'
         n = 'package_filename_version_match'
         s = 'OK'
