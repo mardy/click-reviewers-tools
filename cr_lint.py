@@ -332,17 +332,17 @@ exit 1
         t = 'info'
         n = 'maintainer_domain'
         s = 'OK'
-        default = "com.ubuntu.developer"
+        defaults = ('com.ubuntu.developer.', 'net.launchpad.')
 
         # Some domains give out email addresses in their toplevel namespace
         # (eg @ubuntu.com is used by Ubuntu members). Anything in these in
         # domains should show a warning (for now)
-        special_domains = ['com.ubuntu', 'com.facebook']
+        special_domains = ('com.ubuntu', 'com.facebook', 'com.yahoo')
 
-        if self.click_pkgname.startswith(default + '.'):
+        if self.click_pkgname.startswith(defaults):
             # com.ubuntu.developer is Ubuntu's appstore-- people can use their
             # own addresses
-            s = "OK (package domain=%s)" % default
+            s = "OK (package domain=%s)" % str(defaults)
         else:
             email = self.manifest['maintainer'].partition('<')[2].rstrip('>')
             domain_rev = email.partition('@')[2].split('.')
