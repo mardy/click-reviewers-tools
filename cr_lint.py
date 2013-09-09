@@ -574,11 +574,13 @@ exit 1
         for dirpath, dirnames, filenames in os.walk(self.unpack_dir):
             for filename in filenames:
                 full_fn = os.path.join(dirpath, filename)
+                (rc, out) = cmd(['file', '-b', full_fn])
+                if 'text' not in out:
+                    continue
                 try:
                     lines = open_file_read(full_fn).readlines()
                     for bad_path in PATH_BLACKLIST:
-                        if list(filter(lambda line: bad_path in line, 
-                                open_file_read(full_fn).readlines())):
+                        if list(filter(lambda line: bad_path in line, lines)):
                             t = 'error'
                             s = "Hardcoded path '%s' found in '%s'." % (bad_path, full_fn)
                 except UnicodeDecodeError:
