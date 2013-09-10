@@ -41,7 +41,6 @@ class ClickReviewDesktop(ClickReview):
                 self.desktop_files[app] = full_fn
 
         self.required_keys = ['Name',
-                              'Comment',
                               'Type',
                               'Icon',
                               'Exec',
@@ -305,10 +304,7 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Comment_boilerplate (%s)' % app
             s = "OK"
-            if not de.hasKey('Comment'):
-                t = 'error'
-                s = "missing key 'Comment'"
-            elif de.getComment() == "My project description":
+            if de.hasKey('Comment') and de.getComment() == "My project description":
                 t = 'warn'
                 s = "Comment uses SDK boilerplate '%s'" % de.getComment()
             self._add_result(t, n, s)
