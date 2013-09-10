@@ -563,3 +563,26 @@ exit 1
             t = 'warn'
             s = 'found click packages in toplevel dir: %s' % ", ".join(found)
         self._add_result(t, n, s)
+
+    def check_contents_for_hardcoded_paths(self):
+        PATH_BLACKLIST = [
+                "/opt/click.ubuntu.com/"
+                ]
+        t = 'info'
+        n = 'hardcoded_paths'
+        s = 'OK'
+        for dirpath, dirnames, filenames in os.walk(self.unpack_dir):
+            for filename in filenames:
+                full_fn = os.path.join(dirpath, filename)
+                (rc, out) = cmd(['file', '-b', full_fn])
+                if 'text' not in out:
+                    continue
+                try:
+                    lines = open_file_read(full_fn).readlines()
+                    for bad_path in PATH_BLACKLIST:
+                        if list(filter(lambda line: bad_path in line, lines)):
+                            t = 'error'
+                            s = "Hardcoded path '%s' found in '%s'." % (bad_path, full_fn)
+                except UnicodeDecodeError:
+                    pass
+        self._add_result(t, n, s)
