@@ -320,6 +320,15 @@ class ClickReviewSecurity(ClickReview):
                 t = 'info'
                 n = 'policy_groups_valid (%s)' % i
                 s = 'OK'
+
+                # SDK will leave and empty policy group, report but don't
+                # deny
+                if i == "":
+                    t = 'warn'
+                    s = 'found empty policy group (ok until LP: #1221407 is fixed)'
+                    self._add_result(t, n, s)
+                    continue
+
                 found = False
                 for j in policy_groups:
                     if i == os.path.basename(j):
