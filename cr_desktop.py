@@ -166,8 +166,13 @@ class ClickReviewDesktop(ClickReview):
                 s = "absolute path '%s' for Exec given in .desktop file." \
                         % de.getExec()
             elif de.getExec().split()[0] not in self.expected_execs:
-                t = 'warn'
-                s = "found unexpected exec: '%s'" % de.getExec().split()[0]
+                if self.click_arch == "all": # interpreted file
+                    s = "found unexpected Exec with architecture '%s': %s" % (self.click_arch, de.getExec().split()[0])
+                    t = 'warn'
+                else:                        # compiled
+                    # TODO: this can be a lot smarter
+                    s = "Non-standard Exec with architecture '%s': %s (ok for compiled code)" % (self.click_arch, de.getExec().split()[0])
+                    t = 'info'
             self._add_result(t, n, s)
 
     def check_desktop_exec_webbrowser(self):

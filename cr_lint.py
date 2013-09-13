@@ -33,10 +33,10 @@ class ClickReviewLint(ClickReview):
             self.control_files[i] = os.path.join(self.unpack_dir,
                                                  "DEBIAN/%s" % i)
 
-        # LP: #1214380 - we only support 'all' for now
+        # LP: #1214380
         # self.valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc',
         #                             'all']
-        self.valid_architectures = ['all']
+        self.valid_architectures = ['all', 'armhf']
 
     def check_control_files(self):
         '''Check DEBIAN/* files'''
