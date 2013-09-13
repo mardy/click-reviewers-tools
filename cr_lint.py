@@ -298,9 +298,9 @@ exit 1
         self._add_result(t, n, s)
 
     def check_architecture(self):
-        '''Check package architecture is valid'''
+        '''Check package architecture in DEBIAN/control is valid'''
         t = 'info'
-        n = 'architecture_valid'
+        n = 'control_architecture_valid'
         s = 'OK'
         if self.click_arch not in self.valid_architectures:
             t = 'error'
