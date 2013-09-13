@@ -18,6 +18,7 @@ from __future__ import print_function
 
 from cr_common import ClickReview, open_file_read, cmd
 import glob
+import magic
 import os
 import re
 from debian.deb822 import Deb822
@@ -37,6 +38,17 @@ class ClickReviewLint(ClickReview):
         # self.valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc',
         #                             'all']
         self.valid_architectures = ['all', 'armhf']
+
+        self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
+
+        # Get a list of all unpacked files, except DEBIAN/
+        self.pkg_files = []
+        for root, dirnames, filenames in os.walk(self.unpack_dir):
+            for f in filenames:
+                self.pkg_files.append(os.path.join(root, f))
+
+        self.mime = magic.open(magic.MAGIC_MIME)
+        self.mime.load()
 
     def check_control_files(self):
         '''Check DEBIAN/* files'''
@@ -307,6 +319,27 @@ exit 1
             s = "not a valid architecture: %s" % self.click_arch
         self._add_result(t, n, s)
 
+    def check_architecture_all(self):
+        '''Check if actually architecture all'''
+        t = 'info'
+        n = 'control_architecture_valid_contents'
+        s = 'OK'
+        if self.click_arch != "all":
+            self._add_result(t, n, s)
+
+        # look for compiled code
+        x_binaries = []
+        for i in self.pkg_files:
+            res = self.mime.file(i)
+            if res in ['application/x-executable; charset=binary',
+                       'application/x-sharedlib; charset=binary']:
+                x_binaries.append(i.partition(self.unpack_dir)[0])
+        if len(x_binaries) > 0:
+            t = 'error'
+            s = "found binaries for architecture 'all': %s" % \
+                ", ".join(x_binaries)
+        self._add_result(t, n, s)
+
     def check_maintainer(self):
         '''Check maintainer()'''
         t = 'info'
@@ -534,12 +567,11 @@ exit 1
 
     def check_vcs(self):
         '''Check for VCS files in the click package'''
-        vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
         t = 'info'
         n = 'vcs_files'
         s = 'OK'
         found = []
-        for d in vcs_dirs:
+        for d in self.vcs_dirs:
             entries = glob.glob("%s/%s" % (self.unpack_dir, d))
             if len(entries) > 0:
                 for i in entries:
