@@ -49,6 +49,10 @@ class ClickReviewDesktop(ClickReview):
                                'webbrowser-app',
                                'cordova-ubuntu-2.8'
                               ]
+        self.expected_webbrowser_args = ['--chromeless',
+                                         '--webapp',
+                                         '--webappUrlPatterns=*'
+                                        ]
         self.blacklisted_keys = ['Path']
 
         self.valid_gettext_domains = [self.click_pkgname]
@@ -185,12 +189,29 @@ class ClickReviewDesktop(ClickReview):
             if not de.hasKey('Exec'):
                 t = 'error'
                 s = "missing key 'Exec'"
+                self._add_result(t, n, s)
+                continue
             elif de.getExec().split()[0] != "webbrowser-app":
                 s = "SKIPPED (not webbrowser-app)"
-            elif '--chromeless' not in de.getExec().split():
-                t = 'error'
-                s = "could not find '--chromeless' in  '%s'" % de.getExec()
-            self._add_result(t, n, s)
+                self._add_result(t, n, s)
+                continue
+
+            for arg in self.expected_webbrowser_args:
+                t = 'info'
+                n = 'Exec_webbrowser %s (%s)' % (arg, app)
+                s = 'OK'
+                if arg.endswith('*'):
+                    found = False
+                    for i in de.getExec().split():
+                        if i.startswith(arg.rstrip('*')):
+                            found = True
+                    if not found:
+                        t = 'error'
+                        s = "could not find '%s' in  '%s'" % (arg, de.getExec())
+                elif arg not in de.getExec().split():
+                    t = 'error'
+                    s = "could not find '%s' in  '%s'" % (arg, de.getExec())
+                self._add_result(t, n, s)
 
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''
