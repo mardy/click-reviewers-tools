@@ -250,7 +250,7 @@ class ClickReviewDesktop(ClickReview):
                 s = "OK (not specified)"
             elif de.get("X-Ubuntu-StageHint") != "SideStage":
                 t = 'error'
-                s = 'unsupported X-Ubuntu-StageHint=%s' % \
+                s = "unsupported X-Ubuntu-StageHint=%s (should be for example, 'SideStage')" % \
                     de.get("X-Ubuntu-StageHint")
             self._add_result(t, n, s)
 
