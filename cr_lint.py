@@ -25,7 +25,9 @@ from debian.deb822 import Deb822
 
 class ClickReviewLint(ClickReview):
     '''This class represents click lint reviews'''
+
     def __init__(self, fn):
+        '''Set up the class.'''
         ClickReview.__init__(self, fn, "lint")
         self.control_files = dict()
         files = ["control", "manifest", "md5sums", "preinst"]
@@ -565,6 +567,7 @@ exit 1
         self._add_result(t, n, s)
 
     def check_contents_for_hardcoded_paths(self):
+        '''Check for known hardcoded paths.'''
         PATH_BLACKLIST = [
                 "/opt/click.ubuntu.com/"
                 ]
@@ -582,7 +585,8 @@ exit 1
                     for bad_path in PATH_BLACKLIST:
                         if list(filter(lambda line: bad_path in line, lines)):
                             t = 'error'
-                            s = "Hardcoded path '%s' found in '%s'." % (bad_path, full_fn)
+                            s = "Hardcoded path '%s' found in '%s'." % (
+                                bad_path, full_fn)
                 except UnicodeDecodeError:
                     pass
         self._add_result(t, n, s)
