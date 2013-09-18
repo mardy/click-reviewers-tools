@@ -19,6 +19,7 @@ from __future__ import print_function
 from cr_common import ClickReview, error, open_file_read
 import os
 from xdg.DesktopEntry import DesktopEntry
+from xdg.Exceptions import ParsingError as xdgParsingError
 
 class ClickReviewDesktop(ClickReview):
     '''This class represents click lint reviews'''
@@ -71,7 +72,11 @@ class ClickReviewDesktop(ClickReview):
             contents += line
         fh.close()
 
-        de = DesktopEntry(fn)
+        try:
+            de = DesktopEntry(fn)
+        except xdgParsingError as e:
+            error("desktop file unparseable: %s (%s):\n%s" % (bn, str(e),
+                                                              contents))
         try:
             de.parse(fn)
         except Exception as e:
