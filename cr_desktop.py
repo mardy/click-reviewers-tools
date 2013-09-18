@@ -19,6 +19,7 @@ from __future__ import print_function
 from cr_common import ClickReview, error, open_file_read
 import os
 from xdg.DesktopEntry import DesktopEntry
+from xdg.Exceptions import ParsingError as xdgParsingError
 
 class ClickReviewDesktop(ClickReview):
     '''This class represents click lint reviews'''
@@ -49,6 +50,10 @@ class ClickReviewDesktop(ClickReview):
                                'webbrowser-app',
                                'cordova-ubuntu-2.8'
                               ]
+        self.expected_webbrowser_args = ['--chromeless',
+                                         '--webapp',
+                                         '--webappUrlPatterns=*'
+                                        ]
         self.blacklisted_keys = ['Path']
 
         self.valid_gettext_domains = [self.click_pkgname]
@@ -67,7 +72,11 @@ class ClickReviewDesktop(ClickReview):
             contents += line
         fh.close()
 
-        de = DesktopEntry(fn)
+        try:
+            de = DesktopEntry(fn)
+        except xdgParsingError as e:
+            error("desktop file unparseable: %s (%s):\n%s" % (bn, str(e),
+                                                              contents))
         try:
             de.parse(fn)
         except Exception as e:
@@ -166,8 +175,13 @@ class ClickReviewDesktop(ClickReview):
                 s = "absolute path '%s' for Exec given in .desktop file." \
                         % de.getExec()
             elif de.getExec().split()[0] not in self.expected_execs:
-                t = 'warn'
-                s = "found unexpected exec: '%s'" % de.getExec().split()[0]
+                if self.click_arch == "all": # interpreted file
+                    s = "found unexpected Exec with architecture '%s': %s" % (self.click_arch, de.getExec().split()[0])
+                    t = 'warn'
+                else:                        # compiled
+                    # TODO: this can be a lot smarter
+                    s = "Non-standard Exec with architecture '%s': %s (ok for compiled code)" % (self.click_arch, de.getExec().split()[0])
+                    t = 'info'
             self._add_result(t, n, s)
 
     def check_desktop_exec_webbrowser(self):
@@ -180,12 +194,29 @@ class ClickReviewDesktop(ClickReview):
             if not de.hasKey('Exec'):
                 t = 'error'
                 s = "missing key 'Exec'"
+                self._add_result(t, n, s)
+                continue
             elif de.getExec().split()[0] != "webbrowser-app":
                 s = "SKIPPED (not webbrowser-app)"
-            elif '--chromeless' not in de.getExec().split():
-                t = 'error'
-                s = "could not find '--chromeless' in  '%s'" % de.getExec()
-            self._add_result(t, n, s)
+                self._add_result(t, n, s)
+                continue
+
+            for arg in self.expected_webbrowser_args:
+                t = 'info'
+                n = 'Exec_webbrowser %s (%s)' % (arg, app)
+                s = 'OK'
+                if arg.endswith('*'):
+                    found = False
+                    for i in de.getExec().split():
+                        if i.startswith(arg.rstrip('*')):
+                            found = True
+                    if not found:
+                        t = 'error'
+                        s = "could not find '%s' in  '%s'" % (arg, de.getExec())
+                elif arg not in de.getExec().split():
+                    t = 'error'
+                    s = "could not find '%s' in  '%s'" % (arg, de.getExec())
+                self._add_result(t, n, s)
 
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''
@@ -245,7 +276,7 @@ class ClickReviewDesktop(ClickReview):
                 s = "OK (not specified)"
             elif de.get("X-Ubuntu-StageHint") != "SideStage":
                 t = 'error'
-                s = 'unsupported X-Ubuntu-StageHint=%s' % \
+                s = "unsupported X-Ubuntu-StageHint=%s (should be for example, 'SideStage')" % \
                     de.get("X-Ubuntu-StageHint")
             self._add_result(t, n, s)
 

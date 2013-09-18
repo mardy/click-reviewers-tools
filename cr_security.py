@@ -74,6 +74,8 @@ class ClickReviewSecurity(ClickReview):
                                'read_path',
                                'template_variables',
                                'write_path']
+        self.allowed_webapp_policy_groups = ['networking']
+
         # TODO: eventually look at 'Usage' meta information in the policy
         #       group, but that needs click-apparmor 0.1.9
         self.warn_policy_groups = ['music_files',
@@ -273,6 +275,31 @@ class ClickReviewSecurity(ClickReview):
                 t = 'error'
                 s = "specified unsupported template '%s'" % m['template']
 
+            self._add_result(t, n, s)
+
+    def check_policy_groups_webapps(self):
+        '''Check policy_groups for webapps'''
+        for f in sorted(self.security_manifests):
+            m = self.security_manifests[f]
+            t = 'info'
+            n = 'policy_groups_webapp (%s)' % f
+            s = "OK"
+            webapp_template = "ubuntu-webapp"
+            if 'template' not in m or m['template'] != webapp_template:
+                # self._add_result(t, n, s)
+                continue
+            if 'policy_groups' not in m or \
+               'networking' not in m['policy_groups']:
+                self._add_result('error', n,
+                                 "required group 'networking' not found")
+                continue
+            bad = []
+            for p in m['policy_groups']:
+                if p not in self.allowed_webapp_policy_groups:
+                    bad.append(p)
+            if len(bad) > 0:
+                t = 'error'
+                s = "found unusual policy groups: %s" % ", ".join(bad)
             self._add_result(t, n, s)
 
     def check_policy_groups(self):
