@@ -542,7 +542,7 @@ exit 1
                 t = 'info'
                 s = "SKIP: architecture 'unknown'"
                 self._add_result(t, n, s)
-                return
+                #return
             if arch not in self.valid_architectures:
                 t = 'warn'
                 s = "not a valid architecture: %s" % arch

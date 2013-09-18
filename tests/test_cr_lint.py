@@ -71,3 +71,7 @@ class TestClickReviewLint(TestCase):
         test_name = 'net.launchpad.click-webapps.amazon_2_unknown.click'
         c = ClickReviewLint(test_name)
         c.check_package_filename()
+        r = c.click_report
+        print(c.click_report)
+        self.assertEqual(len(r['warn']), 0)
+        self.assertEqual(len(r['error']), 0)
