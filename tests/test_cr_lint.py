@@ -14,23 +14,60 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import StringIO
 
 from mock import patch
 from unittest import TestCase
 
+from cr_lint import ClickReviewLint
 
-class OverrideClickReview(object):
-    def __init__(self, fn, fnn):
-        self.click_package = fn
+
+TEST_CONTROL = """Package: com.ubuntu.developer.test-dev
+Version: 0.1
+Click-Version: 0.2
+Architecture: all
+Maintainer: Test Dev <test@email.com>
+Installed-Size: 111
+Description: Test app"""
+
+TEST_MANIFEST = """{
+    "description": "A long description",
+    "framework": "ubuntu-sdk-13.10",
+    "maintainer": "Test Dev <test@email.com>",
+    "name": "com.ubuntu.developer.test-dev.test-app",
+    "hooks": {
+        "test-app": {
+           "apparmor": "apparmor/test-app.json",
+           "desktop": "test-app.desktop"
+        }
+    },
+    "title": "My Test App",
+    "version": "0.1"
+}"""
+
+
+def _mock_func(self):
+    return
+
+
+def _extract_control_file(self):
+    return StringIO.StringIO(TEST_CONTROL)
+
+
+def _extract_manifest_file(self):
+    return StringIO.StringIO(TEST_MANIFEST)
 
 
 class TestClickReviewLint(TestCase):
     """Tests for the lint review tool."""
 
-    @patch('cr_common.ClickReview', OverrideClickReview)
+    @patch('cr_common.ClickReview._check_path_exists', _mock_func)
+    @patch('cr_common.ClickReview._extract_control_file', _extract_control_file)
+    @patch('cr_common.ClickReview._extract_manifest_file', _extract_manifest_file)
+    @patch('cr_common.unpack_click', _mock_func)
+    @patch('cr_common.ClickReview.__del__', _mock_func)
     def test_check_package_filename(self):
         """Test that package names comply to the policies."""
-        from cr_lint import ClickReviewLint
         test_name = 'net.launchpad.click-webapps.amazon_2_unknown.click'
         c = ClickReviewLint(test_name)
         c.check_package_filename()

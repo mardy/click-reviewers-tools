@@ -32,9 +32,9 @@ class ClickReviewLint(ClickReview):
         ClickReview.__init__(self, fn, "lint")
         self.control_files = dict()
         files = ["control", "manifest", "md5sums", "preinst"]
-        for i in files:
-            self.control_files[i] = os.path.join(self.unpack_dir,
-                                                 "DEBIAN/%s" % i)
+#        for i in files:
+#            self.control_files[i] = os.path.join(self.unpack_dir,
+#                                                 "DEBIAN/%s" % i)
 
         # LP: #1214380
         # self.valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc',
@@ -45,9 +45,9 @@ class ClickReviewLint(ClickReview):
 
         # Get a list of all unpacked files, except DEBIAN/
         self.pkg_files = []
-        for root, dirnames, filenames in os.walk(self.unpack_dir):
-            for f in filenames:
-                self.pkg_files.append(os.path.join(root, f))
+#        for root, dirnames, filenames in os.walk(self.unpack_dir):
+#            for f in filenames:
+#                self.pkg_files.append(os.path.join(root, f))
 
         self.mime = magic.open(magic.MAGIC_MIME)
         self.mime.load()
