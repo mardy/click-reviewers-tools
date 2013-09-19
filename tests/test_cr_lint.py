@@ -22,8 +22,8 @@ from unittest import TestCase
 from cr_lint import ClickReviewLint
 
 
-TEST_CONTROL = """Package: com.ubuntu.developer.test-dev
-Version: 0.1
+TEST_CONTROL = """Package: net.launchpad.click-webapps.test-app
+Version: 3
 Click-Version: 0.2
 Architecture: all
 Maintainer: Test Dev <test@email.com>
@@ -34,7 +34,7 @@ TEST_MANIFEST = """{
     "description": "A long description",
     "framework": "ubuntu-sdk-13.10",
     "maintainer": "Test Dev <test@email.com>",
-    "name": "com.ubuntu.developer.test-dev.test-app",
+    "name": "net.launchpad.click-webapps.test-app",
     "hooks": {
         "test-app": {
            "apparmor": "apparmor/test-app.json",
@@ -42,7 +42,7 @@ TEST_MANIFEST = """{
         }
     },
     "title": "My Test App",
-    "version": "0.1"
+    "version": "3"
 }"""
 
 
@@ -68,7 +68,7 @@ class TestClickReviewLint(TestCase):
     @patch('cr_common.ClickReview.__del__', _mock_func)
     def test_check_package_filename(self):
         """Test that package names comply to the policies."""
-        test_name = 'net.launchpad.click-webapps.amazon_2_unknown.click'
+        test_name = 'net.launchpad.click-webapps.test-app_3_all.click'
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
