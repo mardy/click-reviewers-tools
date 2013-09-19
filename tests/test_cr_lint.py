@@ -20,6 +20,7 @@ from mock import patch
 from unittest import TestCase
 
 from cr_lint import ClickReviewLint
+from cr_common import ClickReview
 
 
 TEST_CONTROL = """Package: net.launchpad.click-webapps.test-app
@@ -58,22 +59,21 @@ def _extract_manifest_file(self):
     return StringIO.StringIO(TEST_MANIFEST)
 
 
+# Patch all methods that call out to disk
+@patch('cr_common.ClickReview._check_path_exists', _mock_func)
+@patch('cr_common.ClickReview._extract_control_file', _extract_control_file)
+@patch('cr_common.ClickReview._extract_manifest_file', _extract_manifest_file)
+@patch('cr_common.unpack_click', _mock_func)
+@patch('cr_common.ClickReview.__del__', _mock_func)
 class TestClickReviewLint(TestCase):
     """Tests for the lint review tool."""
 
-    @patch('cr_common.ClickReview._check_path_exists', _mock_func)
-    @patch('cr_common.ClickReview._extract_control_file',
-        _extract_control_file)
-    @patch('cr_common.ClickReview._extract_manifest_file',
-        _extract_manifest_file)
-    @patch('cr_common.unpack_click', _mock_func)
-    @patch('cr_common.ClickReview.__del__', _mock_func)
-    def test_check_package_filename(self):
-        """Test that package names comply to the policies."""
+    def test_check_package_filename_with_extra_click(self):
+        """Test namespaces with the word "click" in them."""
         test_name = 'net.launchpad.click-webapps.test-app_3_all.click'
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        print(c.click_report)
+        # We should end up with no warnings, no errors
         self.assertEqual(len(r['warn']), 0)
         self.assertEqual(len(r['error']), 0)
