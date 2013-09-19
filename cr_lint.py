@@ -493,7 +493,7 @@ exit 1
         self._add_result(t, n, s)
 
         #  handle $pkgname.click
-        pkgname = tmp[0].partition('.click')[0]
+        pkgname = tmp[0].partition('\.click')[0]
         t = 'info'
         n = 'package_filename_pkgname_match'
         s = 'OK'

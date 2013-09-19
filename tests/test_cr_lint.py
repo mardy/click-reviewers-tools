@@ -62,8 +62,10 @@ class TestClickReviewLint(TestCase):
     """Tests for the lint review tool."""
 
     @patch('cr_common.ClickReview._check_path_exists', _mock_func)
-    @patch('cr_common.ClickReview._extract_control_file', _extract_control_file)
-    @patch('cr_common.ClickReview._extract_manifest_file', _extract_manifest_file)
+    @patch('cr_common.ClickReview._extract_control_file',
+        _extract_control_file)
+    @patch('cr_common.ClickReview._extract_manifest_file',
+        _extract_manifest_file)
     @patch('cr_common.unpack_click', _mock_func)
     @patch('cr_common.ClickReview.__del__', _mock_func)
     def test_check_package_filename(self):
