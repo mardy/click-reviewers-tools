@@ -24,3 +24,5 @@ See check-skeleton and cr_skeleton.py for how to create new tests. In short:
  * modify check-<something> to use cr_<something>.py
  * add tests to cr_<something>.py. If you name the tests 'check_<sometest>'
    ClickReview.do_checks() will enumerate and run them automatically
+
+To run tests, just execute: run-tests
