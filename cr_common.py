@@ -104,20 +104,20 @@ class ClickReview(object):
         if not isinstance(self.manifest, dict):
             error("manifest malformed:\n%s" % self.manifest)
 
-        required = ["name", "version", "framework"]        # click required
+        required = ["name", "version", "framework"]  # click required
         for f in required:
             if f not in self.manifest:
                 error("could not find required '%s' in manifest:\n%s" % (f,
                                                                          mp))
-            elif not isinstance(self.manifest[f], basestring):
+            elif not isinstance(self.manifest[f], str):
                 error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
-        optional = ["title", "description", "maintainer",
-                    "architecture", "installed-size"]  # optional click fields here (may be
-                                     # required by appstore)
+        # optional click fields here (may be required by appstore)
+        optional = ["title", "description", "maintainer", "architecture",
+                    "installed-size"]
+
         for f in optional:
-            if f in self.manifest and not isinstance(
-                self.manifest[f], basestring):
+            if f in self.manifest and not isinstance(self.manifest[f], str):
                 error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
         # Not required by click, but required by appstore. 'hooks' is assumed
@@ -155,7 +155,6 @@ class ClickReview(object):
         '''Set review name'''
         self.review_type = name
 
-    #
     # click_report[<result_type>][<review_name>] = <review>
     #   result_type: info, warn, error
     #   review_name: name of the check (prefixed with self.review_type)

@@ -14,9 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import StringIO
+import io
 
-from mock import patch
+from unittest.mock import patch
 from unittest import TestCase
 
 from cr_lint import ClickReviewLint
@@ -52,11 +52,11 @@ def _mock_func(self):
 
 
 def _extract_control_file(self):
-    return StringIO.StringIO(TEST_CONTROL)
+    return io.StringIO(TEST_CONTROL)
 
 
 def _extract_manifest_file(self):
-    return StringIO.StringIO(TEST_MANIFEST)
+    return io.StringIO(TEST_MANIFEST)
 
 
 # Patch all methods that call out to disk
