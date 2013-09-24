@@ -205,7 +205,7 @@ class ClickReviewDesktop(ClickReview):
 
             for arg in self.expected_webbrowser_args:
                 t = 'info'
-                n = 'Exec_webbrowser %s (%s)' % (arg, app)
+                n = 'Exec_webbrowser-required_arg (%s, %s)' % (app, arg)
                 s = 'OK'
                 if arg.endswith('*'):
                     found = False
@@ -236,18 +236,19 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Exec_webbrowser_webappUrlPatterns (%s)' % app
             s = 'OK'
-            pattern = ""
+            pats = ""
             count = 0
             for a in args:
                 if not a.startswith('--webappUrlPatterns='):
                     continue
-                pattern = a.split('=', maxsplit=1)[1]
+                pats = a.split('=', maxsplit=1)[1]
                 count += 1
 
             if count == 0:
-                t = 'error'
-                s = "could not find '--webappUrlPatterns=' in '%s'" % \
-                    " ".join(args)
+                # --webappUrlPatterns is a required arg and generates an error
+                # so just make this info
+                t = 'info'
+                s = "SKIPPED (--webappUrlPatterns not used)"
                 self._add_result(t, n, s)
                 continue
             elif count > 1:
@@ -257,61 +258,73 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
-            t = 'info'
-            n = 'Exec_webbrowser_webappUrlPatterns_has_https (%s)' % app
-            s = 'OK'
-            if not pattern.startswith('https?://'):
-                t = 'warn'
-                s = "'https?://' not found in '%s'" % pattern + \
-                    " (may cause needless redirect)"
-            self._add_result(t, n, s)
+            for pattern in pats.split(','):
+                pattern_count = 1
+                t = 'info'
+                n = 'Exec_webbrowser_webappUrlPatterns_has_https? (%s, %s)' % \
+                    (app, pattern)
+                s = 'OK'
+                if not pattern.startswith('https?://'):
+                    t = 'warn'
+                    s = "'https?://' not found in '%s'" % pattern + \
+                        " (may cause needless redirect)"
+                self._add_result(t, n, s)
 
-            t = 'info'
-            n = 'Exec_webbrowser_webappUrlPatterns_uses_trailing_glob (%s)' % \
-                app
-            s = 'OK'
-            if not pattern.endswith('/*'):
-                t = 'warn'
-                s = "'%s' does not end with '/*'" % pattern + \
-                    " (may cause needless redirect)"
-            self._add_result(t, n, s)
+                t = 'info'
+                n = 'Exec_webbrowser_webappUrlPatterns_uses_trailing_glob ' + \
+                    '(%s, %s)' % (app, pattern)
+                s = 'OK'
+                if not pattern.endswith('/*'):
+                    t = 'warn'
+                    s = "'%s' does not end with '/*'" % pattern + \
+                        " (may cause needless redirect)"
+                self._add_result(t, n, s)
 
-            t = 'info'
-            n = 'Exec_webbrowser_webappUrlPatterns_uses_safe_glob (%s)' % \
-                app
-            s = 'OK'
-            if '*' in pattern[:-1]:
-                t = 'warn'
-                s = "'%s' contains nested '*'" % pattern + \
-                    " (needs human review)"
-            self._add_result(t, n, s)
+                t = 'info'
+                n = 'Exec_webbrowser_webappUrlPatterns_uses_safe_glob ' + \
+                    '(%s, %s)' % (app, pattern)
+                s = 'OK'
+                if '*' in pattern[:-1]:
+                    t = 'warn'
+                    s = "'%s' contains nested '*'" % pattern + \
+                        " (needs human review)"
+                self._add_result(t, n, s)
 
-            urlp_scheme_pat = pattern[:-1].split(':')[0]
-            urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
+                urlp_scheme_pat = pattern[:-1].split(':')[0]
+                urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
 
-            target = args[-1]
-            urlp_t = urlsplit(target)
+                target = args[-1]
+                urlp_t = urlsplit(target)
 
-            t = 'info'
-            n = 'Exec_webbrowser_target_scheme_matches_patterns (%s)' % app
-            s = 'OK'
-            if not re.match(r'^%s$' % urlp_scheme_pat, urlp_t.scheme):
-                t = 'error'
-                s = "'%s' doesn't match '%s' " % (urlp_t.scheme,
+                t = 'info'
+                n = 'Exec_webbrowser_target_scheme_matches_patterns ' + \
+                    '(%s, %s)' % (app, pattern)
+                s = 'OK'
+                if not re.match(r'^%s$' % urlp_scheme_pat, urlp_t.scheme):
+                    t = 'error'
+                    s = "'%s' doesn't match '%s' " % (urlp_t.scheme,
                                                   urlp_scheme_pat) + \
-                    "(will likely cause needless redirect)"
-            self._add_result(t, n, s)
+                        "(will likely cause needless redirect)"
+                self._add_result(t, n, s)
 
-            t = 'info'
-            n = 'Exec_webbrowser_target_netloc_matches_patterns (%s)' % app
-            s = 'OK'
-            # TODO: this is admittedly simple, but matches Canonical webapps
-            #       currently, so ok for now
-            if urlp_t.netloc != urlp_p.netloc:
-                t = 'warn'
-                s = "'%s' != '%s' " % (urlp_t.netloc, urlp_p.netloc) + \
-                    "(may cause needless redirect)"
-            self._add_result(t, n, s)
+                t = 'info'
+                n = 'Exec_webbrowser_target_netloc_matches_patterns ' + \
+                    '(%s, %s)' % (app, pattern)
+                s = 'OK'
+                # TODO: this is admittedly simple, but matches Canonical webapps
+                #       currently, so ok for now
+                if urlp_t.netloc != urlp_p.netloc:
+                    if pattern_count > 1:
+                        t = 'warn'
+                        s = "'%s' != '%s'" % (urlp_t.netloc, urlp_p.netloc) + \
+                            " (may cause needless redirect)"
+                    else:
+                        t = 'info'
+                        s = "target '%s' != non-primary pattern '%s'" % \
+                            (urlp_t.netloc, urlp_p.netloc)
+                self._add_result(t, n, s)
+
+                pattern_count += 1
 
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''
