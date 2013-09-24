@@ -18,6 +18,8 @@ from __future__ import print_function
 
 from cr_common import ClickReview, error, open_file_read
 import os
+import re
+from urllib.parse import urlsplit
 from xdg.DesktopEntry import DesktopEntry
 from xdg.Exceptions import ParsingError as xdgParsingError
 
@@ -282,6 +284,33 @@ class ClickReviewDesktop(ClickReview):
                 t = 'warn'
                 s = "'%s' contains nested '*'" % pattern + \
                     " (needs human review)"
+            self._add_result(t, n, s)
+
+            urlp_scheme_pat = pattern[:-1].split(':')[0]
+            urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
+
+            target = args[-1]
+            urlp_t = urlsplit(target)
+
+            t = 'info'
+            n = 'Exec_webbrowser_target_scheme_matches_patterns (%s)' % app
+            s = 'OK'
+            if not re.match(r'^%s$' % urlp_scheme_pat, urlp_t.scheme):
+                t = 'error'
+                s = "'%s' doesn't match '%s' " % (urlp_t.scheme,
+                                                  urlp_scheme_pat) + \
+                    "(will likely cause needless redirect)"
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_target_netloc_matches_patterns (%s)' % app
+            s = 'OK'
+            # TODO: this is admittedly simple, but matches Canonical webapps
+            #       currently, so ok for now
+            if urlp_t.netloc != urlp_p.netloc:
+                t = 'warn'
+                s = "'%s' != '%s' " % (urlp_t.netloc, urlp_p.netloc) + \
+                    "(may cause needless redirect)"
             self._add_result(t, n, s)
 
     def check_desktop_groups(self):
