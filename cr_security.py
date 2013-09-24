@@ -74,7 +74,9 @@ class ClickReviewSecurity(ClickReview):
                                'read_path',
                                'template_variables',
                                'write_path']
-        self.allowed_webapp_policy_groups = ['networking']
+        self.allowed_webapp_policy_groups = ['audio',
+                                             'networking',
+                                             'video']
 
         # TODO: eventually look at 'Usage' meta information in the policy
         #       group, but that needs click-apparmor 0.1.9
