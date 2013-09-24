@@ -205,7 +205,7 @@ class ClickReviewDesktop(ClickReview):
 
             for arg in self.expected_webbrowser_args:
                 t = 'info'
-                n = 'Exec_webbrowser-required_arg (%s, %s)' % (app, arg)
+                n = 'Exec_webbrowser_required_args (%s)' % (app)
                 s = 'OK'
                 if arg.endswith('*'):
                     found = False
@@ -214,7 +214,7 @@ class ClickReviewDesktop(ClickReview):
                             found = True
                     if not found:
                         t = 'error'
-                        s = "could not find '%s' in  '%s'" % (arg, de.getExec())
+                        s = "could not find '%s' in '%s'" % (arg, de.getExec())
                 elif arg not in de.getExec().split():
                     t = 'error'
                     s = "could not find '%s' in  '%s'" % (arg, de.getExec())
