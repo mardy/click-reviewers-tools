@@ -50,7 +50,7 @@ class ClickReviewDesktop(ClickReview):
                                'webbrowser-app',
                                'cordova-ubuntu-2.8'
                               ]
-        self.expected_webbrowser_args = ['--chromeless',
+        self.expected_webbrowser_args = ['--enable-back-forward',
                                          '--webapp',
                                          '--webappUrlPatterns=*'
                                         ]
