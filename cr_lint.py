@@ -23,32 +23,40 @@ import os
 import re
 from debian.deb822 import Deb822
 
+CONTROL_FILE_NAMES = ["control", "manifest", "md5sums", "preinst"]
+
 
 class ClickReviewLint(ClickReview):
     '''This class represents click lint reviews'''
+
     def __init__(self, fn):
+        '''Set up the class.'''
         ClickReview.__init__(self, fn, "lint")
         self.control_files = dict()
-        files = ["control", "manifest", "md5sums", "preinst"]
-        for i in files:
-            self.control_files[i] = os.path.join(self.unpack_dir,
-                                                 "DEBIAN/%s" % i)
-
+        self._list_control_files()
         # LP: #1214380
         # self.valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc',
         #                             'all']
         self.valid_architectures = ['all', 'armhf']
-
         self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
 
         # Get a list of all unpacked files, except DEBIAN/
         self.pkg_files = []
+        self._list_all_files()
+        self.mime = magic.open(magic.MAGIC_MIME)
+        self.mime.load()
+
+    def _list_control_files(self):
+        '''List all control files with their full path.'''
+        for i in CONTROL_FILE_NAMES:
+            self.control_files[i] = os.path.join(self.unpack_dir,
+                                                 "DEBIAN/%s" % i)
+
+    def _list_all_files(self):
+        '''List all files included in this click package.'''
         for root, dirnames, filenames in os.walk(self.unpack_dir):
             for f in filenames:
                 self.pkg_files.append(os.path.join(root, f))
-
-        self.mime = magic.open(magic.MAGIC_MIME)
-        self.mime.load()
 
     def check_control_files(self):
         '''Check DEBIAN/* files'''
@@ -491,7 +499,7 @@ exit 1
         self._add_result(t, n, s)
 
         #  handle $pkgname.click
-        pkgname = tmp[0].partition('.click')[0]
+        pkgname = tmp[0].partition('\.click')[0]
         t = 'info'
         n = 'package_filename_pkgname_match'
         s = 'OK'
@@ -540,7 +548,7 @@ exit 1
                 t = 'info'
                 s = "SKIP: architecture 'unknown'"
                 self._add_result(t, n, s)
-                return
+                #return
             if arch not in self.valid_architectures:
                 t = 'warn'
                 s = "not a valid architecture: %s" % arch
@@ -597,6 +605,7 @@ exit 1
         self._add_result(t, n, s)
 
     def check_contents_for_hardcoded_paths(self):
+        '''Check for known hardcoded paths.'''
         PATH_BLACKLIST = [
                 "/opt/click.ubuntu.com/"
                 ]
@@ -614,7 +623,8 @@ exit 1
                     for bad_path in PATH_BLACKLIST:
                         if list(filter(lambda line: bad_path in line, lines)):
                             t = 'error'
-                            s = "Hardcoded path '%s' found in '%s'." % (bad_path, full_fn)
+                            s = "Hardcoded path '%s' found in '%s'." % (
+                                bad_path, full_fn)
                 except UnicodeDecodeError:
                     pass
         self._add_result(t, n, s)

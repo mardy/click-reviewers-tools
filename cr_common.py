@@ -45,10 +45,8 @@ class ClickReviewException(Exception):
 class ClickReview(object):
     '''This class represents click reviews'''
     def __init__(self, fn, review_type):
-        if not os.path.exists(fn):
-            error("Could not find '%s'" % fn)
         self.click_package = fn
-
+        self._check_path_exists()
         if not self.click_package.endswith(".click"):
             error("filename does not end with '.click'")
 
@@ -64,9 +62,9 @@ class ClickReview(object):
         self.unpack_dir = unpack_click(fn)
 
         # Get some basic information from the control file
-        fh = open_file_read(os.path.join(self.unpack_dir, "DEBIAN/control"))
-        tmp = list(Deb822.iter_paragraphs(fh.readlines()))
-        fh.close()
+
+        control_file = self._extract_control_file()
+        tmp = list(Deb822.iter_paragraphs(control_file))
         if len(tmp) != 1:
             error("malformed control file: too many paragraphs")
         control = tmp[0]
@@ -75,55 +73,71 @@ class ClickReview(object):
         self.click_arch = control['Architecture']
 
         # Parse and store the manifest
+        manifest_json = self._extract_manifest_file()
+        try:
+            self.manifest = json.load(manifest_json)
+        except Exception:
+            error("Could not load manifest file. Is it properly formatted?")
+        self._verify_manifest_structure()
+
+    def _extract_manifest_file(self):
+        '''Extract and read the manifest file'''
         m = os.path.join(self.unpack_dir, "DEBIAN/manifest")
         if not os.path.isfile(m):
             error("Could not find manifest file")
-        try:
-            self.manifest = json.load(open_file_read(m))
-        except Exception:
-            error("Could not load manifest file. Is it properly formatted?")
-        self._verify_manifest_structure(self.manifest)
+        return open_file_read(m)
 
-    def _verify_manifest_structure(self, manifest):
+    def _check_path_exists(self):
+        '''Check that the provided path exists'''
+        if not os.path.exists(self.click_package):
+            error("Could not find '%s'" % self.click_package)
+
+    def _extract_control_file(self):
+        '''Extract '''
+        fh = open_file_read(os.path.join(self.unpack_dir, "DEBIAN/control"))
+        return fh.readlines()
+
+    def _verify_manifest_structure(self):
         '''Verify manifest has the expected structure'''
         # lp:click doc/file-format.rst
-        mp = pprint.pformat(manifest)
-        if not isinstance(manifest, dict):
-            error("manifest malformed:\n%s" % manifest)
+        mp = pprint.pformat(self.manifest)
+        if not isinstance(self.manifest, dict):
+            error("manifest malformed:\n%s" % self.manifest)
 
-        required = ["name", "version", "framework"]        # click required
+        required = ["name", "version", "framework"]  # click required
         for f in required:
-            if f not in manifest:
+            if f not in self.manifest:
                 error("could not find required '%s' in manifest:\n%s" % (f,
                                                                          mp))
-            elif not isinstance(manifest[f], str):
+            elif not isinstance(self.manifest[f], str):
                 error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
-        optional = ["title", "description", "maintainer",
-                    "architecture", "installed-size"]  # optional click fields here (may be
-                                     # required by appstore)
+        # optional click fields here (may be required by appstore)
+        optional = ["title", "description", "maintainer", "architecture",
+                    "installed-size"]
+
         for f in optional:
-            if f in manifest and not isinstance(manifest[f], str):
+            if f in self.manifest and not isinstance(self.manifest[f], str):
                 error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
         # Not required by click, but required by appstore. 'hooks' is assumed
         # to be present in other checks
-        if 'hooks' not in manifest:
+        if 'hooks' not in self.manifest:
             error("could not find required 'hooks' in manifest:\n%s" % mp)
-        if not isinstance(manifest['hooks'], dict):
+        if not isinstance(self.manifest['hooks'], dict):
             error("manifest malformed: 'hooks' is not dict:\n%s" % mp)
         # 'hooks' is assumed to be present and non-empty in other checks
-        if len(manifest['hooks']) < 1:
+        if len(self.manifest['hooks']) < 1:
             error("manifest malformed: 'hooks' is empty:\n%s" % mp)
-        for app in manifest['hooks']:
-            if not isinstance(manifest['hooks'][app], dict):
+        for app in self.manifest['hooks']:
+            if not isinstance(self.manifest['hooks'][app], dict):
                 error("manifest malformed: hooks/%s is not dict:\n%s" % (app,
                                                                          mp))
             # let cr_lint.py handle required hooks
-            if len(manifest['hooks'][app]) < 1:
+            if len(self.manifest['hooks'][app]) < 1:
                 error("manifest malformed: hooks/%s is empty:\n%s" % (app, mp))
 
-        for k in sorted(manifest):
+        for k in sorted(self.manifest):
             if k not in required + optional + ['hooks']:
                 # click supports local extensions via 'x-...', ignore those
                 # here but report in lint
@@ -141,7 +155,6 @@ class ClickReview(object):
         '''Set review name'''
         self.review_type = name
 
-    #
     # click_report[<result_type>][<review_name>] = <review>
     #   result_type: info, warn, error
     #   review_name: name of the check (prefixed with self.review_type)
