@@ -18,6 +18,8 @@ from __future__ import print_function
 
 from cr_common import ClickReview, error, open_file_read
 import os
+import re
+from urllib.parse import urlsplit
 from xdg.DesktopEntry import DesktopEntry
 from xdg.Exceptions import ParsingError as xdgParsingError
 
@@ -50,7 +52,7 @@ class ClickReviewDesktop(ClickReview):
                                'webbrowser-app',
                                'cordova-ubuntu-2.8'
                               ]
-        self.expected_webbrowser_args = ['--chromeless',
+        self.expected_webbrowser_args = ['--enable-back-forward',
                                          '--webapp',
                                          '--webappUrlPatterns=*'
                                         ]
@@ -217,6 +219,99 @@ class ClickReviewDesktop(ClickReview):
                     t = 'error'
                     s = "could not find '%s' in  '%s'" % (arg, de.getExec())
                 self._add_result(t, n, s)
+
+    def check_desktop_exec_webbrowser_urlpatterns(self):
+        '''Check Exec=webbrowser-app entry has valid --webappUrlPatterns'''
+        for app in sorted(self.desktop_entries):
+            de = self.desktop_entries[app]
+            execline = de.getExec().split()
+            if not de.hasKey('Exec'):
+                continue
+            elif execline[0] != "webbrowser-app":
+                continue
+            elif len(execline) < 2:
+                continue
+
+            args = execline[1:]
+            t = 'info'
+            n = 'Exec_webbrowser_webappUrlPatterns (%s)' % app
+            s = 'OK'
+            pattern = ""
+            count = 0
+            for a in args:
+                if not a.startswith('--webappUrlPatterns='):
+                    continue
+                pattern = a.split('=', maxsplit=1)[1]
+                count += 1
+
+            if count == 0:
+                t = 'error'
+                s = "could not find '--webappUrlPatterns=' in '%s'" % \
+                    " ".join(args)
+                self._add_result(t, n, s)
+                continue
+            elif count > 1:
+                t = 'error'
+                s = "found multiple '--webappUrlPatterns=' in '%s'" % \
+                    " ".join(args)
+                self._add_result(t, n, s)
+                continue
+
+            t = 'info'
+            n = 'Exec_webbrowser_webappUrlPatterns_has_https (%s)' % app
+            s = 'OK'
+            if not pattern.startswith('https?://'):
+                t = 'warn'
+                s = "'https?://' not found in '%s'" % pattern + \
+                    " (may cause needless redirect)"
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_webappUrlPatterns_uses_trailing_glob (%s)' % \
+                app
+            s = 'OK'
+            if not pattern.endswith('/*'):
+                t = 'warn'
+                s = "'%s' does not end with '/*'" % pattern + \
+                    " (may cause needless redirect)"
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_webappUrlPatterns_uses_safe_glob (%s)' % \
+                app
+            s = 'OK'
+            if '*' in pattern[:-1]:
+                t = 'warn'
+                s = "'%s' contains nested '*'" % pattern + \
+                    " (needs human review)"
+            self._add_result(t, n, s)
+
+            urlp_scheme_pat = pattern[:-1].split(':')[0]
+            urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
+
+            target = args[-1]
+            urlp_t = urlsplit(target)
+
+            t = 'info'
+            n = 'Exec_webbrowser_target_scheme_matches_patterns (%s)' % app
+            s = 'OK'
+            if not re.match(r'^%s$' % urlp_scheme_pat, urlp_t.scheme):
+                t = 'error'
+                s = "'%s' doesn't match '%s' " % (urlp_t.scheme,
+                                                  urlp_scheme_pat) + \
+                    "(will likely cause needless redirect)"
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_target_netloc_matches_patterns (%s)' % app
+            s = 'OK'
+            # TODO: this is admittedly simple, but matches Canonical webapps
+            #       currently, so ok for now
+            if urlp_t.netloc != urlp_p.netloc:
+                t = 'warn'
+                s = "'%s' != '%s' " % (urlp_t.netloc, urlp_p.netloc) + \
+                    "(may cause needless redirect)"
+            self._add_result(t, n, s)
 
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''
