@@ -23,6 +23,8 @@ import os
 import re
 from debian.deb822 import Deb822
 
+CONTROL_FILE_NAMES = ["control", "manifest", "md5sums", "preinst"]
+
 
 class ClickReviewLint(ClickReview):
     '''This class represents click lint reviews'''
@@ -31,26 +33,30 @@ class ClickReviewLint(ClickReview):
         '''Set up the class.'''
         ClickReview.__init__(self, fn, "lint")
         self.control_files = dict()
-        files = ["control", "manifest", "md5sums", "preinst"]
-#        for i in files:
-#            self.control_files[i] = os.path.join(self.unpack_dir,
-#                                                 "DEBIAN/%s" % i)
-
+        self._list_control_files()
         # LP: #1214380
         # self.valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc',
         #                             'all']
         self.valid_architectures = ['all', 'armhf']
-
         self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
 
         # Get a list of all unpacked files, except DEBIAN/
         self.pkg_files = []
-#        for root, dirnames, filenames in os.walk(self.unpack_dir):
-#            for f in filenames:
-#                self.pkg_files.append(os.path.join(root, f))
-
+        self._list_all_files()
         self.mime = magic.open(magic.MAGIC_MIME)
         self.mime.load()
+
+    def _list_control_files(self):
+        '''List all control files with their full path.'''
+        for i in CONTROL_FILE_NAMES:
+            self.control_files[i] = os.path.join(self.unpack_dir,
+                                                 "DEBIAN/%s" % i)
+
+    def _list_all_files():
+        '''List all files included in this click package.'''
+        for root, dirnames, filenames in os.walk(self.unpack_dir):
+            for f in filenames:
+                self.pkg_files.append(os.path.join(root, f))
 
     def check_control_files(self):
         '''Check DEBIAN/* files'''

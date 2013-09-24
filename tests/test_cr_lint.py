@@ -65,6 +65,8 @@ def _extract_manifest_file(self):
 @patch('cr_common.ClickReview._extract_manifest_file', _extract_manifest_file)
 @patch('cr_common.unpack_click', _mock_func)
 @patch('cr_common.ClickReview.__del__', _mock_func)
+@patch('cr_lint.ClickReviewLint._list_control_files', _mock_func)
+@patch('cr_lint.ClickReviewLint._list_all_files', _mock_func)
 class TestClickReviewLint(TestCase):
     """Tests for the lint review tool."""
 
