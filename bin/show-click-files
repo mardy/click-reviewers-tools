@@ -16,13 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+import os
+import sys
+
+# Support running from the build tree.
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
 
 from clickreviews import cr_common
 from clickreviews import cr_desktop
 from clickreviews import cr_lint
 from clickreviews import cr_security
-import os
-import sys
 
 # This script just dumps important files to stdout
 

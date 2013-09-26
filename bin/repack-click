@@ -3,12 +3,16 @@
 # Repack a click package by using lowlevel tools so as not to change anything
 # in the package (ie, don't use 'click build .' to avoid updating DEBIAN/, etc)
 
+import sys
+import os
+
+# Support running from the build tree.
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
+
 from clickreviews import cr_common
 from debian.deb822 import Deb822
 import glob
-import os
 import shutil
-import sys
 import tempfile
 
 
