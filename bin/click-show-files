@@ -19,9 +19,6 @@ from __future__ import print_function
 import os
 import sys
 
-# Support running from the build tree.
-sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
-
 from clickreviews import cr_common
 from clickreviews import cr_desktop
 from clickreviews import cr_lint

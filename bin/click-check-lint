@@ -17,10 +17,6 @@
 
 from __future__ import print_function
 import sys
-import os
-
-# Support running from the build tree.
-sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
 
 import cr_common
 import cr_lint
