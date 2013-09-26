@@ -67,6 +67,7 @@ class ClickReview(object):
         tmp = list(Deb822.iter_paragraphs(control_file))
         if len(tmp) != 1:
             error("malformed control file: too many paragraphs")
+        control_file.close()
         control = tmp[0]
         self.click_pkgname = control['Package']
         self.click_version = control['Version']

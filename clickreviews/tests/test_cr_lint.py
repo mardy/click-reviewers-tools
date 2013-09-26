@@ -29,7 +29,7 @@ Click-Version: 0.2
 Architecture: all
 Maintainer: Test Dev <test@email.com>
 Installed-Size: 111
-Description: Test app"""
+Description: My Test App"""
 
 TEST_MANIFEST = """{
     "description": "A long description",
@@ -61,8 +61,10 @@ def _extract_manifest_file(self):
 
 # Patch all methods that call out to disk
 @patch('clickreviews.cr_common.ClickReview._check_path_exists', _mock_func)
-@patch('clickreviews.cr_common.ClickReview._extract_control_file', _extract_control_file)
-@patch('clickreviews.cr_common.ClickReview._extract_manifest_file', _extract_manifest_file)
+@patch('clickreviews.cr_common.ClickReview._extract_control_file',
+    _extract_control_file)
+@patch('clickreviews.cr_common.ClickReview._extract_manifest_file',
+    _extract_manifest_file)
 @patch('clickreviews.cr_common.unpack_click', _mock_func)
 @patch('clickreviews.cr_common.ClickReview.__del__', _mock_func)
 @patch('clickreviews.cr_lint.ClickReviewLint._list_control_files', _mock_func)
@@ -79,3 +81,14 @@ class TestClickReviewLint(TestCase):
         # We should end up with no warnings, no errors
         self.assertEqual(len(r['warn']), 0)
         self.assertEqual(len(r['error']), 0)
+
+    def test_check_control(self):
+        """"""
+        test_name = 'net.launchpad.click-webapps.test-app_3_all.click'
+        c = ClickReviewLint(test_name)
+        c.check_control()
+        r = c.click_report
+        # We should end up with no warnings, no errors
+        self.assertEqual(len(r['warn']), 0)
+        self.assertEqual(len(r['error']), 0)
+

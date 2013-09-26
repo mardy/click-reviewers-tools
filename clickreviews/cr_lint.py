@@ -83,10 +83,9 @@ class ClickReviewLint(ClickReview):
 
     def check_control(self):
         '''Check control()'''
-        fh = open_file_read(self.control_files["control"])
+        fh = self._extract_control_file()
         tmp = list(Deb822.iter_paragraphs(fh.readlines()))
         fh.close()
-
         t = 'info'
         n = 'control_structure'
         s = 'OK'
