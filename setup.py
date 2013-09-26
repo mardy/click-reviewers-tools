@@ -14,6 +14,7 @@ if os.path.exists(changelog):
         version = match.group(1)
 
 scripts = glob.glob('bin/click-*')
+scripts.remove('bin/click-check-skeleton')
 setup(name='click-reviewers-tools',
       version=version,
       scripts=scripts,
