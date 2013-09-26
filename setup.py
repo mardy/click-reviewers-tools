@@ -13,7 +13,7 @@ if os.path.exists(changelog):
     if match:
         version = match.group(1)
 
-scripts = glob.glob('bin/*')
+scripts = glob.glob('bin/click-*')
 setup(name='click-reviewers-tools',
       version=version,
       scripts=scripts,

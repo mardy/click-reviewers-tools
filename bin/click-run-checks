@@ -32,7 +32,7 @@ set_rc() {
 
 }
 
-prefer_local show-click-files "$c" || set_rc "$?"
+prefer_local click-show-files "$c" || set_rc "$?"
 
 echo ""
 echo "= click-check-lint ="
