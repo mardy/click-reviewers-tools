@@ -105,3 +105,6 @@ class TestClickReviewLint(TestCase):
         # We should end up with an error as the click version is out of date
         self.assertEqual(len(r['warn']), 0)
         self.assertEqual(len(r['error']), 1)
+        # Lets check that the right error is triggering
+        self.assertIn('Click-Version is too old',
+            r['error']['lint_control_click_version_up_to_date'])
