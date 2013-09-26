@@ -18,8 +18,8 @@
 from __future__ import print_function
 import sys
 
-import cr_common
-import cr_security
+import clickreviews.cr_common as cr_common
+import clickreviews.cr_security as cr_security
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
