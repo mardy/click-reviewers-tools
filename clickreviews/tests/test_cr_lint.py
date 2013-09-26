@@ -21,7 +21,7 @@ from unittest.mock import patch
 from unittest import TestCase
 
 from clickreviews.cr_lint import ClickReviewLint
-from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK
+from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
 from clickreviews.cr_common import ClickReview
 
 
@@ -31,7 +31,7 @@ Click-Version: %s
 Architecture: all
 Maintainer: Test Dev <test@email.com>
 Installed-Size: 111
-Description: My Test App""" % (MINIMUM_CLICK_FRAMEWORK)
+Description: My Test App""" % (MINIMUM_CLICK_FRAMEWORK_VERSION)
 
 TEST_MANIFEST = """{
     "description": "A long description",
@@ -94,8 +94,9 @@ class TestClickReviewLint(TestCase):
         self.assertEqual(len(r['warn']), 0)
         self.assertEqual(len(r['error']), 0)
 
-    @patch('clickreviews.cr_lint.MINIMUM_CLICK_FRAMEWORK',
-        MINIMUM_CLICK_FRAMEWORK + '.1')
+    # Make the current MINIMUM_CLICK_FRAMEWORK_VERSION newer
+    @patch('clickreviews.cr_lint.MINIMUM_CLICK_FRAMEWORK_VERSION',
+        MINIMUM_CLICK_FRAMEWORK_VERSION + '.1')
     def test_check_control_click_framework_version(self):
         """Test that enforcing click framework versions works."""
         test_name = 'net.launchpad.click-webapps.test-app_3_all.click'

@@ -25,7 +25,7 @@ import re
 from clickreviews.cr_common import ClickReview, open_file_read, cmd
 
 CONTROL_FILE_NAMES = ["control", "manifest", "md5sums", "preinst"]
-MINIMUM_CLICK_FRAMEWORK = "0.4"
+MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
 
 
 class ClickReviewLint(ClickReview):
@@ -86,8 +86,7 @@ class ClickReviewLint(ClickReview):
     def check_control(self):
         '''Check control()'''
         fh = self._extract_control_file()
-        tmp = list(Deb822.iter_paragraphs(fh.readlines()))
-        fh.close()
+        tmp = list(Deb822.iter_paragraphs(fh))
         t = 'info'
         n = 'control_structure'
         s = 'OK'
@@ -195,10 +194,10 @@ class ClickReviewLint(ClickReview):
         s = 'OK'
 
         if apt_pkg.version_compare(
-            control['Click-Version'], MINIMUM_CLICK_FRAMEWORK) < 0:
+            control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION) < 0:
             t = 'error'
             s = "Click-Version is too old, has '%s', needs '%s' or newer" % (
-                control['Click-Version'], MINIMUM_CLICK_FRAMEWORK)
+                control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION)
         self._add_result(t, n, s)
 
         t = 'info'
