@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''check-desktop: perform click desktop checks'''
+'''click-check-skeleton: perform click skeleton checks'''
 #
 # Copyright (C) 2013 Canonical Ltd.
 #
@@ -18,14 +18,14 @@
 from __future__ import print_function
 
 import cr_common
-import cr_desktop
+import cr_skeleton
 import sys
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         cr_common.error("Must give path to click package")
 
-    review = cr_desktop.ClickReviewDesktop(sys.argv[1])
+    review = cr_skeleton.ClickReviewSkeleton(sys.argv[1])
     review.do_checks()
     rc = review.do_report()
     sys.exit(rc)

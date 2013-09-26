@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import cr_common
+from clickreviews import cr_common
 import os
 import sys
 

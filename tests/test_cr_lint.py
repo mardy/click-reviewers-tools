@@ -19,8 +19,8 @@ import io
 from unittest.mock import patch
 from unittest import TestCase
 
-from cr_lint import ClickReviewLint
-from cr_common import ClickReview
+from clickreviews.cr_lint import ClickReviewLint
+from clickreviews.cr_common import ClickReview
 
 
 TEST_CONTROL = """Package: net.launchpad.click-webapps.test-app
@@ -60,13 +60,13 @@ def _extract_manifest_file(self):
 
 
 # Patch all methods that call out to disk
-@patch('cr_common.ClickReview._check_path_exists', _mock_func)
-@patch('cr_common.ClickReview._extract_control_file', _extract_control_file)
-@patch('cr_common.ClickReview._extract_manifest_file', _extract_manifest_file)
-@patch('cr_common.unpack_click', _mock_func)
-@patch('cr_common.ClickReview.__del__', _mock_func)
-@patch('cr_lint.ClickReviewLint._list_control_files', _mock_func)
-@patch('cr_lint.ClickReviewLint._list_all_files', _mock_func)
+@patch('clickreviews.cr_common.ClickReview._check_path_exists', _mock_func)
+@patch('clickreviews.cr_common.ClickReview._extract_control_file', _extract_control_file)
+@patch('clickreviews.cr_common.ClickReview._extract_manifest_file', _extract_manifest_file)
+@patch('clickreviews.cr_common.unpack_click', _mock_func)
+@patch('clickreviews.cr_common.ClickReview.__del__', _mock_func)
+@patch('clickreviews.cr_lint.ClickReviewLint._list_control_files', _mock_func)
+@patch('clickreviews.cr_lint.ClickReviewLint._list_all_files', _mock_func)
 class TestClickReviewLint(TestCase):
     """Tests for the lint review tool."""
 

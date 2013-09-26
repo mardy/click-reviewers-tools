@@ -17,10 +17,10 @@
 
 from __future__ import print_function
 
-import cr_common
-import cr_desktop
-import cr_lint
-import cr_security
+from clickreviews import cr_common
+from clickreviews import cr_desktop
+from clickreviews import cr_lint
+from clickreviews import cr_security
 import os
 import sys
 
