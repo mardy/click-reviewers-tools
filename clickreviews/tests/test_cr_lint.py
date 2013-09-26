@@ -14,22 +14,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from apt import apt_pkg
 import io
 
 from unittest.mock import patch
 from unittest import TestCase
 
 from clickreviews.cr_lint import ClickReviewLint
+from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK
 from clickreviews.cr_common import ClickReview
 
 
 TEST_CONTROL = """Package: net.launchpad.click-webapps.test-app
 Version: 3
-Click-Version: 0.2
+Click-Version: %s
 Architecture: all
 Maintainer: Test Dev <test@email.com>
 Installed-Size: 111
-Description: My Test App"""
+Description: My Test App""" % (MINIMUM_CLICK_FRAMEWORK)
 
 TEST_MANIFEST = """{
     "description": "A long description",
@@ -83,7 +85,7 @@ class TestClickReviewLint(TestCase):
         self.assertEqual(len(r['error']), 0)
 
     def test_check_control(self):
-        """"""
+        """A very basic test to make sure check_control can be tested."""
         test_name = 'net.launchpad.click-webapps.test-app_3_all.click'
         c = ClickReviewLint(test_name)
         c.check_control()
@@ -92,3 +94,14 @@ class TestClickReviewLint(TestCase):
         self.assertEqual(len(r['warn']), 0)
         self.assertEqual(len(r['error']), 0)
 
+    @patch('clickreviews.cr_lint.MINIMUM_CLICK_FRAMEWORK',
+        MINIMUM_CLICK_FRAMEWORK + '.1')
+    def test_check_control_click_framework_version(self):
+        """Test that enforcing click framework versions works."""
+        test_name = 'net.launchpad.click-webapps.test-app_3_all.click'
+        c = ClickReviewLint(test_name)
+        c.check_control()
+        r = c.click_report
+        # We should end up with an error as the click version is out of date
+        self.assertEqual(len(r['warn']), 0)
+        self.assertEqual(len(r['error']), 1)

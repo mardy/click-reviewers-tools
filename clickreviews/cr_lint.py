@@ -24,6 +24,7 @@ import re
 from debian.deb822 import Deb822
 
 CONTROL_FILE_NAMES = ["control", "manifest", "md5sums", "preinst"]
+MINIMUM_CLICK_FRAMEWORK = "0.4.8"
 
 
 class ClickReviewLint(ClickReview):
