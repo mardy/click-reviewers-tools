@@ -14,7 +14,7 @@ fi
 prefer_local() {
     path="$(dirname $(readlink -f "$0"))/$1"
     if [ -x $path ]; then
-        $path "$2" || set_rc "$?"
+        "$path" "$2" || set_rc "$?"
         return
     fi
     "$(which $1)" "$2" || set_rc "$?"
