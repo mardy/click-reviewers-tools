@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from cr_common import ClickReview
+from clickreviews.cr_common import ClickReview
 
 
 class ClickReviewSkeleton(ClickReview):

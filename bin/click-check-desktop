@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''check-desktop: perform click desktop checks'''
+'''click-check-desktop: perform click desktop checks'''
 #
 # Copyright (C) 2013 Canonical Ltd.
 #
@@ -16,10 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
-
-import cr_common
-import cr_desktop
 import sys
+import os
+
+# Support running from the build tree.
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
+
+from clickreviews import cr_common
+from clickreviews import cr_desktop
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

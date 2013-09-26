@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from cr_common import ClickReview, error, open_file_read
+from clickreviews.cr_common import ClickReview, error, open_file_read
 import os
 import re
 from urllib.parse import urlsplit

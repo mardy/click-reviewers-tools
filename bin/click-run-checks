@@ -10,6 +10,15 @@ if [ ! -f "$c" ]; then
     exit 1
 fi
 
+# prefer local script for testing, otherwise use system location
+prefer_local() {
+	path="$(dirname $(readlink -f "$0"))/$1"
+	if [ -x $path ]; then
+		exec $path "$2"
+	fi
+	exec "$(which $1)" "$2"
+}
+
 rc="0"
 set_rc() {
     # return worst offending rc
@@ -23,19 +32,19 @@ set_rc() {
 
 }
 
-./show-click-files "$c" || set_rc "$?"
+prefer_local show-click-files "$c" || set_rc "$?"
 
 echo ""
-echo "= check-lint ="
-./check-lint "$c" || set_rc "$?"
+echo "= click-check-lint ="
+prefer_local click-check-lint "$c" || set_rc "$?"
 
 echo ""
-echo "= check-desktop ="
-./check-desktop "$c" || set_rc "$?"
+echo "= click-check-desktop ="
+prefer_local click-check-desktop "$c" || set_rc "$?"
 
 echo ""
-echo "= check-security ="
-./check-security "$c" || set_rc "$?"
+echo "= click-check-security ="
+prefer_local click-check-security "$c" || set_rc "$?"
 
 echo ""
 echo ""
