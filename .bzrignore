@@ -1,1 +1,11 @@
 __pycache__
+.pybuild
+build
+click_reviewers_tools.egg-info
+debian/click-reviewers-tools
+debian/click-reviewers-tools.debhelper.log
+debian/click-reviewers-tools.postinst.debhelper
+debian/click-reviewers-tools.prerm.debhelper
+debian/click-reviewers-tools.substvars
+debian/files
+debian/tmp
