@@ -1,0 +1,5 @@
+click-reviewers-tools (0.1) saucy; urgency=low
+
+  * Initial release (LP: #1230248)
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 25 Sep 2013 14:32:32 +0200
