@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from cr_common import ClickReview, open_file_read, cmd
+from clickreviews.cr_common import ClickReview, open_file_read, cmd
 import glob
 import magic
 import os

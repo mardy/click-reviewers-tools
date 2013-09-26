@@ -16,8 +16,8 @@
 
 from __future__ import print_function
 
-from cr_common import ClickReview, error, warn
-import cr_common
+from clickreviews.cr_common import ClickReview, error, warn
+import clickreviews.cr_common as clickreviews
 import glob
 import json
 import os
