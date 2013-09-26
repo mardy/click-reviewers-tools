@@ -15,15 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
-
-from clickreviews.cr_common import ClickReview, open_file_read, cmd
+from apt import apt_pkg
+from debian.deb822 import Deb822
 import glob
 import magic
 import os
 import re
-from debian.deb822 import Deb822
+
+from clickreviews.cr_common import ClickReview, open_file_read, cmd
 
 CONTROL_FILE_NAMES = ["control", "manifest", "md5sums", "preinst"]
+MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
 
 
 class ClickReviewLint(ClickReview):
@@ -83,10 +85,8 @@ class ClickReviewLint(ClickReview):
 
     def check_control(self):
         '''Check control()'''
-        fh = open_file_read(self.control_files["control"])
-        tmp = list(Deb822.iter_paragraphs(fh.readlines()))
-        fh.close()
-
+        fh = self._extract_control_file()
+        tmp = list(Deb822.iter_paragraphs(fh))
         t = 'info'
         n = 'control_structure'
         s = 'OK'
@@ -189,13 +189,15 @@ class ClickReviewLint(ClickReview):
             s = 'Skipped: title not in manifest'
         self._add_result(t, n, s)
 
-        valid_click_versions = ['0.1', '0.2', '0.3', '0.4']
         t = 'info'
-        n = 'control_click_version'
+        n = 'control_click_version_up_to_date'
         s = 'OK'
-        if control['Click-Version'] not in valid_click_versions:
+
+        if apt_pkg.version_compare(
+            control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION) < 0:
             t = 'error'
-            s = "invalid Click-Version '%s'" % (control['Click-Version'])
+            s = "Click-Version is too old, has '%s', needs '%s' or newer" % (
+                control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION)
         self._add_result(t, n, s)
 
         t = 'info'

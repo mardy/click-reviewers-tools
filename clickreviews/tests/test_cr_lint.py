@@ -14,22 +14,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from apt import apt_pkg
 import io
 
 from unittest.mock import patch
 from unittest import TestCase
 
 from clickreviews.cr_lint import ClickReviewLint
+from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
 from clickreviews.cr_common import ClickReview
 
 
 TEST_CONTROL = """Package: net.launchpad.click-webapps.test-app
 Version: 3
-Click-Version: 0.2
+Click-Version: %s
 Architecture: all
 Maintainer: Test Dev <test@email.com>
 Installed-Size: 111
-Description: Test app"""
+Description: My Test App""" % (MINIMUM_CLICK_FRAMEWORK_VERSION)
 
 TEST_MANIFEST = """{
     "description": "A long description",
@@ -61,8 +63,10 @@ def _extract_manifest_file(self):
 
 # Patch all methods that call out to disk
 @patch('clickreviews.cr_common.ClickReview._check_path_exists', _mock_func)
-@patch('clickreviews.cr_common.ClickReview._extract_control_file', _extract_control_file)
-@patch('clickreviews.cr_common.ClickReview._extract_manifest_file', _extract_manifest_file)
+@patch('clickreviews.cr_common.ClickReview._extract_control_file',
+    _extract_control_file)
+@patch('clickreviews.cr_common.ClickReview._extract_manifest_file',
+    _extract_manifest_file)
 @patch('clickreviews.cr_common.unpack_click', _mock_func)
 @patch('clickreviews.cr_common.ClickReview.__del__', _mock_func)
 @patch('clickreviews.cr_lint.ClickReviewLint._list_control_files', _mock_func)
@@ -79,3 +83,29 @@ class TestClickReviewLint(TestCase):
         # We should end up with no warnings, no errors
         self.assertEqual(len(r['warn']), 0)
         self.assertEqual(len(r['error']), 0)
+
+    def test_check_control(self):
+        """A very basic test to make sure check_control can be tested."""
+        test_name = 'net.launchpad.click-webapps.test-app_3_all.click'
+        c = ClickReviewLint(test_name)
+        c.check_control()
+        r = c.click_report
+        # We should end up with no warnings, no errors
+        self.assertEqual(len(r['warn']), 0)
+        self.assertEqual(len(r['error']), 0)
+
+    # Make the current MINIMUM_CLICK_FRAMEWORK_VERSION newer
+    @patch('clickreviews.cr_lint.MINIMUM_CLICK_FRAMEWORK_VERSION',
+        MINIMUM_CLICK_FRAMEWORK_VERSION + '.1')
+    def test_check_control_click_framework_version(self):
+        """Test that enforcing click framework versions works."""
+        test_name = 'net.launchpad.click-webapps.test-app_3_all.click'
+        c = ClickReviewLint(test_name)
+        c.check_control()
+        r = c.click_report
+        # We should end up with an error as the click version is out of date
+        self.assertEqual(len(r['warn']), 0)
+        self.assertEqual(len(r['error']), 1)
+        # Lets check that the right error is triggering
+        self.assertIn('Click-Version is too old',
+            r['error']['lint_control_click_version_up_to_date'])
