@@ -42,9 +42,6 @@ class ClickReviewLint(ClickReview):
         self.valid_architectures = ['all', 'armhf']
         self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
 
-        # Get a list of all unpacked files, except DEBIAN/
-        self.pkg_files = []
-        self._list_all_files()
         self.mime = magic.open(magic.MAGIC_MIME)
         self.mime.load()
 

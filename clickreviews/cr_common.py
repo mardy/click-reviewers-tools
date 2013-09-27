@@ -80,6 +80,10 @@ class ClickReview(object):
             error("Could not load manifest file. Is it properly formatted?")
         self._verify_manifest_structure()
 
+        # Get a list of all unpacked files, except DEBIAN/
+        self.pkg_files = []
+        self._list_all_files()
+
     def _extract_manifest_file(self):
         '''Extract and read the manifest file'''
         m = os.path.join(self.unpack_dir, "DEBIAN/manifest")
