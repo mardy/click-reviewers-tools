@@ -32,7 +32,7 @@ class ClickReviewFunctional(ClickReview):
     def check_applicationName(self):
         '''Check applicationName matches click manifest'''
         t = 'info'
-        n = 'applicationName_matches_manifest'
+        n = 'qml_applicationName_matches_manifest'
         s = "OK"
         if False:
             t = 'error'
@@ -41,14 +41,20 @@ class ClickReviewFunctional(ClickReview):
         # find file with MainView in the QML
         pat_mv = re.compile(r'\n\s*MainView\s+{')
         qmls = dict()
+        count = 0
         for i in self.pkg_files:
             if i.endswith(".qml"):
+                count += 1
                 qml = open_file_read(i).read()
                 if pat_mv.search(qml):
                     qmls[i] = qml
 
-        if len(qmls) == 0:
-            s = "SKIP: could not find MainView"
+        if count == 0:
+            s = "OK (not QML)"
+            self._add_result(t, n, s)
+            return
+        elif len(qmls) == 0:
+            s = "SKIP: could not find MainView in QML files"
             self._add_result(t, n, s)
             return
 
