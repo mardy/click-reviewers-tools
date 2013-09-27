@@ -78,15 +78,6 @@ class ClickReviewSecurity(ClickReview):
                                              'networking',
                                              'video']
 
-        # TODO: eventually look at 'Usage' meta information in the policy
-        #       group, but that needs click-apparmor 0.1.9
-        self.warn_policy_groups = ['music_files',
-                                   'music_files_read',
-                                   'picture_files',
-                                   'picture_files_read',
-                                   'video_files',
-                                   'video_files_read']
-
         self.redflag_templates = ['unconfined']
         self.extraneous_templates = ['ubuntu-sdk',
                                      'default']
@@ -372,11 +363,13 @@ class ClickReviewSecurity(ClickReview):
                     t = 'info'
                     n = 'policy_groups_safe (%s)' % i
                     s = 'OK'
-                    if i in self.warn_policy_groups:
+                    usage = self._get_policy_group_meta(i, "Usage",
+                                                        vendor, version)
+                    if usage != "common":
                         desc = self._get_policy_group_meta(i, "Description",
                                                            vendor, version)
                         t = 'error'
-                        s = "(MANUAL REVIEW) reserved policy group " + \
+                        s = "(MANUAL REVIEW) %s policy group " % usage + \
                             "'%s': %s" % (i, desc)
                     self._add_result(t, n, s)
 
