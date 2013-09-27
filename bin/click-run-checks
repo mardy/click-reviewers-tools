@@ -48,6 +48,10 @@ echo "= click-check-security ="
 prefer_local click-check-security "$c"
 
 echo ""
+echo "= click-check-functional ="
+prefer_local click-check-functional "$c"
+
+echo ""
 echo ""
 if [ "$rc" = "1" ]; then
     echo "** Warnings found **"
