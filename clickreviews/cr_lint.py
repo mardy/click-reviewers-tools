@@ -54,12 +54,6 @@ class ClickReviewLint(ClickReview):
             self.control_files[i] = os.path.join(self.unpack_dir,
                                                  "DEBIAN/%s" % i)
 
-    def _list_all_files(self):
-        '''List all files included in this click package.'''
-        for root, dirnames, filenames in os.walk(self.unpack_dir):
-            for f in filenames:
-                self.pkg_files.append(os.path.join(root, f))
-
     def check_control_files(self):
         '''Check DEBIAN/* files'''
         for f in self.control_files:

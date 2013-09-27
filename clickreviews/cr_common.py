@@ -97,6 +97,12 @@ class ClickReview(object):
         fh = open_file_read(os.path.join(self.unpack_dir, "DEBIAN/control"))
         return fh.readlines()
 
+    def _list_all_files(self):
+        '''List all files included in this click package.'''
+        for root, dirnames, filenames in os.walk(self.unpack_dir):
+            for f in filenames:
+                self.pkg_files.append(os.path.join(root, f))
+
     def _verify_manifest_structure(self):
         '''Verify manifest has the expected structure'''
         # lp:click doc/file-format.rst
