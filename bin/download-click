@@ -1,0 +1,80 @@
+#!/usr/bin/python3
+'''download-click: download click apps'''
+# 
+#  Copyright (C) 2013 Canonical Ltd.
+# 
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; version 3 of the License.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import urllib.request
+import os
+import shutil
+import simplejson
+import sys
+from clickreviews import cr_common
+
+top_url = "https://search.apps.ubuntu.com"
+
+def get_store_json(url):
+    '''Download json from the store and turn it into a python obj'''
+    req = urllib.request.Request(url)
+    opener = urllib.request.build_opener()
+    f = opener.open(req)
+    obj = simplejson.load(f)
+    return obj
+
+def download(entry):
+    '''Download a click app'''
+    if 'resource_url' not in entry:
+        cr_common.error("Could not find 'resource_url' in:\n%s" % entry)
+    resource_url = top_url + entry['resource_url']
+
+    res = get_store_json(resource_url)
+    if 'download_url' not in res:
+        cr_common.error("Could not find 'download_url' in:\n%s" % res)
+    download_url = res['download_url']
+
+    fn = os.path.join(os.getcwd(), download_url.split('/')[-1])
+    if os.path.exists(fn):
+        cr_common.warn("'%s' already exists, skipping" % fn)
+        return
+    cr_common.msg("Downloading %s" % os.path.basename(fn))
+    # FIXME: on 2013-10-15 this will break
+    (tmp, headers) = urllib.request.urlretrieve(download_url + "?noauth=1")
+    shutil.move(tmp, fn)
+
+
+if __name__ == "__main__":
+    url = top_url + "/api/v1/search?q="
+    items = get_store_json(url)
+    if not isinstance(items, list):
+        cr_common.error("Didn't get valid result from: %s" % url)
+
+    if len(sys.argv) < 2:
+        cr_common.error("%s --all|<pkgname>" % os.path.basename(sys.argv[0]))
+
+    if sys.argv[1] == "--all":
+        for entry in items:
+            download(entry)
+    else:
+        for pkgname in sys.argv[1:]:
+            entry = None
+            for i in items:
+                if i['name'] == pkgname:
+                    entry = i
+                    break
+
+            if not entry:
+                cr_common.warn("Could not find '%s', skipping" % pkgname)
+                continue
+
+            download(entry)
