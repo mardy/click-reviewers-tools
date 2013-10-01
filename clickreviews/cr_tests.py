@@ -243,12 +243,12 @@ class TestClickReview(TestCase):
                     self.assertTrue(k in report[t],
                                     "Could not find '%s' (%s) in:\n%s" % \
                                     (k, t, json.dumps(report, indent=2)))
-                    self.assertEquals(expected[t][k], report[t][k])
+                    self.assertEqual(expected[t][k], report[t][k])
         else:
             for k in expected_counts.keys():
                 if expected_counts[k] is None:
                     continue
-                self.assertEquals(len(report[k]), expected_counts[k],
+                self.assertEqual(len(report[k]), expected_counts[k],
                                  "(%s not equal)\n%s" % (k,
                                  json.dumps(report, indent=2)))
 
