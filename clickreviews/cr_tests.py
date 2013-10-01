@@ -100,12 +100,13 @@ def mock_patch():
             # remove this.
             pass
 
-
 class TestClickReview(TestCase):
     """Tests for the lint review tool."""
     def __init__(self, *args):
         TestCase.__init__(self, *args)
+        self._reset_test_data()
 
+    def _reset_test_data(self):
         # dictionary representing DEBIAN/control
         self.test_control = dict()
         self.set_test_control('Package',
@@ -239,3 +240,14 @@ class TestClickReview(TestCase):
         for p in patches:
             self.addCleanup(p.stop())
 
+    def tearDown(self):
+        '''Make sure we reset everything to known good values'''
+
+        global TEST_CONTROL
+        TEST_CONTROL = ""
+        global TEST_MANIFEST
+        TEST_MANIFEST = ""
+        global TEST_SECURITY
+        TEST_SECURITY = dict()
+
+        self._reset_test_data()
