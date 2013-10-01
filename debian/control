@@ -19,7 +19,12 @@ X-Python3-Version: >= 3.2
 
 Package: click-reviewers-tools
 Architecture: all
-Depends: python3-debian, python3-magic, ${misc:Depends}, ${python3:Depends}
+Depends: ${misc:Depends}, ${python3:Depends},
+         python3-debian,
+         python3-magic,
+         python3-xdg,
+         apparmor-easyprof,
+         apparmor-easyprof-ubuntu
 Description: tools to review click packages
  These scripts can be used to review click packages both manually and in a
  programmatical fashion.
