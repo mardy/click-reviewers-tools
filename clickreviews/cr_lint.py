@@ -144,9 +144,9 @@ class ClickReviewLint(ClickReview):
         if 'architecture' in self.manifest:
             if control['Architecture'] != self.manifest['architecture']:
                 t = 'error'
-                s = "Architecture=%s " % control['Maintainer'] + \
+                s = "Architecture=%s " % control['Architecture'] + \
                     "does not match manifest architecture=%s" % \
-                    self.manifest['maintainer']
+                    self.manifest['architecture']
         else:  # Lack of architecture in manifest is not an error
             t = 'info'
             s = 'OK: architecture not specified in manifest'
