@@ -18,7 +18,7 @@ from clickreviews.cr_security import ClickReviewSecurity
 import clickreviews.cr_tests as cr_tests
 
 class TestClickReviewSecurity(cr_tests.TestClickReview):
-    """Tests for the lint review tool."""
+    """Tests for the security lint review tool."""
     def setUp(self):
         # Monkey patch various file access classes. stop() is handled with
         # addCleanup in super()
