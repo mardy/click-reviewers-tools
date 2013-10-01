@@ -37,9 +37,14 @@ class ClickReviewLint(ClickReview):
         self.control_files = dict()
         self._list_control_files()
         # LP: #1214380
-        # self.valid_architectures = ['amd64', 'i386', 'armhf', 'powerpc',
-        #                             'all']
-        self.valid_architectures = ['all', 'armhf']
+        # self.valid_control_architectures = ['amd64', 'i386', 'armhf',
+        #                                     'powerpc', 'all']
+        self.valid_control_architectures = ['all',     # no compiled code
+                                            'multi',   # fat packages
+                                            'armhf',   # compiled, single arch
+                                            # 'i386',  # not on desktop yet
+                                            # 'amd64', # not on desktop yet
+                                           ]
         self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
 
         self.mime = magic.open(magic.MAGIC_MIME)
@@ -315,7 +320,7 @@ exit 1
         t = 'info'
         n = 'control_architecture_valid'
         s = 'OK'
-        if self.click_arch not in self.valid_architectures:
+        if self.click_arch not in self.valid_control_architectures:
             t = 'error'
             s = "not a valid architecture: %s" % self.click_arch
         self._add_result(t, n, s)
@@ -542,7 +547,7 @@ exit 1
                 s = "SKIP: architecture 'unknown'"
                 self._add_result(t, n, s)
                 return
-            if arch not in self.valid_architectures:
+            if arch not in self.valid_control_architectures:
                 t = 'warn'
                 s = "not a valid architecture: %s" % arch
         else:
@@ -621,3 +626,34 @@ exit 1
                 except UnicodeDecodeError:
                     pass
         self._add_result(t, n, s)
+
+    def check_manifest_architecture(self):
+        '''Check package architecture in manifest is valid'''
+        t = 'info'
+        n = 'manifest_architecture_valid'
+        s = 'OK'
+        if 'architecture' not in self.manifest:
+            s = 'OK (architecture not specified)'
+            self._add_result(t, n, s)
+            return
+
+        manifest_archs_list = list(self.valid_control_architectures)
+        manifest_archs_list.remove("multi")
+
+        if isinstance(self.manifest['architecture'], str) and \
+           self.manifest['architecture'] not in manifest_archs_list:
+            t = 'error'
+            s = "not a valid architecture: %s" % self.manifest['architecture']
+        elif isinstance(self.manifest['architecture'], list):
+            manifest_archs_list.remove("all")
+            bad_archs = []
+            for a in self.manifest['architecture']:
+                if a not in manifest_archs_list:
+                    bad_archs.append(a)
+                if len(bad_archs) > 0:
+                    t = 'error'
+                    s = "not valid multi architecture: %s" % \
+                        ",".join(bad_archs)
+        self._add_result(t, n, s)
+
+

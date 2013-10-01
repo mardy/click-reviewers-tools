@@ -127,8 +127,16 @@ class ClickReview(object):
                     "installed-size"]
 
         for f in optional:
-            if f in self.manifest and not isinstance(self.manifest[f], str):
-                error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
+            if f in self.manifest:
+                if f != "architecture" and \
+                   not isinstance(self.manifest[f], str):
+                    error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
+                elif f == "architecture" and not \
+                   (isinstance(self.manifest[f], str) or \
+                   isinstance(self.manifest[f], list)):
+                    error("manifest malformed: '%s' is not str or list:\n%s" %
+                          (f, mp))
+
 
         # Not required by click, but required by appstore. 'hooks' is assumed
         # to be present in other checks

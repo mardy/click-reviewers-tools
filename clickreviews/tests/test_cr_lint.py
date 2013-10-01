@@ -193,6 +193,121 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts={'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_package_filename_valid_arch_multi(self):
+        '''Test check_package_filename() (valid multi arch)'''
+        arch = "multi"
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
+                                        self.test_control['Version'],
+                                        arch)
+        c = ClickReviewLint(test_name)
+        c.check_package_filename()
+        r = c.click_report
+        expected_counts={'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_missing_arch(self):
+        '''Test check_manifest_architecture() (missing)'''
+        self.set_test_manifest("architecture", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_arch_all(self):
+        '''Test check_manifest_architecture() (all)'''
+        self.set_test_manifest("architecture", "all")
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_arch_single(self):
+        '''Test check_manifest_architecture() (single arch)'''
+        self.set_test_manifest("architecture", "armhf")
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_arch_single_nonexistent(self):
+        '''Test check_manifest_architecture() (single nonexistent arch)'''
+        self.set_test_manifest("architecture", "nonexistent")
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_arch_single_multi(self):
+        '''Test check_manifest_architecture() (single arch: invalid multi)'''
+        self.set_test_manifest("architecture", "multi")
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_valid_arch_multi(self):
+        '''Test check_manifest_architecture() (valid multi)'''
+        arch = "multi"
+        self.set_test_manifest("architecture", ["armhf"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
+                                        self.test_control['Version'],
+                                        arch)
+        c = ClickReviewLint(test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_invalid_arch_multi_nonexistent(self):
+        '''Test check_manifest_architecture() (invalid multi)'''
+        arch = "multi"
+        self.set_test_manifest("architecture", ["armhf", "nonexistent"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
+                                        self.test_control['Version'],
+                                        arch)
+        c = ClickReviewLint(test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_invalid_arch_multi_all(self):
+        '''Test check_manifest_architecture() (invalid all)'''
+        arch = "multi"
+        self.set_test_manifest("architecture", ["armhf", "all"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
+                                        self.test_control['Version'],
+                                        arch)
+        c = ClickReviewLint(test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_invalid_arch_multi_multi(self):
+        '''Test check_manifest_architecture() (invalid multi)'''
+        arch = "multi"
+        self.set_test_manifest("architecture", ["multi", "armhf"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
+                                        self.test_control['Version'],
+                                        arch)
+        c = ClickReviewLint(test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+
     def test_check_package_filename_mismatch_arch(self):
         '''Test check_package_filename() (control mismatches arch)'''
         arch = "armhf"
