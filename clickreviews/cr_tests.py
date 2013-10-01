@@ -74,6 +74,12 @@ patches.append(patch('clickreviews.cr_common.ClickReview.__del__', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
     _mock_func))
 
+# lint overrides
+patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_control_files',
+    _mock_func))
+patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_all_files',
+    _mock_func))
+
 # security overrides
 patches.append(patch('clickreviews.cr_security.ClickReviewSecurity._extract_security_manifest',
     _extract_security_manifest))
@@ -85,7 +91,14 @@ def mock_patch():
     '''Call in setup of child'''
     global patches
     for p in patches:
-        p.start()
+        try:
+            p.start()
+        except ImportError:
+            # This is only needed because we are importing ClickReviewLint
+            # in the security tests and ClickReviewSecurity in the lint tests.
+            # If we move those patches outside of this file, then we can
+            # remove this.
+            pass
 
 
 class TestClickReview(TestCase):
@@ -155,6 +168,22 @@ class TestClickReview(TestCase):
                                              self.test_control['Version'],
                                              self.test_control['Architecture'])
 
+    #
+    # check_results(report, expected_counts, expected)
+    # Verify exact counts of types
+    #   expected_counts={'info': 1, 'warn': 0, 'error': 0}
+    #   self.check_results(report, expected_counts)
+    # Verify counts of warn and error types
+    #   expected_counts={'info': None, 'warn': 0, 'error': 0}
+    #   self.check_results(report, expected_counts)
+    # Verify exact messages:
+    #   expected = dict()
+    #   expected['info'] = dict()
+    #   expected['warn'] = dict()
+    #   expected['warn']['skeleton_baz'] = "TODO"
+    #   expected['error'] = dict()
+    #   self.check_results(r, expected=expected)
+    #
     def check_results(self, report,
                        expected_counts={'info': 1, 'warn': 0, 'error': 0},
                        expected=None):
@@ -167,6 +196,8 @@ class TestClickReview(TestCase):
                     self.assertEquals(expected[t][k], report[t][k])
         else:
             for k in expected_counts.keys():
+                if expected_counts[k] is None:
+                    continue
                 self.assertEquals(len(report[k]), expected_counts[k],
                                  "(%s not equal)\n%s" % (k,
                                  json.dumps(report, indent=2)))
