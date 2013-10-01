@@ -1,4 +1,4 @@
-'''test_cr_lint.py: tests for the cr_lint module'''
+'''cr_tests.py: common setup and tests for test modules'''
 #
 # Copyright (C) 2013 Canonical Ltd.
 #
@@ -20,12 +20,12 @@ import json
 from unittest.mock import patch
 from unittest import TestCase
 
-
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
 
 # These should be set in the test cases
 TEST_CONTROL = ""
 TEST_MANIFEST = ""
+TEST_SECURITY = dict()
 
 #
 # Mock override functions
@@ -41,6 +41,14 @@ def _extract_control_file(self):
 def _extract_manifest_file(self):
     '''Pretend we read the manifest file'''
     return io.StringIO(TEST_MANIFEST)
+
+def _extract_security_manifest(self, app):
+    '''Pretend we read the security manifest file'''
+    return io.StringIO(TEST_SECURITY[app])
+
+def _get_security_manifest(self, app):
+    '''Pretend we read the security manifest file'''
+    return ("%s.json" % app, json.loads(TEST_SECURITY[app]))
 
 # http://docs.python.org/3.4/library/unittest.mock-examples.html#applying-the-same-patch-to-every-test-method
 # Mock patching. Don't use decorators but instead patch in setUp() of the
@@ -66,6 +74,13 @@ patches.append(patch('clickreviews.cr_common.ClickReview.__del__', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
     _mock_func))
 
+# security overrides
+patches.append(patch('clickreviews.cr_security.ClickReviewSecurity._extract_security_manifest',
+    _extract_security_manifest))
+patches.append(patch('clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
+    _get_security_manifest))
+
+
 def mock_patch():
     '''Call in setup of child'''
     global patches
@@ -80,28 +95,42 @@ class TestClickReview(TestCase):
 
         # dictionary representing DEBIAN/control
         self.test_control = dict()
-        self.test_control['Package'] = "com.ubuntu.developer.someuser.testapp"
-        self.test_control['Version'] = "1.0"
-        self.test_control['Click-Version'] = MINIMUM_CLICK_FRAMEWORK_VERSION
-        self.test_control['Architecture'] = "all"
-        self.test_control['Maintainer'] = "Some User <some.user@example.com>"
-        self.test_control['Installed-Size'] = "111"
-        self.test_control['Description'] = "My Test App"
-        self._update_test_control()
+        self.set_test_control('Package',
+                              "com.ubuntu.developer.someuser.testapp")
+        self.set_test_control('Version', "1.0")
+        self.set_test_control('Click-Version', MINIMUM_CLICK_FRAMEWORK_VERSION)
+        self.set_test_control('Architecture', "all")
+        self.set_test_control('Maintainer',
+                              "Some User <some.user@example.com>")
+        self.set_test_control('Installed-Size', "111")
+        self.set_test_control('Description', "My Test App")
 
         # dictionary representing DEBIAN/manifest
         self.test_manifest = dict()
-        self.test_manifest["description"] = "Some longish description of My Test App"
-        self.test_manifest["framework"] = "ubuntu-sdk-13.10"
-        self.test_manifest["maintainer"] = self.test_control['Maintainer']
-        self.test_manifest["name"] = self.test_control['Package']
+        self.set_test_manifest("description",
+                               "Some longish description of My Test App")
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        self.set_test_manifest("maintainer", self.test_control['Maintainer'])
+        self.set_test_manifest("name", self.test_control['Package'])
+        self.set_test_manifest("title", self.test_control['Description'])
+        self.set_test_manifest("version", self.test_control['Version'])
         self.test_manifest["hooks"] = dict()
-        self.test_manifest["hooks"]["test-app"] = dict()
-        self.test_manifest["hooks"]["test-app"]["apparmor"] = "apparmor/test-app.json"
-        self.test_manifest["hooks"]["test-app"]["desktop"] = "test-app.desktop"
-        self.test_manifest["title"] = self.test_control['Description']
-        self.test_manifest["version"] = self.test_control['Version']
+        self.test_hook_default_appname = "test-app"
+        self.test_manifest["hooks"][self.test_hook_default_appname] = dict()
+        self.test_manifest["hooks"][self.test_hook_default_appname]["apparmor"] = "%s.json" % self.test_hook_default_appname
+        self.test_manifest["hooks"][self.test_hook_default_appname]["desktop"] = "%s.desktop" % self.test_hook_default_appname
         self._update_test_manifest()
+
+        # hooks
+        self.test_security_manifests = dict()
+        self.test_desktop_files = dict()
+        for app in self.test_manifest["hooks"].keys():
+            # setup security manifest for each app
+            self.set_test_security_manifest(app, 'policy_groups', 'networking')
+            self.set_test_security_manifest(app, 'policy_version', 1.0)
+
+            # TODO: setup desktop file for each app
+        self._update_test_security_manifests()
 
         # mockup a click package name based on the above
         self._update_test_name()
@@ -116,13 +145,66 @@ class TestClickReview(TestCase):
         global TEST_MANIFEST
         TEST_MANIFEST = json.dumps(self.test_manifest)
 
+    def _update_test_security_manifests(self):
+        global TEST_SECURITY
+        for app in self.test_security_manifests.keys():
+            TEST_SECURITY[app] = json.dumps(self.test_security_manifests[app])
+
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
                                              self.test_control['Version'],
                                              self.test_control['Architecture'])
+
+    def check_results(self, report,
+                       expected_counts={'info': 1, 'warn': 0, 'error': 0},
+                       expected=None):
+        if expected is not None:
+            for t in expected.keys():
+                for k in expected[t]:
+                    self.assertTrue(k in report[t],
+                                    "Could not find '%s (%s)' in:\n%s" % \
+                                    (k, t, json.dumps(report, indent=2)))
+                    self.assertEquals(expected[t][k], report[t][k])
+        else:
+            for k in expected_counts.keys():
+                self.assertEquals(len(report[k]), expected_counts[k],
+                                 "(%s not equal)\n%s" % (k,
+                                 json.dumps(report, indent=2)))
+
+    def set_test_control(self, key, value):
+        '''Set key in DEBIAN/control to value. If value is None, remove key'''
+        if value is None:
+            if key in self.test_control:
+                self.test_control.pop(key, None)
+        else:
+            self.test_control[key] = value
+        self._update_test_control()
+
+    def set_test_manifest(self, key, value):
+        '''Set key in DEBIAN/manifest to value. If value is None, remove key'''
+        if value is None:
+            if key in self.test_manifest:
+                self.test_manifest.pop(key, None)
+        else:
+            self.test_manifest[key] = value
+        self._update_test_manifest()
+
+    def set_test_security_manifest(self, app, key, value):
+        '''Set key in security manifest to value. If value is None, remove
+           key'''
+        if app not in self.test_security_manifests:
+            self.test_security_manifests[app] = dict()
+
+        if value is None:
+            if key in self.test_security_manifests[app]:
+                self.test_security_manifests[app].pop(key, None)
+        else:
+            self.test_security_manifests[app][key] = value
+        self._update_test_security_manifests()
 
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         global patches
         for p in patches:
             self.addCleanup(p.stop())
+

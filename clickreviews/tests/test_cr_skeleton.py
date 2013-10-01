@@ -1,4 +1,4 @@
-'''test_cr_lint.py: tests for the cr_lint module'''
+'''test_cr_skeleton.py: tests for the cr_skeleton module'''
 #
 # Copyright (C) 2013 Canonical Ltd.
 #
@@ -30,39 +30,41 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
         c = ClickReviewSkeleton(self.test_name)
         c.check_foo()
         r = c.click_report
-        # We should end up with no warnings, no errors
-        self.assertEqual(len(r['info']), 1)
-        self.assertEqual(len(r['warn']), 0)
-        self.assertEqual(len(r['error']), 0)
+        # We should end up with 1 info
+        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
 
     def test_check_bar(self):
         '''Test check_bar()'''
         c = ClickReviewSkeleton(self.test_name)
         c.check_bar()
         r = c.click_report
-        # We should end up with no warnings, no errors
-        self.assertEqual(len(r['info']), 0)
-        self.assertEqual(len(r['warn']), 0)
-        self.assertEqual(len(r['error']), 1)
+        # We should end up with 1 error
+        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
 
     def test_check_baz(self):
         '''Test check_baz()'''
         c = ClickReviewSkeleton(self.test_name)
         c.check_baz()
         r = c.click_report
-        # We should end up with no warnings, no errors
-        self.assertEqual(len(r['info']), 0)
-        self.assertEqual(len(r['warn']), 1)
-        self.assertEqual(len(r['error']), 0)
+        # We should end up with 1 warning
+        expected_counts={'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        # Check specific entries
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['warn']['skeleton_baz'] = "TODO"
+        expected['error'] = dict()
+        self.check_results(r, expected=expected)
 
     def test_output(self):
         '''Test output'''
         # Update the control field and output the changes
-        self.test_control['Package'] = "my.mock.app.name"
-        self._update_test_control()
-
-        self.test_manifest["name"] = self.test_control['Package']
-        self._update_test_manifest()
+        self.set_test_control('Package', "my.mock.app.name")
+        self.set_test_manifest('name', "my.mock.app.name")
         self._update_test_name()
 
         import pprint
