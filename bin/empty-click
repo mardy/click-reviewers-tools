@@ -10,7 +10,7 @@ import os
 def create_new_manifest(click_file):
     try:
         output = subprocess.check_output(["click", "info", click_file])
-    except CalledProcessError:
+    except subprocess.CalledProcessError:
         print >> sys.stderr, "click info %s failed." % click_file
         sys.exit(1)
     manifest = json.loads(output.decode())
