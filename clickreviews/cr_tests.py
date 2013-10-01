@@ -16,16 +16,21 @@
 
 import io
 import json
+import os
+import tempfile
+from xdg.DesktopEntry import DesktopEntry
 
 from unittest.mock import patch
 from unittest import TestCase
 
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
+import clickreviews.cr_common as cr_common
 
 # These should be set in the test cases
 TEST_CONTROL = ""
 TEST_MANIFEST = ""
 TEST_SECURITY = dict()
+TEST_DESKTOP = dict()
 
 #
 # Mock override functions
@@ -49,6 +54,15 @@ def _extract_security_manifest(self, app):
 def _get_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
     return ("%s.json" % app, json.loads(TEST_SECURITY[app]))
+
+def _extract_desktop_entry(self, app):
+    '''Pretend we read the desktop file'''
+    return ("%s.desktop" % app, TEST_DESKTOP[app])
+
+def _get_desktop_entry(self, app):
+    '''Pretend we read the desktop file'''
+    return TEST_DESKTOP[app]
+
 
 # http://docs.python.org/3.4/library/unittest.mock-examples.html#applying-the-same-patch-to-every-test-method
 # Mock patching. Don't use decorators but instead patch in setUp() of the
@@ -86,6 +100,11 @@ patches.append(patch('clickreviews.cr_security.ClickReviewSecurity._extract_secu
 patches.append(patch('clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
     _get_security_manifest))
 
+# desktop overrides
+patches.append(patch('clickreviews.cr_desktop.ClickReviewDesktop._extract_desktop_entry',
+    _extract_desktop_entry))
+patches.append(patch('clickreviews.cr_desktop.ClickReviewDesktop._get_desktop_entry',
+    _get_desktop_entry))
 
 def mock_patch():
     '''Call in setup of child'''
@@ -103,6 +122,8 @@ def mock_patch():
 class TestClickReview(TestCase):
     """Tests for the lint review tool."""
     def __init__(self, *args):
+        if not hasattr(self, 'desktop_tmpdir'):
+            self.desktop_tmpdir = tempfile.mkdtemp(prefix="clickreview-test-desktop-")
         TestCase.__init__(self, *args)
         self._reset_test_data()
 
@@ -143,8 +164,22 @@ class TestClickReview(TestCase):
             self.set_test_security_manifest(app, 'policy_groups', 'networking')
             self.set_test_security_manifest(app, 'policy_version', 1.0)
 
-            # TODO: setup desktop file for each app
+            # setup desktop file for each app
+            self.set_test_desktop(app, 'Name',
+                                  self.test_hook_default_appname,
+                                  no_update=True)
+            self.set_test_desktop(app, 'Comment', '%s test comment' % app,
+                                  no_update=True)
+            self.set_test_desktop(app, 'Exec', 'qmlscene %s.qml' % app,
+                                  no_update=True)
+            self.set_test_desktop(app, 'Icon', '%s.png' % app, no_update=True)
+            self.set_test_desktop(app, 'Terminal', 'false', no_update=True)
+            self.set_test_desktop(app, 'Type', 'Application', no_update=True)
+            self.set_test_desktop(app, 'X-Ubuntu-Touch', 'true',
+                                  no_update=True)
+
         self._update_test_security_manifests()
+        self._update_test_desktop_files()
 
         # mockup a click package name based on the above
         self._update_test_name()
@@ -163,6 +198,20 @@ class TestClickReview(TestCase):
         global TEST_SECURITY
         for app in self.test_security_manifests.keys():
             TEST_SECURITY[app] = json.dumps(self.test_security_manifests[app])
+
+    def _update_test_desktop_files(self):
+        global TEST_DESKTOP
+        for app in self.test_desktop_files.keys():
+            contents = '''[Desktop Entry]'''
+            for k in self.test_desktop_files[app].keys():
+                contents += '\n%s=%s' % (k, self.test_desktop_files[app][k])
+            contents += "\n"
+
+            fn = os.path.join(self.desktop_tmpdir, "%s.desktop" % app)
+            with open(fn, "w") as f:
+                f.write(contents)
+            f.close()
+            TEST_DESKTOP[app] = DesktopEntry(fn)
 
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
@@ -192,7 +241,7 @@ class TestClickReview(TestCase):
             for t in expected.keys():
                 for k in expected[t]:
                     self.assertTrue(k in report[t],
-                                    "Could not find '%s (%s)' in:\n%s" % \
+                                    "Could not find '%s' (%s) in:\n%s" % \
                                     (k, t, json.dumps(report, indent=2)))
                     self.assertEquals(expected[t][k], report[t][k])
         else:
@@ -234,6 +283,19 @@ class TestClickReview(TestCase):
             self.test_security_manifests[app][key] = value
         self._update_test_security_manifests()
 
+    def set_test_desktop(self, app, key, value, no_update=False):
+        '''Set key in desktop file to value. If value is None, remove key'''
+        if app not in self.test_desktop_files:
+            self.test_desktop_files[app] = dict()
+
+        if value is None:
+            if key in self.test_desktop_files[app]:
+                self.test_desktop_files[app].pop(key, None)
+        else:
+            self.test_desktop_files[app][key] = value
+        if not no_update:
+            self._update_test_desktop_files()
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         global patches
@@ -242,12 +304,14 @@ class TestClickReview(TestCase):
 
     def tearDown(self):
         '''Make sure we reset everything to known good values'''
-
         global TEST_CONTROL
         TEST_CONTROL = ""
         global TEST_MANIFEST
         TEST_MANIFEST = ""
         global TEST_SECURITY
         TEST_SECURITY = dict()
+        global TEST_DESKTOP
+        TEST_DESKTOP = dict()
 
         self._reset_test_data()
+        cr_common.recursive_rm(self.desktop_tmpdir)

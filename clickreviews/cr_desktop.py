@@ -28,7 +28,7 @@ class ClickReviewDesktop(ClickReview):
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "desktop")
 
-        self.desktop_files = dict()
+        self.desktop_files = dict() # click-show-files and a couple tests
         self.desktop_entries = dict()
         self.desktop_hook_entries = 0
         for app in self.manifest['hooks']:
@@ -37,11 +37,9 @@ class ClickReviewDesktop(ClickReview):
             if not isinstance(self.manifest['hooks'][app]['desktop'], str):
                 error("manifest malformed: hooks/%s/desktop is not str" % app)
             self.desktop_hook_entries += 1
-            d = self.manifest['hooks'][app]['desktop']
-            full_fn = os.path.join(self.unpack_dir, d)
-            if os.path.exists(full_fn):
-                self.desktop_entries[app] = self._get_desktop_entry(full_fn)
-                self.desktop_files[app] = full_fn
+            (de, full_fn) = self._extract_desktop_entry(app)
+            self.desktop_entries[app] = de
+            self.desktop_files[app] = full_fn
 
         self.required_keys = ['Name',
                               'Type',
@@ -62,8 +60,11 @@ class ClickReviewDesktop(ClickReview):
         if self.click_pkgname.split('.')[-1] not in self.valid_gettext_domains:
             self.valid_gettext_domains.append(self.click_pkgname.split('.')[-1])
 
-    def _get_desktop_entry(self, fn):
+    def _extract_desktop_entry(self, app):
         '''Get DesktopEntry for desktop file and verify it'''
+        d = self.manifest['hooks'][app]['desktop']
+        fn = os.path.join(self.unpack_dir, d)
+
         bn = os.path.basename(fn)
         if not os.path.exists(fn):
             error("Could not find '%s'" % bn)
@@ -84,14 +85,26 @@ class ClickReviewDesktop(ClickReview):
         except Exception as e:
             error("desktop file unparseable: %s (%s):\n%s" % (bn, str(e),
                                                               contents))
-        return de
+        return de, fn
+
+    def _get_desktop_entry(self, app):
+        '''Get DesktopEntry from parsed values'''
+        return self.desktop_entries[app]
+
+    def _get_desktop_files(self):
+        '''Get desktop_files (abstracted out for mock)'''
+        return self.desktop_files
+
+    def _get_desktop_filename(self, app):
+        '''Get desktop file filenames'''
+        return self.desktop_files[app]
 
     def check_desktop_file(self):
         '''Check desktop file'''
         t = 'info'
         n = 'files_available'
         s = 'OK'
-        if len(self.desktop_files.keys()) < 1:
+        if len(self._get_desktop_files().keys()) < 1:
             t = 'error'
             s = 'No .desktop files available.'
         self._add_result(t, n, s)
@@ -99,7 +112,8 @@ class ClickReviewDesktop(ClickReview):
         t = 'info'
         n = 'files_usable'
         s = 'OK'
-        if len(self.desktop_files.keys()) != self.desktop_hook_entries:
+        if len(self._get_desktop_files().keys()) != \
+               self.desktop_hook_entries:
             t = 'error'
             s = 'Could not use all specified .desktop files'
         self._add_result(t, n, s)
@@ -107,7 +121,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_file_valid(self):
         '''Check desktop file validates'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'validates (%s)' % app
             s = 'OK'
@@ -121,7 +135,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_required_keys(self):
         '''Check for required keys'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'required_keys (%s)' % app
             s = "OK"
@@ -149,7 +163,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_blacklisted_keys(self):
         '''Check for blacklisted keys'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'blacklisted_keys (%s)' % app
             s = "OK"
@@ -165,7 +179,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_exec(self):
         '''Check Exec entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'Exec (%s)' % app
             s = 'OK'
@@ -189,7 +203,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_exec_webbrowser(self):
         '''Check Exec=webbrowser-app entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'Exec_webbrowser (%s)' % app
             s = 'OK'
@@ -223,7 +237,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_exec_webbrowser_urlpatterns(self):
         '''Check Exec=webbrowser-app entry has valid --webappUrlPatterns'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             execline = de.getExec().split()
             if not de.hasKey('Exec'):
                 continue
@@ -329,7 +343,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'groups (%s)' % app
             s = "OK"
@@ -344,7 +358,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_type(self):
         '''Check Type entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'Type (%s)' % app
             s = "OK"
@@ -359,7 +373,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_x_ubuntu_touch(self):
         '''Check X-Ubuntu-Touch entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'X-Ubuntu-Touch (%s)' % app
             s = "OK"
@@ -375,7 +389,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_x_ubuntu_stagehint(self):
         '''Check X-Ubuntu-StageHint entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'X-Ubuntu-StageHint (%s)' % app
             s = "OK"
@@ -391,7 +405,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_x_ubuntu_gettext_domain(self):
         '''Check X-Ubuntu-Gettext-Domain entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'X-Ubuntu-Gettext-Domain (%s)' % app
             s = "OK"
@@ -409,7 +423,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_terminal(self):
         '''Check Terminal entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'Terminal (%s)' % app
             s = "OK"
@@ -423,7 +437,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_version(self):
         '''Check Version entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'Version (%s)' % app
             s = "OK"
@@ -439,7 +453,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_comment(self):
         '''Check Comment entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'Comment_boilerplate (%s)' % app
             s = "OK"
@@ -451,7 +465,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_icon(self):
         '''Check Icon entry'''
         for app in sorted(self.desktop_entries):
-            de = self.desktop_entries[app]
+            de = self._get_desktop_entry(app)
             t = 'info'
             n = 'Icon (%s)' % app
             s = 'OK'
@@ -472,7 +486,7 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'duplicate_keys (%s)' % app
             s = 'OK'
-            fn = self.desktop_files[app]
+            fn = self._get_desktop_filename(app)
             content = open_file_read(fn).readlines()
             for line in content:
                 tmp = line.split('=')
