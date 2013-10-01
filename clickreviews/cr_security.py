@@ -88,14 +88,16 @@ class ClickReviewSecurity(ClickReview):
                 error("could not find apparmor hook for '%s'" % app)
             if not isinstance(self.manifest['hooks'][app]['apparmor'], str):
                 error("manifest malformed: hooks/%s/apparmor is not str" % app)
-            d = self.manifest['hooks'][app]['apparmor']
-            f = os.path.join(self.unpack_dir, d)
-            rel_fn = os.path.relpath(f, self.unpack_dir)
-            self.security_manifests[rel_fn] = self._get_security_manifest(f)
+            rel_fn = self.manifest['hooks'][app]['apparmor']
+            self.security_manifests[rel_fn] = self._extract_security_manifest(app)
 
-    def _get_security_manifest(self, fn):
-        '''Get security manifest and verify it has the expected structure'''
-        rel_fn = os.path.relpath(fn, self.unpack_dir)
+    def _extract_security_manifest(self, app):
+        '''Extract security manifest and verify it has the expected
+           structure'''
+        d = self.manifest['hooks'][app]['apparmor']
+        fn = os.path.join(self.unpack_dir, d)
+        rel_fn = self.manifest['hooks'][app]['apparmor']
+
         try:
             m = json.load(cr_common.open_file_read(fn))
         except Exception:
@@ -155,10 +157,20 @@ class ClickReviewSecurity(ClickReview):
 
         return text
 
+    def _get_security_manifest(self, app):
+        '''Get the security manifest for app'''
+        if app not in self.manifest['hooks']:
+            error("Could not find '%s' in click manifest" % app)
+        elif 'apparmor' not in self.manifest['hooks'][app]:
+            error("Could not find apparmor hook for '%s' in click manifest" % app)
+        f = self.manifest['hooks'][app]['apparmor']
+        m = self.security_manifests[f]
+        return (f, m)
+
     def check_policy_vendor(self):
         '''Check policy_vendor'''
-        for f in sorted(self.security_manifests):
-            m = self.security_manifests[f]
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
             t = 'info'
             n = 'policy_vendor (%s)' % f
             s = "OK"
@@ -169,8 +181,8 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_version(self):
         '''Check policy version'''
-        for f in sorted(self.security_manifests):
-            m = self.security_manifests[f]
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
 
             n = 'policy_version_exists (%s)' % f
             if 'policy_version' not in m:
@@ -206,8 +218,8 @@ class ClickReviewSecurity(ClickReview):
 
     def check_template(self):
         '''Check template'''
-        for f in sorted(self.security_manifests):
-            m = self.security_manifests[f]
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
 
             t = 'info'
             n = 'template_with_policy_version (%s)' % f
@@ -272,8 +284,8 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_groups_webapps(self):
         '''Check policy_groups for webapps'''
-        for f in sorted(self.security_manifests):
-            m = self.security_manifests[f]
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
             t = 'info'
             n = 'policy_groups_webapp (%s)' % f
             s = "OK"
@@ -297,8 +309,8 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_groups(self):
         '''Check policy_groups'''
-        for f in sorted(self.security_manifests):
-            m = self.security_manifests[f]
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
 
             t = 'info'
             n = 'policy_groups_exists (%s)' % f
@@ -375,8 +387,8 @@ class ClickReviewSecurity(ClickReview):
 
     def check_ignored(self):
         '''Check ignored fields'''
-        for f in sorted(self.security_manifests):
-            m = self.security_manifests[f]
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
 
             t = 'info'
             n = 'ignored_fields (%s)' % f
@@ -393,8 +405,8 @@ class ClickReviewSecurity(ClickReview):
 
     def check_redflag(self):
         '''Check redflag fields'''
-        for f in sorted(self.security_manifests):
-            m = self.security_manifests[f]
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
 
             t = 'info'
             n = 'redflag_fields (%s)' % f
@@ -412,8 +424,8 @@ class ClickReviewSecurity(ClickReview):
 
     def check_required(self):
         '''Check required fields'''
-        for f in sorted(self.security_manifests):
-            m = self.security_manifests[f]
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
 
             t = 'info'
             n = 'ignored_fields (%s)' % f
