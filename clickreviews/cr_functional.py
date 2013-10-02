@@ -95,6 +95,4 @@ class ClickReviewFunctional(ClickReview):
                               ))
             s += ". Application may not work properly when confined."
 
-
-
         self._add_result(t, n, s)

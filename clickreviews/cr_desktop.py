@@ -23,12 +23,13 @@ from urllib.parse import urlsplit
 from xdg.DesktopEntry import DesktopEntry
 from xdg.Exceptions import ParsingError as xdgParsingError
 
+
 class ClickReviewDesktop(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "desktop")
 
-        self.desktop_files = dict() # click-show-files and a couple tests
+        self.desktop_files = dict()  # click-show-files and a couple tests
         self.desktop_entries = dict()
         self.desktop_hook_entries = 0
         for app in self.manifest['hooks']:
@@ -45,15 +46,16 @@ class ClickReviewDesktop(ClickReview):
                               'Type',
                               'Icon',
                               'Exec',
-                              'X-Ubuntu-Touch']
+                              'X-Ubuntu-Touch',
+                              ]
         self.expected_execs = ['qmlscene',
                                'webbrowser-app',
-                               'cordova-ubuntu-2.8'
-                              ]
+                               'cordova-ubuntu-2.8',
+                               ]
         self.expected_webbrowser_args = ['--enable-back-forward',
                                          '--webapp',
-                                         '--webappUrlPatterns=*'
-                                        ]
+                                         '--webappUrlPatterns=*',
+                                         ]
         self.blacklisted_keys = ['Path']
 
         self.valid_gettext_domains = [self.click_pkgname]
@@ -112,8 +114,7 @@ class ClickReviewDesktop(ClickReview):
         t = 'info'
         n = 'files_usable'
         s = 'OK'
-        if len(self._get_desktop_files().keys()) != \
-               self.desktop_hook_entries:
+        if len(self._get_desktop_files().keys()) != self.desktop_hook_entries:
             t = 'error'
             s = 'Could not use all specified .desktop files'
         self._add_result(t, n, s)
@@ -191,7 +192,7 @@ class ClickReviewDesktop(ClickReview):
                 s = "absolute path '%s' for Exec given in .desktop file." \
                         % de.getExec()
             elif de.getExec().split()[0] not in self.expected_execs:
-                if self.click_arch == "all": # interpreted file
+                if self.click_arch == "all":  # interpreted file
                     s = "found unexpected Exec with architecture '%s': %s" % (self.click_arch, de.getExec().split()[0])
                     t = 'warn'
                 else:                        # compiled
@@ -429,7 +430,7 @@ class ClickReviewDesktop(ClickReview):
             s = "OK"
             if not de.hasKey('Terminal'):
                 s = "OK (not specified)"
-            elif de.getTerminal() != False:
+            elif de.getTerminal() is not False:
                 t = 'error'
                 s = 'does not use Terminal=false (%s)' % de.getTerminal()
             self._add_result(t, n, s)
