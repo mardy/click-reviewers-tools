@@ -84,7 +84,7 @@ class ClickReviewFunctional(ClickReview):
                 ", ".join(list(map(
                                lambda x: os.path.relpath(x, self.unpack_dir),
                                qmls)
-                              ))
+                               ))
         elif not ok:
             t = "warn"
             s = "click manifest name '%s' not found in: " % \
@@ -92,7 +92,7 @@ class ClickReviewFunctional(ClickReview):
                 ", ".join(list(map(
                                lambda x: "%s ('%s')" % (x, appnames[x]),
                                appnames)
-                              ))
+                               ))
             s += ". Application may not work properly when confined."
 
         self._add_result(t, n, s)

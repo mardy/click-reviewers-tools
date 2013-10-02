@@ -17,6 +17,7 @@
 from clickreviews.cr_desktop import ClickReviewDesktop
 import clickreviews.cr_tests as cr_tests
 
+
 class TestClickReviewDesktop(cr_tests.TestClickReview):
     """Tests for the desktop review tool."""
     def setUp(self):
@@ -47,28 +48,28 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']['desktop_validates (%s)' % \
-            self.test_hook_default_appname] = "OK"
+        expected['info']['desktop_validates (%s)' %
+                         self.default_appname] = "OK"
         self.check_results(r, expected=expected)
 
     def test_check_desktop_file_valid_missing_exec(self):
         '''Test check_desktop_file_valid() - missing Exec'''
         c = ClickReviewDesktop(self.test_name)
-        self.set_test_desktop(self.test_hook_default_appname,
+        self.set_test_desktop(self.default_appname,
                               "Exec", None)
         c.check_desktop_file_valid()
         r = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_desktop_file_valid_empty_name(self):
         '''Test check_desktop_file_valid() - empty Name'''
         c = ClickReviewDesktop(self.test_name)
-        self.set_test_desktop(self.test_hook_default_appname,
+        self.set_test_desktop(self.default_appname,
                               "Name", "")
         c.check_desktop_file_valid()
         r = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_desktop_required_keys(self):
@@ -76,16 +77,15 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         c = ClickReviewDesktop(self.test_name)
         c.check_desktop_required_keys()
         r = c.click_report
-        expected_counts={'info': 2, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_desktop_required_keys_missing(self):
         '''Test check_desktop_required_keys()'''
         c = ClickReviewDesktop(self.test_name)
-        self.set_test_desktop(self.test_hook_default_appname,
+        self.set_test_desktop(self.default_appname,
                               "Name", None)
         c.check_desktop_required_keys()
         r = c.click_report
-        expected_counts={'info': 1, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-

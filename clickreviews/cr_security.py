@@ -89,7 +89,8 @@ class ClickReviewSecurity(ClickReview):
             if not isinstance(self.manifest['hooks'][app]['apparmor'], str):
                 error("manifest malformed: hooks/%s/apparmor is not str" % app)
             rel_fn = self.manifest['hooks'][app]['apparmor']
-            self.security_manifests[rel_fn] = self._extract_security_manifest(app)
+            self.security_manifests[rel_fn] = \
+                self._extract_security_manifest(app)
 
     def _extract_security_manifest(self, app):
         '''Extract security manifest and verify it has the expected
@@ -162,7 +163,8 @@ class ClickReviewSecurity(ClickReview):
         if app not in self.manifest['hooks']:
             error("Could not find '%s' in click manifest" % app)
         elif 'apparmor' not in self.manifest['hooks'][app]:
-            error("Could not find apparmor hook for '%s' in click manifest" % app)
+            error("Could not find apparmor hook for '%s' in click manifest" %
+                  app)
         f = self.manifest['hooks'][app]['apparmor']
         m = self.security_manifests[f]
         return (f, m)
@@ -189,7 +191,6 @@ class ClickReviewSecurity(ClickReview):
                 self._add_result('error', n,
                                  'could not find policy_version in manifest')
                 continue
-
 
             t = 'info'
             s = "OK"
@@ -357,7 +358,8 @@ class ClickReviewSecurity(ClickReview):
                 # deny
                 if i == "":
                     t = 'warn'
-                    s = 'found empty policy group (ok until LP: #1221407 is fixed)'
+                    s = 'found empty policy group (ok until LP: #1221407 ' + \
+                        'is fixed)'
                     self._add_result(t, n, s)
                     continue
 

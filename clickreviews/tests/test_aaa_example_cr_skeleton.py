@@ -17,6 +17,7 @@
 from clickreviews.cr_skeleton import ClickReviewSkeleton
 import clickreviews.cr_tests as cr_tests
 
+
 class TestClickReviewSkeleton(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
     def setUp(self):
@@ -31,7 +32,7 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
         c.check_foo()
         r = c.click_report
         # We should end up with 1 info
-        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_bar(self):
@@ -40,7 +41,7 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
         c.check_bar()
         r = c.click_report
         # We should end up with 1 error
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_baz(self):
@@ -49,7 +50,7 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
         c.check_baz()
         r = c.click_report
         # We should end up with 1 warning
-        expected_counts={'info': 0, 'warn': 1, 'error': 0}
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
         # Check specific entries

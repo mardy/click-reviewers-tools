@@ -17,34 +17,35 @@
 from clickreviews.cr_security import ClickReviewSecurity
 import clickreviews.cr_tests as cr_tests
 
+
 class TestClickReviewSecurity(cr_tests.TestClickReview):
     """Tests for the security lint review tool."""
     def setUp(self):
-        # Monkey patch various file access classes. stop() is handled with
-        # addCleanup in super()
+        #  Monkey patch various file access classes. stop() is handled with
+        #  addCleanup in super()
         cr_tests.mock_patch()
         super()
 
         self.default_security_json = "%s.json" % \
-            self.test_hook_default_appname
+            self.default_appname
 
     def test_check_policy_version_vendor(self):
         '''Test check_policy_version() - valid'''
-        for v in [1.0]: # update when have more vendor policy
+        for v in [1.0]:  # update when have more vendor policy
             c = ClickReviewSecurity(self.test_name)
-            self.set_test_security_manifest(self.test_hook_default_appname,
+            self.set_test_security_manifest(self.default_appname,
                                             "policy_version", v)
             c.check_policy_version()
             report = c.click_report
-            expected_counts={'info': 2, 'warn': 0, 'error': 0}
+            expected_counts = {'info': 2, 'warn': 0, 'error': 0}
             self.check_results(report, expected_counts)
 
     def test_check_policy_version_highest(self):
         '''Test check_policy_version() - highest'''
-        highest_version = 1.0 # system, adjust as needed
+        highest_version = 1.0  # system, adjust as needed
         version = 1.0
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "policy_version", version)
         c.check_policy_version()
         report = c.click_report
@@ -52,15 +53,15 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']["security_policy_version_is_%s (%s)" % \
-            (highest_version, self.default_security_json)] = "OK"
+        expected['info']["security_policy_version_is_%s (%s)" %
+                         (highest_version, self.default_security_json)] = "OK"
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_bad(self):
         '''Test check_policy_version() - bad version'''
         bad_version = 0.1
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "policy_version", bad_version)
         c.check_policy_version()
         report = c.click_report
@@ -68,17 +69,17 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['warn']["security_policy_version_is_1.0 (%s)" % \
-            self.default_security_json] = "0.1 != 1.0"
-        expected['error']["security_policy_version_exists (%s)" % \
-            self.default_security_json] = \
+        expected['warn']["security_policy_version_is_1.0 (%s)" %
+                         self.default_security_json] = "0.1 != 1.0"
+        expected['error']["security_policy_version_exists (%s)" %
+                          self.default_security_json] = \
             "could not find policy for ubuntu/%s" % str(bad_version)
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_unspecified(self):
         '''Test check_policy_version() - bad version'''
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "policy_version", None)
         c.check_policy_version()
         report = c.click_report
@@ -86,8 +87,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['error']["security_policy_version_exists (%s)" % \
-            self.default_security_json] = \
+        expected['error']["security_policy_version_exists (%s)" %
+                          self.default_security_json] = \
             "could not find policy_version in manifest"
         self.check_results(report, expected=expected)
 
@@ -96,43 +97,43 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_vendor()
         report = c.click_report
-        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_vendor_ubuntu(self):
         '''Test check_policy_vendor() - ubuntu'''
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "policy_vendor", "ubuntu")
         c.check_policy_vendor()
         report = c.click_report
-        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_vendor_nonexistent(self):
         '''Test check_policy_vendor() - nonexistent'''
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "policy_vendor", "nonexistent")
         c.check_policy_vendor()
         report = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_template_unspecified(self):
         '''Test check_template() - unspecified'''
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "template", None)
         c.check_template()
         report = c.click_report
-        expected_counts={'info': 2, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_template_ubuntu_sdk(self):
         '''Test check_template() - ubuntu-sdk'''
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "template", "ubuntu-sdk")
         c.check_template()
         report = c.click_report
@@ -140,30 +141,31 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']["security_template_with_policy_version (%s)" % \
-            self.default_security_json] = "OK"
-        expected['info']["security_template_exists (%s)" % \
-            self.default_security_json] = "OK"
-        expected['warn']["security_template_valid (%s)" % \
-            self.default_security_json] = "No need to specify 'ubuntu-sdk' template"
+        expected['info']["security_template_with_policy_version (%s)" %
+                         self.default_security_json] = "OK"
+        expected['info']["security_template_exists (%s)" %
+                         self.default_security_json] = "OK"
+        expected['warn']["security_template_valid (%s)" %
+                         self.default_security_json] = \
+            "No need to specify 'ubuntu-sdk' template"
         self.check_results(report, expected=expected)
 
     def test_check_template_webapp(self):
         '''Test check_template() - webapp'''
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "template", "ubuntu-webapp")
         c.check_template()
         report = c.click_report
-        expected_counts={'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_template_unconfined(self):
         '''Test check_template() - unconfined'''
         c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.test_hook_default_appname,
+        self.set_test_security_manifest(self.default_appname,
                                         "template", "unconfined")
         c.check_template()
         report = c.click_report
-        expected_counts={'info': 2, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)

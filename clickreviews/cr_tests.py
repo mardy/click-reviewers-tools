@@ -32,6 +32,7 @@ TEST_MANIFEST = ""
 TEST_SECURITY = dict()
 TEST_DESKTOP = dict()
 
+
 #
 # Mock override functions
 #
@@ -39,25 +40,31 @@ def _mock_func(self):
     '''Fake test function'''
     return
 
+
 def _extract_control_file(self):
     '''Pretend we read the control file'''
     return io.StringIO(TEST_CONTROL)
+
 
 def _extract_manifest_file(self):
     '''Pretend we read the manifest file'''
     return io.StringIO(TEST_MANIFEST)
 
+
 def _extract_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
     return io.StringIO(TEST_SECURITY[app])
+
 
 def _get_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
     return ("%s.json" % app, json.loads(TEST_SECURITY[app]))
 
+
 def _extract_desktop_entry(self, app):
     '''Pretend we read the desktop file'''
     return ("%s.desktop" % app, TEST_DESKTOP[app])
+
 
 def _get_desktop_entry(self, app):
     '''Pretend we read the desktop file'''
@@ -78,33 +85,41 @@ def _get_desktop_entry(self, app):
 #           super()
 patches = []
 patches.append(patch('clickreviews.cr_common.ClickReview._check_path_exists',
-    _mock_func))
-patches.append(patch('clickreviews.cr_common.ClickReview._extract_control_file',
+               _mock_func))
+patches.append(patch(
+    'clickreviews.cr_common.ClickReview._extract_control_file',
     _extract_control_file))
-patches.append(patch('clickreviews.cr_common.ClickReview._extract_manifest_file',
+patches.append(patch(
+    'clickreviews.cr_common.ClickReview._extract_manifest_file',
     _extract_manifest_file))
 patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview.__del__', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
-    _mock_func))
+               _mock_func))
 
 # lint overrides
-patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_control_files',
-    _mock_func))
+patches.append(patch(
+               'clickreviews.cr_lint.ClickReviewLint._list_control_files',
+               _mock_func))
 patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_all_files',
-    _mock_func))
+               _mock_func))
 
 # security overrides
-patches.append(patch('clickreviews.cr_security.ClickReviewSecurity._extract_security_manifest',
+patches.append(patch(
+    'clickreviews.cr_security.ClickReviewSecurity._extract_security_manifest',
     _extract_security_manifest))
-patches.append(patch('clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
+patches.append(patch(
+    'clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
     _get_security_manifest))
 
 # desktop overrides
-patches.append(patch('clickreviews.cr_desktop.ClickReviewDesktop._extract_desktop_entry',
+patches.append(patch(
+    'clickreviews.cr_desktop.ClickReviewDesktop._extract_desktop_entry',
     _extract_desktop_entry))
-patches.append(patch('clickreviews.cr_desktop.ClickReviewDesktop._get_desktop_entry',
+patches.append(patch(
+    'clickreviews.cr_desktop.ClickReviewDesktop._get_desktop_entry',
     _get_desktop_entry))
+
 
 def mock_patch():
     '''Call in setup of child'''
@@ -119,11 +134,13 @@ def mock_patch():
             # remove this.
             pass
 
+
 class TestClickReview(TestCase):
     """Tests for the lint review tool."""
     def __init__(self, *args):
         if not hasattr(self, 'desktop_tmpdir'):
-            self.desktop_tmpdir = tempfile.mkdtemp(prefix="clickreview-test-desktop-")
+            self.desktop_tmpdir = \
+                tempfile.mkdtemp(prefix="clickreview-test-desktop-")
         TestCase.__init__(self, *args)
         self._reset_test_data()
 
@@ -150,10 +167,12 @@ class TestClickReview(TestCase):
         self.set_test_manifest("title", self.test_control['Description'])
         self.set_test_manifest("version", self.test_control['Version'])
         self.test_manifest["hooks"] = dict()
-        self.test_hook_default_appname = "test-app"
-        self.test_manifest["hooks"][self.test_hook_default_appname] = dict()
-        self.test_manifest["hooks"][self.test_hook_default_appname]["apparmor"] = "%s.json" % self.test_hook_default_appname
-        self.test_manifest["hooks"][self.test_hook_default_appname]["desktop"] = "%s.desktop" % self.test_hook_default_appname
+        self.default_appname = "test-app"
+        self.test_manifest["hooks"][self.default_appname] = dict()
+        self.test_manifest["hooks"][self.default_appname]["apparmor"] = \
+            "%s.json" % self.default_appname
+        self.test_manifest["hooks"][self.default_appname]["desktop"] = \
+            "%s.desktop" % self.default_appname
         self._update_test_manifest()
 
         # hooks
@@ -166,7 +185,7 @@ class TestClickReview(TestCase):
 
             # setup desktop file for each app
             self.set_test_desktop(app, 'Name',
-                                  self.test_hook_default_appname,
+                                  self.default_appname,
                                   no_update=True)
             self.set_test_desktop(app, 'Comment', '%s test comment' % app,
                                   no_update=True)
@@ -235,13 +254,13 @@ class TestClickReview(TestCase):
     #   self.check_results(r, expected=expected)
     #
     def check_results(self, report,
-                       expected_counts={'info': 1, 'warn': 0, 'error': 0},
-                       expected=None):
+                      expected_counts={'info': 1, 'warn': 0, 'error': 0},
+                      expected=None):
         if expected is not None:
             for t in expected.keys():
                 for k in expected[t]:
                     self.assertTrue(k in report[t],
-                                    "Could not find '%s' (%s) in:\n%s" % \
+                                    "Could not find '%s' (%s) in:\n%s" %
                                     (k, t, json.dumps(report, indent=2)))
                     self.assertEqual(expected[t][k], report[t][k])
         else:
@@ -249,8 +268,8 @@ class TestClickReview(TestCase):
                 if expected_counts[k] is None:
                     continue
                 self.assertEqual(len(report[k]), expected_counts[k],
-                                 "(%s not equal)\n%s" % (k,
-                                 json.dumps(report, indent=2)))
+                                 "(%s not equal)\n%s" %
+                                 (k, json.dumps(report, indent=2)))
 
     def set_test_control(self, key, value):
         '''Set key in DEBIAN/control to value. If value is None, remove key'''

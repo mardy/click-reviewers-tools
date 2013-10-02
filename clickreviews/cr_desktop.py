@@ -60,7 +60,8 @@ class ClickReviewDesktop(ClickReview):
 
         self.valid_gettext_domains = [self.click_pkgname]
         if self.click_pkgname.split('.')[-1] not in self.valid_gettext_domains:
-            self.valid_gettext_domains.append(self.click_pkgname.split('.')[-1])
+            self.valid_gettext_domains.append(
+                self.click_pkgname.split('.')[-1])
 
     def _extract_desktop_entry(self, app):
         '''Get DesktopEntry for desktop file and verify it'''
@@ -189,15 +190,18 @@ class ClickReviewDesktop(ClickReview):
                 s = "missing key 'Exec'"
             elif de.getExec().startswith('/'):
                 t = 'error'
-                s = "absolute path '%s' for Exec given in .desktop file." \
-                        % de.getExec()
+                s = "absolute path '%s' for Exec given in .desktop file." % \
+                    de.getExec()
             elif de.getExec().split()[0] not in self.expected_execs:
                 if self.click_arch == "all":  # interpreted file
-                    s = "found unexpected Exec with architecture '%s': %s" % (self.click_arch, de.getExec().split()[0])
+                    s = "found unexpected Exec with architecture '%s': %s" % \
+                        (self.click_arch, de.getExec().split()[0])
                     t = 'warn'
                 else:                        # compiled
                     # TODO: this can be a lot smarter
-                    s = "Non-standard Exec with architecture '%s': %s (ok for compiled code)" % (self.click_arch, de.getExec().split()[0])
+                    s = "Non-standard Exec with architecture " + \
+                        "'%s': %s (ok for compiled code)" % \
+                        (self.click_arch, de.getExec().split()[0])
                     t = 'info'
             self._add_result(t, n, s)
 
@@ -318,7 +322,7 @@ class ClickReviewDesktop(ClickReview):
                 if not re.match(r'^%s$' % urlp_scheme_pat, urlp_t.scheme):
                     t = 'error'
                     s = "'%s' doesn't match '%s' " % (urlp_t.scheme,
-                                                  urlp_scheme_pat) + \
+                                                      urlp_scheme_pat) + \
                         "(will likely cause needless redirect)"
                 self._add_result(t, n, s)
 
@@ -326,8 +330,8 @@ class ClickReviewDesktop(ClickReview):
                 n = 'Exec_webbrowser_target_netloc_matches_patterns ' + \
                     '(%s, %s)' % (app, pattern)
                 s = 'OK'
-                # TODO: this is admittedly simple, but matches Canonical webapps
-                #       currently, so ok for now
+                # TODO: this is admittedly simple, but matches Canonical
+                #       webapps currently, so ok for now
                 if urlp_t.netloc != urlp_p.netloc:
                     if pattern_count > 1:
                         t = 'warn'
@@ -382,7 +386,7 @@ class ClickReviewDesktop(ClickReview):
                 t = 'error'
                 s = "missing key 'X-Ubuntu-Touch'"
             elif de.get("X-Ubuntu-Touch") != "true" and \
-                 de.get("X-Ubuntu-Touch") != "True":
+                    de.get("X-Ubuntu-Touch") != "True":
                 t = 'error'
                 s = 'does not use X-Ubuntu-Touch=true'
             self._add_result(t, n, s)
@@ -399,8 +403,9 @@ class ClickReviewDesktop(ClickReview):
                 s = "OK (not specified)"
             elif de.get("X-Ubuntu-StageHint") != "SideStage":
                 t = 'error'
-                s = "unsupported X-Ubuntu-StageHint=%s (should be for example, 'SideStage')" % \
-                    de.get("X-Ubuntu-StageHint")
+                s = "unsupported X-Ubuntu-StageHint=%s " % \
+                    de.get("X-Ubuntu-StageHint") + \
+                    "(should be for example, 'SideStage')"
             self._add_result(t, n, s)
 
     def check_desktop_x_ubuntu_gettext_domain(self):
@@ -414,11 +419,11 @@ class ClickReviewDesktop(ClickReview):
                 t = 'info'
                 s = "OK (not specified)"
             elif de.get("X-Ubuntu-Gettext-Domain") not in \
-                 self.valid_gettext_domains:
+                    self.valid_gettext_domains:
                 t = 'warn'
                 s = "unexpected X-Ubuntu-Gettext-Domain=%s (expected: %s)" % \
                     (de.get("X-Ubuntu-Gettext-Domain"),
-                    ",".join(self.valid_gettext_domains))
+                     ",".join(self.valid_gettext_domains))
             self._add_result(t, n, s)
 
     def check_desktop_terminal(self):
@@ -458,7 +463,8 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Comment_boilerplate (%s)' % app
             s = "OK"
-            if de.hasKey('Comment') and de.getComment() == "My project description":
+            if de.hasKey('Comment') and \
+                    de.getComment() == "My project description":
                 t = 'warn'
                 s = "Comment uses SDK boilerplate '%s'" % de.getComment()
             self._add_result(t, n, s)
@@ -475,8 +481,8 @@ class ClickReviewDesktop(ClickReview):
                 s = "missing key 'Icon'"
             elif de.getIcon().startswith('/'):
                 t = 'error'
-                s = "absolute path '%s' for icon given in .desktop file." \
-                        % de.getIcon()
+                s = "absolute path '%s' for icon given in .desktop file." % \
+                    de.getIcon()
             self._add_result(t, n, s)
 
     def check_desktop_duplicate_entries(self):

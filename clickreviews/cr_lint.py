@@ -44,7 +44,7 @@ class ClickReviewLint(ClickReview):
                                             'armhf',   # compiled, single arch
                                             # 'i386',  # not on desktop yet
                                             # 'amd64', # not on desktop yet
-                                           ]
+                                            ]
         self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
 
         self.mime = magic.open(magic.MAGIC_MIME)
@@ -190,7 +190,7 @@ class ClickReviewLint(ClickReview):
         s = 'OK'
 
         if apt_pkg.version_compare(
-            control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION) < 0:
+                control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION) < 0:
             t = 'error'
             s = "Click-Version is too old, has '%s', needs '%s' or newer" % (
                 control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION)
@@ -307,9 +307,9 @@ exit 1
         n = 'version_valid'
         s = "OK"
         # From debian_support.py
-        re_valid_version = re.compile(r'^((\d+):)?'               # epoch
-                                       '([A-Za-z0-9.+:~-]+?)'     # upstream
-                                       '(-([A-Za-z0-9+.~]+))?$')  # debian
+        re_valid_version = re.compile(r'^((\d+):)?'              # epoch
+                                      '([A-Za-z0-9.+:~-]+?)'     # upstream
+                                      '(-([A-Za-z0-9+.~]+))?$')  # debian
         if not re_valid_version.match(self.click_version):
             t = 'error'
             s = "'%s' not properly formatted" % self.click_version
@@ -517,7 +517,7 @@ exit 1
         if namespace_bits != pkgname_bits:
             t = 'error'
             s = "Package name '%s' does not match namespace '%s'." % \
-                    ('.'.join(namespace_bits), '.'.join(pkgname_bits))
+                ('.'.join(namespace_bits), '.'.join(pkgname_bits))
         self._add_result(t, n, s)
 
         t = 'info'
@@ -604,9 +604,7 @@ exit 1
 
     def check_contents_for_hardcoded_paths(self):
         '''Check for known hardcoded paths.'''
-        PATH_BLACKLIST = [
-                "/opt/click.ubuntu.com/"
-                ]
+        PATH_BLACKLIST = ["/opt/click.ubuntu.com/"]
         t = 'info'
         n = 'hardcoded_paths'
         s = 'OK'
@@ -655,5 +653,3 @@ exit 1
                     s = "not valid multi architecture: %s" % \
                         ",".join(bad_archs)
         self._add_result(t, n, s)
-
-

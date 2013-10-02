@@ -20,6 +20,7 @@ from clickreviews.cr_lint import ClickReviewLint
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
 import clickreviews.cr_tests as cr_tests
 
+
 class TestClickReviewLint(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
     def setUp(self):
@@ -33,7 +34,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_architecture()
         r = c.click_report
-        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_architecture_all(self):
@@ -46,7 +47,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_architecture()
         r = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_control_architecture(self):
@@ -54,7 +55,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_control()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control_architecture_missing(self):
@@ -73,7 +74,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_control()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control_mismatches_manifest_architecture(self):
@@ -83,7 +84,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_control()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_control_manifest_architecture_missing(self):
@@ -107,7 +108,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_missing_version(self):
@@ -117,7 +118,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 3, 'error': 1}
+        expected_counts = {'info': None, 'warn': 3, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_missing_arch(self):
@@ -127,7 +128,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 3, 'error': 0}
+        expected_counts = {'info': None, 'warn': 3, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_missing_package(self):
@@ -137,7 +138,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 3, 'error': 3}
+        expected_counts = {'info': None, 'warn': 3, 'error': 3}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_extra_underscore(self):
@@ -148,7 +149,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 2, 'error': 4}
+        expected_counts = {'info': None, 'warn': 2, 'error': 4}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_control_mismatches(self):
@@ -157,7 +158,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_namespace_mismatches(self):
@@ -168,7 +169,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 2}
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_version_mismatches(self):
@@ -177,7 +178,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_valid_arch(self):
@@ -190,7 +191,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_valid_arch_multi(self):
@@ -203,7 +204,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_missing_arch(self):
@@ -212,7 +213,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_arch_all(self):
@@ -221,7 +222,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_arch_single(self):
@@ -230,7 +231,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_arch_single_nonexistent(self):
@@ -239,7 +240,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_arch_single_multi(self):
@@ -248,7 +249,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_valid_arch_multi(self):
@@ -262,7 +263,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_invalid_arch_multi_nonexistent(self):
@@ -276,7 +277,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_invalid_arch_multi_all(self):
@@ -290,7 +291,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_invalid_arch_multi_multi(self):
@@ -304,9 +305,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_manifest_architecture()
         r = c.click_report
-        expected_counts={'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-
 
     def test_check_package_filename_mismatch_arch(self):
         '''Test check_package_filename() (control mismatches arch)'''
@@ -318,7 +318,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_with_extra_click(self):
@@ -326,7 +326,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control(self):
@@ -334,12 +334,12 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_control()
         r = c.click_report
-        expected_counts={'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     # Make the current MINIMUM_CLICK_FRAMEWORK_VERSION newer
     @patch('clickreviews.cr_lint.MINIMUM_CLICK_FRAMEWORK_VERSION',
-        MINIMUM_CLICK_FRAMEWORK_VERSION + '.1')
+           MINIMUM_CLICK_FRAMEWORK_VERSION + '.1')
     def test_check_control_click_framework_version(self):
         """Test that enforcing click framework versions works."""
         test_name = 'net.launchpad.click-webapps.test-app_3_all.click'
@@ -347,8 +347,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_control()
         r = c.click_report
         # We should end up with an error as the click version is out of date
-        expected_counts={'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         # Lets check that the right error is triggering
         self.assertIn('Click-Version is too old',
-            r['error']['lint_control_click_version_up_to_date'])
+                      r['error']['lint_control_click_version_up_to_date'])
