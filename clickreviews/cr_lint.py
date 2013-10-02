@@ -339,7 +339,7 @@ exit 1
             res = self.mime.file(i)
             if res in ['application/x-executable; charset=binary',
                        'application/x-sharedlib; charset=binary']:
-                x_binaries.append(i.partition(self.unpack_dir)[0])
+                x_binaries.append(os.path.relpath(i, self.unpack_dir))
         if len(x_binaries) > 0:
             t = 'error'
             s = "found binaries for architecture 'all': %s" % \
