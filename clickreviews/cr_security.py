@@ -358,9 +358,8 @@ class ClickReviewSecurity(ClickReview):
                 # SDK will leave and empty policy group, report but don't
                 # deny
                 if i == "":
-                    t = 'warn'
-                    s = 'found empty policy group (ok until LP: #1221407 ' + \
-                        'is fixed)'
+                    t = 'error'
+                    s = 'found empty policy group'
                     self._add_result(t, n, s)
                     continue
 

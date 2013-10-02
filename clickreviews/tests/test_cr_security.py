@@ -336,5 +336,5 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups()
         report = c.click_report
-        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
