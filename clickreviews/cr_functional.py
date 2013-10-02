@@ -79,12 +79,13 @@ class ClickReviewFunctional(ClickReview):
                     break
 
         if len(appnames) == 0:
-            t = "info"
+            t = "warn"
             s = "could not find applicationName in: %s" % \
                 ", ".join(list(map(
                                lambda x: os.path.relpath(x, self.unpack_dir),
                                qmls)
                                ))
+            s += ". Application may not work properly when confined."
         elif not ok:
             t = "warn"
             s = "click manifest name '%s' not found in: " % \
