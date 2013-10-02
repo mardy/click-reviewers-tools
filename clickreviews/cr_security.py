@@ -318,7 +318,7 @@ class ClickReviewSecurity(ClickReview):
             n = 'policy_groups_exists (%s)' % f
             if 'policy_groups' not in m:
                 # If template not specified, we just use the default
-                self._add_result('warn', n, 'no policy groups specified)')
+                self._add_result('warn', n, 'no policy groups specified')
                 continue
             elif 'policy_version' not in m:
                 self._add_result('error', n,

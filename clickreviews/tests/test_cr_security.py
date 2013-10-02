@@ -240,3 +240,101 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+
+
+
+
+    def test_check_policy_groups(self):
+        '''Test check_policy_groups()'''
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_multiple(self):
+        '''Test check_policy_groups() - multiple'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ['networking',
+                                         'audio',
+                                         'video'])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_missing_policy_version(self):
+        '''Test check_policy_groups() - missing policy_version'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", None)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_missing(self):
+        '''Test check_policy_groups() - missing'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        None)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_bad_policy_version(self):
+        '''Test check_policy_groups() - bad policy_version'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", 0.1)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_bad_policy_vendor(self):
+        '''Test check_policy_groups() - bad policy_vendor'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "nonexistent")
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_nonexistent(self):
+        '''Test check_policy_groups_webapps() - nonexistent'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["networking", "nonexistent"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_reserved(self):
+        '''Test check_policy_groups_webapps() - reserved'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["video_files", "networking"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_empty(self):
+        '''Test check_policy_groups_webapps() - empty'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["", "networking"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
