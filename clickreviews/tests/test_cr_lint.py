@@ -352,3 +352,116 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         # Lets check that the right error is triggering
         self.assertIn('Click-Version is too old',
                       r['error']['lint_control_click_version_up_to_date'])
+
+    def test_check_maintainer(self):
+        '''Test check_maintainer()'''
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_non_default(self):
+        '''Test check_maintainer() - non-default'''
+        self.set_test_control("Package", "com.example.app")
+        self.set_test_manifest("maintainer",
+                               "Foo User <user@example.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_non_match(self):
+        '''Test check_maintainer() - non-match'''
+        self.set_test_control("Package", "com.example.app")
+        self.set_test_manifest("maintainer",
+                               "Foo User <user@foo.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_empty(self):
+        '''Test check_maintainer() - empty'''
+        self.set_test_manifest("maintainer", "")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_missing(self):
+        '''Test check_maintainer() - missing'''
+        self.set_test_manifest("maintainer", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_badformat(self):
+        '''Test check_maintainer() - badly formatted'''
+        self.set_test_manifest("maintainer", "$%^@*")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_bad_email_missing_name(self):
+        '''Test check_maintainer() - bad email (missing name)'''
+        self.set_test_manifest("name", "com.ubuntu.developer.user.app")
+        self.set_test_manifest("maintainer",
+                               "user@example.com")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_bad_email_short_domain(self):
+        '''Test check_maintainer() - bad email (short domain)'''
+        self.set_test_control("Package", "com.example.app")
+        self.set_test_manifest("maintainer",
+                               "Foo User <user@com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_bad_email_long_domain(self):
+        '''Test check_maintainer() - bad email (long domain)'''
+        self.set_test_control("Package", "com.example.app")
+        self.set_test_manifest("maintainer",
+                               "Foo User <user@foo.example.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_domain_appstore(self):
+        '''Test check_maintainer() - appstore domain
+           (com.ubuntu.developer)'''
+        self.set_test_manifest("name", "com.ubuntu.developer.user.app")
+        self.set_test_manifest("maintainer",
+                               "Foo User <user@example.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_domain_special(self):
+        '''Test check_maintainer() - special (com.facebook)'''
+        self.set_test_control("Package", "com.facebook.app")
+        self.set_test_manifest("maintainer",
+                               "Foo User <user@facebook.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)

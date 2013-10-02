@@ -180,7 +180,8 @@ class TestClickReview(TestCase):
         self.test_desktop_files = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
-            self.set_test_security_manifest(app, 'policy_groups', ['networking'])
+            self.set_test_security_manifest(app, 'policy_groups',
+                                            ['networking'])
             self.set_test_security_manifest(app, 'policy_version', 1.0)
 
             # setup desktop file for each app

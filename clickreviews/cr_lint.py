@@ -362,7 +362,10 @@ exit 1
         t = 'info'
         n = 'maintainer_format'
         s = 'OK'
-        if not re.search(r"^(.*)\s+<(.*@.*)>$", self.manifest['maintainer']):
+        if self.manifest['maintainer'] == "":
+            self._add_result('error', n, 'invalid maintainer (empty)')
+            return
+        elif not re.search(r"^(.*)\s+<(.*@.*)>$", self.manifest['maintainer']):
             self._add_result('error', n, 'invalid format for maintainer: %s' %
                              self.manifest['maintainer'])
             return
