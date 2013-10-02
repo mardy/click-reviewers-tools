@@ -169,3 +169,74 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_webapps(self):
+        '''Test check_policy_groups_webapps()'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-webapp")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["audio",
+                                         "location",
+                                         "networking",
+                                         "video"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_webapps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_webapps_ubuntu_sdk(self):
+        '''Test check_policy_groups_webapps() - ubuntu-sdk template'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-sdk")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["audio",
+                                         "location",
+                                         "networking",
+                                         "video"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_webapps()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_webapps_nonexistent(self):
+        '''Test check_policy_groups_webapps() - nonexistent'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-webapp")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["networking", "nonexistent"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_webapps()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_webapps_missing(self):
+        '''Test check_policy_groups_webapps() - missing'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-webapp")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        None)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_webapps()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_webapps_bad(self):
+        '''Test check_policy_groups_webapps() - bad'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-webapp")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["video_files", "networking"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_webapps()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
