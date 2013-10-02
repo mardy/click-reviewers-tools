@@ -69,7 +69,6 @@ class ClickReviewFunctional(ClickReview):
                 if in_mainview and pat_appname.search(line):
                     appname = line.split(':', 1)[1].strip('"\' \t\n\r\f\v')
                     appnames[os.path.relpath(k, self.unpack_dir)] = appname
-                    print ("%s == %s" % (appname, self.click_pkgname))
                     if appname == self.click_pkgname:
                         ok = True
                         break
