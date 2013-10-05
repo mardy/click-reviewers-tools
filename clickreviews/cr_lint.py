@@ -332,6 +332,7 @@ exit 1
         s = 'OK'
         if self.click_arch != "all":
             self._add_result(t, n, s)
+            return
 
         # look for compiled code
         x_binaries = []
