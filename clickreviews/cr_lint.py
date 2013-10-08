@@ -451,8 +451,6 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'title'
-        t = 'info'
         n = 'description'
         s = 'OK'
         pkgname_base = self.click_pkgname.split('.')[-1]
@@ -656,4 +654,33 @@ exit 1
                     t = 'error'
                     s = "not valid multi architecture: %s" % \
                         ",".join(bad_archs)
+        self._add_result(t, n, s)
+
+    def check_icon(self):
+        '''Check icon()'''
+        t = 'info'
+        n = 'icon_present'
+        s = 'OK'
+        if 'icon' not in self.manifest:
+            s = 'Skipped, optional icon not present'
+            self._add_result(t, n, s)
+            return
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'icon_empty'
+        s = 'OK'
+        if len(self.manifest['icon']) == 0:
+            t = 'error'
+            s = "icon manifest entry is empty"
+            return
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'icon_absolute_path'
+        s = 'OK'
+        if self.manifest['icon'].startswith('/'):
+            t = 'error'
+            s = "icon manifest entry '%s' should not specify absolute path" % \
+                self.manifest['icon']
         self._add_result(t, n, s)

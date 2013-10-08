@@ -465,3 +465,40 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_check_icon(self):
+        '''Test check_icon()'''
+        self.set_test_manifest("icon", "someicon")
+        c = ClickReviewLint(self.test_name)
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_unspecified(self):
+        '''Test check_icon()'''
+        self.set_test_manifest("icon", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_empty(self):
+        '''Test check_icon() - empty'''
+        self.set_test_manifest("icon", "")
+        c = ClickReviewLint(self.test_name)
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_absolute_path(self):
+        '''Test check_icon() - absolute path'''
+        self.set_test_manifest("icon", "/foo/bar/someicon")
+        c = ClickReviewLint(self.test_name)
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+

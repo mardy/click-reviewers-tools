@@ -123,8 +123,9 @@ class ClickReview(object):
                 error("manifest malformed: '%s' is not str:\n%s" % (f, mp))
 
         # optional click fields here (may be required by appstore)
+        # http://click.readthedocs.org/en/latest/file-format.html
         optional = ["title", "description", "maintainer", "architecture",
-                    "installed-size"]
+                    "installed-size", "icon"]
 
         for f in optional:
             if f in self.manifest:
