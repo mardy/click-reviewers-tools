@@ -484,7 +484,10 @@ exit 1
                 found.append(k)
         if len(found) > 0:
             t = 'warn'
-            s = 'found %s' % ', '.join(found)
+            plural = ""
+            if len(found) > 1:
+                plural = "s"
+            s = 'found unofficial extension%s: %s' % (plural, ', '.join(found))
         self._add_result(t, n, s)
 
     def check_package_filename(self):

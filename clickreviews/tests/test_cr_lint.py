@@ -502,3 +502,39 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_click_local_extensions_missing(self):
+        '''Testeck_click_local_extensions() - missing'''
+        for k in self.test_manifest.keys():
+            if k.startswith("x-"):
+                self.set_test_manifest(k, None)
+        c = ClickReviewLint(self.test_name)
+        c.check_click_local_extensions()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_click_local_extensions_empty(self):
+        '''Testeck_click_local_extensions() - empty'''
+        for k in self.test_manifest.keys():
+            if k.startswith("x-"):
+                self.set_test_manifest(k, None)
+        self.set_test_manifest("x-test", "")
+        c = ClickReviewLint(self.test_name)
+        c.check_click_local_extensions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_click_local_extensions(self):
+        '''Testeck_click_local_extensions()'''
+        for k in self.test_manifest.keys():
+            if k.startswith("x-"):
+                self.set_test_manifest(k, None)
+        self.set_test_manifest("x-source", {"vcs-bzr": "lp:notes-app",
+                                            "vcs-bzr-revno": "209"})
+        c = ClickReviewLint(self.test_name)
+        c.check_click_local_extensions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
