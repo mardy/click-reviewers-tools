@@ -89,3 +89,45 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_desktop_x_ubuntu_gettext_domain_missing(self):
+        '''Test check_desktop_x_ubuntu_gettext_domain when missing'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "X-Ubuntu-Gettext-Domain", None)
+        c.check_desktop_x_ubuntu_gettext_domain()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_x_ubuntu_gettext_domain_empty(self):
+        '''Test check_desktop_x_ubuntu_gettext_domain when empty'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "X-Ubuntu-Gettext-Domain", "")
+        c.check_desktop_x_ubuntu_gettext_domain()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_x_ubuntu_gettext_domain_valid(self):
+        '''Test check_desktop_x_ubuntu_gettext_domain valid'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "X-Ubuntu-Gettext-Domain",
+                              self.test_control['Package'])
+        c.check_desktop_x_ubuntu_gettext_domain()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_x_ubuntu_gettext_domain_mismatch(self):
+        '''Test check_desktop_x_ubuntu_gettext_domain doesn't match'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "X-Ubuntu-Gettext-Domain",
+                              "com.example.mismatch")
+        c.check_desktop_x_ubuntu_gettext_domain()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)

@@ -56,12 +56,8 @@ class ClickReviewDesktop(ClickReview):
                                          '--webapp',
                                          '--webappUrlPatterns=*',
                                          ]
+        # TODO: the desktop hook will actually handle this correctly
         self.blacklisted_keys = ['Path']
-
-        self.valid_gettext_domains = [self.click_pkgname]
-        if self.click_pkgname.split('.')[-1] not in self.valid_gettext_domains:
-            self.valid_gettext_domains.append(
-                self.click_pkgname.split('.')[-1])
 
     def _extract_desktop_entry(self, app):
         '''Get DesktopEntry for desktop file and verify it'''
@@ -418,12 +414,15 @@ class ClickReviewDesktop(ClickReview):
             if not de.hasKey('X-Ubuntu-Gettext-Domain'):
                 t = 'info'
                 s = "OK (not specified)"
-            elif de.get("X-Ubuntu-Gettext-Domain") not in \
-                    self.valid_gettext_domains:
+            elif de.get("X-Ubuntu-Gettext-Domain") == "":
+                t = 'error'
+                s = "X-Ubuntu-Gettext-Domain is empty"
+            elif de.get("X-Ubuntu-Gettext-Domain") != self.click_pkgname:
                 t = 'warn'
-                s = "unexpected X-Ubuntu-Gettext-Domain=%s (expected: %s)" % \
-                    (de.get("X-Ubuntu-Gettext-Domain"),
-                     ",".join(self.valid_gettext_domains))
+                s = "'%s' != '%s'" % (de.get("X-Ubuntu-Gettext-Domain"),
+                                      self.click_pkgname)
+                s += " (ok if app uses i18n.domain('%s')" % \
+                     de.get("X-Ubuntu-Gettext-Domain")
             self._add_result(t, n, s)
 
     def check_desktop_terminal(self):
