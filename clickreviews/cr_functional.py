@@ -21,7 +21,8 @@ import re
 
 from clickreviews.cr_common import ClickReview, open_file_read
 
-# TODO: see if i18n.domain('%s') matches X-Ubuntu-Gettext-Domain
+# TODO: for QML apps, see if i18n.domain('%s') matches X-Ubuntu-Gettext-Domain
+#       compiled apps can use organizationName to match X-Ubuntu-Gettext-Domain
 
 
 class ClickReviewFunctional(ClickReview):
