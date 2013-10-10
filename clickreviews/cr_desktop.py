@@ -422,7 +422,8 @@ class ClickReviewDesktop(ClickReview):
                 s = "'%s' != '%s'" % (de.get("X-Ubuntu-Gettext-Domain"),
                                       self.click_pkgname)
                 s += " (ok if app uses i18n.domain('%s')" % \
-                     de.get("X-Ubuntu-Gettext-Domain")
+                     de.get("X-Ubuntu-Gettext-Domain") + \
+                     " or uses organizationName"
             self._add_result(t, n, s)
 
     def check_desktop_terminal(self):
