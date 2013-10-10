@@ -118,7 +118,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
                               self.test_control['Package'])
         c.check_desktop_x_ubuntu_gettext_domain()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_desktop_x_ubuntu_gettext_domain_mismatch(self):
@@ -129,5 +129,5 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
                               "com.example.mismatch")
         c.check_desktop_x_ubuntu_gettext_domain()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
