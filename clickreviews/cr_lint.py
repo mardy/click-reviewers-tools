@@ -395,7 +395,7 @@ exit 1
             if len(domain_rev) < 2:  # don't impersonate .com
                 t = 'error'
                 s = "(EMAIL NEEDS HUMAN REVIEW) email domain too short: '%s'" \
-                     % email
+                    % email
             elif len(domain_rev) >= len(pkg_domain_rev):  # also '=' to leave
                                                           # room for app name
                 t = 'error'

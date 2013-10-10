@@ -23,6 +23,7 @@ from clickreviews.cr_common import ClickReview, open_file_read
 
 # TODO: see if i18n.domain('%s') matches X-Ubuntu-Gettext-Domain
 
+
 class ClickReviewFunctional(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
