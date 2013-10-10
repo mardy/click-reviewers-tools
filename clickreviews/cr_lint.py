@@ -394,12 +394,13 @@ exit 1
             pkg_domain_rev = self.click_pkgname.split('.')
             if len(domain_rev) < 2:  # don't impersonate .com
                 t = 'error'
-                s = "(MANUAL REVIEW) email domain too short: '%s'" % email
+                s = "(EMAIL NEEDS HUMAN REVIEW) email domain too short: '%s'" \
+                     % email
             elif len(domain_rev) >= len(pkg_domain_rev):  # also '=' to leave
                                                           # room for app name
                 t = 'error'
-                s = "(MANUAL REVIEW) email domain too long '%s' " % email + \
-                    "for app name '%s'" % ".".join(pkg_domain_rev)
+                s = "(EMAIL NEEDS HUMAN REVIEW) email domain too long '%s' " \
+                    % email + "for app name '%s'" % ".".join(pkg_domain_rev)
             elif domain_rev == pkg_domain_rev[:len(domain_rev)]:
                 is_special = False
                 for special in special_domains:
