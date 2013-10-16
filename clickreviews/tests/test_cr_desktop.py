@@ -466,7 +466,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_modelsearchpath_mult_manifest(self):
-        '''Test check_desktop_exec_webbrowser_modelsearchpath() mult manifest'''
+        '''Test check_desktop_exec_webbrowser_modelsearchpath mult manifest'''
         c = ClickReviewDesktop(self.test_name)
         self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
                                       "name", "foo")
