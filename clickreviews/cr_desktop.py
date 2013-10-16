@@ -240,7 +240,7 @@ class ClickReviewDesktop(ClickReview):
                     "--webappModelSearchPath"
             elif not found_url_patterns and not found_model_search_path:
                 t = 'error'
-                s = "specify one of --webappUrlPatterns or " + \
+                s = "must specify one of --webappUrlPatterns or " + \
                     "--webappModelSearchPath"
             self._add_result(t, n, s)
 
@@ -399,7 +399,6 @@ class ClickReviewDesktop(ClickReview):
                 continue
 
             # TODO: validate ./unity-webapps-*
-            print("JAMIE: %s" % path)
             if not path:
                 t = 'error'
                 s = 'empty arg to --webappModelSearchPath'
