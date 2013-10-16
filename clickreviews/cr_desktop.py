@@ -431,7 +431,6 @@ class ClickReviewDesktop(ClickReview):
             # look for webapp configuration in the manifest.json in
             # ubuntu-webapps-*/
             manifests = self._extract_webapp_manifests()
-            print("JAMIE: %s" % manifests)
             t = 'info'
             n = 'Exec_webbrowser_webapp_manifest (%s)' % app
             s = 'OK'
@@ -453,7 +452,6 @@ class ClickReviewDesktop(ClickReview):
 
             for k in manifests.keys():
                 m = manifests[k]
-                print (m)
 
                 t = 'info'
                 n = 'Exec_webbrowser_webapp_manifest_wellformed (%s, %s)' % \
