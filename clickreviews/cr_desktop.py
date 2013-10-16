@@ -17,6 +17,8 @@
 from __future__ import print_function
 
 from clickreviews.cr_common import ClickReview, error, open_file_read
+import glob
+import json
 import os
 import re
 from urllib.parse import urlsplit
@@ -245,6 +247,85 @@ class ClickReviewDesktop(ClickReview):
                     "--webappModelSearchPath"
             self._add_result(t, n, s)
 
+    def _check_patterns(self, app, patterns, args):
+        pattern_count = 1
+        for pattern in patterns:
+            t = 'info'
+            n = 'Exec_webbrowser_webapp_url_patterns_has_https? (%s, %s)' % \
+                (app, pattern)
+            s = 'OK'
+            if not pattern.startswith('https?://'):
+                t = 'warn'
+                s = "'https?://' not found in '%s'" % pattern + \
+                    " (may cause needless redirect)"
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_webapp_url_patterns_uses_trailing_glob ' + \
+                '(%s, %s)' % (app, pattern)
+            s = 'OK'
+            if not pattern.endswith('/*'):
+                t = 'warn'
+                s = "'%s' does not end with '/*'" % pattern + \
+                    " (may cause needless redirect)"
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_webapp_url_patterns_uses_safe_glob ' + \
+                '(%s, %s)' % (app, pattern)
+            s = 'OK'
+            if '*' in pattern[:-1]:
+                t = 'warn'
+                s = "'%s' contains nested '*'" % pattern + \
+                    " (needs human review)"
+            self._add_result(t, n, s)
+
+            urlp_scheme_pat = pattern[:-1].split(':')[0]
+            urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
+
+            target = args[-1]
+            urlp_t = urlsplit(target)
+            t = 'info'
+            n = 'Exec_webbrowser_target_exists (%s)' % (app)
+            s = 'OK'
+            if urlp_t.scheme == "":
+                t = 'error'
+                s = 'Exec line does not end with parseable URL'
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_target_scheme_matches_patterns ' + \
+                '(%s, %s)' % (app, pattern)
+            s = 'OK'
+            if not re.match(r'^%s$' % urlp_scheme_pat, urlp_t.scheme):
+                t = 'error'
+                s = "'%s' doesn't match '%s' " % (urlp_t.scheme,
+                                                  urlp_scheme_pat) + \
+                    "(will likely cause needless redirect)"
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_target_netloc_matches_patterns ' + \
+                '(%s, %s)' % (app, pattern)
+            s = 'OK'
+            # TODO: this is admittedly simple, but matches Canonical
+            #       webapps currently, so ok for now
+            if urlp_t.netloc != urlp_p.netloc:
+                if pattern_count == 1:
+                    t = 'warn'
+                    s = "'%s' != primary pattern '%s'" % \
+                        (urlp_t.netloc, urlp_p.netloc) + \
+                        " (may cause needless redirect)"
+                else:
+                    t = 'info'
+                    s = "target '%s' != non-primary pattern '%s'" % \
+                        (urlp_t.netloc, urlp_p.netloc)
+            self._add_result(t, n, s)
+
+            pattern_count += 1
+
     def check_desktop_exec_webbrowser_urlpatterns(self):
         '''Check Exec=webbrowser-app entry has valid --webappUrlPatterns'''
         for app in sorted(self.desktop_entries):
@@ -273,7 +354,7 @@ class ClickReviewDesktop(ClickReview):
                 # one of --webappUrlPatterns or --webappModelSearchPath is a
                 # required arg and generates an error so just make this info
                 t = 'info'
-                s = "SKIPPED (--webappUrlPatterns not used)"
+                s = "SKIPPED (--webappUrlPatterns not specified)"
                 self._add_result(t, n, s)
                 continue
             elif count > 1:
@@ -283,83 +364,23 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
-            pattern_count = 1
-            for pattern in pats.split(','):
-                t = 'info'
-                n = 'Exec_webbrowser_webappUrlPatterns_has_https? (%s, %s)' % \
-                    (app, pattern)
-                s = 'OK'
-                if not pattern.startswith('https?://'):
-                    t = 'warn'
-                    s = "'https?://' not found in '%s'" % pattern + \
-                        " (may cause needless redirect)"
-                self._add_result(t, n, s)
+            self._check_patterns(app, pats.split(','), args)
 
-                t = 'info'
-                n = 'Exec_webbrowser_webappUrlPatterns_uses_trailing_glob ' + \
-                    '(%s, %s)' % (app, pattern)
-                s = 'OK'
-                if not pattern.endswith('/*'):
-                    t = 'warn'
-                    s = "'%s' does not end with '/*'" % pattern + \
-                        " (may cause needless redirect)"
-                self._add_result(t, n, s)
+    def _extract_webapp_manifests(self):
+        '''Extract webapp manifest file'''
+        files = sorted(glob.glob("%s/unity-webapps-*/manifest.json" %
+                       self.unpack_dir))
 
-                t = 'info'
-                n = 'Exec_webbrowser_webappUrlPatterns_uses_safe_glob ' + \
-                    '(%s, %s)' % (app, pattern)
-                s = 'OK'
-                if '*' in pattern[:-1]:
-                    t = 'warn'
-                    s = "'%s' contains nested '*'" % pattern + \
-                        " (needs human review)"
-                self._add_result(t, n, s)
+        manifests = dict()
+        for fn in files:
+            key = os.path.relpath(fn, self.unpack_dir)
+            try:
+                manifests[key] = json.load(open_file_read(fn))
+            except Exception:
+                manifests[key] = None
+                error("Could not parse '%s'" % fn, do_exit=False)
 
-                urlp_scheme_pat = pattern[:-1].split(':')[0]
-                urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
-
-                target = args[-1]
-                urlp_t = urlsplit(target)
-                t = 'info'
-                n = 'Exec_webbrowser_target_exists (%s)' % (app)
-                s = 'OK'
-                if urlp_t.scheme == "":
-                    t = 'error'
-                    s = 'Exec line does not end with parseable URL'
-                    self._add_result(t, n, s)
-                    continue
-                self._add_result(t, n, s)
-
-                t = 'info'
-                n = 'Exec_webbrowser_target_scheme_matches_patterns ' + \
-                    '(%s, %s)' % (app, pattern)
-                s = 'OK'
-                if not re.match(r'^%s$' % urlp_scheme_pat, urlp_t.scheme):
-                    t = 'error'
-                    s = "'%s' doesn't match '%s' " % (urlp_t.scheme,
-                                                      urlp_scheme_pat) + \
-                        "(will likely cause needless redirect)"
-                self._add_result(t, n, s)
-
-                t = 'info'
-                n = 'Exec_webbrowser_target_netloc_matches_patterns ' + \
-                    '(%s, %s)' % (app, pattern)
-                s = 'OK'
-                # TODO: this is admittedly simple, but matches Canonical
-                #       webapps currently, so ok for now
-                if urlp_t.netloc != urlp_p.netloc:
-                    if pattern_count == 1:
-                        t = 'warn'
-                        s = "'%s' != primary pattern '%s'" % \
-                            (urlp_t.netloc, urlp_p.netloc) + \
-                            " (may cause needless redirect)"
-                    else:
-                        t = 'info'
-                        s = "target '%s' != non-primary pattern '%s'" % \
-                            (urlp_t.netloc, urlp_p.netloc)
-                self._add_result(t, n, s)
-
-                pattern_count += 1
+        return manifests
 
     def check_desktop_exec_webbrowser_modelsearchpath(self):
         '''Check Exec=webbrowser-app entry has valid --webappModelSearchPath'''
@@ -389,7 +410,7 @@ class ClickReviewDesktop(ClickReview):
                 # one of --webappUrlPatterns or --webappModelSearchPath is a
                 # required arg and generates an error so just make this info
                 t = 'info'
-                s = "SKIPPED (--webappModelSearchPath not used)"
+                s = "SKIPPED (--webappModelSearchPath not specified)"
                 self._add_result(t, n, s)
                 continue
             elif count > 1:
@@ -399,13 +420,69 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
-            # TODO: validate ./unity-webapps-*
             if not path:
                 t = 'error'
                 s = 'empty arg to --webappModelSearchPath'
                 self._add_result(t, n, s)
                 continue
             self._add_result(t, n, s)
+
+            # if --webappModelSearchPath is specified, that means we should
+            # look for webapp configuration in the manifest.json in
+            # ubuntu-webapps-*/
+            manifests = self._extract_webapp_manifests()
+            print("JAMIE: %s" % manifests)
+            t = 'info'
+            n = 'Exec_webbrowser_webapp_manifest (%s)' % app
+            s = 'OK'
+            if len(manifests) == 0:
+                t = 'error'
+                s = 'could not find unity-webaps-*/manifest.json'
+                self._add_result(t, n, s)
+                continue
+            elif len(manifests) > 1:  # for now error on this since having
+                                      # multiple manifests is unknown
+                t = 'error'
+                fns = []
+                for f in manifests.keys():
+                    fns.append(f)
+                s = 'found multiple webapp manifest files: %s' % ",".join(fns)
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
+            for k in manifests.keys():
+                m = manifests[k]
+                print (m)
+
+                t = 'info'
+                n = 'Exec_webbrowser_webapp_manifest_wellformed (%s, %s)' % \
+                    (app, k)
+                s = 'OK'
+                if m is None or m == 'null':  # 'null' is for testsuite
+                    t = 'error'
+                    s = 'could not load webapp manifest file. Is it ' + \
+                        'properly formatted?'
+                    self._add_result(t, n, s)
+                    continue
+                self._add_result(t, n, s)
+
+                # 'includes' contains the patterns
+                t = 'info'
+                n = 'Exec_webbrowser_webapp_manifest_includes_present ' + \
+                    '(%s, %s)' % (app, k)
+                s = 'OK'
+                if 'includes' not in m:
+                    t = 'error'
+                    s = "could not find 'includes' in webapp manifest"
+                elif not isinstance(m['includes'], list):
+                    t = 'error'
+                    s = "'includes' in webapp manifest is not list"
+                self._add_result(t, n, s)
+                if t == 'error':
+                    continue
+
+                self._check_patterns(app, m['includes'], args)
 
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''

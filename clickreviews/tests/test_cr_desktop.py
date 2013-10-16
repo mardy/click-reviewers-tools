@@ -370,6 +370,11 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
     def test_check_desktop_exec_webbrowser_modelsearchpath_valid(self):
         '''Test check_desktop_exec_webbrowser_modelsearchpath() valid'''
         c = ClickReviewDesktop(self.test_name)
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "name", "foo")
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "includes",
+                                      ['https?://mobile.twitter.com/*'])
         ex = "webbrowser-app --enable-back-forward --webapp " + \
              "--webappModelSearchPath=. http://mobile.twitter.com"
         self.set_test_desktop(self.default_appname,
@@ -430,4 +435,99 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         c.check_desktop_exec_webbrowser_modelsearchpath()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_modelsearchpath_no_manifest(self):
+        '''Test check_desktop_exec_webbrowser_modelsearchpath() no manifest'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappModelSearchPath=. http://mobile.twitter.com"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_modelsearchpath()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_modelsearchpath_bad_manifest(self):
+        '''Test check_desktop_exec_webbrowser_modelsearchpath() bad manifest'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      None, None)
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappModelSearchPath=. http://mobile.twitter.com"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_modelsearchpath()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_modelsearchpath_mult_manifest(self):
+        '''Test check_desktop_exec_webbrowser_modelsearchpath() mult manifest'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "name", "foo")
+        self.set_test_webapp_manifest("unity-webapps-bar/manifest.json",
+                                      "name", "bar")
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappModelSearchPath=. http://mobile.twitter.com"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_modelsearchpath()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_modelsearchpath_bad_includes(self):
+        '''Test check_desktop_exec_webbrowser_modelsearchpath() bad includes'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "name", "foo")
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "includes", "not list")
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappModelSearchPath=. http://mobile.twitter.com"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_modelsearchpath()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_modelsearchpath_no_includes(self):
+        '''Test check_desktop_exec_webbrowser_modelsearchpath() no includes'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "name", "foo")
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappModelSearchPath=. http://mobile.twitter.com"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_modelsearchpath()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_modelsearchpath_mismatch(self):
+        '''Test check_desktop_exec_webbrowser_modelsearchpath() no includes'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "name", "foo")
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "includes",
+                                      ['https?://mobile.twitter.net/*'])
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappModelSearchPath=. http://mobile.twitter.com"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_modelsearchpath()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)

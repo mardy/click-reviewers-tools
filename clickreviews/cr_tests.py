@@ -31,6 +31,7 @@ TEST_CONTROL = ""
 TEST_MANIFEST = ""
 TEST_SECURITY = dict()
 TEST_DESKTOP = dict()
+TEST_WEBAPP_MANIFESTS = dict()
 
 
 #
@@ -69,6 +70,11 @@ def _extract_desktop_entry(self, app):
 def _get_desktop_entry(self, app):
     '''Pretend we read the desktop file'''
     return TEST_DESKTOP[app]
+
+
+def _extract_webapp_manifests(self):
+    '''Pretend we read the webapp manifest files'''
+    return TEST_WEBAPP_MANIFESTS
 
 
 # http://docs.python.org/3.4/library/unittest.mock-examples.html#applying-the-same-patch-to-every-test-method
@@ -119,6 +125,9 @@ patches.append(patch(
 patches.append(patch(
     'clickreviews.cr_desktop.ClickReviewDesktop._get_desktop_entry',
     _get_desktop_entry))
+patches.append(patch(
+    'clickreviews.cr_desktop.ClickReviewDesktop._extract_webapp_manifests',
+    _extract_webapp_manifests))
 
 
 def mock_patch():
@@ -201,6 +210,10 @@ class TestClickReview(TestCase):
         self._update_test_security_manifests()
         self._update_test_desktop_files()
 
+        # webapps manifests (leave empty for now)
+        self.test_webapp_manifests = dict()
+        self._update_test_webapp_manifests()
+
         # mockup a click package name based on the above
         self._update_test_name()
 
@@ -216,11 +229,13 @@ class TestClickReview(TestCase):
 
     def _update_test_security_manifests(self):
         global TEST_SECURITY
+        TEST_SECURITY = dict()
         for app in self.test_security_manifests.keys():
             TEST_SECURITY[app] = json.dumps(self.test_security_manifests[app])
 
     def _update_test_desktop_files(self):
         global TEST_DESKTOP
+        TEST_DESKTOP = dict()
         for app in self.test_desktop_files.keys():
             contents = '''[Desktop Entry]'''
             for k in self.test_desktop_files[app].keys():
@@ -232,6 +247,12 @@ class TestClickReview(TestCase):
                 f.write(contents)
             f.close()
             TEST_DESKTOP[app] = DesktopEntry(fn)
+
+    def _update_test_webapp_manifests(self):
+        global TEST_WEBAPP_MANIFESTS
+        TEST_WEBAPP_MANIFESTS = dict()
+        for i in self.test_webapp_manifests.keys():
+            TEST_WEBAPP_MANIFESTS[i] = self.test_webapp_manifests[i]
 
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
@@ -315,6 +336,25 @@ class TestClickReview(TestCase):
             self.test_desktop_files[app][key] = value
         if not no_update:
             self._update_test_desktop_files()
+
+    def set_test_webapp_manifest(self, fn, key, value):
+        '''Set key in webapp manifest to value. If value is None, remove
+           key'''
+
+        if key is None and value is None:
+            self.test_webapp_manifests[fn] = None
+            self._update_test_webapp_manifests()
+            return
+
+        if fn not in self.test_webapp_manifests:
+            self.test_webapp_manifests[fn] = dict()
+
+        if value is None:
+            if key in self.test_webapp_manifests[fn]:
+                self.test_webapp_manifests[fn].pop(key, None)
+        else:
+            self.test_webapp_manifests[fn][key] = value
+        self._update_test_webapp_manifests()
 
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
