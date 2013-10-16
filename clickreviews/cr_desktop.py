@@ -312,7 +312,10 @@ class ClickReviewDesktop(ClickReview):
             s = 'OK'
             # TODO: this is admittedly simple, but matches Canonical
             #       webapps currently, so ok for now
-            if urlp_t.netloc != urlp_p.netloc:
+            if urlp_p.netloc.startswith('*') and len(urlp_p.netloc) > 2 and \
+               urlp_t.netloc.endswith(urlp_p.netloc[1:]):
+                s = "OK ('%s' matches '%s')" % (urlp_t.netloc, urlp_p.netloc)
+            elif urlp_t.netloc != urlp_p.netloc:
                 if pattern_count == 1:
                     t = 'warn'
                     s = "'%s' != primary pattern '%s'" % \

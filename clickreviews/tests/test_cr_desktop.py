@@ -309,6 +309,20 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 2, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_desktop_exec_webbrowser_urlpatterns_leading_glob(self):
+        '''Test check_desktop_exec_webbrowser_urlpatterns() leading glob'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappUrlPatterns=https?://*.twitter.com/* " + \
+             "http://mobile.twitter.com"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_desktop_exec_webbrowser_urlpatterns_target_mismatch(self):
         '''Test check_desktop_exec_webbrowser_urlpatterns() target mismatch'''
         c = ClickReviewDesktop(self.test_name)
