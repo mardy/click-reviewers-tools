@@ -52,10 +52,6 @@ class ClickReviewDesktop(ClickReview):
                                'webbrowser-app',
                                'cordova-ubuntu-2.8',
                                ]
-        self.expected_webbrowser_args = ['--enable-back-forward',
-                                         '--webapp',
-                                         '--webappUrlPatterns=*',
-                                         ]
         # TODO: the desktop hook will actually handle this correctly
         self.blacklisted_keys = ['Path']
 
@@ -218,22 +214,35 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
-            for arg in self.expected_webbrowser_args:
-                t = 'info'
-                n = 'Exec_webbrowser_required_args (%s)' % (app)
-                s = 'OK'
-                if arg.endswith('*'):
-                    found = False
-                    for i in de.getExec().split():
-                        if i.startswith(arg.rstrip('*')):
-                            found = True
-                    if not found:
-                        t = 'error'
-                        s = "could not find '%s' in '%s'" % (arg, de.getExec())
-                elif arg not in de.getExec().split():
-                    t = 'error'
-                    s = "could not find '%s' in  '%s'" % (arg, de.getExec())
-                self._add_result(t, n, s)
+            t = 'info'
+            n = 'Exec_webbrowser_minimal_chrome (%s)' % (app)
+            s = 'OK'
+            if not '--enable-back-forward' in de.getExec().split():
+                t = 'error'
+                s = "could not find --enable-back-forward in '%s'" % (de.getExec())
+            self._add_result(t, n, s)
+
+            # verify the presence of either webappUrlPatterns or
+            # webappModelSearchPath
+            t = 'info'
+            n = 'Exec_webbrowser_required (%s)' % (app)
+            s = 'OK'
+            found_url_patterns = False
+            found_model_search_path = False
+            for i in de.getExec().split():
+                if i.startswith('--webappUrlPatterns'):
+                    found_url_patterns = True
+                if i.startswith('--webappModelSearchPath'):
+                    found_model_search_path = True
+            if found_url_patterns and found_model_search_path:
+                t = 'error'
+                s = "should not specify --webappUrlPatterns when using " + \
+                    "--webappModelSearchPath"
+            elif not found_url_patterns and not found_model_search_path:
+                t = 'error'
+                s = "specify one of --webappUrlPatterns or " + \
+                    "--webappModelSearchPath"
+            self._add_result(t, n, s)
 
     def check_desktop_exec_webbrowser_urlpatterns(self):
         '''Check Exec=webbrowser-app entry has valid --webappUrlPatterns'''
@@ -260,8 +269,8 @@ class ClickReviewDesktop(ClickReview):
                 count += 1
 
             if count == 0:
-                # --webappUrlPatterns is a required arg and generates an error
-                # so just make this info
+                # one of --webappUrlPatterns or --webappModelSearchPath is a
+                # required arg and generates an error so just make this info
                 t = 'info'
                 s = "SKIPPED (--webappUrlPatterns not used)"
                 self._add_result(t, n, s)
@@ -273,8 +282,8 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
+            pattern_count = 1
             for pattern in pats.split(','):
-                pattern_count = 1
                 t = 'info'
                 n = 'Exec_webbrowser_webappUrlPatterns_has_https? (%s, %s)' % \
                     (app, pattern)
@@ -310,6 +319,15 @@ class ClickReviewDesktop(ClickReview):
 
                 target = args[-1]
                 urlp_t = urlsplit(target)
+                t = 'info'
+                n = 'Exec_webbrowser_target_exists (%s)' % (app)
+                s = 'OK'
+                if urlp_t.scheme == "":
+                    t = 'error'
+                    s = 'Exec line does not end with parseable URL'
+                    self._add_result(t, n, s)
+                    continue
+                self._add_result(t, n, s)
 
                 t = 'info'
                 n = 'Exec_webbrowser_target_scheme_matches_patterns ' + \
@@ -329,9 +347,10 @@ class ClickReviewDesktop(ClickReview):
                 # TODO: this is admittedly simple, but matches Canonical
                 #       webapps currently, so ok for now
                 if urlp_t.netloc != urlp_p.netloc:
-                    if pattern_count > 1:
+                    if pattern_count == 1:
                         t = 'warn'
-                        s = "'%s' != '%s'" % (urlp_t.netloc, urlp_p.netloc) + \
+                        s = "'%s' != primary pattern '%s'" % \
+                            (urlp_t.netloc, urlp_p.netloc) + \
                             " (may cause needless redirect)"
                     else:
                         t = 'info'
@@ -340,6 +359,54 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
 
                 pattern_count += 1
+
+    def check_desktop_exec_webbrowser_modelsearchpath(self):
+        '''Check Exec=webbrowser-app entry has valid --webappModelSearchPath'''
+        for app in sorted(self.desktop_entries):
+            de = self._get_desktop_entry(app)
+            execline = de.getExec().split()
+            if not de.hasKey('Exec'):
+                continue
+            elif execline[0] != "webbrowser-app":
+                continue
+            elif len(execline) < 2:
+                continue
+
+            args = execline[1:]
+            t = 'info'
+            n = 'Exec_webbrowser_webappModelSearchPath present (%s)' % app
+            s = 'OK'
+            path = ""
+            count = 0
+            for a in args:
+                if not a.startswith('--webappModelSearchPath='):
+                    continue
+                path = a.split('=', maxsplit=1)[1]
+                count += 1
+
+            if count == 0:
+                # one of --webappUrlPatterns or --webappModelSearchPath is a
+                # required arg and generates an error so just make this info
+                t = 'info'
+                s = "SKIPPED (--webappModelSearchPath not used)"
+                self._add_result(t, n, s)
+                continue
+            elif count > 1:
+                t = 'error'
+                s = "found multiple '--webappModelSearchPath=' in '%s'" % \
+                    " ".join(args)
+                self._add_result(t, n, s)
+                continue
+
+            # TODO: validate ./unity-webapps-*
+            print("JAMIE: %s" % path)
+            if not path:
+                t = 'error'
+                s = 'empty arg to --webappModelSearchPath'
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
 
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''
