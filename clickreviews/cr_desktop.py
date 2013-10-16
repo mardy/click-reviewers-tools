@@ -219,7 +219,8 @@ class ClickReviewDesktop(ClickReview):
             s = 'OK'
             if not '--enable-back-forward' in de.getExec().split():
                 t = 'error'
-                s = "could not find --enable-back-forward in '%s'" % (de.getExec())
+                s = "could not find --enable-back-forward in '%s'" % \
+                    (de.getExec())
             self._add_result(t, n, s)
 
             # verify the presence of either webappUrlPatterns or
@@ -405,7 +406,6 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
                 continue
             self._add_result(t, n, s)
-
 
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''

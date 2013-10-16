@@ -187,7 +187,6 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-
     def test_check_desktop_exec_webbrowser_with_both_required(self):
         '''Test check_desktop_exec_webbrowser with both required'''
 
@@ -382,7 +381,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_modelsearchpath_missing_exec(self):
-        '''Test check_desktop_exec_webbrowser_modelsearchpath() - missing exec'''
+        '''Test check_desktop_exec_webbrowser_modelsearchpath - missing exec'''
         c = ClickReviewDesktop(self.test_name)
         self.set_test_desktop(self.default_appname,
                               "Exec",
@@ -406,7 +405,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_modelsearchpath_multiple_args(self):
-        '''Test check_desktop_exec_webbrowser_modelsearchpath() multiple args'''
+        '''Test check_desktop_exec_webbrowser_modelsearchpath multiple args'''
         c = ClickReviewDesktop(self.test_name)
         ex = "webbrowser-app --enable-back-forward --webapp " + \
              "--webappModelSearchPath=. " + \
