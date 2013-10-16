@@ -52,10 +52,6 @@ class ClickReviewDesktop(ClickReview):
                                'webbrowser-app',
                                'cordova-ubuntu-2.8',
                                ]
-        self.expected_webbrowser_args = ['--enable-back-forward',
-                                         '--webapp',
-                                         '--webappUrlPatterns=*',
-                                         ]
         # TODO: the desktop hook will actually handle this correctly
         self.blacklisted_keys = ['Path']
 
@@ -91,8 +87,8 @@ class ClickReviewDesktop(ClickReview):
         return self.desktop_entries[app]
 
     def _get_desktop_files(self):
-        '''Get desktop_files (abstracted out for mock)'''
-        return self.desktop_files
+       '''Get desktop_files (abstracted out for mock)'''
+       return self.desktop_files
 
     def _get_desktop_filename(self, app):
         '''Get desktop file filenames'''
@@ -218,22 +214,31 @@ class ClickReviewDesktop(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
-            for arg in self.expected_webbrowser_args:
-                t = 'info'
-                n = 'Exec_webbrowser_required_args (%s)' % (app)
-                s = 'OK'
-                if arg.endswith('*'):
-                    found = False
-                    for i in de.getExec().split():
-                        if i.startswith(arg.rstrip('*')):
-                            found = True
-                    if not found:
-                        t = 'error'
-                        s = "could not find '%s' in '%s'" % (arg, de.getExec())
-                elif arg not in de.getExec().split():
-                    t = 'error'
-                    s = "could not find '%s' in  '%s'" % (arg, de.getExec())
-                self._add_result(t, n, s)
+        t = 'info'
+        n = 'Exec_webbrowser_minimal_chrome (%s)' % (app)
+        s = 'OK'
+        if not '--enable-back-forward' in de.getExec().split():
+            t = 'error'
+            s = "could not find --enable-back-forward in  '%s'" % (arg, de.getExec())
+        self._add_result(t, n, s)
+
+        # verify the presence of either webappUrlPattern or
+        # webappModelSearchPath
+        t = 'info'
+        n = 'Exec_webbrowser_url_pattern (%s)' % (app)
+        s = 'OK'
+        found = False
+        for i in de.getExec().split():
+            if i.startswith('--webappUrlPattern'):
+                found = True
+            if i.startswith('--webappModelSearchPath'):
+                found = True
+                # TODO: should look for includes statements in the webapp manifest
+        if not found:
+            t = 'error'
+            s = "missing --webappUrlPattern option in the absence of a model"
+        self._add_result(t, n, s)
+            
 
     def check_desktop_exec_webbrowser_urlpatterns(self):
         '''Check Exec=webbrowser-app entry has valid --webappUrlPatterns'''
