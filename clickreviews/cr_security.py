@@ -420,7 +420,7 @@ class ClickReviewSecurity(ClickReview):
 
             if len(found) > 0:
                 t = 'error'
-                s = "(MANUAL REVIEW) found redflagged fields: %s" % \
+                s = "found redflagged fields (needs human review): %s" % \
                     ", ".join(found)
             self._add_result(t, n, s)
 
