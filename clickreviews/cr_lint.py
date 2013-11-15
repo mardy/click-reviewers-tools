@@ -288,6 +288,17 @@ exit 1
                     s = "'%s' hook not found for '%s'" % (f, app)
                 self._add_result(t, n, s)
 
+    def check_symlinks(self):
+        '''Check if symlinks are included in the click package.'''
+        t = 'info'
+        n = 'symlinks_in_pkg'
+        s = 'OK'
+        links = list(filter(lambda filename: os.path.islink(filename), self.pkg_files))
+        if links:
+            t = 'error'
+            s = 'package contains symlinks: %s' % ', '.join(links)
+        self._add_result(t, n, s)
+
     def check_pkgname(self):
         '''Check package name valid'''
         p = self.manifest['name']
