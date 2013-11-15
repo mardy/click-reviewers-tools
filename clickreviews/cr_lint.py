@@ -398,9 +398,16 @@ exit 1
                     % email
             elif len(domain_rev) >= len(pkg_domain_rev):  # also '=' to leave
                                                           # room for app name
-                t = 'error'
-                s = "(EMAIL NEEDS HUMAN REVIEW) email domain too long '%s' " \
-                    % email + "for app name '%s'" % ".".join(pkg_domain_rev)
+                # Core apps have a long email, domain, but that's all right
+                if self.click_pkgname.startswith('com.ubuntu.') and \
+                   email == 'ubuntu-touch-coreapps@lists.launchpad.net':
+                    t = 'info'
+                    s = "OK (email '%s' long, but special case of core apps " \
+                        "'com.ubuntu.*')" % email
+                else:
+                    t = 'error'
+                    s = "(EMAIL NEEDS HUMAN REVIEW) email domain too long '%s' " \
+                        % email + "for app name '%s'" % ".".join(pkg_domain_rev)
             elif domain_rev == pkg_domain_rev[:len(domain_rev)]:
                 is_special = False
                 for special in special_domains:
