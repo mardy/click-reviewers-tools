@@ -70,7 +70,7 @@ class ClickReviewFunctional(ClickReview):
             in_mainview = False
             for line in qmls[k].splitlines():
                 if in_mainview and pat_appname.search(line):
-                    appname = line.split(':', 1)[1].strip('"\' \t\n\r\f\v')
+                    appname = line.split(':', 1)[1].strip('"\' \t\n\r\f\v;')
                     appnames[os.path.relpath(k, self.unpack_dir)] = appname
                     if appname == self.click_pkgname:
                         ok = True
