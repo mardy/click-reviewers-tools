@@ -288,6 +288,20 @@ exit 1
                     s = "'%s' hook not found for '%s'" % (f, app)
                 self._add_result(t, n, s)
 
+    def check_external_symlinks(self):
+        '''Check if symlinks in the click package go out to the system.'''
+        t = 'info'
+        n = 'external_symlinks'
+        s = 'OK'
+        
+        symlinks = list(filter(lambda filename: os.path.islink(filename), self.pkg_files))
+        external_symlinks = list(filter(lambda link: not 
+            os.path.realpath(link).startswith(self.unpack_dir), self.pkg_files))
+        if external_symlinks:
+            t = 'error'
+            s = 'package contains external symlinks: %s' % ', '.join(external_symlinks)
+        self._add_result(t, n, s)
+
     def check_pkgname(self):
         '''Check package name valid'''
         p = self.manifest['name']
