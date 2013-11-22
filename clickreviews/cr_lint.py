@@ -51,6 +51,7 @@ class ClickReviewLint(ClickReview):
         self.mime.load()
         self.email = self.manifest['maintainer'].partition('<')[2].rstrip('>')
         self.is_core_app = (self.click_pkgname.startswith('com.ubuntu.') and \
+            not self.click_pkgname.startswith('com.ubuntu.developer.') and
             self.email == 'ubuntu-touch-coreapps@lists.launchpad.net')
 
     def _list_control_files(self):
