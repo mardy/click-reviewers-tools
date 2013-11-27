@@ -41,8 +41,9 @@ class ClickReviewFunctional(ClickReview):
             t = 'error'
             s = "some message"
 
+        mv = '\s*MainView\s*(\s+{)?'
         # find file with MainView in the QML
-        pat_mv = re.compile(r'\n\s*MainView\s+{')
+        pat_mv = re.compile(r'\n%s' % mv)
         qmls = dict()
         count = 0
         for i in self.pkg_files:
@@ -61,7 +62,7 @@ class ClickReviewFunctional(ClickReview):
             self._add_result(t, n, s)
             return
 
-        pat_mvl = re.compile(r'^\s*MainView\s+')
+        pat_mvl = re.compile(r'^%s' % mv)
         pat_appname = re.compile(r'^\s*applicationName\s*:\s*["\']')
 
         ok = False
