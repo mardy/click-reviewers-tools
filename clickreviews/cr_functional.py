@@ -33,6 +33,17 @@ class ClickReviewFunctional(ClickReview):
         self.mime = magic.open(magic.MAGIC_MIME)
         self.mime.load()
 
+        self.qml_files = []
+        self.bin_files = []
+        for i in self.pkg_files:
+            if i.endswith(".qml"):
+                self.qml_files.append(i)
+            else:
+                res = self.mime.file(i)
+                if res in ['application/x-executable; charset=binary',
+                           'application/x-sharedlib; charset=binary']:
+                     self.bin_files.append(i)
+
     def check_applicationName(self):
         '''Check applicationName matches click manifest'''
         t = 'info'
@@ -47,31 +58,24 @@ class ClickReviewFunctional(ClickReview):
         pat_mv = re.compile(r'\n%s' % mv)
         qmls = dict()
 
-        count_bin = 0
-        count = 0
-        for i in self.pkg_files:
-            if i.endswith(".qml"):
-                count += 1
-                qml = open_file_read(i).read()
-                if pat_mv.search(qml):
-                    qmls[i] = qml
-                continue
+        count = len(self.qml_files)
+        for i in self.qml_files:
+            qml = open_file_read(i).read()
+            if pat_mv.search(qml):
+                qmls[i] = qml
 
-            # LP: #1256841 - QML apps with C++ using QSettings shouldn't
-            # typically set applicationName in the QML
-            res = self.mime.file(i)
-            if res in ['application/x-executable; charset=binary',
-                       'application/x-sharedlib; charset=binary']:
-                count_bin += 1
-                f = open(i, 'rb')
-                data = str(binascii.b2a_qp(f.read()))
-                f.close()
-                if 'QSettings' in data:
-                    s = "OK (binary uses QSettings)"
-                    self._add_result(t, n, s)
-                    return
+        # LP: #1256841 - QML apps with C++ using QSettings shouldn't
+        # typically set applicationName in the QML
+        for i in self.bin_files:
+            f = open(i, 'rb')
+            data = str(binascii.b2a_qp(f.read()))
+            f.close()
+            if 'QSettings' in data:
+                s = "OK (binary uses QSettings)"
+                self._add_result(t, n, s)
+                return
 
-        if count == 0:
+        if len(self.qml_files) == 0:
             s = "OK (not QML)"
             self._add_result(t, n, s)
             return
@@ -100,7 +104,7 @@ class ClickReviewFunctional(ClickReview):
                     break
 
         if len(appnames) == 0 or not ok:
-            if count_bin == 0:
+            if len(self.bin_files) == 0:
                 t = "warn"
 
             if len(appnames) == 0:
@@ -118,7 +122,7 @@ class ClickReviewFunctional(ClickReview):
                                    appnames)
                                    ))
 
-            if count_bin == 0:
+            if len(self.bin_files) == 0:
                 s += ". Application may not work properly when confined."
             else:
                 s += ". May be ok (detected as compiled application)."
