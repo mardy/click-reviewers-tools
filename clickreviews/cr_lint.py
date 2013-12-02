@@ -302,9 +302,8 @@ exit 1
         t = 'info'
         n = 'external_symlinks'
         s = 'OK'
-        
-        symlinks = list(filter(lambda filename: os.path.islink(filename), self.pkg_files))
-        external_symlinks = list(filter(lambda link: not 
+
+        external_symlinks = list(filter(lambda link: not
             os.path.realpath(link).startswith(self.unpack_dir), self.pkg_files))
         if external_symlinks:
             t = 'error'
