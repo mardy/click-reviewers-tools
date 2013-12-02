@@ -49,10 +49,15 @@ class ClickReviewLint(ClickReview):
 
         self.mime = magic.open(magic.MAGIC_MIME)
         self.mime.load()
-        self.email = self.manifest['maintainer'].partition('<')[2].rstrip('>')
-        self.is_core_app = (self.click_pkgname.startswith('com.ubuntu.') and \
-            not self.click_pkgname.startswith('com.ubuntu.developer.') and
-            self.email == 'ubuntu-touch-coreapps@lists.launchpad.net')
+        if 'maintainer' in self.manifest:
+            maintainer = self.manifest['maintainer']
+            self.email = maintainer.partition('<')[2].rstrip('>')
+            self.is_core_app = (self.click_pkgname.startswith('com.ubuntu.') \
+                and not self.click_pkgname.startswith('com.ubuntu.developer.') \
+                and self.email == 'ubuntu-touch-coreapps@lists.launchpad.net')
+        else:
+            self.email = None
+            self.is_core_app = False
 
     def _list_control_files(self):
         '''List all control files with their full path.'''
