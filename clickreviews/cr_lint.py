@@ -49,6 +49,10 @@ class ClickReviewLint(ClickReview):
 
         self.mime = magic.open(magic.MAGIC_MIME)
         self.mime.load()
+        self.email = self.manifest['maintainer'].partition('<')[2].rstrip('>')
+        self.is_core_app = (self.click_pkgname.startswith('com.ubuntu.') and \
+            not self.click_pkgname.startswith('com.ubuntu.developer.') and
+            self.email == 'ubuntu-touch-coreapps@lists.launchpad.net')
 
     def _list_control_files(self):
         '''List all control files with their full path.'''
@@ -401,20 +405,25 @@ exit 1
             # own addresses
             s = "OK (package domain=%s)" % str(defaults)
         else:
-            email = self.manifest['maintainer'].partition('<')[2].rstrip('>')
-            domain_rev = email.partition('@')[2].split('.')
+            domain_rev = self.email.partition('@')[2].split('.')
             domain_rev.reverse()
 
             pkg_domain_rev = self.click_pkgname.split('.')
             if len(domain_rev) < 2:  # don't impersonate .com
                 t = 'error'
                 s = "(EMAIL NEEDS HUMAN REVIEW) email domain too short: '%s'" \
-                    % email
+                    % self.email
             elif len(domain_rev) >= len(pkg_domain_rev):  # also '=' to leave
                                                           # room for app name
-                t = 'error'
-                s = "(EMAIL NEEDS HUMAN REVIEW) email domain too long '%s' " \
-                    % email + "for app name '%s'" % ".".join(pkg_domain_rev)
+                # Core apps have a long email, domain, but that's all right
+                if self.is_core_app:
+                    t = 'info'
+                    s = "OK (email '%s' long, but special case of core apps " \
+                        "'com.ubuntu.*')" % self.email
+                else:
+                    t = 'error'
+                    s = "(EMAIL NEEDS HUMAN REVIEW) email domain too long '%s' " \
+                        % self.email + "for app name '%s'" % ".".join(pkg_domain_rev)
             elif domain_rev == pkg_domain_rev[:len(domain_rev)]:
                 is_special = False
                 for special in special_domains:
@@ -423,14 +432,14 @@ exit 1
                         break
                 if is_special:
                     t = 'warn'
-                    s = "email=%s matches special domain=%s" % (email,
+                    s = "email=%s matches special domain=%s" % (self.email,
                         ".".join(pkg_domain_rev))
                 else:
-                    s = "OK (email=%s, package domain=%s" % (email,
+                    s = "OK (email=%s, package domain=%s" % (self.email,
                         ".".join(pkg_domain_rev))
             else:
                 t = 'error'
-                s = "email=%s does not match package domain=%s" % (email,
+                s = "email=%s does not match package domain=%s" % (self.email,
                     ".".join(pkg_domain_rev))
         self._add_result(t, n, s)
 
