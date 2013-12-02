@@ -38,8 +38,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_architecture_all(self):
-        '''TODO: Test check_architecture_all()'''
-        # This needs a real click package rather than a mocked up one
+        '''Test check_architecture_all() - no binaries'''
+        self.set_test_control("Architecture", "all")
+        self.set_test_manifest("architecture", "all")
+        c = ClickReviewLint(self.test_name)
+        c.pkg_bin_files = []
+        c.check_architecture_all()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_all2(self):
+        '''Test check_architecture_all() - binaries'''
+        self.set_test_control("Architecture", "all")
+        self.set_test_manifest("architecture", "all")
+        c = ClickReviewLint(self.test_name)
+        c.pkg_bin_files = ["path/to/some/compiled/binary"]
+        c.check_architecture_all()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
 
     def test_check_architecture_nonexistent(self):
         '''Test check_architecture() - nonexistent'''
@@ -102,6 +120,28 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected['info']["lint_control_architecture_match"] = \
             "OK: architecture not specified in manifest"
         self.check_results(r, expected=expected)
+
+    def test_check_architecture_specified_needed(self):
+        '''Test check_architecture_specified_needed() - no binaries'''
+        self.set_test_control("Architecture", "armhf")
+        self.set_test_manifest("architecture", "armhf")
+        c = ClickReviewLint(self.test_name)
+        c.pkg_bin_files = []
+        c.check_architecture_specified_needed()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_specified_needed2(self):
+        '''Test check_architecture_specified_needed2() - binaries'''
+        self.set_test_control("Architecture", "armhf")
+        self.set_test_manifest("architecture", "armhf")
+        c = ClickReviewLint(self.test_name)
+        c.pkg_bin_files = ["path/to/some/compiled/binary"]
+        c.check_architecture_specified_needed()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
 
     def test_check_package_filename(self):
         '''Test check_package_filename()'''

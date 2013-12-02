@@ -102,6 +102,9 @@ patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview.__del__', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
                _mock_func))
+patches.append(patch(
+    'clickreviews.cr_common.ClickReview._list_all_compiled_binaries',
+    _mock_func))
 
 # lint overrides
 patches.append(patch(
@@ -109,6 +112,9 @@ patches.append(patch(
                _mock_func))
 patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_all_files',
                _mock_func))
+patches.append(patch(
+    'clickreviews.cr_lint.ClickReview._list_all_compiled_binaries',
+    _mock_func))
 
 # security overrides
 patches.append(patch(

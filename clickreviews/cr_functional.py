@@ -16,7 +16,6 @@
 
 from __future__ import print_function
 import binascii
-import magic
 import os
 import re
 
@@ -30,19 +29,13 @@ class ClickReviewFunctional(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "functional")
-        self.mime = magic.open(magic.MAGIC_MIME)
-        self.mime.load()
 
         self.qml_files = []
-        self.bin_files = []
         for i in self.pkg_files:
             if i.endswith(".qml"):
                 self.qml_files.append(i)
-            else:
-                res = self.mime.file(i)
-                if res in ['application/x-executable; charset=binary',
-                           'application/x-sharedlib; charset=binary']:
-                     self.bin_files.append(i)
+
+        self._list_all_compiled_binaries()
 
     def check_applicationName(self):
         '''Check applicationName matches click manifest'''
@@ -62,7 +55,7 @@ class ClickReviewFunctional(ClickReview):
 
         # LP: #1256841 - QML apps with C++ using QSettings shouldn't
         # typically set applicationName in the QML
-        for i in self.bin_files:
+        for i in self.pkg_bin_files:
             f = open(i, 'rb')
             data = str(binascii.b2a_qp(f.read()))
             f.close()
@@ -100,7 +93,7 @@ class ClickReviewFunctional(ClickReview):
                     break
 
         if len(appnames) == 0 or not ok:
-            if len(self.bin_files) == 0:
+            if len(self.pkg_bin_files) == 0:
                 t = "warn"
 
             if len(appnames) == 0:
@@ -118,7 +111,7 @@ class ClickReviewFunctional(ClickReview):
                                    appnames)
                                    ))
 
-            if len(self.bin_files) == 0:
+            if len(self.pkg_bin_files) == 0:
                 s += ". Application may not work properly when confined."
             else:
                 s += ". May be ok (detected as compiled application)."

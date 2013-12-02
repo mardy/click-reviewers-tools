@@ -19,6 +19,7 @@ import codecs
 from debian.deb822 import Deb822
 import inspect
 import json
+import magic
 import os
 import pprint
 import shutil
@@ -84,6 +85,14 @@ class ClickReview(object):
         self.pkg_files = []
         self._list_all_files()
 
+        # Setup what is needed to get a list of all unpacked compiled binaries
+        self.mime = magic.open(magic.MAGIC_MIME)
+        self.mime.load()
+        self.pkg_bin_files = []
+        # Don't run this here since only cr_lint.py and cr_functional.py need
+        # it now
+        # self._list_all_compiled_binaries()
+
     def _extract_manifest_file(self):
         '''Extract and read the manifest file'''
         m = os.path.join(self.unpack_dir, "DEBIAN/manifest")
@@ -106,6 +115,14 @@ class ClickReview(object):
         for root, dirnames, filenames in os.walk(self.unpack_dir):
             for f in filenames:
                 self.pkg_files.append(os.path.join(root, f))
+
+    def _list_all_compiled_binaries(self):
+        '''List all compiled binaries in this click package.'''
+        for i in self.pkg_files:
+            res = self.mime.file(i)
+            if res in ['application/x-executable; charset=binary',
+                       'application/x-sharedlib; charset=binary']:
+                self.pkg_bin_files.append(i)
 
     def _verify_manifest_structure(self):
         '''Verify manifest has the expected structure'''

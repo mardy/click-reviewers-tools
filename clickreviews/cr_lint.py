@@ -18,7 +18,6 @@ from __future__ import print_function
 from apt import apt_pkg
 from debian.deb822 import Deb822
 import glob
-import magic
 import os
 import re
 
@@ -47,8 +46,6 @@ class ClickReviewLint(ClickReview):
                                             ]
         self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
 
-        self.mime = magic.open(magic.MAGIC_MIME)
-        self.mime.load()
         if 'maintainer' in self.manifest:
             maintainer = self.manifest['maintainer']
             self.email = maintainer.partition('<')[2].rstrip('>')
@@ -58,6 +55,8 @@ class ClickReviewLint(ClickReview):
         else:
             self.email = None
             self.is_core_app = False
+
+        self._list_all_compiled_binaries()
 
     def _list_control_files(self):
         '''List all control files with their full path.'''
@@ -358,15 +357,28 @@ exit 1
 
         # look for compiled code
         x_binaries = []
-        for i in self.pkg_files:
-            res = self.mime.file(i)
-            if res in ['application/x-executable; charset=binary',
-                       'application/x-sharedlib; charset=binary']:
-                x_binaries.append(os.path.relpath(i, self.unpack_dir))
+        for i in self.pkg_bin_files:
+            x_binaries.append(os.path.relpath(i, self.unpack_dir))
         if len(x_binaries) > 0:
             t = 'error'
             s = "found binaries for architecture 'all': %s" % \
                 ", ".join(x_binaries)
+        self._add_result(t, n, s)
+
+    def check_architecture_specified_needed(self):
+        '''Check if the specified architecture is actually needed'''
+        t = 'info'
+        n = 'control_architecture_specified_needed'
+        s = 'OK'
+        if self.click_arch == "all":
+            s = "SKIPPED: architecture is 'all'"
+            self._add_result(t, n, s)
+            return
+
+        if len(self.pkg_bin_files) == 0:
+            t = 'error'
+            s = "Could not find compiled binaries for architecture '%s'" % \
+                self.click_arch
         self._add_result(t, n, s)
 
     def check_maintainer(self):
