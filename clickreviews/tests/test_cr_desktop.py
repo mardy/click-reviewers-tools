@@ -320,7 +320,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
                               ex)
         c.check_desktop_exec_webbrowser_urlpatterns()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_urlpatterns_target_mismatch(self):

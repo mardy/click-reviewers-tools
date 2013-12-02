@@ -274,7 +274,8 @@ class ClickReviewDesktop(ClickReview):
             n = 'Exec_webbrowser_webapp_url_patterns_uses_safe_glob ' + \
                 '(%s, %s)' % (app, pattern)
             s = 'OK'
-            if '*' in pattern[:-1]:
+            if '*' in pattern[:-1] and (pattern[:-1].count('*') != 1 or \
+               not pattern.startswith('https?://*')):
                 t = 'warn'
                 s = "'%s' contains nested '*'" % pattern + \
                     " (needs human review)"
