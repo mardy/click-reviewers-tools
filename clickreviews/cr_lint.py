@@ -511,6 +511,8 @@ exit 1
             if len(found) > 1:
                 plural = "s"
             s = 'found unofficial extension%s: %s' % (plural, ', '.join(found))
+            if 'x-source' in k and self.is_core_app:
+                s += ' (x-source found, but app is a core app, which is fine)'
         self._add_result(t, n, s)
 
     def check_package_filename(self):
