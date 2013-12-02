@@ -49,16 +49,12 @@ class ClickReviewFunctional(ClickReview):
         t = 'info'
         n = 'qml_applicationName_matches_manifest'
         s = "OK"
-        if False:
-            t = 'error'
-            s = "some message"
 
         # find file with MainView in the QML
         mv = '\s*MainView\s*(\s+{)?'
         pat_mv = re.compile(r'\n%s' % mv)
         qmls = dict()
 
-        count = len(self.qml_files)
         for i in self.qml_files:
             qml = open_file_read(i).read()
             if pat_mv.search(qml):
@@ -126,5 +122,24 @@ class ClickReviewFunctional(ClickReview):
                 s += ". Application may not work properly when confined."
             else:
                 s += ". May be ok (detected as compiled application)."
+
+        self._add_result(t, n, s)
+
+    def check_qtwebkit(self):
+        '''Check that QML applications don't use QtWebKit'''
+        t = 'info'
+        n = 'qml_application_uses_QtWebKit'
+        s = "OK"
+
+        qmls = []
+        pat_mv = re.compile(r'\n\s*import\s+QtWebKit')
+        for i in self.qml_files:
+            qml = open_file_read(i).read()
+            if pat_mv.search(qml):
+                qmls.append(os.path.relpath(i, self.unpack_dir))
+
+        if len(qmls) > 0:
+            t = 'warn'
+            s = "Found files that use unsupported QtWebKit (should use UbuntuWebview instead): %s" % " ,".join(qmls)
 
         self._add_result(t, n, s)
