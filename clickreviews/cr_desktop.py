@@ -250,6 +250,11 @@ class ClickReviewDesktop(ClickReview):
     def _check_patterns(self, app, patterns, args):
         pattern_count = 1
         for pattern in patterns:
+            urlp_scheme_pat = pattern[:-1].split(':')[0]
+            urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
+            target = args[-1]
+            urlp_t = urlsplit(target)
+
             t = 'info'
             n = 'Exec_webbrowser_webapp_url_patterns_has_https? (%s, %s)' % \
                 (app, pattern)
@@ -264,10 +269,19 @@ class ClickReviewDesktop(ClickReview):
             n = 'Exec_webbrowser_webapp_url_patterns_uses_trailing_glob ' + \
                 '(%s, %s)' % (app, pattern)
             s = 'OK'
-            if not pattern.endswith('/*'):
+            if not pattern.endswith('*'):
                 t = 'warn'
-                s = "'%s' does not end with '/*'" % pattern + \
-                    " (may cause needless redirect)"
+                s = "'%s' does not end with '*'" % pattern + \
+                    " (may cause needless redirect) - %s" % urlp_p.path
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_webapp_url_patterns_uses_unsafe_glob ' + \
+                '(%s, %s)' % (app, pattern)
+            s = 'OK'
+            if len(urlp_p.path) == 0 and pattern.endswith('*'):
+                t = 'error'
+                s = "'%s' contains trailing glob in netloc" % pattern
             self._add_result(t, n, s)
 
             t = 'info'
@@ -281,11 +295,6 @@ class ClickReviewDesktop(ClickReview):
                     " (needs human review)"
             self._add_result(t, n, s)
 
-            urlp_scheme_pat = pattern[:-1].split(':')[0]
-            urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
-
-            target = args[-1]
-            urlp_t = urlsplit(target)
             t = 'info'
             n = 'Exec_webbrowser_target_exists (%s)' % (app)
             s = 'OK'

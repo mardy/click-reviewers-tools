@@ -295,6 +295,62 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_desktop_exec_webbrowser_urlpatterns_trailing_glob1(self):
+        '''Test check_desktop_exec_webbrowser_urlpatterns() - trailing glob1'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+             "http://mobile.twitter.com"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_urlpatterns_trailing_glob2(self):
+        '''Test check_desktop_exec_webbrowser_urlpatterns() - trailing glob2'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappUrlPatterns=https?://m.bbc.co.uk/sport* " + \
+             "http://m.bbc.co.uk/sport"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_urlpatterns_trailing_glob3(self):
+        '''Test check_desktop_exec_webbrowser_urlpatterns() - trailing glob3'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappUrlPatterns=https?://*.bbc.co.uk/sport* " + \
+             "http://*.bbc.co.uk/sport"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_urlpatterns_trailing_glob4(self):
+        '''Test check_desktop_exec_webbrowser_urlpatterns() - trailing glob4'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webbrowser-app --enable-back-forward --webapp " + \
+             "--webappUrlPatterns=https?://www.bbc.co.uk* " + \
+             "http://www.bbc.co.uk"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_desktop_exec_webbrowser_urlpatterns_embedded_glob(self):
         '''Test check_desktop_exec_webbrowser_urlpatterns() embedded glob'''
         c = ClickReviewDesktop(self.test_name)
