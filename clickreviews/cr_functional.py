@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+import binascii
 import magic
 import os
 import re
@@ -41,10 +42,12 @@ class ClickReviewFunctional(ClickReview):
             t = 'error'
             s = "some message"
 
-        mv = '\s*MainView\s*(\s+{)?'
         # find file with MainView in the QML
+        mv = '\s*MainView\s*(\s+{)?'
         pat_mv = re.compile(r'\n%s' % mv)
         qmls = dict()
+
+        count_bin = 0
         count = 0
         for i in self.pkg_files:
             if i.endswith(".qml"):
@@ -52,6 +55,21 @@ class ClickReviewFunctional(ClickReview):
                 qml = open_file_read(i).read()
                 if pat_mv.search(qml):
                     qmls[i] = qml
+                continue
+
+            # LP: #1256841 - QML apps with C++ using QSettings shouldn't
+            # typically set applicationName in the QML
+            res = self.mime.file(i)
+            if res in ['application/x-executable; charset=binary',
+                       'application/x-sharedlib; charset=binary']:
+                count_bin += 1
+                f = open(i, 'rb')
+                data = str(binascii.b2a_qp(f.read()))
+                f.close()
+                if 'QSettings' in data:
+                    s = "OK (binary uses QSettings)"
+                    self._add_result(t, n, s)
+                    return
 
         if count == 0:
             s = "OK (not QML)"
@@ -81,22 +99,28 @@ class ClickReviewFunctional(ClickReview):
                 if ok:
                     break
 
-        if len(appnames) == 0:
-            t = "warn"
-            s = "could not find applicationName in: %s" % \
-                ", ".join(list(map(
-                               lambda x: os.path.relpath(x, self.unpack_dir),
-                               qmls)
-                               ))
-            s += ". Application may not work properly when confined."
-        elif not ok:
-            t = "warn"
-            s = "click manifest name '%s' not found in: " % \
-                self.click_pkgname + "%s" % \
-                ", ".join(list(map(
-                               lambda x: "%s ('%s')" % (x, appnames[x]),
-                               appnames)
-                               ))
-            s += ". Application may not work properly when confined."
+        if len(appnames) == 0 or not ok:
+            if count_bin == 0:
+                t = "warn"
+
+            if len(appnames) == 0:
+                s = "could not find applicationName in: %s" % \
+                    ", ".join(list(map(
+                                   lambda x: os.path.relpath(x,
+                                                             self.unpack_dir),
+                                   qmls)
+                                   ))
+            else:  # not ok
+                s = "click manifest name '%s' not found in: " % \
+                    self.click_pkgname + "%s" % \
+                    ", ".join(list(map(
+                                   lambda x: "%s ('%s')" % (x, appnames[x]),
+                                   appnames)
+                                   ))
+
+            if count_bin == 0:
+                s += ". Application may not work properly when confined."
+            else:
+                s += ". May be ok (detected as compiled application)."
 
         self._add_result(t, n, s)
