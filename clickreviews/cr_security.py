@@ -209,12 +209,13 @@ class ClickReviewSecurity(ClickReview):
                 s = 'could not find policy for %s/%s' % (vendor, version)
             self._add_result(t, n, s)
 
+            # FIXME: verify policy version goes with the click framework
             highest = sorted(self.supported_policy_versions)[-1]
             t = 'info'
             n = 'policy_version_is_%s (%s)' % (str(highest), f)
             s = "OK"
             if float(m['policy_version']) != highest:
-                t = 'warn'
+                t = 'INFO'
                 s = '%s != %s' % (str(m['policy_version']), str(highest))
             self._add_result(t, n, s)
 
