@@ -1,6 +1,6 @@
 '''cr_tests.py: common setup and tests for test modules'''
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2013-2014 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ def _extract_webapp_manifests(self):
     return TEST_WEBAPP_MANIFESTS
 
 
-# http://docs.python.org/3.4/library/unittest.mock-examples.html#applying-the-same-patch-to-every-test-method
+# http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
 # method mock_patch() to start all the patches. The child can do this in a

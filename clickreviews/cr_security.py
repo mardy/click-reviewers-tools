@@ -84,8 +84,7 @@ class ClickReviewSecurity(ClickReview):
                                      'default']
 
         self.framework_policy = {'ubuntu-sdk-13.10': '1.0',
-                                 'ubuntu-sdk-14.04': '1.1',
-                                }
+                                 'ubuntu-sdk-14.04': '1.1'}
 
         self.security_manifests = dict()
         for app in self.manifest['hooks']:
@@ -229,7 +228,8 @@ class ClickReviewSecurity(ClickReview):
                self.framework_policy[self.manifest['framework']]:
                 t = 'error'
                 s = '%s != %s (%s)' % (str(m['policy_version']),
-                                       self.framework_policy[self.manifest['framework']],
+                                       self.framework_policy[
+                                           self.manifest['framework']],
                                        self.manifest['framework'])
             self._add_result(t, n, s)
 

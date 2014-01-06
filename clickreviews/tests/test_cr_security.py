@@ -20,6 +20,7 @@ import sys
 from clickreviews.cr_security import ClickReviewSecurity
 import clickreviews.cr_tests as cr_tests
 
+
 class TestClickReviewSecurity(cr_tests.TestClickReview):
     """Tests for the security lint review tool."""
     def setUp(self):
@@ -128,7 +129,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
             self.set_test_manifest("framework", f)
             self.set_test_security_manifest(self.default_appname,
                                             "policy_version",
-                                             tmp.framework_policy[f])
+                                            tmp.framework_policy[f])
             c = ClickReviewSecurity(self.test_name)
             c.check_policy_version()
             report = c.click_report

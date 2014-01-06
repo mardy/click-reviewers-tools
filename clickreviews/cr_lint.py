@@ -49,9 +49,11 @@ class ClickReviewLint(ClickReview):
         if 'maintainer' in self.manifest:
             maintainer = self.manifest['maintainer']
             self.email = maintainer.partition('<')[2].rstrip('>')
-            self.is_core_app = (self.click_pkgname.startswith('com.ubuntu.') \
-                and not self.click_pkgname.startswith('com.ubuntu.developer.') \
-                and self.email == 'ubuntu-touch-coreapps@lists.launchpad.net')
+            self.is_core_app = (self.click_pkgname.startswith('com.ubuntu.')
+                                and not self.click_pkgname.startswith(
+                                    'com.ubuntu.developer.')
+                                and self.email ==
+                                'ubuntu-touch-coreapps@lists.launchpad.net')
         else:
             self.email = None
             self.is_core_app = False
@@ -303,10 +305,12 @@ exit 1
         s = 'OK'
 
         external_symlinks = list(filter(lambda link: not
-            os.path.realpath(link).startswith(self.unpack_dir), self.pkg_files))
+                                 os.path.realpath(link).startswith(
+                                     self.unpack_dir), self.pkg_files))
         if external_symlinks:
             t = 'error'
-            s = 'package contains external symlinks: %s' % ', '.join(external_symlinks)
+            s = 'package contains external symlinks: %s' % \
+                ', '.join(external_symlinks)
         self._add_result(t, n, s)
 
     def check_pkgname(self):
@@ -401,8 +405,9 @@ exit 1
             self._add_result('error', n, 'invalid maintainer (empty)')
             return
         elif not re.search(r"^(.*)\s+<(.*@.*)>$", self.manifest['maintainer']):
-            self._add_result('error', n, 'invalid format for maintainer: %s ' 
-                                         '(should be like "Joe Bloggs <joe.bloggs@isp.com>")'%
+            self._add_result('error', n,
+                             'invalid format for maintainer: %s (should be '
+                             'like "Joe Bloggs <joe.bloggs@isp.com>")' %
                              self.manifest['maintainer'])
             return
         self._add_result(t, n, s)
@@ -439,8 +444,9 @@ exit 1
                         "'com.ubuntu.*')" % self.email
                 else:
                     t = 'error'
-                    s = "(EMAIL NEEDS HUMAN REVIEW) email domain too long '%s' " \
-                        % self.email + "for app name '%s'" % ".".join(pkg_domain_rev)
+                    s = "(EMAIL NEEDS HUMAN REVIEW) email domain too " \
+                        "long '%s' " % self.email + "for app name '%s'" % \
+                        ".".join(pkg_domain_rev)
             elif domain_rev == pkg_domain_rev[:len(domain_rev)]:
                 is_special = False
                 for special in special_domains:

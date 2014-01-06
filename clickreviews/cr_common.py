@@ -96,13 +96,13 @@ class ClickReview(object):
 
         self.valid_frameworks = []
         frameworks = sorted(
-                       glob.glob("/usr/share/click/frameworks/*.framework"))
+            glob.glob("/usr/share/click/frameworks/*.framework"))
         if len(frameworks) == 0:
             self.valid_frameworks.append('ubuntu-sdk-13.10')
         else:
             for f in frameworks:
                 self.valid_frameworks.append(os.path.basename(
-                                               os.path.splitext(f)[0]))
+                                             os.path.splitext(f)[0]))
 
     def _extract_manifest_file(self):
         '''Extract and read the manifest file'''

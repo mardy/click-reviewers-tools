@@ -1,6 +1,6 @@
 '''cr_desktop.py: click desktop checks'''
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2013-2014 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -288,7 +288,7 @@ class ClickReviewDesktop(ClickReview):
             n = 'Exec_webbrowser_webapp_url_patterns_uses_safe_glob ' + \
                 '(%s, %s)' % (app, pattern)
             s = 'OK'
-            if '*' in pattern[:-1] and (pattern[:-1].count('*') != 1 or \
+            if '*' in pattern[:-1] and (pattern[:-1].count('*') != 1 or
                not pattern.startswith('https?://*')):
                 t = 'warn'
                 s = "'%s' contains nested '*'" % pattern + \
@@ -604,7 +604,7 @@ class ClickReviewDesktop(ClickReview):
             if not de.hasKey('Version'):
                 s = "OK (not specified)"
             elif de.getVersionString() != "1.0":
-                # http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#entries
+                # http://standards.freedesktop.org/desktop-entry-spec/latest
                 t = 'error'
                 s = "'%s' does not match freedesktop.org version '1.0'" % \
                     de.getVersionString()

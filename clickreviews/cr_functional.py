@@ -1,6 +1,6 @@
 '''cr_functional.py: click functional'''
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2013-2014 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -133,6 +133,7 @@ class ClickReviewFunctional(ClickReview):
 
         if len(qmls) > 0:
             t = 'warn'
-            s = "Found files that use unsupported QtWebKit (should use UbuntuWebview instead): %s" % " ,".join(qmls)
+            s = "Found files that use unsupported QtWebKit (should use" + \
+                "UbuntuWebview instead): %s" % " ,".join(qmls)
 
         self._add_result(t, n, s)
