@@ -502,12 +502,10 @@ exit 1
 
     def check_framework(self):
         '''Check framework()'''
-        # FIXME: autodetect these
-        valid_frameworks = ['ubuntu-sdk-13.10']
         t = 'info'
         n = 'framework'
         s = 'OK'
-        if self.manifest['framework'] not in valid_frameworks:
+        if self.manifest['framework'] not in self.valid_frameworks:
             t = 'error'
             s = "'%s' is not a supported framework" % \
                 self.manifest['framework']

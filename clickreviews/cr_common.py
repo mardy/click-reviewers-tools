@@ -17,6 +17,7 @@
 from __future__ import print_function
 import codecs
 from debian.deb822 import Deb822
+import glob
 import inspect
 import json
 import magic
@@ -92,6 +93,16 @@ class ClickReview(object):
         # Don't run this here since only cr_lint.py and cr_functional.py need
         # it now
         # self._list_all_compiled_binaries()
+
+        self.valid_frameworks = []
+        frameworks = sorted(
+                       glob.glob("/usr/share/click/frameworks/*.framework"))
+        if len(frameworks) == 0:
+            self.valid_frameworks.append('ubuntu-sdk-13.10')
+        else:
+            for f in frameworks:
+                self.valid_frameworks.append(os.path.basename(
+                                               os.path.splitext(f)[0]))
 
     def _extract_manifest_file(self):
         '''Extract and read the manifest file'''
