@@ -401,7 +401,8 @@ exit 1
             self._add_result('error', n, 'invalid maintainer (empty)')
             return
         elif not re.search(r"^(.*)\s+<(.*@.*)>$", self.manifest['maintainer']):
-            self._add_result('error', n, 'invalid format for maintainer: %s' %
+            self._add_result('error', n, 'invalid format for maintainer: %s ' 
+                                         '(should be like "Joe Bloggs <joe.bloggs@isp.com>")'%
                              self.manifest['maintainer'])
             return
         self._add_result(t, n, s)
@@ -451,7 +452,7 @@ exit 1
                     s = "email=%s matches special domain=%s" % (self.email,
                         ".".join(pkg_domain_rev))
                 else:
-                    s = "OK (email=%s, package domain=%s" % (self.email,
+                    s = "OK (email=%s, package domain=%s)" % (self.email,
                         ".".join(pkg_domain_rev))
             else:
                 t = 'error'
