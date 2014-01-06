@@ -1,6 +1,6 @@
 '''cr_security.py: click security checks'''
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2013-2014 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -82,6 +82,10 @@ class ClickReviewSecurity(ClickReview):
         self.redflag_templates = ['unconfined']
         self.extraneous_templates = ['ubuntu-sdk',
                                      'default']
+
+        self.framework_policy = {'ubuntu-sdk-13.10': '1.0',
+                                 'ubuntu-sdk-14.04': '1.1',
+                                }
 
         self.security_manifests = dict()
         for app in self.manifest['hooks']:
@@ -209,7 +213,6 @@ class ClickReviewSecurity(ClickReview):
                 s = 'could not find policy for %s/%s' % (vendor, version)
             self._add_result(t, n, s)
 
-            # FIXME: verify policy version goes with the click framework
             highest = sorted(self.supported_policy_versions)[-1]
             t = 'info'
             n = 'policy_version_is_%s (%s)' % (str(highest), f)
@@ -217,6 +220,17 @@ class ClickReviewSecurity(ClickReview):
             if float(m['policy_version']) != highest:
                 t = 'info'
                 s = '%s != %s' % (str(m['policy_version']), str(highest))
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'policy_version_matches_framework (%s)' % (f)
+            s = "OK"
+            if str(m['policy_version']) != \
+               self.framework_policy[self.manifest['framework']]:
+                t = 'error'
+                s = '%s != %s (%s)' % (str(m['policy_version']),
+                                       self.framework_policy[self.manifest['framework']],
+                                       self.manifest['framework'])
             self._add_result(t, n, s)
 
     def check_template(self):

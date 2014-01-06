@@ -1,6 +1,6 @@
 '''test_cr_security.py: tests for the cr_security module'''
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2013-2014 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                             "policy_version", v)
             c.check_policy_version()
             report = c.click_report
-            expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+            expected_counts = {'info': 3, 'warn': 0, 'error': 0}
             self.check_results(report, expected_counts)
 
     def test_check_policy_version_highest(self):
@@ -119,6 +119,41 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['error']["security_policy_version_exists (%s)" %
                           self.default_security_json] = \
             "could not find policy_version in manifest"
+        self.check_results(report, expected=expected)
+
+    def test_check_policy_version_framework(self):
+        '''Test check_policy_version() - matching framework'''
+        tmp = ClickReviewSecurity(self.test_name)
+        for f in tmp.framework_policy.keys():
+            self.set_test_manifest("framework", f)
+            self.set_test_security_manifest(self.default_appname,
+                                            "policy_version",
+                                             tmp.framework_policy[f])
+            c = ClickReviewSecurity(self.test_name)
+            c.check_policy_version()
+            report = c.click_report
+            expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+            self.check_results(report, expected_counts)
+
+    def test_check_policy_version_framework_unmatch(self):
+        '''Test check_policy_version() - unmatching framework'''
+        self.set_test_manifest("framework", "ubuntu-sdk-14.04")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", "1.0")
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_version()
+        report = c.click_report
+
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        expected['error']["security_policy_version_matches_framework (%s)" %
+                          self.default_security_json] = \
+            "1.0 != 1.1 (ubuntu-sdk-14.04)"
         self.check_results(report, expected=expected)
 
     def test_check_policy_vendor_unspecified(self):
