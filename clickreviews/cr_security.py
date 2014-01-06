@@ -215,7 +215,7 @@ class ClickReviewSecurity(ClickReview):
             n = 'policy_version_is_%s (%s)' % (str(highest), f)
             s = "OK"
             if float(m['policy_version']) != highest:
-                t = 'INFO'
+                t = 'info'
                 s = '%s != %s' % (str(m['policy_version']), str(highest))
             self._add_result(t, n, s)
 

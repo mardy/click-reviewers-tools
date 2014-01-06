@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+import sys
+
 from clickreviews.cr_security import ClickReviewSecurity
 import clickreviews.cr_tests as cr_tests
-
 
 class TestClickReviewSecurity(cr_tests.TestClickReview):
     """Tests for the security lint review tool."""
@@ -42,9 +44,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_version_highest(self):
         '''Test check_policy_version() - highest'''
-        highest_version = 1.0  # system, adjust as needed
-        version = 1.0
         c = ClickReviewSecurity(self.test_name)
+        highest_version = sorted(c.supported_policy_versions)[-1]
+        version = highest_version
         self.set_test_security_manifest(self.default_appname,
                                         "policy_version", version)
         c.check_policy_version()
@@ -63,17 +65,44 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
                                         "policy_version", bad_version)
+
+        highest = sorted(c.supported_policy_versions)[-1]
+
         c.check_policy_version()
         report = c.click_report
         expected = dict()
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['warn']["security_policy_version_is_1.0 (%s)" %
-                         self.default_security_json] = "0.1 != 1.0"
+        expected['info']["security_policy_version_is_%s (%s)" % (highest,
+                         self.default_security_json)] = "0.1 != %s" % highest
         expected['error']["security_policy_version_exists (%s)" %
                           self.default_security_json] = \
             "could not find policy for ubuntu/%s" % str(bad_version)
+        self.check_results(report, expected=expected)
+
+    def test_check_policy_version_low(self):
+        '''Test check_policy_version() - low version'''
+        c = ClickReviewSecurity(self.test_name)
+        highest = sorted(c.supported_policy_versions)[-1]
+        version = 1.0
+        if version == highest:
+            print("SKIPPED-- test version '%s' is already highest" % version,
+                  file=sys.stderr)
+            return
+
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", version)
+
+        c.check_policy_version()
+        report = c.click_report
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        expected['info']["security_policy_version_is_%s (%s)" % (highest,
+                         self.default_security_json)] = "%s != %s" % (version,
+                                                                      highest)
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_unspecified(self):
