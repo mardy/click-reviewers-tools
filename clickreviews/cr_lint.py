@@ -402,7 +402,8 @@ exit 1
         n = 'maintainer_format'
         s = 'OK'
         if self.manifest['maintainer'] == "":
-            self._add_result('error', n, 'invalid maintainer (empty)')
+            self._add_result('error', n, 'invalid maintainer (empty), (should be '
+                                         'like "Joe Bloggs <joe.bloggs@isp.com>")')
             return
         elif not re.search(r"^(.*)\s+<(.*@.*)>$", self.manifest['maintainer']):
             self._add_result('error', n,
