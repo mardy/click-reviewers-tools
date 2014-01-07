@@ -125,7 +125,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
     def test_check_policy_version_framework(self):
         '''Test check_policy_version() - matching framework'''
         tmp = ClickReviewSecurity(self.test_name)
-        for f in tmp.framework_policy.keys():
+        # for each installed framework on the system, verify that the policy
+        # matches the framework
+        for f in tmp.valid_frameworks:
             self.set_test_manifest("framework", f)
             self.set_test_security_manifest(self.default_appname,
                                             "policy_version",
