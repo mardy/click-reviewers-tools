@@ -463,8 +463,8 @@ exit 1
                         ".".join(pkg_domain_rev))
             else:
                 t = 'error'
-                s = "email=%s does not match package domain=%s "
-                    "(Your email domain needs to match the reverse package "
+                s = "email=%s does not match package domain=%s " \
+                    "(Your email domain needs to match the reverse package " \
                     "namespace.)" % (self.email,
                     ".".join(pkg_domain_rev))
         self._add_result(t, n, s)
