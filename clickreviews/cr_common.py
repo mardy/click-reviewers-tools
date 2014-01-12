@@ -194,7 +194,9 @@ class ClickReview(object):
 
     def __del__(self):
         '''Cleanup'''
-        if hasattr(self, 'unpack_dir') and os.path.isdir(self.unpack_dir):
+        if self is not None and \
+           hasattr(self, 'unpack_dir') and \
+           os.path.isdir(self.unpack_dir):
             recursive_rm(self.unpack_dir)
 
     def set_review_type(self, name):
