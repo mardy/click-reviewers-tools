@@ -35,8 +35,8 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']['desktop_files_usable'] = "OK"
-        expected['info']['desktop_files_available'] = "OK"
+        expected['info']['desktop_files_usable'] = {"text": "OK"}
+        expected['info']['desktop_files_available'] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_desktop_file_valid(self):
@@ -48,8 +48,8 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']['desktop_validates (%s)' %
-                         self.default_appname] = "OK"
+        expected['info']['desktop_validates (%s)' % self.default_appname] = \
+            {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_desktop_file_valid_missing_exec(self):

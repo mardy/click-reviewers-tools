@@ -118,7 +118,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         expected['info']["lint_control_architecture_match"] = \
-            "OK: architecture not specified in manifest"
+            {"text": "OK: architecture not specified in manifest"}
         self.check_results(r, expected=expected)
 
     def test_check_architecture_specified_needed(self):
@@ -390,8 +390,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         # Lets check that the right error is triggering
-        self.assertIn('Click-Version is too old',
-                      r['error']['lint_control_click_version_up_to_date'])
+        m = r['error']['lint_control_click_version_up_to_date']['text']
+        self.assertIn('Click-Version is too old', m)
 
     def test_check_maintainer(self):
         '''Test check_maintainer()'''

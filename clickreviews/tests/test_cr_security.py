@@ -57,7 +57,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         expected['info']["security_policy_version_is_%s (%s)" %
-                         (highest_version, self.default_security_json)] = "OK"
+                         (highest_version, self.default_security_json)] = \
+            {"text": "OK"}
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_bad(self):
@@ -76,10 +77,11 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         expected['info']["security_policy_version_is_%s (%s)" % (highest,
-                         self.default_security_json)] = "0.1 != %s" % highest
+                         self.default_security_json)] = \
+            {"text": "0.1 != %s" % highest}
         expected['error']["security_policy_version_exists (%s)" %
                           self.default_security_json] = \
-            "could not find policy for ubuntu/%s" % str(bad_version)
+            {"text": "could not find policy for ubuntu/%s" % str(bad_version)}
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_low(self):
@@ -102,8 +104,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         expected['info']["security_policy_version_is_%s (%s)" % (highest,
-                         self.default_security_json)] = "%s != %s" % (version,
-                                                                      highest)
+                         self.default_security_json)] = \
+            {"text": "%s != %s" % (version, highest)}
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_unspecified(self):
@@ -119,7 +121,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['error'] = dict()
         expected['error']["security_policy_version_exists (%s)" %
                           self.default_security_json] = \
-            "could not find policy_version in manifest"
+            {"text": "could not find policy_version in manifest"}
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_framework(self):
@@ -156,7 +158,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['error'] = dict()
         expected['error']["security_policy_version_matches_framework (%s)" %
                           self.default_security_json] = \
-            "1.0 != 1.1 (ubuntu-sdk-14.04)"
+            {"text": "1.0 != 1.1 (ubuntu-sdk-14.04)"}
         self.check_results(report, expected=expected)
 
     def test_check_policy_vendor_unspecified(self):
@@ -209,12 +211,12 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         expected['info']["security_template_with_policy_version (%s)" %
-                         self.default_security_json] = "OK"
+                         self.default_security_json] = {"text": "OK"}
         expected['info']["security_template_exists (%s)" %
-                         self.default_security_json] = "OK"
+                         self.default_security_json] = {"text": "OK"}
         expected['warn']["security_template_valid (%s)" %
                          self.default_security_json] = \
-            "No need to specify 'ubuntu-sdk' template"
+            {"text": "No need to specify 'ubuntu-sdk' template"}
         self.check_results(report, expected=expected)
 
     def test_check_template_webapp(self):
