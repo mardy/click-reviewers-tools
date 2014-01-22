@@ -1,3 +1,9 @@
+click-reviewers-tools (0.4) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 22 Jan 2014 17:59:26 +0100
+
 click-reviewers-tools (0.3) trusty; urgency=medium
 
   * d/compat: bump to 9.
