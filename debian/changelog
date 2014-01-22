@@ -1,4 +1,4 @@
-click-reviewers-tools (0.2) saucy; urgency=low
+click-reviewers-tools (0.2) trusty; urgency=low
 
   * Initial release (LP: #1230248)
 
