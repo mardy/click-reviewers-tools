@@ -12,11 +12,10 @@ Build-Depends: apparmor-easyprof,
                python3-setuptools,
                python3-simplejson,
                python3-xdg
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Homepage: https://launchpad.net/click-reviewers-tools
 Vcs-Bzr: lp:ubuntu-dev-tools
 Vcs-Browser: http://bazaar.launchpad.net/~click-reviewers/click-reviewers-tools/trunk/files
-X-Python-Version: >= 2.7
 X-Python3-Version: >= 3.2
 
 Package: click-reviewers-tools
@@ -32,4 +31,4 @@ Depends: apparmor-easyprof,
          ${python3:Depends}
 Description: tools to review click packages
  These scripts can be used to review click packages both manually and in a
- programmatical fashion.
+ programmatic fashion.

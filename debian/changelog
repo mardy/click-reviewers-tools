@@ -1,6 +1,11 @@
-click-reviewers-tools (0.3) UNRELEASED; urgency=medium
+click-reviewers-tools (0.3) trusty; urgency=medium
 
-  * 
+  * d/compat: bump to 9.
+  * d/control: 
+    - bump Standards-Version, 
+    - drop X-Python-Version, we have X-Python3-Version,
+    - programmatical -> programmatic
+  * d/copyright: fix license mistake (GPL-3+ vs. GPL-3)
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 22 Jan 2014 17:38:47 +0100
 
