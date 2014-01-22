@@ -331,6 +331,22 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_policy_groups_duplicates(self):
+        '''Test check_policy_groups() - duplicates'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ['networking',
+                                         'camera',
+                                         'microphone',
+                                         'camera',
+                                         'microphone',
+                                         'video'])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
     def test_check_policy_groups_missing_policy_version(self):
         '''Test check_policy_groups() - missing policy_version'''
         self.set_test_security_manifest(self.default_appname,

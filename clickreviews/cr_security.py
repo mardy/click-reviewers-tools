@@ -364,6 +364,20 @@ class ClickReviewSecurity(ClickReview):
                 continue
             self._add_result(t, n, s)
 
+            # Check for duplicates
+            t = 'info'
+            n = 'policy_groups_duplicates (%s)' % f
+            s = 'OK'
+            tmp = []
+            for p in m['policy_groups']:
+                if m['policy_groups'].count(p) > 1 and p not in tmp:
+                    tmp.append(p)
+                if len(tmp) > 0:
+                    tmp.sort()
+                    t = 'error'
+                    s = 'duplicate policy groups found: %s' % ", ".join(tmp)
+            self._add_result(t, n, s)
+
             # If we got here, we can see if valid policy groups were specified
             for i in m['policy_groups']:
                 t = 'info'
