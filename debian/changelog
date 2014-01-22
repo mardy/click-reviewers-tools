@@ -1,3 +1,9 @@
+click-reviewers-tools (0.3) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 22 Jan 2014 17:38:47 +0100
+
 click-reviewers-tools (0.2) trusty; urgency=low
 
   * Initial release (LP: #1230248)
