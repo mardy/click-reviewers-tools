@@ -133,7 +133,7 @@ class ClickReviewFunctional(ClickReview):
 
         if len(qmls) > 0:
             t = 'warn'
-            s = "Found files that use unsupported QtWebKit (should use" + \
-                "UbuntuWebview instead): %s" % " ,".join(qmls)
+            s = "Found files that use unsupported QtWebKit (should use " + \
+                "UbuntuWebview or Oxide instead): %s" % " ,".join(qmls)
 
         self._add_result(t, n, s)
