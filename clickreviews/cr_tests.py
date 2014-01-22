@@ -286,11 +286,15 @@ class TestClickReview(TestCase):
                       expected=None):
         if expected is not None:
             for t in expected.keys():
-                for k in expected[t]:
-                    self.assertTrue(k in report[t],
+                for r in expected[t]:
+                    self.assertTrue(r in report[t],
                                     "Could not find '%s' (%s) in:\n%s" %
-                                    (k, t, json.dumps(report, indent=2)))
-                    self.assertEqual(expected[t][k], report[t][k])
+                                    (r, t, json.dumps(report, indent=2)))
+                    for k in expected[t][r]:
+                        self.assertTrue(k in report[t][r],
+                                        "Could not find '%s' (%s) in:\n%s" %
+                                        (k, r, json.dumps(report, indent=2)))
+                    self.assertEqual(expected[t][r][k], report[t][r][k])
         else:
             for k in expected_counts.keys():
                 if expected_counts[k] is None:

@@ -57,7 +57,8 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
         expected = dict()
         expected['info'] = dict()
         expected['warn'] = dict()
-        expected['warn']['skeleton_baz'] = "TODO"
+        expected['warn']['skeleton_baz'] = {"text": "TODO",
+                                            "link": "http://example.com"}
         expected['error'] = dict()
         self.check_results(r, expected=expected)
 

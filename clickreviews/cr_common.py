@@ -203,11 +203,11 @@ class ClickReview(object):
         '''Set review name'''
         self.review_type = name
 
-    # click_report[<result_type>][<review_name>] = <review>
+    # click_report[<result_type>][<review_name>] = <result>
     #   result_type: info, warn, error
     #   review_name: name of the check (prefixed with self.review_type)
-    #   review: contents of the review
-    def _add_result(self, result_type, review_name, result):
+    #   result: contents of the review
+    def _add_result(self, result_type, review_name, result, link=None):
         '''Add result to report'''
         if result_type not in self.result_types:
             error("Invalid result type '%s'" % result_type)
@@ -216,7 +216,9 @@ class ClickReview(object):
         if name not in self.click_report[result_type]:
             self.click_report[result_type][name] = dict()
 
-        self.click_report[result_type][name] = result
+        self.click_report[result_type][name]["text"] = result
+        if link is not None:
+            self.click_report[result_type][name]["link"] = link
 
     def do_report(self):
         '''Print report'''

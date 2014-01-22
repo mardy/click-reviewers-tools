@@ -46,7 +46,7 @@ class ClickReviewSkeleton(ClickReview):
 
     def check_baz(self):
         '''Check baz'''
-        self._add_result('warn', 'baz', 'TODO')
+        self._add_result('warn', 'baz', 'TODO', link="http://example.com")
 
         # Spawn a shell to pause the script (run 'exit' to continue)
         # import subprocess
