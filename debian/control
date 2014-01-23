@@ -1,7 +1,7 @@
 Source: click-reviewers-tools
 Section: devel
 Priority: optional
-Maintainer: Ubuntu Daniel Holbach <daniel.holbach@ubuntu.com>
+Maintainer: Ubuntu Appstore Developers <ubuntu-appstore-developers@lists.launchpad.net>
 Build-Depends: apparmor-easyprof,
                apparmor-easyprof-ubuntu,
                debhelper (>= 9~),
