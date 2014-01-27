@@ -637,6 +637,12 @@ class ClickReviewDesktop(ClickReview):
                 t = 'error'
                 s = "absolute path '%s' for icon given in .desktop file." % \
                     de.getIcon()
+            elif not os.path.exists(os.path.join(self.unpack_dir, 
+                                                 de.getIcon())):
+                t = 'error'
+                s = "'%s' specified as icon in .desktop file for app '%s', " \
+                    "which is not available in the click package." % \
+                    (de.getIcon(), app)
             self._add_result(t, n, s)
 
     def check_desktop_duplicate_entries(self):
