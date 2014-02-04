@@ -1,6 +1,6 @@
 click-reviewers-tools (0.4) UNRELEASED; urgency=medium
 
-  * 
+  * Check for broken icon paths in .desktop files. (LP: #1257429)
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 22 Jan 2014 17:59:26 +0100
 
