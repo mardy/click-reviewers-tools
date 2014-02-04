@@ -625,6 +625,12 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_icon(self):
         '''Check Icon entry'''
+
+        ICON_SUFFIXES = [
+                '.svg',
+                '.png',
+                '.jpg'
+                ]
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -638,7 +644,10 @@ class ClickReviewDesktop(ClickReview):
                 s = "absolute path '%s' for icon given in .desktop file." % \
                     de.getIcon()
             elif not os.path.exists(os.path.join(self.unpack_dir, 
-                                                 de.getIcon())):
+                                                 de.getIcon())) and \
+                 True not in filter(lambda a: \
+                    os.path.exists(os.path.join(self.unpack_dir, 
+                        de.getIcon()+a)), ICON_SUFFIXES):
                 t = 'error'
                 s = "'%s' specified as icon in .desktop file for app '%s', " \
                     "which is not available in the click package." % \
