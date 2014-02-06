@@ -198,13 +198,15 @@ class ClickReviewLint(ClickReview):
         t = 'info'
         n = 'control_click_version_up_to_date'
         s = 'OK'
+        l = None
 
         if apt_pkg.version_compare(
                 control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION) < 0:
             t = 'error'
             s = "Click-Version is too old, has '%s', needs '%s' or newer" % (
                 control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION)
-        self._add_result(t, n, s)
+            l = 'http://askubuntu.com/questions/417366/what-does-lint-control-click-version-up-to-date-mean/417367'
+        self._add_result(t, n, s, l)
 
         t = 'info'
         n = 'control_installed_size'
@@ -403,13 +405,15 @@ exit 1
         s = 'OK'
         if self.manifest['maintainer'] == "":
             self._add_result('error', n, 'invalid maintainer (empty), (should be '
-                                         'like "Joe Bloggs <joe.bloggs@isp.com>")')
+                                         'like "Joe Bloggs <joe.bloggs@isp.com>")',
+                             'http://askubuntu.com/questions/417351/what-does-lint-maintainer-format-mean/417352')
             return
         elif not re.search(r"^(.*)\s+<(.*@.*)>$", self.manifest['maintainer']):
             self._add_result('error', n,
                              'invalid format for maintainer: %s (should be '
                              'like "Joe Bloggs <joe.bloggs@isp.com>")' %
-                             self.manifest['maintainer'])
+                             self.manifest['maintainer'],
+                             'http://askubuntu.com/questions/417351/what-does-lint-maintainer-format-mean/417352')
             return
         self._add_result(t, n, s)
 
@@ -556,11 +560,13 @@ exit 1
         t = 'info'
         n = 'package_filename_pkgname_match'
         s = 'OK'
+        l = None
         if pkgname != self.click_pkgname:
             t = 'error'
             s = "'%s' != '%s' from DEBIAN/control" % (pkgname,
                                                       self.click_pkgname)
-        self._add_result(t, n, s)
+            l = 'http://askubuntu.com/questions/417361/what-does-lint-package-filename-pkgname-match-mean'
+        self._add_result(t, n, s, l)
 
         # check if namespaces matches with filename
         t = 'info'
@@ -578,6 +584,7 @@ exit 1
         t = 'info'
         n = 'package_filename_version_match'
         s = 'OK'
+        l = None
         if len(tmp) >= 2:
             #  handle $pkgname_$version.click
             version = tmp[1].partition('.click')[0]
@@ -585,11 +592,12 @@ exit 1
                 t = 'error'
                 s = "'%s' != '%s' from DEBIAN/control" % (version,
                                                           self.click_version)
+                l = 'http://askubuntu.com/questions/417384/what-does-lint-package-filename-version-match-mean/417385'
         else:
             t = 'warn'
             s = "could not determine version from '%s'" % \
                 os.path.basename(self.click_package)
-        self._add_result(t, n, s)
+        self._add_result(t, n, s, l)
 
         t = 'info'
         n = 'package_filename_arch_valid'

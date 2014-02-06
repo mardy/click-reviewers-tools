@@ -121,12 +121,14 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'validates (%s)' % app
             s = 'OK'
+            l = None
             try:
                 de.validate()
             except Exception as e:
                 t = 'error'
                 s = 'did not validate: (%s)' % str(e)
-            self._add_result(t, n, s)
+                l = 'http://askubuntu.com/questions/417377/what-does-desktop-validates-mean/417378'
+            self._add_result(t, n, s, l)
 
     def check_desktop_required_keys(self):
         '''Check for required keys'''
@@ -179,6 +181,7 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Exec (%s)' % app
             s = 'OK'
+            l = None
             if not de.hasKey('Exec'):
                 t = 'error'
                 s = "missing key 'Exec'"
@@ -186,6 +189,7 @@ class ClickReviewDesktop(ClickReview):
                 t = 'error'
                 s = "absolute path '%s' for Exec given in .desktop file." % \
                     de.getExec()
+                l = 'http://askubuntu.com/questions/417381/what-does-desktop-exec-mean/417382'
             elif de.getExec().split()[0] not in self.expected_execs:
                 if self.click_arch == "all":  # interpreted file
                     s = "found unexpected Exec with architecture '%s': %s" % \
@@ -197,7 +201,7 @@ class ClickReviewDesktop(ClickReview):
                         "'%s': %s (ok for compiled code)" % \
                         (self.click_arch, de.getExec().split()[0])
                     t = 'info'
-            self._add_result(t, n, s)
+            self._add_result(t, n, s, l)
 
     def check_desktop_exec_webbrowser(self):
         '''Check Exec=webbrowser-app entry'''
@@ -617,11 +621,13 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Comment_boilerplate (%s)' % app
             s = "OK"
+            l = None
             if de.hasKey('Comment') and \
                     de.getComment() == "My project description":
                 t = 'warn'
                 s = "Comment uses SDK boilerplate '%s'" % de.getComment()
-            self._add_result(t, n, s)
+                l = 'http://askubuntu.com/questions/417359/what-does-desktop-comment-boilerplate-mean/417360'
+            self._add_result(t, n, s, l)
 
     def check_desktop_icon(self):
         '''Check Icon entry'''
@@ -636,13 +642,16 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Icon (%s)' % app
             s = 'OK'
+            l = None
             if not de.hasKey('Icon'):
                 t = 'error'
                 s = "missing key 'Icon'"
+                l = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
             elif de.getIcon().startswith('/'):
                 t = 'error'
                 s = "absolute path '%s' for icon given in .desktop file." % \
                     de.getIcon()
+                l = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
             elif not os.path.exists(os.path.join(self.unpack_dir, 
                                                  de.getIcon())) and \
                  True not in filter(lambda a: \
@@ -652,7 +661,8 @@ class ClickReviewDesktop(ClickReview):
                 s = "'%s' specified as icon in .desktop file for app '%s', " \
                     "which is not available in the click package." % \
                     (de.getIcon(), app)
-            self._add_result(t, n, s)
+                l = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
+            self._add_result(t, n, s, l)
 
     def check_desktop_duplicate_entries(self):
         '''Check desktop for duplicate entries'''

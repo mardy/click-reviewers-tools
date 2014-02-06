@@ -42,6 +42,7 @@ class ClickReviewFunctional(ClickReview):
         t = 'info'
         n = 'qml_applicationName_matches_manifest'
         s = "OK"
+        l = None
 
         # find file with MainView in the QML
         mv = '\s*MainView\s*(\s+{)?'
@@ -95,6 +96,7 @@ class ClickReviewFunctional(ClickReview):
         if len(appnames) == 0 or not ok:
             if len(self.pkg_bin_files) == 0:
                 t = "warn"
+                l = 'http://askubuntu.com/questions/417371/what-does-functional-qml-applicationname-matches-manifest-mean/417372'
 
             if len(appnames) == 0:
                 s = "could not find applicationName in: %s" % \
@@ -116,13 +118,14 @@ class ClickReviewFunctional(ClickReview):
             else:
                 s += ". May be ok (detected as compiled application)."
 
-        self._add_result(t, n, s)
+        self._add_result(t, n, s, l)
 
     def check_qtwebkit(self):
         '''Check that QML applications don't use QtWebKit'''
         t = 'info'
         n = 'qml_application_uses_QtWebKit'
         s = "OK"
+        l = None
 
         qmls = []
         pat_mv = re.compile(r'\n\s*import\s+QtWebKit')
@@ -135,5 +138,6 @@ class ClickReviewFunctional(ClickReview):
             t = 'warn'
             s = "Found files that use unsupported QtWebKit (should use " + \
                 "UbuntuWebview or Oxide instead): %s" % " ,".join(qmls)
+            l = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
 
-        self._add_result(t, n, s)
+        self._add_result(t, n, s, l)
