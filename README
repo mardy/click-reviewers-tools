@@ -21,7 +21,8 @@ otherwise it is '0.
 See click-check-skeleton and cr_skeleton.py for how to create new tests. In
 short:
  * create a click-check-<something> and a cr_<something>.py script based off of
-   the skeleton
+   the skeleton. IMPORTANT: the new script must be click-check-<something> so
+   other tools that use click-reviewers-tools (eg, ubuntu-sdk) can find them.
  * modify click-check-<something> to use cr_<something>.py
  * add tests to cr_<something>.py. If you name the tests 'check_<sometest>'
    ClickReview.do_checks() will enumerate and run them automatically
