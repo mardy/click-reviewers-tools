@@ -605,6 +605,7 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Version (%s)' % app
             s = "OK"
+            l = None
             if not de.hasKey('Version'):
                 s = "OK (not specified)"
             elif de.getVersionString() != "1.0":
@@ -612,7 +613,8 @@ class ClickReviewDesktop(ClickReview):
                 t = 'error'
                 s = "'%s' does not match freedesktop.org version '1.0'" % \
                     de.getVersionString()
-            self._add_result(t, n, s)
+                l = 'http://askubuntu.com/questions/419907/what-does-version-mean-in-the-desktop-file/419908'
+            self._add_result(t, n, s, l)
 
     def check_desktop_comment(self):
         '''Check Comment entry'''
