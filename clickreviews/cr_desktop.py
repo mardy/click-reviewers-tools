@@ -53,6 +53,7 @@ class ClickReviewDesktop(ClickReview):
         self.expected_execs = ['qmlscene',
                                'webbrowser-app',
                                'cordova-ubuntu-2.8',
+                               'ubuntu-html5-app-launcher',
                                ]
         # TODO: the desktop hook will actually handle this correctly
         self.blacklisted_keys = ['Path']
