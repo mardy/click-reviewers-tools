@@ -1,7 +1,12 @@
 click-reviewers-tools (0.4) UNRELEASED; urgency=medium
 
+  [ Daniel Holbach ]
   * Check for broken icon paths in .desktop files. (LP: #1257429)
   * Add initial set of askubuntu answers.
+  * Add ubuntu-html5-app-launcher to expected_execs.
+
+  [ Jamie Strandboge ]
+  * Documented and clarified the use of the scripts.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 22 Jan 2014 17:59:26 +0100
 
