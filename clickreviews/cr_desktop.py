@@ -52,6 +52,7 @@ class ClickReviewDesktop(ClickReview):
                               ]
         self.expected_execs = ['qmlscene',
                                'webbrowser-app',
+                               'webapp-container',
                                'cordova-ubuntu-2.8',
                                'ubuntu-html5-app-launcher',
                                ]
@@ -204,6 +205,42 @@ class ClickReviewDesktop(ClickReview):
                     t = 'info'
             self._add_result(t, n, s, l)
 
+    def check_desktop_exec_webapp_container(self):
+        '''Check Exec=webapp-container entry'''
+        for app in sorted(self.desktop_entries):
+            de = self._get_desktop_entry(app)
+            t = 'info'
+            n = 'Exec_webapp_container (%s)' % app
+            s = 'OK'
+            if not de.hasKey('Exec'):
+                t = 'error'
+                s = "missing key 'Exec'"
+                self._add_result(t, n, s)
+                continue
+            elif de.getExec().split()[0] != "webapp-container":
+                s = "SKIPPED (not webapp-container)"
+                self._add_result(t, n, s)
+                continue
+
+            t = 'info'
+            n = 'Exec_webapp_container_webapp (%s)' % (app)
+            s = 'OK'
+            if '--webapp' in de.getExec().split():
+                t = 'error'
+                s = "should not use --webapp in '%s'" % \
+                    (de.getExec())
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webapp_container_13.10 (%s)' % (app)
+            s = 'OK'
+            if self.manifest['framework'] == "ubuntu-sdk-13.10":
+                t = 'info'
+                s = "'webapp-container' not available in 13.10 release " \
+                    "images (ok if targeting 14.04 images with %s " \
+                    "framework" % self.manifest['framework']
+            self._add_result(t, n, s)
+
     def check_desktop_exec_webbrowser(self):
         '''Check Exec=webbrowser-app entry'''
         for app in sorted(self.desktop_entries):
@@ -222,7 +259,43 @@ class ClickReviewDesktop(ClickReview):
                 continue
 
             t = 'info'
-            n = 'Exec_webbrowser_minimal_chrome (%s)' % (app)
+            n = 'Exec_webbrowser_webapp (%s)' % (app)
+            s = 'OK'
+            if not '--webapp' in de.getExec().split():
+                t = 'error'
+                s = "could not find --webapp in '%s'" % \
+                    (de.getExec())
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'Exec_webbrowser_13.10 (%s)' % (app)
+            s = 'OK'
+            if self.manifest['framework'] != "ubuntu-sdk-13.10":
+                t = 'error'
+                s = "may not use 'webbrowser-app' with framework '%s'" % \
+                    self.manifest['framework']
+            self._add_result(t, n, s)
+
+    def check_desktop_exec_webapp_args(self):
+        '''Check Exec=web* args'''
+        for app in sorted(self.desktop_entries):
+            de = self._get_desktop_entry(app)
+            t = 'info'
+            n = 'Exec_webapp_args (%s)' % app
+            s = 'OK'
+            if not de.hasKey('Exec'):
+                t = 'error'
+                s = "missing key 'Exec'"
+                self._add_result(t, n, s)
+                continue
+            elif de.getExec().split()[0] != "webbrowser-app" and \
+                 de.getExec().split()[0] != "webapp-container":
+                s = "SKIPPED (not webapp-container or webbrowser-app)"
+                self._add_result(t, n, s)
+                continue
+
+            t = 'info'
+            n = 'Exec_webapp_args_minimal_chrome (%s)' % (app)
             s = 'OK'
             if not '--enable-back-forward' in de.getExec().split():
                 t = 'error'
@@ -233,7 +306,7 @@ class ClickReviewDesktop(ClickReview):
             # verify the presence of either webappUrlPatterns or
             # webappModelSearchPath
             t = 'info'
-            n = 'Exec_webbrowser_required (%s)' % (app)
+            n = 'Exec_webapp_args_required (%s)' % (app)
             s = 'OK'
             found_url_patterns = False
             found_model_search_path = False

@@ -132,76 +132,80 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_desktop_exec_webbrowser_with_url_patterns(self):
-        '''Test check_desktop_exec_webbrowser with --webappUrlPatterns'''
-        c = ClickReviewDesktop(self.test_name)
-        ex = "webbrowser-app --enable-back-forward --webapp " + \
-             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
-             "http://mobile.twitter.com"
-        self.set_test_desktop(self.default_appname,
-                              "Exec",
-                              ex)
-        c.check_desktop_exec_webbrowser()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
+    def test_check_desktop_exec_webapp_args_with_url_patterns(self):
+        '''Test check_desktop_exec_webapp_args with --webappUrlPatterns'''
+        for exe in ['webbrowser-app --webapp', 'webapp-container']:
+            c = ClickReviewDesktop(self.test_name)
+            ex = "%s --enable-back-forward --webapp " % exe + \
+                 "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+                 "http://mobile.twitter.com"
+            self.set_test_desktop(self.default_appname,
+                                  "Exec",
+                                  ex)
+            c.check_desktop_exec_webapp_args()
+            r = c.click_report
+            expected_counts = {'info': None, 'warn': 0, 'error': 0}
+            self.check_results(r, expected_counts)
 
-    def test_check_desktop_exec_webbrowser_with_model_search_path(self):
-        '''Test check_desktop_exec_webbrowser with --webappModelSearchPath'''
+    def test_check_desktop_exec_webapp_args_with_model_search_path(self):
+        '''Test check_desktop_exec_webapp_args with --webappModelSearchPath'''
         c = ClickReviewDesktop(self.test_name)
-        ex = "webbrowser-app --enable-back-forward --webapp " + \
-             "--webappModelSearchPath=. " + \
-             "http://mobile.twitter.com"
-        self.set_test_desktop(self.default_appname,
-                              "Exec",
-                              ex)
-        c.check_desktop_exec_webbrowser()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
+        for exe in ['webbrowser-app --webapp', 'webapp-container']:
+            ex = "%s --enable-back-forward " % exe + \
+                 "--webappModelSearchPath=. " + \
+                 "http://mobile.twitter.com"
+            self.set_test_desktop(self.default_appname,
+                                  "Exec",
+                                  ex)
+            c.check_desktop_exec_webapp_args()
+            r = c.click_report
+            expected_counts = {'info': None, 'warn': 0, 'error': 0}
+            self.check_results(r, expected_counts)
 
-    def test_check_desktop_exec_webbrowser_without_required(self):
-        '''Test check_desktop_exec_webbrowser without required'''
-        c = ClickReviewDesktop(self.test_name)
-        ex = "webbrowser-app --enable-back-forward --webapp " + \
-             "http://mobile.twitter.com"
-        self.set_test_desktop(self.default_appname,
-                              "Exec",
-                              ex)
-        c.check_desktop_exec_webbrowser()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
+    def test_check_desktop_exec_webapp_args_without_required(self):
+        '''Test check_desktop_exec_webapp_args without required'''
+        for exe in ['webbrowser-app --webapp', 'webapp-container']:
+            c = ClickReviewDesktop(self.test_name)
+            ex = "%s --enable-back-forward " % exe + \
+                 "http://mobile.twitter.com"
+            self.set_test_desktop(self.default_appname,
+                                  "Exec",
+                                  ex)
+            c.check_desktop_exec_webapp_args()
+            r = c.click_report
+            expected_counts = {'info': None, 'warn': 0, 'error': 1}
+            self.check_results(r, expected_counts)
 
-    def test_check_desktop_exec_webbrowser_without_minimal(self):
-        '''Test check_desktop_exec_webbrowser without minimal'''
-        c = ClickReviewDesktop(self.test_name)
-        ex = "webbrowser-app --webapp " + \
-             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
-             "http://mobile.twitter.com"
-        self.set_test_desktop(self.default_appname,
-                              "Exec",
-                              ex)
-        c.check_desktop_exec_webbrowser()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
+    def test_check_desktop_exec_webapp_args_without_minimal(self):
+        '''Test check_desktop_exec_webapp_args without minimal'''
+        for exe in ['webbrowser-app --webapp', 'webapp-container']:
+            c = ClickReviewDesktop(self.test_name)
+            ex = "%s " % exe + \
+                 "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+                 "http://mobile.twitter.com"
+            self.set_test_desktop(self.default_appname,
+                                  "Exec",
+                                  ex)
+            c.check_desktop_exec_webapp_args()
+            r = c.click_report
+            expected_counts = {'info': None, 'warn': 0, 'error': 1}
+            self.check_results(r, expected_counts)
 
-    def test_check_desktop_exec_webbrowser_with_both_required(self):
+    def test_check_desktop_exec_webapp_args_with_both_required(self):
         '''Test check_desktop_exec_webbrowser with both required'''
-
-        c = ClickReviewDesktop(self.test_name)
-        ex = "webbrowser-app --enable-back-forward --webapp " + \
-             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
-             "--webappModelSearchPath=. " + \
-             "http://mobile.twitter.com"
-        self.set_test_desktop(self.default_appname,
-                              "Exec",
-                              ex)
-        c.check_desktop_exec_webbrowser()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
+        for exe in ['webbrowser-app --webapp', 'webapp-container']:
+            c = ClickReviewDesktop(self.test_name)
+            ex = "%s --enable-back-forward "  % exe + \
+                 "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+                 "--webappModelSearchPath=. " + \
+                 "http://mobile.twitter.com"
+            self.set_test_desktop(self.default_appname,
+                                  "Exec",
+                                  ex)
+            c.check_desktop_exec_webapp_args()
+            r = c.click_report
+            expected_counts = {'info': None, 'warn': 0, 'error': 1}
+            self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_missing_exec(self):
         '''Test check_desktop_exec_webbrowser - missing exec'''
@@ -210,6 +214,94 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
                               "Exec",
                               None)
         c.check_desktop_exec_webbrowser()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_missing_webapp(self):
+        '''Test check_desktop_exec_webbrowser - missing --webapp'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webbrowser-app --enable-back-forward " + \
+             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+             "http://mobile.twitter.com"
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_non1310(self):
+        '''Test check_desktop_exec_webbrowser without 13.10'''
+        self.set_test_manifest("framework", "not-ubuntu-sdk-13.10")
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webbrowser-app --webapp --enable-back-forward " + \
+             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+             "http://mobile.twitter.com"
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webapp_container_has_webapp(self):
+        '''Test check_desktop_exec_webapp_container - has --webapp'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webapp-container --enable-back-forward --webapp " + \
+             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+             "http://mobile.twitter.com"
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webapp_container()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webapp_container_1310a(self):
+        '''Test check_desktop_exec_webapp_container on 13.10 framework'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webapp-container --enable-back-forward " + \
+             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+             "http://mobile.twitter.com"
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webapp_container()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webapp_container_1310b(self):
+        '''Test check_desktop_exec_webapp_container on non-13.10 framework'''
+        self.set_test_manifest("framework", "not-ubuntu-sdk-13.10")
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webapp-container --enable-back-forward " + \
+             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+             "http://mobile.twitter.com"
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webapp_container()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webapp_container_missing_exec(self):
+        '''Test check_desktop_exec_webapp_container - missing exec'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              None)
+        c.check_desktop_exec_webapp_container()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
