@@ -30,7 +30,14 @@ import tempfile
 import types
 
 DEBUGGING = False
+UNPACK_DIR = None
 
+# cleanup
+import atexit
+def cleanup_unpack():
+    if UNPACK_DIR is not None and os.path.isdir(UNPACK_DIR):
+        recursive_rm(UNPACK_DIR)
+atexit.register(cleanup_unpack)
 
 #
 # Utility classes
@@ -62,6 +69,8 @@ class ClickReview(object):
         self.click_report_output = "json"
 
         self.unpack_dir = unpack_click(fn)
+        global UNPACK_DIR
+        UNPACK_DIR = self.unpack_dir
 
         # Get some basic information from the control file
 
@@ -191,13 +200,6 @@ class ClickReview(object):
                     continue
                 error("manifest malformed: unsupported field '%s':\n%s" % (k,
                                                                            mp))
-
-    def __del__(self):
-        '''Cleanup'''
-        if self is not None:
-            if hasattr(self, 'unpack_dir') and \
-               os.path.isdir(self.unpack_dir):
-                recursive_rm(self.unpack_dir)
 
     def set_review_type(self, name):
         '''Set review name'''
