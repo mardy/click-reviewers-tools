@@ -1,4 +1,4 @@
-click-reviewers-tools (0.4) UNRELEASED; urgency=medium
+click-reviewers-tools (0.4) trusty; urgency=medium
 
   [ Daniel Holbach ]
   * Check for broken icon paths in .desktop files. (LP: #1257429)
@@ -7,6 +7,9 @@ click-reviewers-tools (0.4) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * Documented and clarified the use of the scripts.
+  * Fix crash in __del__. (LP: #1282652)
+  * Add webapp-container tests.
+  * Document bzr hook to run tests.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 22 Jan 2014 17:59:26 +0100
 
