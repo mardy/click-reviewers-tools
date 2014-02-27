@@ -28,3 +28,25 @@ short:
    ClickReview.do_checks() will enumerate and run them automatically
 
 To run tests, just execute: run-tests
+
+If you are going to develop the tools regularly, you might want to add a bzr
+hook to run the testsuite before committing. Eg, add something like this to
+~/.bazaar/plugins/hooks/__init__.py:
+
+  #!/usr/bin/python
+  from bzrlib.branch import Branch
+
+  def run_tests_crt(local, master, old_revno, old_revid, new_revno, new_revid,
+                    seven, eight):
+      #print local, master, old_revno, old_revid, new_revno, new_revid, seven, eight
+      if 'click-reviewers-tools' in master.base:
+          import subprocess
+          print ''
+          rc = subprocess.call(['./run-tests'])
+          if rc != 0:
+              import sys
+              sys.exit(1)
+
+  Branch.hooks.install_named_hook('pre_commit',
+                                  run_tests_crt,
+                                  'click-reviewers-tools tests')
