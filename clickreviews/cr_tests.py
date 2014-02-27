@@ -99,7 +99,6 @@ patches.append(patch(
     'clickreviews.cr_common.ClickReview._extract_manifest_file',
     _extract_manifest_file))
 patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
-patches.append(patch('clickreviews.cr_common.ClickReview.__del__', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
                _mock_func))
 patches.append(patch(
