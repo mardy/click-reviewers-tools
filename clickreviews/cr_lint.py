@@ -470,7 +470,7 @@ exit 1
                 s = "email=%s does not match package domain=%s " \
                     "(Your email domain needs to match the reverse package " \
                     "namespace.)" % (self.email,
-                    ".".join(pkg_domain_rev))
+                                     ".".join(pkg_domain_rev))
         self._add_result(t, n, s)
 
     def check_title(self):

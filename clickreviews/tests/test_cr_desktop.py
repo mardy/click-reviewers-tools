@@ -195,7 +195,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         '''Test check_desktop_exec_webbrowser with both required'''
         for exe in ['webbrowser-app --webapp', 'webapp-container']:
             c = ClickReviewDesktop(self.test_name)
-            ex = "%s --enable-back-forward "  % exe + \
+            ex = "%s --enable-back-forward " % exe + \
                  "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
                  "--webappModelSearchPath=. " + \
                  "http://mobile.twitter.com"

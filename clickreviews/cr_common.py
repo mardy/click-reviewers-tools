@@ -34,10 +34,13 @@ UNPACK_DIR = None
 
 # cleanup
 import atexit
+
+
 def cleanup_unpack():
     if UNPACK_DIR is not None and os.path.isdir(UNPACK_DIR):
         recursive_rm(UNPACK_DIR)
 atexit.register(cleanup_unpack)
+
 
 #
 # Utility classes
