@@ -62,6 +62,11 @@ def _get_security_manifest(self, app):
     return ("%s.json" % app, json.loads(TEST_SECURITY[app]))
 
 
+def _get_security_supported_policy_versions(self):
+    '''Pretend we read the contens of /usr/share/apparmor/easyprof'''
+    return [1.0, 1.1]
+
+
 def _extract_desktop_entry(self, app):
     '''Pretend we read the desktop file'''
     return ("%s.desktop" % app, TEST_DESKTOP[app])
@@ -122,6 +127,9 @@ patches.append(patch(
 patches.append(patch(
     'clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
     _get_security_manifest))
+patches.append(patch(
+    'clickreviews.cr_security.ClickReviewSecurity._get_supported_policy_versions',
+    _get_security_supported_policy_versions))
 
 # desktop overrides
 patches.append(patch(

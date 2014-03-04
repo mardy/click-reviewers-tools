@@ -36,18 +36,7 @@ class ClickReviewSecurity(ClickReview):
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "security")
 
-        version_dirs = sorted(glob.glob("%s/templates/ubuntu/*" %
-                                        easyprof_dir))
-        self.supported_policy_versions = []
-        for d in version_dirs:
-            if not os.path.isdir(d):
-                continue
-            try:
-                self.supported_policy_versions.append(float(
-                                                      os.path.basename(d)))
-            except TypeError:
-                continue
-        self.supported_policy_versions = sorted(self.supported_policy_versions)
+        self.supported_policy_versions = self._get_supported_policy_versions()
 
         self.all_fields = ['abstractions',
                            'author',
@@ -83,8 +72,11 @@ class ClickReviewSecurity(ClickReview):
         self.extraneous_templates = ['ubuntu-sdk',
                                      'default']
 
-        self.framework_policy = {'ubuntu-sdk-13.10': '1.0',
-                                 'ubuntu-sdk-14.04': '1.1'}
+        # framework policy is based on major framework version. In 13.10, there
+        # was only 'ubuntu-sdk-13.10', but in 14.04, there will be several,
+        # like 'ubuntu-sdk-14.04-html5', 'ubuntu-sdk-14.04-platform', etc
+        self.major_framework_policy = {'ubuntu-sdk-13.10': 1.0,
+                                       'ubuntu-sdk-14.04': 1.1}
 
         self.security_manifests = dict()
         for app in self.manifest['hooks']:
@@ -173,6 +165,22 @@ class ClickReviewSecurity(ClickReview):
         m = self.security_manifests[f]
         return (f, m)
 
+    def _get_supported_policy_versions(self):
+        '''Get the supported AppArmor policy versions'''
+        version_dirs = sorted(glob.glob("%s/templates/ubuntu/*" %
+                                        easyprof_dir))
+        supported_policy_versions = []
+        for d in version_dirs:
+            if not os.path.isdir(d):
+                continue
+            try:
+                supported_policy_versions.append(float(os.path.basename(d)))
+            except TypeError:
+                continue
+        supported_policy_versions = sorted(supported_policy_versions)
+
+        return supported_policy_versions
+
     def check_policy_vendor(self):
         '''Check policy_vendor'''
         for app in sorted(self.manifest['hooks']):
@@ -214,7 +222,7 @@ class ClickReviewSecurity(ClickReview):
 
             highest = sorted(self.supported_policy_versions)[-1]
             t = 'info'
-            n = 'policy_version_is_%s (%s)' % (str(highest), f)
+            n = 'policy_version_is_highest (%s, %s)' % (str(highest), f)
             s = "OK"
             if float(m['policy_version']) != highest:
                 t = 'info'
@@ -224,13 +232,20 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = 'policy_version_matches_framework (%s)' % (f)
             s = "OK"
-            if str(m['policy_version']) != \
-               self.framework_policy[self.manifest['framework']]:
+            found_major = False
+            for k in self.major_framework_policy.keys():
+                # TODO: use libclick when it is available
+                if not self.manifest['framework'].startswith(k):
+                    continue
+                found_major = True
+                if m['policy_version'] != self.major_framework_policy[k]:
+                    t = 'error'
+                    s = '%s != %s (%s)' % (str(m['policy_version']),
+                                           self.major_framework_policy[k],
+                                           self.manifest['framework'])
+            if not found_major:
                 t = 'error'
-                s = '%s != %s (%s)' % (str(m['policy_version']),
-                                       self.framework_policy[
-                                           self.manifest['framework']],
-                                       self.manifest['framework'])
+                s = "Invalid framework '%s'" % self.manifest['framework']
             self._add_result(t, n, s)
 
     def check_template(self):
