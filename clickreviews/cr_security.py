@@ -76,7 +76,8 @@ class ClickReviewSecurity(ClickReview):
         # was only 'ubuntu-sdk-13.10', but in 14.04, there will be several,
         # like 'ubuntu-sdk-14.04-html5', 'ubuntu-sdk-14.04-platform', etc
         self.major_framework_policy = {'ubuntu-sdk-13.10': 1.0,
-                                       'ubuntu-sdk-14.04': 1.1}
+                                       'ubuntu-sdk-14.04': 1.1,
+                                      }
 
         self.security_manifests = dict()
         for app in self.manifest['hooks']:
