@@ -2,8 +2,8 @@ click-reviewers-tools (0.5) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * mock self.supported_policy_versions
-  * support multiple frameworks on system
-  * add/update tests for multiple frameworks
+  * support multiple frameworks on system in security tests
+  * add/update tests for multiple frameworks in security tests
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 27 Feb 2014 15:30:51 +0100
 
