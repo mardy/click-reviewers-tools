@@ -106,6 +106,7 @@ class ClickReview(object):
         # it now
         # self._list_all_compiled_binaries()
 
+        # TODO: update to use libclick API when available
         self.valid_frameworks = []
         frameworks = sorted(
             glob.glob("/usr/share/click/frameworks/*.framework"))
