@@ -1,4 +1,4 @@
-click-reviewers-tools (0.5) UNRELEASED; urgency=medium
+click-reviewers-tools (0.5) trusty; urgency=medium
 
   [ Jamie Strandboge ]
   * mock self.supported_policy_versions
