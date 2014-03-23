@@ -296,7 +296,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         ["audio",
                                          "location",
                                          "networking",
-                                         "video"])
+                                         "video",
+                                         "webview"])
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_webapps()
         report = c.click_report
@@ -312,7 +313,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         ["audio",
                                          "location",
                                          "networking",
-                                         "video"])
+                                         "video",
+                                         "webview"])
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_webapps()
         report = c.click_report

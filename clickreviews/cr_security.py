@@ -66,7 +66,8 @@ class ClickReviewSecurity(ClickReview):
         self.allowed_webapp_policy_groups = ['audio',
                                              'location',
                                              'networking',
-                                             'video']
+                                             'video',
+                                             'webview']
 
         self.redflag_templates = ['unconfined']
         self.extraneous_templates = ['ubuntu-sdk',
