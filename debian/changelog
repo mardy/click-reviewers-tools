@@ -1,5 +1,9 @@
 click-reviewers-tools (0.6) UNRELEASED; urgency=medium
 
+  [ Daniel Holbach ]
+  * d/control: bump apparmor-easyprof-ubuntu requirement to 1.0.44. 
+    This should safeguard against #1292418 (test-suite failing on saucy).
+
   [ Jamie Strandboge ]
   * clickreviews/cr_security.py: webview policy can be used by webapps
   * clickreviews/tests/test_cr_security.py: tests for above
