@@ -62,6 +62,16 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_desktop_deprecated_exec(self):
+        '''Test check_desktop_file_valid() - Exec has deprecated exec'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec", "cordova-ubuntu-2.8 .")
+        c.check_desktop_exec()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_desktop_file_valid_empty_name(self):
         '''Test check_desktop_file_valid() - empty Name'''
         c = ClickReviewDesktop(self.test_name)
