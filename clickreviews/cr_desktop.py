@@ -53,9 +53,10 @@ class ClickReviewDesktop(ClickReview):
         self.expected_execs = ['qmlscene',
                                'webbrowser-app',
                                'webapp-container',
-                               'cordova-ubuntu-2.8',
                                'ubuntu-html5-app-launcher',
                                ]
+        self.deprecated_execs = ['cordova-ubuntu-2.8',
+                                 ]
         # TODO: the desktop hook will actually handle this correctly
         self.blacklisted_keys = ['Path']
 
@@ -194,8 +195,12 @@ class ClickReviewDesktop(ClickReview):
                 l = 'http://askubuntu.com/questions/417381/what-does-desktop-exec-mean/417382'
             elif de.getExec().split()[0] not in self.expected_execs:
                 if self.click_arch == "all":  # interpreted file
-                    s = "found unexpected Exec with architecture '%s': %s" % \
-                        (self.click_arch, de.getExec().split()[0])
+                    if de.getExec().split()[0] not in self.deprecated_execs:
+                        s = "found unexpected Exec with architecture '%s': %s" % \
+                            (self.click_arch, de.getExec().split()[0])
+                    else:
+                        s = "found deprecated Exec with architecture '%s': %s" % \
+                            (self.click_arch, de.getExec().split()[0])
                     t = 'warn'
                 else:                        # compiled
                     # TODO: this can be a lot smarter
