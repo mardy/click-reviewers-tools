@@ -11,6 +11,8 @@ click-reviewers-tools (0.6) UNRELEASED; urgency=medium
     - webview policy can be used by webapps
     - content_exchange policy can be used by webapps (LP: #1308184)
     - clickreviews/tests/test_cr_security.py: tests for above
+    - warn if webview not used with ubuntu-webapp template on non-13.10
+      frameworks
   * clickreviews/cr_lint.py: obsolete ubuntu-sdk-13.10 framework
   * clickreviews/cr_functional.py: warn if using UbuntuWebView 0.1
 
