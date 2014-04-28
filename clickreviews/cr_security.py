@@ -342,6 +342,17 @@ class ClickReviewSecurity(ClickReview):
                 s = "found unusual policy groups: %s" % ", ".join(bad)
             self._add_result(t, n, s)
 
+            t = 'info'
+            n = 'policy_groups_webapp_webview (%s)' % f
+            s = "OK"
+            if self.manifest['framework'] == "ubuntu-sdk-13.10":
+                s = "SKIPPED (webview not available in 13.10)"
+            elif 'webview' not in m['policy_groups']:
+                t = 'warn'
+                s = "'webview' not specified. Webapp may not function"
+
+            self._add_result(t, n, s)
+
     def check_policy_groups(self):
         '''Check policy_groups'''
         for app in sorted(self.manifest['hooks']):

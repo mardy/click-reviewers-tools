@@ -333,7 +333,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_webapps()
         report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_policy_groups_webapps_missing(self):
@@ -349,6 +349,34 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_policy_groups_webapps_missing_webview(self):
+        '''Test check_policy_groups_webapps() - missing webview'''
+        self.set_test_manifest("framework", "ubuntu-sdk-14.04-qml-dev1")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-webapp")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["networking"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_webapps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_webapps_missing_webview_1310(self):
+        '''Test check_policy_groups_webapps() - missing webview (13.10)'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-webapp")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["networking"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_webapps()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_policy_groups_webapps_bad(self):
         '''Test check_policy_groups_webapps() - bad'''
         self.set_test_security_manifest(self.default_appname,
@@ -359,7 +387,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_webapps()
         report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_policy_groups(self):
