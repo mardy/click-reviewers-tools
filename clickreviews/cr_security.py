@@ -64,6 +64,7 @@ class ClickReviewSecurity(ClickReview):
                                'template_variables',
                                'write_path']
         self.allowed_webapp_policy_groups = ['audio',
+                                             'content_exchange',
                                              'location',
                                              'networking',
                                              'video',
