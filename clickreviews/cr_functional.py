@@ -137,7 +137,33 @@ class ClickReviewFunctional(ClickReview):
         if len(qmls) > 0:
             t = 'warn'
             s = "Found files that use unsupported QtWebKit (should use " + \
-                "UbuntuWebview or Oxide instead): %s" % " ,".join(qmls)
+                "UbuntuWebview (Ubuntu.Components.Extras.Browser >= " + \
+                "0.2) or Oxide instead): %s" % " ,".join(qmls)
             l = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
+
+        self._add_result(t, n, s, l)
+
+        t = 'info'
+        n = 'qml_application_uses_UbuntuWebView_0.2'
+        s = "OK"
+        l = None
+
+        if self.manifest['framework'] == "ubuntu-sdk-13.10":
+            s = "SKIPPED (Oxide not available in ubuntu-sdk-13.10)"
+        else:
+            qmls = []
+            pat_mv = re.compile(r'\n\s*import\s+Ubuntu\.Components\.Extras\.Browser\s+0\.1\s*\n')
+            for i in self.qml_files:
+                qml = open_file_read(i).read()
+                if pat_mv.search(qml):
+                    qmls.append(os.path.relpath(i, self.unpack_dir))
+
+            if len(qmls) > 0:
+                t = 'warn'
+                s = "Found files that use unsupported QtWebKit via " + \
+                    "'Ubuntu.Components.Extras.Browser 0.1' (should use " + \
+                    "Ubuntu.Components.Extras.Browser >= 0.2 or " + \
+                    "Oxide instead): %s" % " ,".join(qmls)
+                l = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
 
         self._add_result(t, n, s, l)
