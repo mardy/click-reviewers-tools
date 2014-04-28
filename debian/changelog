@@ -1,16 +1,20 @@
 click-reviewers-tools (0.6) UNRELEASED; urgency=medium
 
   [ Daniel Holbach ]
-  * d/control: bump apparmor-easyprof-ubuntu requirement to 1.0.44. 
+  * d/control: bump apparmor-easyprof-ubuntu requirement to 1.0.44.
     This should safeguard against #1292418 (test-suite failing on saucy).
   * clickreviews/cr_desktop.py: check for deprecated execs, add
     cordova-ubuntu-2.8 to the list. (LP: #1307533)
 
   [ Jamie Strandboge ]
-  * clickreviews/cr_security.py: webview policy can be used by webapps
-  * clickreviews/tests/test_cr_security.py: tests for above
+  * clickreviews/cr_security.py:
+    - webview policy can be used by webapps
+    - content_exchange policy can be used by webapps (LP: #1308184)
+    - clickreviews/tests/test_cr_security.py: tests for above
+  * clickreviews/cr_lint.py: obsolete ubuntu-sdk-13.10 framework
+  * clickreviews/cr_functional.py: warn if using UbuntuWebView 0.1
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 13 Mar 2014 15:12:44 +0100
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 28 Apr 2014 13:01:08 -0500
 
 click-reviewers-tools (0.5) trusty; urgency=medium
 
