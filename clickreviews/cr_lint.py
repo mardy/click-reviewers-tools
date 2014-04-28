@@ -524,6 +524,16 @@ exit 1
                 self.manifest['framework']
         self._add_result(t, n, s)
 
+        obsolete_frameworks = ['ubuntu-sdk-13.10']
+        t = 'info'
+        n = 'current framework'
+        s = 'OK'
+        if self.manifest['framework'] in obsolete_frameworks:
+            t = 'error'
+            s = "'%s' is obsolete. Please use a newer framework" % \
+                self.manifest['framework']
+        self._add_result(t, n, s)
+
     def check_click_local_extensions(self):
         '''Report any click local extensions'''
         t = 'info'

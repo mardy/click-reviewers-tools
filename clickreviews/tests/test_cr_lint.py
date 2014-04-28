@@ -580,10 +580,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_framework(self):
         '''Test check_framework()'''
+        self.set_test_manifest("framework", "ubuntu-sdk-14.04-qml-dev1")
         c = ClickReviewLint(self.test_name)
         c.check_framework()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_framework_bad(self):
@@ -592,5 +593,14 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_framework()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_framework_obsolete(self):
+        '''Test check_framework() - obsolete'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.check_framework()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
