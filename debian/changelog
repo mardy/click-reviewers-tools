@@ -1,4 +1,4 @@
-click-reviewers-tools (0.6) UNRELEASED; urgency=medium
+click-reviewers-tools (0.6) utopic; urgency=medium
 
   [ Daniel Holbach ]
   * d/control: bump apparmor-easyprof-ubuntu requirement to 1.0.44.
