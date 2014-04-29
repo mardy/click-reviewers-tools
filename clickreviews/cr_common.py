@@ -106,16 +106,21 @@ class ClickReview(object):
         # it now
         # self._list_all_compiled_binaries()
 
+        self.valid_frameworks = self._extract_click_frameworks()
+
+    def _extract_click_frameworks(self):
+        '''Extract installed click frameworks'''
         # TODO: update to use libclick API when available
-        self.valid_frameworks = []
+        valid_frameworks = []
         frameworks = sorted(
             glob.glob("/usr/share/click/frameworks/*.framework"))
         if len(frameworks) == 0:
-            self.valid_frameworks.append('ubuntu-sdk-13.10')
+            valid_frameworks.append('ubuntu-sdk-13.10')
         else:
             for f in frameworks:
-                self.valid_frameworks.append(os.path.basename(
-                                             os.path.splitext(f)[0]))
+                valid_frameworks.append(os.path.basename(
+                                        os.path.splitext(f)[0]))
+        return valid_frameworks
 
     def _extract_manifest_file(self):
         '''Extract and read the manifest file'''

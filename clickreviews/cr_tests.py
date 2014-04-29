@@ -52,6 +52,16 @@ def _extract_manifest_file(self):
     return io.StringIO(TEST_MANIFEST)
 
 
+def _extract_click_frameworks(self):
+    '''Pretend we enumerated the click frameworks'''
+    return ["ubuntu-sdk-13.10",
+            "ubuntu-sdk-14.04-dev1",
+            "ubuntu-sdk-14.04-html-dev1",
+            "ubuntu-sdk-14.04-papi-dev1",
+            "ubuntu-sdk-14.04-qml-dev1",
+            ]
+
+
 def _extract_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
     return io.StringIO(TEST_SECURITY[app])
@@ -103,6 +113,9 @@ patches.append(patch(
 patches.append(patch(
     'clickreviews.cr_common.ClickReview._extract_manifest_file',
     _extract_manifest_file))
+patches.append(patch(
+    'clickreviews.cr_common.ClickReview._extract_click_frameworks',
+    _extract_click_frameworks))
 patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
                _mock_func))
