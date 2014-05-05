@@ -528,11 +528,13 @@ exit 1
         t = 'info'
         n = 'current framework'
         s = 'OK'
+        l = None
         if self.manifest['framework'] in obsolete_frameworks:
             t = 'error'
             s = "'%s' is obsolete. Please use a newer framework" % \
                 self.manifest['framework']
-        self._add_result(t, n, s)
+            l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
+        self._add_result(t, n, s, l)
 
     def check_click_local_extensions(self):
         '''Report any click local extensions'''

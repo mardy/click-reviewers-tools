@@ -1,6 +1,7 @@
 click-reviewers-tools (0.7) UNRELEASED; urgency=medium
 
-  * 
+  * clickreviews/cr_lint.py: add link to more info about "Please use newer 
+    framework". Thanks Alan Pope.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 29 Apr 2014 16:37:24 +0200
 
