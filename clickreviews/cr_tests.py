@@ -59,6 +59,14 @@ def _extract_click_frameworks(self):
             "ubuntu-sdk-14.04-html-dev1",
             "ubuntu-sdk-14.04-papi-dev1",
             "ubuntu-sdk-14.04-qml-dev1",
+            "ubuntu-sdk-14.04",
+            "ubuntu-sdk-14.04-html",
+            "ubuntu-sdk-14.04-papi",
+            "ubuntu-sdk-14.04-qml",
+            "ubuntu-sdk-14.10-dev1",
+            "ubuntu-sdk-14.10-html-dev1",
+            "ubuntu-sdk-14.10-papi-dev1",
+            "ubuntu-sdk-14.10-qml-dev1",
             ]
 
 
@@ -74,7 +82,7 @@ def _get_security_manifest(self, app):
 
 def _get_security_supported_policy_versions(self):
     '''Pretend we read the contens of /usr/share/apparmor/easyprof'''
-    return [1.0, 1.1]
+    return [1.0, 1.1, 1.2]
 
 
 def _extract_desktop_entry(self, app):

@@ -79,6 +79,7 @@ class ClickReviewSecurity(ClickReview):
         # like 'ubuntu-sdk-14.04-html5', 'ubuntu-sdk-14.04-platform', etc
         self.major_framework_policy = {'ubuntu-sdk-13.10': 1.0,
                                        'ubuntu-sdk-14.04': 1.1,
+                                       'ubuntu-sdk-14.10': 1.2,
                                        }
 
         self.security_manifests = dict()
