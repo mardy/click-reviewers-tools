@@ -596,11 +596,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_framework_obsolete(self):
-        '''Test check_framework() - obsolete'''
+    def test_check_framework_deprecated(self):
+        '''Test check_framework() - deprecated'''
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")
         c = ClickReviewLint(self.test_name)
         c.check_framework()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
