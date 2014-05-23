@@ -524,14 +524,14 @@ exit 1
                 self.manifest['framework']
         self._add_result(t, n, s)
 
-        obsolete_frameworks = ['ubuntu-sdk-13.10']
+        deprecated_frameworks = ['ubuntu-sdk-13.10']
         t = 'info'
         n = 'current framework'
         s = 'OK'
         l = None
-        if self.manifest['framework'] in obsolete_frameworks:
-            t = 'error'
-            s = "'%s' is obsolete. Please use a newer framework" % \
+        if self.manifest['framework'] in deprecated_frameworks:
+            t = 'warn'
+            s = "'%s' is deprecated. Please use a newer framework" % \
                 self.manifest['framework']
             l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
         self._add_result(t, n, s, l)
