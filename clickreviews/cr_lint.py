@@ -284,7 +284,7 @@ exit 1
             self._add_result(t, n, s)
 
         # Verify we have the required hooks
-        required = ['apparmor', 'desktop']
+        required = ['apparmor']
         for f in required:
             for app in self.manifest['hooks']:
                 t = 'info'
@@ -299,6 +299,17 @@ exit 1
                     t = 'error'
                     s = "'%s' hook not found for '%s'" % (f, app)
                 self._add_result(t, n, s)
+
+        mutually_exclusive = ['scope', 'desktop']
+        for app in self.manifest['hooks']:
+            found = []
+            for i in mutually_exclusive:
+                if i in self.manifest['hooks'][app]:
+                    found.append(i)
+            if len(found) > 1:
+                t = 'error'
+                s = "'%s' hooks should not be used together" % ", ".join(found)
+            self._add_result(t, n, s)
 
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''
@@ -447,6 +458,9 @@ exit 1
                     t = 'info'
                     s = "OK (email '%s' long, but special case of core apps " \
                         "'com.ubuntu.*')" % self.email
+                elif self.email == "ubuntu-devel-discuss@lists.ubuntu.com":
+                    t = 'info'
+                    s = "OK (email '%s' long, but special case" % self.email
                 else:
                     t = 'error'
                     s = "(EMAIL NEEDS HUMAN REVIEW) email domain too " \

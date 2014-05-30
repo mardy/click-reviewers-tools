@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error, open_file_read
+from clickreviews.cr_common import ClickReview, error, open_file_read, msg
 import glob
 import json
 import os
@@ -36,7 +36,11 @@ class ClickReviewDesktop(ClickReview):
         self.desktop_hook_entries = 0
         for app in self.manifest['hooks']:
             if 'desktop' not in self.manifest['hooks'][app]:
-                error("could not find desktop hook for '%s'" % app)
+                if 'scope' in self.manifest['hooks'][app]:
+                    msg("Skipped missing desktop hook for scope '%s'" % app)
+                    continue
+                else:
+                    error("could not find desktop hook for '%s'" % app)
             if not isinstance(self.manifest['hooks'][app]['desktop'], str):
                 error("manifest malformed: hooks/%s/desktop is not str" % app)
             self.desktop_hook_entries += 1
@@ -102,19 +106,13 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_file(self):
         '''Check desktop file'''
         t = 'info'
-        n = 'files_available'
-        s = 'OK'
-        if len(self._get_desktop_files().keys()) < 1:
-            t = 'error'
-            s = 'No .desktop files available.'
-        self._add_result(t, n, s)
-
-        t = 'info'
         n = 'files_usable'
         s = 'OK'
         if len(self._get_desktop_files().keys()) != self.desktop_hook_entries:
             t = 'error'
             s = 'Could not use all specified .desktop files'
+        elif self.desktop_hook_entries == 0:
+            s = 'Skipped: could not find any desktop files'
         self._add_result(t, n, s)
 
     def check_desktop_file_valid(self):
