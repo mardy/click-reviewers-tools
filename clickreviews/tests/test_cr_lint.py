@@ -506,6 +506,27 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_maintainer_email_special(self):
+        '''Test check_maintainer() - ubuntu-devel-discuss@lists.ubuntu.com'''
+        self.set_test_control("Package", "com.canonical.app")
+        self.set_test_manifest("maintainer",
+                               "Ubuntu Core Developers "
+                               "<ubuntu-devel-discuss@lists.ubuntu.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        expected['info']['lint_maintainer_domain'] = \
+            {"text": "OK (email 'ubuntu-devel-discuss@lists.ubuntu.com' long, "
+             "but special case"}
+        self.check_results(r, expected=expected)
+
     def test_check_icon(self):
         '''Test check_icon()'''
         self.set_test_manifest("icon", "someicon")
@@ -603,4 +624,56 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_framework()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks(self):
+        '''Test check_hooks()'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_multiple_apps(self):
+        '''Test check_hooks() - multiple apps'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        tmp = c.manifest['hooks'][self.default_appname]
+        c.manifest['hooks']["another-app"] = tmp
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad_appname(self):
+        '''Test check_hooks() - bad appname'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        tmp = c.manifest['hooks'][self.default_appname]
+        del c.manifest['hooks'][self.default_appname]
+        c.manifest['hooks']["b@d@ppn@m#"] = tmp
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_missing_apparmor(self):
+        '''Test check_hooks() - missing apparmor'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        del c.manifest['hooks'][self.default_appname]['apparmor']
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_has_desktop_and_scope(self):
+        '''Test check_hooks() - desktop with scope'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.manifest['hooks'][self.default_appname]["scope"] = "some-binary"
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)

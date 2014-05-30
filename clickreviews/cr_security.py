@@ -354,6 +354,38 @@ class ClickReviewSecurity(ClickReview):
 
             self._add_result(t, n, s)
 
+    def check_policy_groups_scopes(self):
+        '''Check policy_groups for scopes'''
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = 'policy_groups_scopes (%s)' % f
+            s = "OK"
+            if 'template' not in m or m['template'] \
+                    not in ['ubuntu-scope-network',
+                            'ubuntu-scope-local-content']:
+                # self._add_result(t, n, s)
+                continue
+
+            if 'policy_groups' not in m:
+                continue
+
+            bad = []
+            for p in m['policy_groups']:
+                if m['template'] == 'ubuntu-scope-network':
+                    # networking scopes shouldn't have access to anything
+                    # (for now, this may change with trust store (eg, location)
+                    if p != 'networking':
+                        bad.append(p)
+                elif m['template'] == 'ubuntu-scope-local-content':
+                    if p == 'networking':
+                        bad.append(p)
+
+            if len(bad) > 0:
+                t = 'error'
+                s = "found inappropriate policy groups: %s" % ", ".join(bad)
+            self._add_result(t, n, s)
+
     def check_policy_groups(self):
         '''Check policy_groups'''
         for app in sorted(self.manifest['hooks']):
@@ -438,7 +470,13 @@ class ClickReviewSecurity(ClickReview):
                     s = 'OK'
                     usage = self._get_policy_group_meta(i, "Usage",
                                                         vendor, version)
-                    if usage != "common":
+                    if i == "debug":
+                        desc = self._get_policy_group_meta(i, "Description",
+                                                           vendor, version)
+                        t = 'error'
+                        s = "(REJECT) %s policy group " % usage + \
+                            "'%s': %s" % (i, desc)
+                    elif usage != "common":
                         desc = self._get_policy_group_meta(i, "Description",
                                                            vendor, version)
                         t = 'error'
