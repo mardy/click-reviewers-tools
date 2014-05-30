@@ -1,9 +1,20 @@
 click-reviewers-tools (0.7) UNRELEASED; urgency=medium
 
-  * clickreviews/cr_lint.py: add link to more info about "Please use newer 
+  [ Daniel Holbach ]
+  * clickreviews/cr_lint.py: add link to more info about "Please use newer
     framework". Thanks Alan Pope.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 29 Apr 2014 16:37:24 +0200
+  [ Jamie Strandboge ]
+  * add 14.10 frameworks. Thanks Martin Albisetti for initial patch
+  * 13.10 frameworks should be deprecated instead of obsolete and warn when
+    using deprecated framework
+  * add click scopes checks
+  * special case ubuntu-devel-discuss@lists.ubuntu.com
+  * implement check_hooks() lint tests
+  * debian/control: Depends on apparmor-easyprof-ubuntu >= 1.2.2
+    (LP: #1324121)
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 28 May 2014 23:48:04 +0200
 
 click-reviewers-tools (0.6) utopic; urgency=medium
 

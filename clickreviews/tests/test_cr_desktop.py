@@ -36,7 +36,6 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         expected['info']['desktop_files_usable'] = {"text": "OK"}
-        expected['info']['desktop_files_available'] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_desktop_file_valid(self):
