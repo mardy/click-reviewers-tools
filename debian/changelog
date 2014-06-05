@@ -1,3 +1,11 @@
+click-reviewers-tools (0.7.1) utopic; urgency=medium
+
+  * Merge r198:
+    [ Jamie Strandboge ]
+    -  ubuntu-scope-local-content template is no longer available.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 05 Jun 2014 16:21:33 +0200
+
 click-reviewers-tools (0.7) utopic; urgency=medium
 
   [ Daniel Holbach ]

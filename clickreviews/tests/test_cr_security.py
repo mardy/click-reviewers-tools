@@ -438,44 +438,45 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
-    def test_check_policy_groups_scopes_localcontent(self):
-        '''Test check_policy_groups_scopes() - localcontent'''
-        self.set_test_security_manifest(self.default_appname,
-                                        "template",
-                                        "ubuntu-scope-local-content")
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups", [])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_policy_groups_scopes()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
+# jdstrand, 2014-06-05: ubuntu-scope-local-content is no longer available
+#     def test_check_policy_groups_scopes_localcontent(self):
+#         '''Test check_policy_groups_scopes() - localcontent'''
+#         self.set_test_security_manifest(self.default_appname,
+#                                         "template",
+#                                         "ubuntu-scope-local-content")
+#         self.set_test_security_manifest(self.default_appname,
+#                                         "policy_groups", [])
+#         c = ClickReviewSecurity(self.test_name)
+#         c.check_policy_groups_scopes()
+#         report = c.click_report
+#         expected_counts = {'info': None, 'warn': 0, 'error': 0}
+#         self.check_results(report, expected_counts)
 
-    def test_check_policy_groups_scopes_localcontent_missing(self):
-        '''Test check_policy_groups_scopes() missing - localcontent'''
-        self.set_test_security_manifest(self.default_appname,
-                                        "template",
-                                        "ubuntu-scope-local-content")
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups", None)
-        c = ClickReviewSecurity(self.test_name)
-        c.check_policy_groups_scopes()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
+#     def test_check_policy_groups_scopes_localcontent_missing(self):
+#         '''Test check_policy_groups_scopes() missing - localcontent'''
+#         self.set_test_security_manifest(self.default_appname,
+#                                         "template",
+#                                         "ubuntu-scope-local-content")
+#         self.set_test_security_manifest(self.default_appname,
+#                                         "policy_groups", None)
+#         c = ClickReviewSecurity(self.test_name)
+#         c.check_policy_groups_scopes()
+#         report = c.click_report
+#         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+#         self.check_results(report, expected_counts)
 
-    def test_check_policy_groups_scopes_localcontent_bad(self):
-        '''Test check_policy_groups_scopes() bad - localcontent'''
-        self.set_test_security_manifest(self.default_appname,
-                                        "template",
-                                        "ubuntu-scope-local-content")
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups", ["networking"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_policy_groups_scopes()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
+#     def test_check_policy_groups_scopes_localcontent_bad(self):
+#         '''Test check_policy_groups_scopes() bad - localcontent'''
+#         self.set_test_security_manifest(self.default_appname,
+#                                         "template",
+#                                         "ubuntu-scope-local-content")
+#         self.set_test_security_manifest(self.default_appname,
+#                                         "policy_groups", ["networking"])
+#         c = ClickReviewSecurity(self.test_name)
+#         c.check_policy_groups_scopes()
+#         report = c.click_report
+#         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+#         self.check_results(report, expected_counts)
 
     def test_check_policy_groups(self):
         '''Test check_policy_groups()'''
