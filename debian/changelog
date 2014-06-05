@@ -1,3 +1,9 @@
+click-reviewers-tools (0.8) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 05 Jun 2014 16:24:49 +0200
+
 click-reviewers-tools (0.7.1) utopic; urgency=medium
 
   * Merge r198:
