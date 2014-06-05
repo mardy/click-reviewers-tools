@@ -361,10 +361,11 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = 'policy_groups_scopes (%s)' % f
             s = "OK"
-            if 'template' not in m or m['template'] \
-                    not in ['ubuntu-scope-network',
-                            'ubuntu-scope-local-content']:
-                # self._add_result(t, n, s)
+# jdstrand, 2014-06-05: ubuntu-scope-local-content is no longer available
+#            scope_templates = ['ubuntu-scope-network',
+#                               'ubuntu-scope-local-content']
+            scope_templates = ['ubuntu-scope-network']
+            if 'template' not in m or m['template'] not in scope_templates:
                 continue
 
             if 'policy_groups' not in m:
@@ -377,9 +378,10 @@ class ClickReviewSecurity(ClickReview):
                     # (for now, this may change with trust store (eg, location)
                     if p != 'networking':
                         bad.append(p)
-                elif m['template'] == 'ubuntu-scope-local-content':
-                    if p == 'networking':
-                        bad.append(p)
+# jdstrand, 2014-06-05: ubuntu-scope-local-content is no longer available
+#                elif m['template'] == 'ubuntu-scope-local-content':
+#                    if p == 'networking':
+#                        bad.append(p)
 
             if len(bad) > 0:
                 t = 'error'
