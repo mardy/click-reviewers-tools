@@ -1,4 +1,4 @@
-click-reviewers-tools (0.7) UNRELEASED; urgency=medium
+click-reviewers-tools (0.7) utopic; urgency=medium
 
   [ Daniel Holbach ]
   * clickreviews/cr_lint.py: add link to more info about "Please use newer
