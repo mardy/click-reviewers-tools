@@ -39,7 +39,7 @@ def repack_click(unpack_dir, click_package):
     tmpdir = tempfile.mkdtemp(prefix='clickreview-')
     curdir = os.getcwd()
     os.chdir(tmpdir)
-    (rc, out) = cr_common.cmd(['dpkg-deb', '-b', '--nocheck',
+    (rc, out) = cr_common.cmd(['dpkg-deb', '-b', '--nocheck', '-Zgzip',
                                os.path.abspath(unpack_dir),
                                os.path.join(tmpdir, click_fn)])
     os.chdir(curdir)
