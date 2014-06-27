@@ -21,6 +21,11 @@ import glob
 import os
 import re
 
+from clickreviews.frameworks import (
+    DEPRECATED_FRAMEWORKS,
+    OBSOLETE_FRAMEWORKS,
+    AVAILABLE_FRAMEWORKS,
+)
 from clickreviews.cr_common import ClickReview, open_file_read, cmd
 
 CONTROL_FILE_NAMES = ["control", "manifest", "md5sums", "preinst"]
@@ -529,26 +534,34 @@ exit 1
 
     def check_framework(self):
         '''Check framework()'''
-        t = 'info'
         n = 'framework'
-        s = 'OK'
-        if self.manifest['framework'] not in self.valid_frameworks:
-            t = 'error'
-            s = "'%s' is not a supported framework" % \
-                self.manifest['framework']
-        self._add_result(t, n, s)
-
-        deprecated_frameworks = ['ubuntu-sdk-13.10']
-        t = 'info'
-        n = 'current framework'
-        s = 'OK'
-        l = None
-        if self.manifest['framework'] in deprecated_frameworks:
+        l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
+        if self.manifest['framework'] in AVAILABLE_FRAMEWORKS:
+            t = 'info'
+            s = 'OK'
+            self._add_result(t, n, s)
+            # If it's an available framework, we're done checking
+            return
+        elif self.manifest['framework'] in DEPRECATED_FRAMEWORKS:
             t = 'warn'
             s = "'%s' is deprecated. Please use a newer framework" % \
                 self.manifest['framework']
-            l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
-        self._add_result(t, n, s, l)
+            self._add_result(t, n, s, l)
+            return
+        elif self.manifest['framework'] in OBSOLETE_FRAMEWORKS:
+            t = 'error'
+            s = "'%s' is obsolete. Please use a newer framework" % \
+                self.manifest['framework']
+            self._add_result(t, n, s, l)
+            return
+        else:
+            # None of the above checks triggered, this is an unknown framework
+            t = 'error'
+            s = "'%s' is not a supported framework" % \
+                self.manifest['framework']
+            self._add_result(t, n, s, l)
+
+
 
     def check_click_local_extensions(self):
         '''Report any click local extensions'''
