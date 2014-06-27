@@ -67,6 +67,10 @@ def _extract_click_frameworks(self):
             "ubuntu-sdk-14.10-html-dev1",
             "ubuntu-sdk-14.10-papi-dev1",
             "ubuntu-sdk-14.10-qml-dev1",
+            "ubuntu-sdk-14.10-dev2",
+            "ubuntu-sdk-14.10-html-dev2",
+            "ubuntu-sdk-14.10-papi-dev2",
+            "ubuntu-sdk-14.10-qml-dev2",
             ]
 
 
