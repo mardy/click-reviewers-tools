@@ -1,0 +1,32 @@
+#!/usr/bin/python3
+
+import subprocess
+import tempfile
+import shutil
+import sys
+import os
+
+DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 
+                                        "../../data"))
+FRAMEWORKS_BRANCH_URL = "lp:~dholbach/+junk/frameworks"
+
+def update_data():
+    tempdir = tempfile.mkdtemp()
+    pwd = os.getcwd()
+    os.chdir(tempdir)
+    ret = subprocess.call(['bzr', 'branch', '-q', FRAMEWORKS_BRANCH_URL])
+    if ret:
+        print('Aborted.', file=sys.stderr)
+        sys.exit(1)
+    shutil.copy('frameworks/frameworks.json', DATA_DIR)
+    os.chdir(pwd)
+
+def main():
+    update_data()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Aborted.', file=sys.stderr)
+        sys.exit(1)
