@@ -3,37 +3,41 @@ This file defines all known frameworks and their current status.
 Frameworks are currenly tracked in: http://goo.gl/z9ohJ3
 """
 
-import json
-import os
-
-DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 
-                                        '../data/'))
-FRAMEWORKS_FILE = os.path.join(DATA_DIR, 'frameworks.json')
-FRAMEWORKS = json.loads(open(FRAMEWORKS_FILE, 'r').read())
-
-DEPRECATED_FRAMEWORKS = []
-OBSOLETE_FRAMEWORKS = []
-AVAILABLE_FRAMEWORKS = []
-
+from urllib.error import HTTPError, URLError
 from urllib import request, parse
+from socket import timeout
+import json
+import time
 import sys
 import re
 import os
 
-DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                        "../data"))
+DATA_DIR = os.path.join(os.path.expanduser('~/.cache/ubuntu-frameworks/'))
+FRAMEWORKS_FILE = os.path.join(DATA_DIR, 'frameworks.json')
+
 FRAMEWORKS_FILE_VIEW_URL = \
         "http://bazaar.launchpad.net/~dholbach/+junk/frameworks/view/head:/frameworks.json"
 LOCAL_DATA_FILE = os.path.join(DATA_DIR, 'frameworks.json')
 
-def abort():
+UPDATE_INTERVAL = 60*60*24*7
+
+def update_is_necessary():
+    return (not os.path.exists(FRAMEWORKS_FILE)) or \
+            (time.time()-os.path.getctime(FRAMEWORKS_FILE) >= UPDATE_INTERVAL)
+
+def abort(msg=None):
+    if msg:
+        print(msg, file=sys.stderr)
     print('Aborted.', file=sys.stderr)
     sys.exit(1)
 
-def get_frameworks_file():
-    f = request.urlopen(FRAMEWORKS_FILE_VIEW_URL)
-    if not f:
-        abort()
+def get_frameworks_file(data_dir=DATA_DIR):
+    try:
+        f = request.urlopen(FRAMEWORKS_FILE_VIEW_URL)
+    except (HTTPError, URLError) as error:
+            abort('Data not retrieved because %s.' % error)
+    except timeout:
+            abort('Socket timed out.')
     html = f.read()
     link = re.findall(b'<a href="(\S+?)">download file</a>', html)
     if not link:
@@ -50,6 +54,17 @@ def get_frameworks_file():
     with open(LOCAL_DATA_FILE, 'bw') as local_file:
         local_file.write(f.read())
 
+def read_frameworks_file():
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+    if update_is_necessary():
+        get_frameworks_file()
+    return json.loads(open(FRAMEWORKS_FILE, 'r').read())
+
+FRAMEWORKS = read_frameworks_file()
+DEPRECATED_FRAMEWORKS = []
+OBSOLETE_FRAMEWORKS = []
+AVAILABLE_FRAMEWORKS = []
 
 for k, v in FRAMEWORKS.items():
     if v == 'deprecated':
