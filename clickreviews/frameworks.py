@@ -25,6 +25,16 @@ def update_is_necessary():
     return (not os.path.exists(FRAMEWORKS_FILE)) or \
             (time.time()-os.path.getctime(FRAMEWORKS_FILE) >= UPDATE_INTERVAL)
 
+def update_is_possible():
+    update = True
+    try:
+        f = request.urlopen(FRAMEWORKS_FILE_VIEW_URL)
+    except (HTTPError, URLError) as error:
+        update = False
+    except timeout:
+        update = False
+    return update
+
 def abort(msg=None):
     if msg:
         print(msg, file=sys.stderr)
@@ -35,9 +45,9 @@ def get_frameworks_file(data_dir=DATA_DIR):
     try:
         f = request.urlopen(FRAMEWORKS_FILE_VIEW_URL)
     except (HTTPError, URLError) as error:
-            abort('Data not retrieved because %s.' % error)
+        abort('Data not retrieved because %s.' % error)
     except timeout:
-            abort('Socket timed out.')
+        abort('Socket timed out.')
     html = f.read()
     link = re.findall(b'<a href="(\S+?)">download file</a>', html)
     if not link:
@@ -54,11 +64,16 @@ def get_frameworks_file(data_dir=DATA_DIR):
     with open(LOCAL_DATA_FILE, 'bw') as local_file:
         local_file.write(f.read())
 
-def read_frameworks_file():
+def read_frameworks_file(local_copy=None):
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
     if update_is_necessary():
-        get_frameworks_file()
+        if update_is_possible():
+            get_frameworks_file()
+    if not os.path.exists(FRAMEWORKS_FILE):
+        if local_copy:
+            return json.loads(open(local_copy, 'r').read())
+        return {}
     return json.loads(open(FRAMEWORKS_FILE, 'r').read())
 
 FRAMEWORKS = read_frameworks_file()
