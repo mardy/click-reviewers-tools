@@ -21,11 +21,7 @@ import glob
 import os
 import re
 
-from clickreviews.frameworks import (
-    DEPRECATED_FRAMEWORKS,
-    OBSOLETE_FRAMEWORKS,
-    AVAILABLE_FRAMEWORKS,
-)
+from clickreviews.frameworks import Frameworks
 from clickreviews.cr_common import ClickReview, open_file_read, cmd
 
 CONTROL_FILE_NAMES = ["control", "manifest", "md5sums", "preinst"]
@@ -536,19 +532,22 @@ exit 1
         '''Check framework()'''
         n = 'framework'
         l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
-        if self.manifest['framework'] in AVAILABLE_FRAMEWORKS:
+        local_copy = os.path.join(os.path.dirname(__file__), 
+                                  '../data/frameworks.json')
+        frameworks = Frameworks(local_copy)
+        if self.manifest['framework'] in frameworks.AVAILABLE_FRAMEWORKS:
             t = 'info'
             s = 'OK'
             self._add_result(t, n, s)
             # If it's an available framework, we're done checking
             return
-        elif self.manifest['framework'] in DEPRECATED_FRAMEWORKS:
+        elif self.manifest['framework'] in frameworks.DEPRECATED_FRAMEWORKS:
             t = 'warn'
             s = "'%s' is deprecated. Please use a newer framework" % \
                 self.manifest['framework']
             self._add_result(t, n, s, l)
             return
-        elif self.manifest['framework'] in OBSOLETE_FRAMEWORKS:
+        elif self.manifest['framework'] in frameworks.OBSOLETE_FRAMEWORKS:
             t = 'error'
             s = "'%s' is obsolete. Please use a newer framework" % \
                 self.manifest['framework']
