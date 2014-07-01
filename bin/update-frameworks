@@ -4,7 +4,10 @@ from clickreviews import frameworks
 import sys
 
 def main():
-    frameworks.get_frameworks_file()
+    filename = None
+    if len(sys.argv) == 2:
+        filename = sys.argv[1]
+    frameworks.get_frameworks_file(filename)
 
 if __name__ == '__main__':
     try:
