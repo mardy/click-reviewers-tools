@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from clickreviews import frameworks
+import sys
 
 def main():
     frameworks.get_frameworks_file()
