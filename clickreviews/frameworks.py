@@ -62,12 +62,12 @@ def get_frameworks_file(data_dir=DATA_DIR):
         abort()
     if os.path.exists(USER_DATA_FILE):
         os.remove(USER_DATA_FILE)
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
     with open(USER_DATA_FILE, 'bw') as local_file:
         local_file.write(f.read())
 
 def read_frameworks_file(local_copy=None):
-    if not os.path.exists(DATA_DIR):
-        os.makedirs(DATA_DIR)
     if update_is_necessary() and update_is_possible():
         get_frameworks_file()
     if not os.path.exists(USER_DATA_FILE):
