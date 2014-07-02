@@ -3,19 +3,19 @@ This file defines all known frameworks and their current status.
 Frameworks are currenly tracked in: http://goo.gl/z9ohJ3
 """
 
-from urllib.error import HTTPError, URLError
-from urllib import request, parse
-from socket import timeout
 import json
-import time
-import sys
-import re
 import os
+import re
+from socket import timeout
+import sys
+import time
+from urllib import request, parse
+from urllib.error import HTTPError, URLError
 
 DATA_DIR = os.path.join(os.path.expanduser('~/.cache/ubuntu-frameworks/'))
 USER_DATA_FILE = os.path.join(DATA_DIR, 'frameworks.json')
 
-# This is a hack and will be gone, as soon as myapps has an API for this.
+# XXX: This is a hack and will be gone, as soon as myapps has an API for this.
 FRAMEWORKS_DATA_URL = \
         "http://bazaar.launchpad.net/~ubuntu-core-dev/+junk/frameworks/view/head:/frameworks.json"
 
@@ -28,8 +28,8 @@ def update_is_necessary():
 def update_is_possible():
     update = True
     try:
-        f = request.urlopen(FRAMEWORKS_DATA_URL)
-    except (HTTPError, URLError) as error:
+        request.urlopen(FRAMEWORKS_DATA_URL)
+    except (HTTPError, URLError):
         update = False
     except timeout:
         update = False
@@ -49,7 +49,7 @@ def get_frameworks_file(data_dir=DATA_DIR):
     except timeout:
         abort('Socket timed out.')
     html = f.read()
-    # This is a hack and will be gone, as soon as myapps has an API for this.
+    # XXX: This is a hack and will be gone, as soon as myapps has an API for this.
     link = re.findall(b'<a href="(\S+?)">download file</a>', html)
     if not link:
         abort()
