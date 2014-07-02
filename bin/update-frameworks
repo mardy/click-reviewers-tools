@@ -3,14 +3,13 @@
 from clickreviews import frameworks
 import sys
 
-def main():
-    filename = None
-    if len(sys.argv) == 2:
-        filename = sys.argv[1]
+def main(filename=None):
     frameworks.get_frameworks_file(filename)
 
 if __name__ == '__main__':
     try:
+        if len(sys.argv) == 2:
+            main(sys.argv[1])
         main()
     except KeyboardInterrupt:
         print('Aborted.', file=sys.stderr)
