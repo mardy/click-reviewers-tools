@@ -3,14 +3,14 @@ This file defines all known frameworks and their current status.
 Frameworks are currenly tracked in: http://goo.gl/z9ohJ3
 """
 
-from urllib.error import HTTPError, URLError
-from urllib import request, parse
-from socket import timeout
 import json
-import time
-import sys
-import re
 import os
+import re
+from socket import timeout
+import sys
+import time
+from urllib import request, parse
+from urllib.error import HTTPError, URLError
 
 DATA_DIR = os.path.join(os.path.expanduser('~/.cache/ubuntu-frameworks/'))
 USER_DATA_FILE = os.path.join(DATA_DIR, 'frameworks.json')
