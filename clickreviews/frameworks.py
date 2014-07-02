@@ -15,7 +15,7 @@ from urllib.error import HTTPError, URLError
 DATA_DIR = os.path.join(os.path.expanduser('~/.cache/ubuntu-frameworks/'))
 USER_DATA_FILE = os.path.join(DATA_DIR, 'frameworks.json')
 
-# This is a hack and will be gone, as soon as myapps has an API for this.
+# XXX: This is a hack and will be gone, as soon as myapps has an API for this.
 FRAMEWORKS_DATA_URL = \
         "http://bazaar.launchpad.net/~ubuntu-core-dev/+junk/frameworks/view/head:/frameworks.json"
 
@@ -49,7 +49,7 @@ def get_frameworks_file(data_dir=DATA_DIR):
     except timeout:
         abort('Socket timed out.')
     html = f.read()
-    # This is a hack and will be gone, as soon as myapps has an API for this.
+    # XXX: This is a hack and will be gone, as soon as myapps has an API for this.
     link = re.findall(b'<a href="(\S+?)">download file</a>', html)
     if not link:
         abort()
