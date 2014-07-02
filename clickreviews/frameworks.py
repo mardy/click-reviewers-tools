@@ -28,8 +28,8 @@ def update_is_necessary():
 def update_is_possible():
     update = True
     try:
-        f = request.urlopen(FRAMEWORKS_DATA_URL)
-    except (HTTPError, URLError) as error:
+        request.urlopen(FRAMEWORKS_DATA_URL)
+    except (HTTPError, URLError):
         update = False
     except timeout:
         update = False
