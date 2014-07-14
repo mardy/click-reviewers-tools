@@ -167,3 +167,24 @@ class ClickReviewFunctional(ClickReview):
                 l = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
 
         self._add_result(t, n, s, l)
+
+    def check_friens(self):
+        '''Check that QML applications don't use deprecated Friends API'''
+        t = 'info'
+        n = 'qml_application_uses_friends'
+        s = "OK"
+        l = None
+
+        qmls = []
+        pat_mv = re.compile(r'\n\s*import\s+Friends')
+        for i in self.qml_files:
+            qml = open_file_read(i).read()
+            if pat_mv.search(qml):
+                qmls.append(os.path.relpath(i, self.unpack_dir))
+
+        if len(qmls) > 0:
+            t = 'error'
+            s = "Found files that use deprecated Friends API: %s" % " ,".join(qmls)
+            l = "http://askubuntu.com/questions/497551/what-does-functional-qml-application-uses-friends-mean"
+
+        self._add_result(t, n, s, l)
