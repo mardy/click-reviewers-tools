@@ -22,6 +22,7 @@ import glob
 import json
 import os
 
+
 class ClickReviewSecurity(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
