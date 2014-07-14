@@ -1,131 +1,129 @@
 {
-  "policy_vendor": {
-    "policy_version": {
-      "1.0": {
-        "templates": {
-          "common": [
-            "default",
-            "ubuntu-sdk",
-            "ubuntu-webapp"
-          ],
-          "reserved": [
-            "unconfined"
-          ]
-        },
-        "policy_groups": {
-          "common": [
-            "audio",
-            "camera",
-            "connectivity",
-            "content_exchange",
-            "content_exchange_source",
-            "location",
-            "microphone",
-            "networking",
-            "sensors",
-            "usermetrics",
-            "video"
-          ],
-          "reserved": [
-            "accounts",
-            "calendar",
-            "contacts",
-            "friends",
-            "history",
-            "music_files",
-            "music_files_read",
-            "picture_files",
-            "picture_files_read",
-            "video_files",
-            "video_files_read"
-          ]
-        }
+  "ubuntu": {
+    "1.0": {
+      "templates": {
+        "common": [
+          "default",
+          "ubuntu-sdk",
+          "ubuntu-webapp"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
       },
-      "1.1": {
-        "templates": {
-          "common": [
-            "default",
-            "ubuntu-sdk",
-            "ubuntu-webapp"
-          ],
-          "reserved": [
-            "unconfined"
-          ]
-        },
-        "policy_groups": {
-          "common": [
-            "audio",
-            "camera",
-            "connectivity",
-            "content_exchange",
-            "content_exchange_source",
-            "location",
-            "microphone",
-            "networking",
-            "sensors",
-            "usermetrics",
-            "video",
-            "webview"
-          ],
-          "reserved": [
-            "accounts",
-            "calendar",
-            "contacts",
-            "debug",
-            "friends",
-            "history",
-            "music_files",
-            "music_files_read",
-            "picture_files",
-            "picture_files_read",
-            "video_files",
-            "video_files_read"
-          ]
-        }
+      "policy_groups": {
+        "common": [
+          "audio",
+          "camera",
+          "connectivity",
+          "content_exchange",
+          "content_exchange_source",
+          "location",
+          "microphone",
+          "networking",
+          "sensors",
+          "usermetrics",
+          "video"
+        ],
+        "reserved": [
+          "accounts",
+          "calendar",
+          "contacts",
+          "friends",
+          "history",
+          "music_files",
+          "music_files_read",
+          "picture_files",
+          "picture_files_read",
+          "video_files",
+          "video_files_read"
+        ]
+      }
+    },
+    "1.1": {
+      "templates": {
+        "common": [
+          "default",
+          "ubuntu-sdk",
+          "ubuntu-webapp"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
       },
-      "1.2": {
-        "templates": {
-          "common": [
-            "default",
-            "ubuntu-scope-network",
-            "ubuntu-sdk",
-            "ubuntu-webapp"
-          ],
-          "reserved": [
-            "unconfined"
-          ]
-        },
-        "policy_groups": {
-          "common": [
-            "audio",
-            "camera",
-            "connectivity",
-            "content_exchange",
-            "content_exchange_source",
-            "location",
-            "microphone",
-            "networking",
-            "push-notification-client",
-            "sensors",
-            "usermetrics",
-            "video",
-            "webview"
-          ],
-          "reserved": [
-            "accounts",
-            "calendar",
-            "contacts",
-            "debug",
-            "friends",
-            "history",
-            "music_files",
-            "music_files_read",
-            "picture_files",
-            "picture_files_read",
-            "video_files",
-            "video_files_read"
-          ]
-        }
+      "policy_groups": {
+        "common": [
+          "audio",
+          "camera",
+          "connectivity",
+          "content_exchange",
+          "content_exchange_source",
+          "location",
+          "microphone",
+          "networking",
+          "sensors",
+          "usermetrics",
+          "video",
+          "webview"
+        ],
+        "reserved": [
+          "accounts",
+          "calendar",
+          "contacts",
+          "debug",
+          "friends",
+          "history",
+          "music_files",
+          "music_files_read",
+          "picture_files",
+          "picture_files_read",
+          "video_files",
+          "video_files_read"
+        ]
+      }
+    },
+    "1.2": {
+      "templates": {
+        "common": [
+          "default",
+          "ubuntu-scope-network",
+          "ubuntu-sdk",
+          "ubuntu-webapp"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "audio",
+          "camera",
+          "connectivity",
+          "content_exchange",
+          "content_exchange_source",
+          "location",
+          "microphone",
+          "networking",
+          "push-notification-client",
+          "sensors",
+          "usermetrics",
+          "video",
+          "webview"
+        ],
+        "reserved": [
+          "accounts",
+          "calendar",
+          "contacts",
+          "debug",
+          "friends",
+          "history",
+          "music_files",
+          "music_files_read",
+          "picture_files",
+          "picture_files_read",
+          "video_files",
+          "video_files_read"
+        ]
       }
     }
   }
