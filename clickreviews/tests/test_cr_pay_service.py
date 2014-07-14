@@ -1,4 +1,4 @@
-'''test_cr_skeleton.py: tests for the cr_skeleton module'''
+'''test_cr_pay_service.py: tests for the cr_pay service module'''
 #
 # Copyright (C) 2014 Canonical Ltd.
 #
@@ -14,11 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from clickreviews.cr_skeleton import ClickReviewSkeleton
+from clickreviews.cr_pay_service import ClickReviewPayService
 import clickreviews.cr_tests as cr_tests
 
 
-class TestClickReviewSkeleton(cr_tests.TestClickReview):
+class TestClickReviewPayService(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
     def setUp(self):
         # Monkey patch various file access classes. stop() is handled with
@@ -28,7 +28,7 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
 
     def test_check_foo(self):
         '''Test check_foo()'''
-        c = ClickReviewSkeleton(self.test_name)
+        c = ClickReviewPayService(self.test_name)
         c.check_foo()
         r = c.click_report
         # We should end up with 1 info
@@ -37,7 +37,7 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
 
     def test_check_bar(self):
         '''Test check_bar()'''
-        c = ClickReviewSkeleton(self.test_name)
+        c = ClickReviewPayService(self.test_name)
         c.check_bar()
         r = c.click_report
         # We should end up with 1 error
@@ -46,7 +46,7 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
 
     def test_check_baz(self):
         '''Test check_baz()'''
-        c = ClickReviewSkeleton(self.test_name)
+        c = ClickReviewPayService(self.test_name)
         c.check_baz()
         r = c.click_report
         # We should end up with 1 warning
@@ -57,7 +57,7 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
         expected = dict()
         expected['info'] = dict()
         expected['warn'] = dict()
-        expected['warn']['skeleton_baz'] = {"text": "TODO",
+        expected['warn']['pay_service_baz'] = {"text": "TODO",
                                             "link": "http://example.com"}
         expected['error'] = dict()
         self.check_results(r, expected=expected)

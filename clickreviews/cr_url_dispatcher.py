@@ -1,4 +1,4 @@
-'''cr_skeleton.py: click skeleton'''
+'''cr_url dispatcher.py: click url_dispatcher'''
 #
 # Copyright (C) 2014 Canonical Ltd.
 #
@@ -19,10 +19,10 @@ from __future__ import print_function
 from clickreviews.cr_common import ClickReview
 
 
-class ClickReviewSkeleton(ClickReview):
+class ClickReviewUrlDispatcher(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "skeleton")
+        ClickReview.__init__(self, fn, "url_dispatcher")
 
     def check_foo(self):
         '''Check foo'''

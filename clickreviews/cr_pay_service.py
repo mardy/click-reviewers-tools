@@ -1,4 +1,4 @@
-'''cr_skeleton.py: click skeleton'''
+'''cr_pay_service.py: click pay service'''
 #
 # Copyright (C) 2014 Canonical Ltd.
 #
@@ -19,10 +19,10 @@ from __future__ import print_function
 from clickreviews.cr_common import ClickReview
 
 
-class ClickReviewSkeleton(ClickReview):
+class ClickReviewPayService(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "skeleton")
+        ClickReview.__init__(self, fn, "pay_service")
 
     def check_foo(self):
         '''Check foo'''

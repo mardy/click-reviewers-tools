@@ -52,6 +52,26 @@ echo "= click-check-functional ="
 prefer_local click-check-functional "$c"
 
 echo ""
+echo "= click-check-content-hub ="
+prefer_local click-check-content-hub "$c"
+
+echo ""
+echo "= click-check-online-accounts ="
+prefer_local click-check-online-accounts "$c"
+
+echo ""
+echo "= click-check-pay-service ="
+prefer_local click-check-pay-service "$c"
+
+echo ""
+echo "= click-check-scope ="
+prefer_local click-check-scope "$c"
+
+echo ""
+echo "= click-check-url-dispatcher ="
+prefer_local click-check-url-dispatcher "$c"
+
+echo ""
 echo ""
 if [ "$rc" = "1" ]; then
     echo "** Warnings found **"

@@ -1,4 +1,4 @@
-'''cr_skeleton.py: click skeleton'''
+'''cr_scope.py: click scope'''
 #
 # Copyright (C) 2014 Canonical Ltd.
 #
@@ -19,10 +19,10 @@ from __future__ import print_function
 from clickreviews.cr_common import ClickReview
 
 
-class ClickReviewSkeleton(ClickReview):
+class ClickReviewScope(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "skeleton")
+        ClickReview.__init__(self, fn, "scope")
 
     def check_foo(self):
         '''Check foo'''
