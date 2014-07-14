@@ -15,6 +15,8 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
     apparmor-easyprof by using a static list to ease updating
   * debian/control: drop Build-Depends and Depends on apparmor-easyprof and
     apparmor-easyprof-ubuntu
+  * update data/apparmor-easyprof-ubuntu.json to not include friends policy
+    group in 1.2 (LP: #1340869)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 14 Jul 2014 11:56:46 -0500
 
