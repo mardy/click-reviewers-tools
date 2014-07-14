@@ -168,7 +168,7 @@ class ClickReviewFunctional(ClickReview):
 
         self._add_result(t, n, s, l)
 
-    def check_friens(self):
+    def check_friends(self):
         '''Check that QML applications don't use deprecated Friends API'''
         t = 'info'
         n = 'qml_application_uses_friends'
