@@ -61,6 +61,8 @@ class ClickReviewLint(ClickReview):
 
         self._list_all_compiled_binaries()
 
+        self.known_hooks = ['apparmor', 'desktop']
+
     def _list_control_files(self):
         '''List all control files with their full path.'''
         for i in CONTROL_FILE_NAMES:
@@ -311,6 +313,24 @@ exit 1
                 t = 'error'
                 s = "'%s' hooks should not be used together" % ", ".join(found)
             self._add_result(t, n, s)
+
+    def check_hooks_unknown(self):
+        '''Check if have any unknown hooks'''
+        t = 'info'
+        n = 'unknown hooks'
+        s = 'OK'
+
+        # Verify keys are well-formatted
+        for app in self.manifest['hooks']:
+            for hook in self.manifest['hooks'][app]:
+                t = 'info'
+                n = 'hooks_%s_%s_known' % (app, hook)
+                s = "OK"
+                if hook not in self.known_hooks:
+                    t = 'error'
+                    s = "unknown hook '%s' in %s" % (hook, app)
+                self._add_result(t, n, s)
+
 
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''
