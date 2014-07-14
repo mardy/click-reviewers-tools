@@ -17,13 +17,15 @@ USER_DATA_FILE = os.path.join(DATA_DIR, 'frameworks.json')
 
 # XXX: This is a hack and will be gone, as soon as myapps has an API for this.
 FRAMEWORKS_DATA_URL = \
-        "http://bazaar.launchpad.net/~ubuntu-core-dev/+junk/frameworks/view/head:/frameworks.json"
+    "http://bazaar.launchpad.net/~ubuntu-core-dev/+junk/frameworks/view/head:/frameworks.json"
 
-UPDATE_INTERVAL = 60*60*24*7
+UPDATE_INTERVAL = 60 * 60 * 24 * 7
+
 
 def update_is_necessary():
     return (not os.path.exists(USER_DATA_FILE)) or \
-            (time.time()-os.path.getctime(USER_DATA_FILE) >= UPDATE_INTERVAL)
+        (time.time() - os.path.getctime(USER_DATA_FILE) >= UPDATE_INTERVAL)
+
 
 def update_is_possible():
     update = True
@@ -35,11 +37,13 @@ def update_is_possible():
         update = False
     return update
 
+
 def abort(msg=None):
     if msg:
         print(msg, file=sys.stderr)
     print('Aborted.', file=sys.stderr)
     sys.exit(1)
+
 
 def get_frameworks_file(data_dir=DATA_DIR):
     try:
@@ -53,10 +57,10 @@ def get_frameworks_file(data_dir=DATA_DIR):
     link = re.findall(b'<a href="(\S+?)">download file</a>', html)
     if not link:
         abort()
-    download_link = '{}://{}/{}'.format(\
-            parse.urlparse(FRAMEWORKS_DATA_URL).scheme,
-            parse.urlparse(FRAMEWORKS_DATA_URL).netloc,
-            link[0].decode("utf-8"))
+    download_link = '{}://{}/{}'.format(
+        parse.urlparse(FRAMEWORKS_DATA_URL).scheme,
+        parse.urlparse(FRAMEWORKS_DATA_URL).netloc,
+        link[0].decode("utf-8"))
     f = request.urlopen(download_link)
     if not f:
         abort()
@@ -67,6 +71,7 @@ def get_frameworks_file(data_dir=DATA_DIR):
     with open(USER_DATA_FILE, 'bw') as local_file:
         local_file.write(f.read())
 
+
 def read_frameworks_file(local_copy=None):
     if update_is_necessary() and update_is_possible():
         get_frameworks_file()
@@ -75,6 +80,7 @@ def read_frameworks_file(local_copy=None):
             return json.loads(open(local_copy, 'r').read())
         return {}
     return json.loads(open(USER_DATA_FILE, 'r').read())
+
 
 class Frameworks(object):
     DEPRECATED_FRAMEWORKS = []

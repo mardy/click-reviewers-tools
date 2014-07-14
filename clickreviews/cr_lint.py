@@ -532,7 +532,7 @@ exit 1
         '''Check framework()'''
         n = 'framework'
         l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
-        local_copy = os.path.join(os.path.dirname(__file__), 
+        local_copy = os.path.join(os.path.dirname(__file__),
                                   '../data/frameworks.json')
         frameworks = Frameworks(local_copy)
         if self.manifest['framework'] in frameworks.AVAILABLE_FRAMEWORKS:
@@ -559,8 +559,6 @@ exit 1
             s = "'%s' is not a supported framework" % \
                 self.manifest['framework']
             self._add_result(t, n, s, l)
-
-
 
     def check_click_local_extensions(self):
         '''Report any click local extensions'''

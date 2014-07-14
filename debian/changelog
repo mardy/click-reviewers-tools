@@ -1,6 +1,16 @@
 click-reviewers-tools (0.8) UNRELEASED; urgency=medium
 
-  * 
+  [ Zoltan Balogh ]
+  * Give an error if the app is using deprecated Friends API (LP: #1340869)
+
+  [ Jamie Strandboge ]
+  * updated clickreviews/cr_tests.py for 14.10*dev2
+  * bin/repack-click: use -Zgzip when repacking to remain compatible with
+    debfile (ie, click install)
+
+  [ Martin Albisetti, Daniel Holbach ]
+  * refactor the way we handle frameworks into a central static list which
+    should be easy to update.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 05 Jun 2014 16:24:49 +0200
 
