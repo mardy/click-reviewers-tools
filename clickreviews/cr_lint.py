@@ -327,10 +327,9 @@ exit 1
                 n = 'hooks_%s_%s_known' % (app, hook)
                 s = "OK"
                 if hook not in self.known_hooks:
-                    t = 'error'
+                    t = 'warn'
                     s = "unknown hook '%s' in %s" % (hook, app)
                 self._add_result(t, n, s)
-
 
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''

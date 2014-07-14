@@ -694,7 +694,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.manifest['hooks'][self.default_appname]["nonexistant"] = "foo"
         c.check_hooks_unknown()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_unknown_good(self):
