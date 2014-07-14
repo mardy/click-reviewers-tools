@@ -152,9 +152,6 @@ patches.append(patch(
 patches.append(patch(
     'clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
     _get_security_manifest))
-patches.append(patch(
-    'clickreviews.cr_security.ClickReviewSecurity._get_supported_policy_versions',
-    _get_security_supported_policy_versions))
 
 # desktop overrides
 patches.append(patch(
