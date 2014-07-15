@@ -22,21 +22,15 @@ import glob
 import json
 import os
 
-easyprof_dir = "/usr/share/apparmor/easyprof"
-if not os.path.isdir(easyprof_dir):
-    error("Error importing easyprof. Please install apparmor-easyprof")
-if not os.path.isdir(os.path.join(easyprof_dir, "templates/ubuntu")):
-    error("Error importing easyprof. Please install apparmor-easyprof-ubuntu")
-
-import apparmor.easyprof
-
 
 class ClickReviewSecurity(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "security")
 
-        self.supported_policy_versions = self._get_supported_policy_versions()
+        self.aa_policy = json.loads(open(
+                                    "./data/apparmor-easyprof-ubuntu.json",
+                                    'r').read())
 
         self.all_fields = ['abstractions',
                            'author',
@@ -133,31 +127,6 @@ class ClickReviewSecurity(ClickReview):
                                                                     k, mp))
         return m
 
-    def _get_policy_group_meta(self, group, meta, vendor, version):
-        '''Get meta-information from the policy group'''
-        cmd_args = ['--show-policy-group', '--policy-groups=%s' % group,
-                    '--policy-version=%s' % version,
-                    '--policy-vendor=%s' % vendor]
-        (options, args) = apparmor.easyprof.parse_args(cmd_args)
-        try:
-            easyp = apparmor.easyprof.AppArmorEasyProfile(None, options)
-            tmp = easyp.get_policygroup(group)
-        except apparmor.easyprof.AppArmorException:
-            warn("'%s' failed" % " ".join(cmd_args))
-            return ""
-
-        text = ""
-        for line in tmp.splitlines():
-            if line.startswith("# %s: " % meta):
-                text = line.split(':', 1)[1].strip()
-            elif text != "":
-                if line.startswith("#  "):
-                    text += line[2:]
-                else:
-                    break
-
-        return text
-
     def _get_security_manifest(self, app):
         '''Get the security manifest for app'''
         if app not in self.manifest['hooks']:
@@ -169,21 +138,72 @@ class ClickReviewSecurity(ClickReview):
         m = self.security_manifests[f]
         return (f, m)
 
-    def _get_supported_policy_versions(self):
+    def _get_policy_versions(self, vendor):
         '''Get the supported AppArmor policy versions'''
-        version_dirs = sorted(glob.glob("%s/templates/ubuntu/*" %
-                                        easyprof_dir))
-        supported_policy_versions = []
-        for d in version_dirs:
-            if not os.path.isdir(d):
-                continue
-            try:
-                supported_policy_versions.append(float(os.path.basename(d)))
-            except TypeError:
-                continue
-        supported_policy_versions = sorted(supported_policy_versions)
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return None
 
-        return supported_policy_versions
+        supported_policy_versions = []
+        for i in self.aa_policy[vendor].keys():
+            supported_policy_versions.append("%.1f" % float(i))
+
+        return sorted(supported_policy_versions)
+
+    def _get_templates(self, vendor, version, aa_type="all"):
+        '''Get templates by type'''
+        templates = []
+        if aa_type == "all":
+            for k in self.aa_policy[vendor][version]['templates'].keys():
+                templates += self.aa_policy[vendor][version]['templates'][k]
+        else:
+            templates = self.aa_policy[vendor][version]['templates'][aa_type]
+
+        return sorted(templates)
+
+    def _has_policy_version(self, vendor, version):
+        '''Determine if has specified policy version'''
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return False
+
+        if str(version) not in self.aa_policy[vendor]:
+            return False
+        return True
+
+    def _get_highest_policy_version(self, vendor):
+        '''Determine highest policy version for the vendor'''
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return None
+
+        return float(sorted(self.aa_policy[vendor].keys())[-1])
+
+    def _get_policy_groups(self, vendor, version, aa_type="all"):
+        '''Get policy groups by type'''
+        groups = []
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return groups
+
+        if not self._has_policy_version(vendor, version):
+            error("Could not find version '%s'" % version, do_exit=False)
+            return groups
+
+        v = str(version)
+        if aa_type == "all":
+            for k in self.aa_policy[vendor][v]['policy_groups'].keys():
+                groups += self.aa_policy[vendor][v]['policy_groups'][k]
+        else:
+            groups = self.aa_policy[vendor][v]['policy_groups'][aa_type]
+
+        return sorted(groups)
+
+    def _get_policy_group_type(self, vendor, version, policy_group):
+        '''Return policy group type'''
+        for t in self.aa_policy[vendor][version]['policy_groups']:
+            if policy_group in self.aa_policy[vendor][version]['policy_groups'][t]:
+                return t
 
     def check_policy_vendor(self):
         '''Check policy_vendor'''
@@ -214,17 +234,13 @@ class ClickReviewSecurity(ClickReview):
             if 'policy_vendor' in m:
                 vendor = m['policy_vendor']
             version = str(m['policy_version'])
-            cmd_args = ['--list-templates', '--policy-vendor=%s' % vendor,
-                        '--policy-version=%s' % version]
-            (options, args) = apparmor.easyprof.parse_args(cmd_args)
-            try:
-                apparmor.easyprof.AppArmorEasyProfile(None, options)
-            except Exception:
+            if vendor not in self.aa_policy or \
+               not self._has_policy_version(vendor, version):
                 t = 'error'
                 s = 'could not find policy for %s/%s' % (vendor, version)
             self._add_result(t, n, s)
 
-            highest = sorted(self.supported_policy_versions)[-1]
+            highest = self._get_highest_policy_version(vendor)
             t = 'info'
             n = 'policy_version_is_highest (%s, %s)' % (str(highest), f)
             s = "OK"
@@ -288,31 +304,16 @@ class ClickReviewSecurity(ClickReview):
             if 'policy_vendor' in m:
                 vendor = m['policy_vendor']
             version = str(m['policy_version'])
-            cmd_args = ['--list-templates', '--policy-vendor=%s' % vendor,
-                        '--policy-version=%s' % version]
-            (options, args) = apparmor.easyprof.parse_args(cmd_args)
-            templates = []
-            try:
-                easyp = apparmor.easyprof.AppArmorEasyProfile(None, options)
-                templates = easyp.get_templates()
-            except Exception:
-                t = 'error'
-                s = 'could not find policy for %s/%s' % (vendor, version)
-                self._add_result(t, n, s)
-                continue
+
+            templates = self._get_templates(vendor, version)
             if len(templates) < 1:
                 t = 'error'
                 s = 'could not find templates'
                 self._add_result(t, n, s)
                 continue
+            self._add_result(t, n, s)
 
-            # If we got here, we can see if a valid template was specified
-            found = False
-            for i in templates:
-                if os.path.basename(i) == m['template']:
-                    found = True
-                    break
-            if not found:
+            if m['template'] not in self._get_templates(vendor, version):
                 t = 'error'
                 s = "specified unsupported template '%s'" % m['template']
 
@@ -409,18 +410,8 @@ class ClickReviewSecurity(ClickReview):
             if 'policy_vendor' in m:
                 vendor = m['policy_vendor']
             version = str(m['policy_version'])
-            cmd_args = ['--list-policy-groups', '--policy-vendor=%s' % vendor,
-                        '--policy-version=%s' % version]
-            (options, args) = apparmor.easyprof.parse_args(cmd_args)
-            policy_groups = []
-            try:
-                easyp = apparmor.easyprof.AppArmorEasyProfile(None, options)
-                policy_groups = easyp.get_policy_groups()
-            except Exception:
-                t = 'error'
-                s = 'could not find policy for %s/%s' % (vendor, version)
-                self._add_result(t, n, s)
-                continue
+
+            policy_groups = self._get_policy_groups(version=version, vendor=vendor)
             if len(policy_groups) < 1:
                 t = 'error'
                 s = 'could not find policy groups'
@@ -470,20 +461,20 @@ class ClickReviewSecurity(ClickReview):
                     t = 'info'
                     n = 'policy_groups_safe (%s)' % i
                     s = 'OK'
-                    usage = self._get_policy_group_meta(i, "Usage",
-                                                        vendor, version)
+
+                    aa_type = self._get_policy_group_type(vendor, version, i)
                     if i == "debug":
-                        desc = self._get_policy_group_meta(i, "Description",
-                                                           vendor, version)
                         t = 'error'
-                        s = "(REJECT) %s policy group " % usage + \
-                            "'%s': %s" % (i, desc)
-                    elif usage != "common":
-                        desc = self._get_policy_group_meta(i, "Description",
-                                                           vendor, version)
+                        s = "(REJECT) %s policy group " % aa_type + \
+                            "'%s': not for production use" % (i)
+                    elif aa_type == "reserved":
                         t = 'error'
-                        s = "(MANUAL REVIEW) %s policy group " % usage + \
-                            "'%s': %s" % (i, desc)
+                        s = "(MANUAL REVIEW) %s policy group " % aa_type + \
+                            "'%s': vetted applications only" % (i)
+                    elif aa_type != "common":
+                        t = 'error'
+                        s = "policy group '%s' has" % i + \
+                            "unknown type '%s'" % (aa_type)
                     self._add_result(t, n, s)
 
     def check_ignored(self):

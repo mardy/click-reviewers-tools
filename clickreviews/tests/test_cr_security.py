@@ -46,7 +46,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
     def test_check_policy_version_highest(self):
         '''Test check_policy_version() - highest'''
         c = ClickReviewSecurity(self.test_name)
-        highest_version = sorted(c.supported_policy_versions)[-1]
+        highest_version = c._get_highest_policy_version("ubuntu")
         version = highest_version
         self.set_test_security_manifest(self.default_appname,
                                         "policy_version", version)
@@ -68,7 +68,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.set_test_security_manifest(self.default_appname,
                                         "policy_version", bad_version)
 
-        highest = sorted(c.supported_policy_versions)[-1]
+        highest = c._get_highest_policy_version("ubuntu")
 
         c.check_policy_version()
         report = c.click_report
@@ -88,7 +88,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
     def test_check_policy_version_low(self):
         '''Test check_policy_version() - low version'''
         c = ClickReviewSecurity(self.test_name)
-        highest = sorted(c.supported_policy_versions)[-1]
+        highest = c._get_highest_policy_version("ubuntu")
         version = 1.0
         if version == highest:
             print("SKIPPED-- test version '%s' is already highest" % version,
