@@ -57,8 +57,8 @@ class TestClickReviewOnlineAccounts(cr_tests.TestClickReview):
         expected = dict()
         expected['info'] = dict()
         expected['warn'] = dict()
-        expected['warn']['online_accounts_baz'] = {"text": "TODO",
-                                            "link": "http://example.com"}
+        expected['warn']['online_accounts_baz'] = \
+            {"text": "TODO", "link": "http://example.com"}
         expected['error'] = dict()
         self.check_results(r, expected=expected)
 

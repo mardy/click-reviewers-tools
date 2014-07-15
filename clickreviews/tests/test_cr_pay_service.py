@@ -58,7 +58,7 @@ class TestClickReviewPayService(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['warn']['pay_service_baz'] = {"text": "TODO",
-                                            "link": "http://example.com"}
+                                               "link": "http://example.com"}
         expected['error'] = dict()
         self.check_results(r, expected=expected)
 
