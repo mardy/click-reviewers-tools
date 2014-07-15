@@ -16,7 +16,9 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview
+from clickreviews.cr_common import ClickReview, error
+import configparser
+import os
 
 
 class ClickReviewScope(ClickReview):
@@ -24,31 +26,107 @@ class ClickReviewScope(ClickReview):
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "scope")
 
-    def check_foo(self):
-        '''Check foo'''
-        t = 'info'
-        n = 'foo'
-        s = "OK"
-        if False:
-            t = 'error'
-            s = "some message"
-        self._add_result(t, n, s)
+        self.scopes = dict()
+        for app in self.manifest['hooks']:
+            if not isinstance(self.manifest['hooks'][app]['scope'], str):
+                error("manifest malformed: hooks/%s/scope is not str" % app)
+            self.scopes[app] = self._extract_scopes(app)
 
-    def check_bar(self):
-        '''Check bar'''
-        t = 'info'
-        n = 'bar'
-        s = "OK"
-        if True:
-            t = 'error'
-            s = "some message"
-        self._add_result(t, n, s)
+    def _extract_scopes(self, app):
+        '''Get scopes'''
+        d = dict()
 
-    def check_baz(self):
-        '''Check baz'''
-        self._add_result('warn', 'baz', 'TODO', link="http://example.com")
+        s = self.manifest['hooks'][app]['scope']
+        fn = os.path.join(self.unpack_dir, s)
 
-        # Spawn a shell to pause the script (run 'exit' to continue)
-        # import subprocess
-        # print(self.unpack_dir)
-        # subprocess.call(['bash'])
+        bn = os.path.basename(fn)
+        if not os.path.exists(fn):
+            error("Could not find '%s'" % bn)
+        elif not os.path.isdir(fn):
+            error("'%s' is not a directory" % bn)
+
+        ini_fn = os.path.join(fn, "%s.ini" % self.manifest['name'])
+        ini_fn_bn = os.path.relpath(ini_fn, self.unpack_dir)
+        if not os.path.exists(ini_fn):
+            error("Could not find scope INI file '%s'" % ini_fn_bn)
+        try:
+            d["scope_config"] = configparser.ConfigParser()
+            d["scope_config"].read(ini_fn)
+        except Exception:
+            error("scope config unparseable: %s (%s)" % (ini_fn_bn, str(e)))
+
+        d["dir"] = fn
+        d["dir_rel"] = bn
+        d["ini_file"] = ini_fn
+        d["ini_file_rel"] = ini_fn_bn
+
+        return d
+
+    def check_scope_ini(self):
+        '''Check scope .ini file'''
+        for app in sorted(self.scopes.keys()):
+            t = 'info'
+            n = 'ini_%s_scope_section' % app
+            s = "OK"
+
+            if len(self.scopes[app]["scope_config"].sections()) > 1:
+                t = 'error'
+                s = "'%s' has too many sections: %s" % (
+                    self.scopes[app]["ini_file_rel"],
+                    ", ".join(self.scopes[app]["scope_config"].sections()))
+            elif "ScopeConfig" not in \
+                    self.scopes[app]["scope_config"].sections():
+                t = 'error'
+                s = "Could not find 'ScopeConfig' in '%s'" % (
+                    self.scopes[app]["ini_file_rel"])
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
+            # Make these all lower case for easier comparisons
+            required = ['scoperunner',
+                        'displayname',
+                        'icon',
+                        'searchhint']
+            optional = ['description',
+                        'author',
+                        'art']
+
+            missing = []
+            t = 'info'
+            n = 'ini_%s_scope_required_fields' % (app)
+            s = "OK"
+            for r in required:
+                if r not in self.scopes[app]["scope_config"]['ScopeConfig']:
+                    missing.append(r)
+            if len(missing) == 1:
+                t = 'error'
+                s = "Missing required field in '%s': %s" % (
+                    self.scopes[app]["ini_file_rel"],
+                    missing[0])
+            elif len(missing) > 1:
+                t = 'error'
+                s = "Missing required fields in '%s': %s" % (
+                    self.scopes[app]["ini_file_rel"],
+                    ", ".join(missing))
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'ini_%s_scope_unknown_fields' % (app)
+            s = 'OK'
+            unknown = []
+            for f in self.scopes[app]["scope_config"]['ScopeConfig'].keys():
+                if f.lower() not in required and f.lower() not in optional:
+                    unknown.append(f.lower())
+
+            if len(unknown) == 1:
+                t = 'warn'
+                s = "Unknown field in '%s': %s" % (
+                    self.scopes[app]["ini_file_rel"],
+                    unknown[0])
+            elif len(unknown) > 1:
+                t = 'warn'
+                s = "Unknown fields in '%s': %s" % (
+                    self.scopes[app]["ini_file_rel"],
+                    ", ".join(unknown))
+            self._add_result(t, n, s)

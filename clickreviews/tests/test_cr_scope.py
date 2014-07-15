@@ -16,6 +16,7 @@
 
 from clickreviews.cr_scope import ClickReviewScope
 import clickreviews.cr_tests as cr_tests
+import configparser
 
 
 class TestClickReviewScope(cr_tests.TestClickReview):
@@ -26,58 +27,119 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
-    def test_check_foo(self):
-        '''Test check_foo()'''
+    def _create_scope(self, config_dict=None):
+        '''Create a scope to pass to tests'''
+        scope = dict()
+        scope["dir_rel"] = "scope-directory"
+        scope["ini_file_rel"] = "%s/%s.ini" % (scope["dir_rel"],
+                                               self.default_appname)
+        scope["scope_config"] = configparser.ConfigParser()
+        scope["scope_config"]['ScopeConfig'] = config_dict
+
+        return scope
+
+    def _stub_config(self):
+        '''Stub configparser file'''
+        config_dict = {
+            'ScopeRunner': "%s" % self.default_appname,
+            'DisplayName': 'Foo',
+            'Description': 'Some description',
+            'Author': 'Foo Ltd.',
+            'Art': '',
+            'Icon': 'foo.svg',
+            'SearchHint': 'Search Foo',
+        }
+
+        return config_dict
+
+    def test_check_scope_ini(self):
+        '''Test check_scope_ini()'''
+        scope = self._create_scope(self._stub_config())
+
+        self.set_test_scope(self.default_appname, scope)
         c = ClickReviewScope(self.test_name)
-        c.check_foo()
+        c.check_scope_ini()
         r = c.click_report
-        # We should end up with 1 info
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_bar(self):
-        '''Test check_bar()'''
+    def test_check_scope_ini_missing_required1(self):
+        '''Test check_scope_ini() - missing ScopeRunner'''
+        config = self._stub_config()
+        del config['ScopeRunner']
+        scope = self._create_scope(config)
+
+        self.set_test_scope(self.default_appname, scope)
         c = ClickReviewScope(self.test_name)
-        c.check_bar()
+        c.check_scope_ini()
         r = c.click_report
-        # We should end up with 1 error
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_baz(self):
-        '''Test check_baz()'''
+    def test_check_scope_ini_missing_required2(self):
+        '''Test check_scope_ini() - missing DisplayName'''
+        config = self._stub_config()
+        del config['DisplayName']
+        scope = self._create_scope(config)
+
+        self.set_test_scope(self.default_appname, scope)
         c = ClickReviewScope(self.test_name)
-        c.check_baz()
+        c.check_scope_ini()
         r = c.click_report
-        # We should end up with 1 warning
-        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-        # Check specific entries
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        expected['warn']['scope_baz'] = {"text": "TODO",
-                                         "link": "http://example.com"}
-        expected['error'] = dict()
-        self.check_results(r, expected=expected)
+    def test_check_scope_ini_missing_required3(self):
+        '''Test check_scope_ini() - missing Icon'''
+        config = self._stub_config()
+        del config['Icon']
+        scope = self._create_scope(config)
 
-    def test_output(self):
-        '''Test output'''
-        # Update the control field and output the changes
-        self.set_test_control('Package', "my.mock.app.name")
-        self.set_test_manifest('name', "my.mock.app.name")
-        self._update_test_name()
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
 
-        import pprint
-        import json
-        print('''
-= test output =
-== Mock filename ==
-%s
+    def test_check_scope_ini_missing_required4(self):
+        '''Test check_scope_ini() - missing SearchHint'''
+        config = self._stub_config()
+        del config['SearchHint']
+        scope = self._create_scope(config)
 
-== Mock control ==
-%s
-== Mock manifest ==''' % (self.test_name, cr_tests.TEST_CONTROL))
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
 
-        pprint.pprint(json.loads(cr_tests.TEST_MANIFEST))
+    def test_check_scope_ini_missing_required5(self):
+        '''Test check_scope_ini() - missing multiple'''
+        config = self._stub_config()
+        del config['ScopeRunner']
+        del config['DisplayName']
+        del config['Icon']
+        del config['SearchHint']
+        scope = self._create_scope(config)
+
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_scope_ini_nonexistent_field(self):
+        '''Test check_scope_ini() - non-existent field'''
+        config = self._stub_config()
+        config['nonexistent'] = "foo"
+        scope = self._create_scope(config)
+
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)

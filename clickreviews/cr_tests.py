@@ -33,6 +33,7 @@ TEST_SECURITY = dict()
 TEST_DESKTOP = dict()
 TEST_WEBAPP_MANIFESTS = dict()
 TEST_URLS = dict()
+TEST_SCOPES = dict()
 
 
 #
@@ -110,6 +111,11 @@ def _extract_url_dispatcher(self, app):
     return ("%s.url-dispatcher" % app, TEST_URLS[app])
 
 
+def _extract_scopes(self, app):
+    '''Pretend we found and read the files in the scope directories'''
+    return TEST_SCOPES[app]
+
+
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
@@ -178,6 +184,11 @@ patches.append(patch(
     'clickreviews.cr_url_dispatcher.ClickReviewUrlDispatcher._extract_url_dispatcher',
     _extract_url_dispatcher))
 
+# scope overrides
+patches.append(patch(
+    'clickreviews.cr_scope.ClickReviewScope._extract_scopes',
+    _extract_scopes))
+
 
 def mock_patch():
     '''Call in setup of child'''
@@ -239,6 +250,7 @@ class TestClickReview(TestCase):
         self.test_security_manifests = dict()
         self.test_desktop_files = dict()
         self.test_url_dispatcher = dict()
+        self.test_scopes = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -259,10 +271,14 @@ class TestClickReview(TestCase):
             self.set_test_desktop(app, 'X-Ubuntu-Touch', 'true',
                                   no_update=True)
             self.set_test_url_dispatcher(app, None, None)
+            # Ensure we have no scope entries since they conflict with desktop.
+            # Scope tests will have to add them as part of their tests.
+            self.set_test_scope(app, None)
 
         self._update_test_security_manifests()
         self._update_test_desktop_files()
         self._update_test_url_dispatcher()
+        self._update_test_scopes()
 
         # webapps manifests (leave empty for now)
         self.test_webapp_manifests = dict()
@@ -312,8 +328,16 @@ class TestClickReview(TestCase):
         global TEST_URLS
         TEST_URLS = dict()
         for app in self.test_url_dispatcher.keys():
-            # TEST_URLS[app] = json.dumps(self.test_url_dispatcher[app])
             TEST_URLS[app] = self.test_url_dispatcher[app]
+
+    def _update_test_scopes(self):
+        global TEST_SCOPES
+        TEST_SCOPES = dict()
+        for app in self.test_scopes.keys():
+            TEST_SCOPES[app] = self.test_scopes[app]
+            self.test_manifest["hooks"][app]["scope"] = \
+                TEST_SCOPES[app]["dir_rel"]
+        self._update_test_manifest()
 
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
@@ -433,6 +457,17 @@ class TestClickReview(TestCase):
             self.test_url_dispatcher[app].append({key: value})
         self._update_test_url_dispatcher()
 
+    def set_test_scope(self, app, scope):
+        '''Set scope for app. If it is None, remove'''
+        if scope is None:
+            if app in self.test_scopes:
+                self.test_scopes.pop(app)
+            if 'scope' in self.test_manifest['hooks'][app]:
+                self.test_manifest['hooks'][app].pop('scope', None)
+        else:
+            self.test_scopes[app] = scope
+        self._update_test_scopes()
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         global patches
@@ -451,6 +486,8 @@ class TestClickReview(TestCase):
         TEST_DESKTOP = dict()
         global TEST_URLS
         TEST_URLS = dict()
+        global TEST_SCOPES
+        TEST_SCOPES = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)

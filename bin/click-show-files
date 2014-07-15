@@ -24,6 +24,7 @@ from clickreviews import cr_desktop
 from clickreviews import cr_lint
 from clickreviews import cr_security
 from clickreviews import cr_url_dispatcher
+from clickreviews import cr_scope
 
 # This script just dumps important files to stdout
 
@@ -72,6 +73,17 @@ if __name__ == "__main__":
         fh = cr_common.open_file_read(os.path.join(review_url_dispatcher.unpack_dir,
                                                    f))
         print("== url_dispatcher: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+    cr_common.cleanup_unpack()
+
+    review_scope = cr_scope.ClickReviewScope(sys.argv[1])
+    for app in sorted(review_scope.scopes):
+        f = review_scope.scopes[app]["ini_file"]
+        fh = cr_common.open_file_read(os.path.join(review_scope.unpack_dir, f))
+        print("== scope .INI: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
         fh.close()
