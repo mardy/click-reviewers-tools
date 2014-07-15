@@ -62,6 +62,7 @@ class ClickReviewLint(ClickReview):
         self._list_all_compiled_binaries()
 
         self.known_hooks = ['apparmor',
+                            'content-hub',
                             'desktop',
                             'scope',
                             'urls']
@@ -298,12 +299,14 @@ exit 1
                 s = "OK"
                 if f == "apparmor":
                     s = "OK (run check-security for more checks)"
+                elif f == "content-hub":
+                    s = "OK (run check-content-hub for more checks)"
                 elif f == "desktop":
                     s = "OK (run check-desktop for more checks)"
-                elif f == "urls":
-                    s = "OK (run check-url-dispatcher for more checks)"
                 elif f == "scope":
                     s = "OK (run check-scope for more checks)"
+                elif f == "urls":
+                    s = "OK (run check-url-dispatcher for more checks)"
 
                 if f not in self.manifest['hooks'][app]:
                     t = 'error'

@@ -26,58 +26,86 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
-    def test_check_foo(self):
-        '''Test check_foo()'''
+    def test_check_unknown_keys_none(self):
+        '''Test check_unknown() - no unknown'''
+        self.set_test_content_hub(self.default_appname, "source", "pictures")
         c = ClickReviewContentHub(self.test_name)
-        c.check_foo()
+        c.check_unknown_keys()
         r = c.click_report
-        # We should end up with 1 info
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_bar(self):
-        '''Test check_bar()'''
+    def test_check_unknown_keys1(self):
+        '''Test check_unknown() - one unknown'''
+        self.set_test_content_hub(self.default_appname, "nonexistent", "foo")
         c = ClickReviewContentHub(self.test_name)
-        c.check_bar()
+        c.check_unknown_keys()
         r = c.click_report
-        # We should end up with 1 error
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_baz(self):
-        '''Test check_baz()'''
-        c = ClickReviewContentHub(self.test_name)
-        c.check_baz()
-        r = c.click_report
-        # We should end up with 1 warning
         expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
-        # Check specific entries
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        expected['warn']['content_hub_baz'] = {"text": "TODO",
-                                               "link": "http://example.com"}
-        expected['error'] = dict()
-        self.check_results(r, expected=expected)
+    def test_check_unknown_keys2(self):
+        '''Test check_unknown() - good with one unknown'''
+        self.set_test_content_hub(self.default_appname, "source", "pictures")
+        self.set_test_content_hub(self.default_appname, "nonexistent", "foo")
+        c = ClickReviewContentHub(self.test_name)
+        c.check_unknown_keys()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
 
-    def test_output(self):
-        '''Test output'''
-        # Update the control field and output the changes
-        self.set_test_control('Package', "my.mock.app.name")
-        self.set_test_manifest('name', "my.mock.app.name")
-        self._update_test_name()
+    def test_check_valid_source(self):
+        '''Test check_valid() - source'''
+        self.set_test_content_hub(self.default_appname, "source", "pictures")
+        c = ClickReviewContentHub(self.test_name)
+        c.check_valid()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
 
-        import pprint
-        import json
-        print('''
-= test output =
-== Mock filename ==
-%s
+    def test_check_valid_share(self):
+        '''Test check_valid() - share'''
+        self.set_test_content_hub(self.default_appname, "share", "pictures")
+        c = ClickReviewContentHub(self.test_name)
+        c.check_valid()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
 
-== Mock control ==
-%s
-== Mock manifest ==''' % (self.test_name, cr_tests.TEST_CONTROL))
+    def test_check_valid_destination(self):
+        '''Test check_valid() - destination'''
+        self.set_test_content_hub(self.default_appname, "destination", "pictures")
+        c = ClickReviewContentHub(self.test_name)
+        c.check_valid()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
 
-        pprint.pprint(json.loads(cr_tests.TEST_MANIFEST))
+    def test_check_valid_all(self):
+        '''Test check_valid() - all'''
+        self.set_test_content_hub(self.default_appname, "destination", "pictures")
+        self.set_test_content_hub(self.default_appname, "share", "pictures")
+        self.set_test_content_hub(self.default_appname, "source", "pictures")
+        c = ClickReviewContentHub(self.test_name)
+        c.check_valid()
+        r = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_valid_bad_value(self):
+        '''Test check_valid() - bad value'''
+        self.set_test_content_hub(self.default_appname, "destination", [])
+        c = ClickReviewContentHub(self.test_name)
+        c.check_valid()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_valid_empty_value(self):
+        '''Test check_valid() - empty value'''
+        self.set_test_content_hub(self.default_appname, "source", "")
+        c = ClickReviewContentHub(self.test_name)
+        c.check_valid()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)

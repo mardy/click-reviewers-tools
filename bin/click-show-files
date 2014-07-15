@@ -25,6 +25,7 @@ from clickreviews import cr_lint
 from clickreviews import cr_security
 from clickreviews import cr_url_dispatcher
 from clickreviews import cr_scope
+from clickreviews import cr_content_hub
 
 # This script just dumps important files to stdout
 
@@ -90,3 +91,14 @@ if __name__ == "__main__":
         print("")
     cr_common.cleanup_unpack()
 
+    review_content_hub = cr_content_hub.ClickReviewContentHub(sys.argv[1])
+    for app in sorted(review_content_hub.content_hub_files):
+        f = review_content_hub.content_hub_files[app]
+        fh = cr_common.open_file_read(os.path.join(
+            review_content_hub.unpack_dir, f))
+        print("== content_hub: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+    cr_common.cleanup_unpack()

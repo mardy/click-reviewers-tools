@@ -16,7 +16,9 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview
+from clickreviews.cr_common import ClickReview, error, open_file_read
+import json
+import os
 
 
 class ClickReviewContentHub(ClickReview):
@@ -24,31 +26,87 @@ class ClickReviewContentHub(ClickReview):
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "content_hub")
 
-    def check_foo(self):
-        '''Check foo'''
-        t = 'info'
-        n = 'foo'
-        s = "OK"
-        if False:
-            t = 'error'
-            s = "some message"
-        self._add_result(t, n, s)
+        self.valid_keys = ['destination', 'share', 'source']
 
-    def check_bar(self):
-        '''Check bar'''
-        t = 'info'
-        n = 'bar'
-        s = "OK"
-        if True:
-            t = 'error'
-            s = "some message"
-        self._add_result(t, n, s)
+        self.content_hub_files = dict()  # click-show-files and tests
+        self.content_hub = dict()
+        for app in self.manifest['hooks']:
+            if not isinstance(self.manifest['hooks'][app]['content-hub'], str):
+                error("manifest malformed: hooks/%s/urls is not str" % app)
+            (full_fn, jd) = self._extract_content_hub(app)
+            self.content_hub_files[app] = full_fn
+            self.content_hub[app] = jd
 
-    def check_baz(self):
-        '''Check baz'''
-        self._add_result('warn', 'baz', 'TODO', link="http://example.com")
+    def _extract_content_hub(self, app):
+        '''Get content-hub hook content'''
+        c = self.manifest['hooks'][app]['content-hub']
+        fn = os.path.join(self.unpack_dir, c)
 
-        # Spawn a shell to pause the script (run 'exit' to continue)
-        # import subprocess
-        # print(self.unpack_dir)
-        # subprocess.call(['bash'])
+        bn = os.path.basename(fn)
+        if not os.path.exists(fn):
+            error("Could not find '%s'" % bn)
+
+        fh = open_file_read(fn)
+        contents = ""
+        for line in fh.readlines():
+                contents += line
+        fh.close()
+
+        try:
+            jd = json.loads(contents)
+        except Exception as e:
+            error("content-hub json unparseable: %s (%s):\n%s" % (bn,
+                  str(e), contents))
+
+        if not isinstance(jd, dict):
+            error("content-hub json is malformed: %s:\n%s" % (bn, contents))
+
+        return (fn, jd)
+
+    def check_valid(self):
+        '''Check validity of content-hub entries'''
+        for app in sorted(self.content_hub):
+            for k in self.content_hub[app].keys():
+                t = "info"
+                n = "valid_%s_%s" % (app, k)
+                s = "OK"
+
+                if not isinstance(self.content_hub[app][k], list):
+                    t = "error"
+                    s = "'%s' is not a list" % k
+                elif len(self.content_hub[app][k]) < 1:
+                    t = "error"
+                    s = "'%s' is empty" % k
+                self._add_result(t, n, s)
+                if t == "error":
+                    continue
+
+                for v in self.content_hub[app][k]:
+                    t = "info"
+                    n = "valid_%s_%s_value" % (app, k)
+                    s = "OK"
+                    if not isinstance(v, str):
+                        t = "error"
+                        s = "'%s' is not a string" % k
+                    elif v == "":
+                        t = "error"
+                        s = "'%s' is empty" % k
+                    self._add_result(t, n, s)
+
+    def check_unknown_keys(self):
+        '''Check unknown'''
+        for app in sorted(self.content_hub):
+            unknown = []
+            t = "info"
+            n = "unknown_%s" % app
+            s = "OK"
+            for key in self.content_hub[app].keys():
+                if key not in self.valid_keys:
+                    unknown.append(key)
+            if len(unknown) == 1:
+                t = "warn"
+                s = "Unknown field '%s'" % unknown[0]
+            elif len(unknown) > 1:
+                t = "warn"
+                s = "Unknown fields '%s'" % ", ".join(unknown)
+            self._add_result(t, n, s)

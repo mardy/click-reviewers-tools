@@ -34,6 +34,7 @@ TEST_DESKTOP = dict()
 TEST_WEBAPP_MANIFESTS = dict()
 TEST_URLS = dict()
 TEST_SCOPES = dict()
+TEST_CONTENT_HUB = dict()
 
 
 #
@@ -116,6 +117,11 @@ def _extract_scopes(self, app):
     return TEST_SCOPES[app]
 
 
+def _extract_content_hub(self, app):
+    '''Pretend we read the content-hub file'''
+    return ("%s.content.json" % app, TEST_CONTENT_HUB[app])
+
+
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
@@ -189,6 +195,11 @@ patches.append(patch(
     'clickreviews.cr_scope.ClickReviewScope._extract_scopes',
     _extract_scopes))
 
+# content-hub overrides
+patches.append(patch(
+    'clickreviews.cr_content_hub.ClickReviewContentHub._extract_content_hub',
+    _extract_content_hub))
+
 
 def mock_patch():
     '''Call in setup of child'''
@@ -251,6 +262,7 @@ class TestClickReview(TestCase):
         self.test_desktop_files = dict()
         self.test_url_dispatcher = dict()
         self.test_scopes = dict()
+        self.test_content_hub = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -270,15 +282,21 @@ class TestClickReview(TestCase):
             self.set_test_desktop(app, 'Type', 'Application', no_update=True)
             self.set_test_desktop(app, 'X-Ubuntu-Touch', 'true',
                                   no_update=True)
+
             self.set_test_url_dispatcher(app, None, None)
+
             # Ensure we have no scope entries since they conflict with desktop.
             # Scope tests will have to add them as part of their tests.
             self.set_test_scope(app, None)
+
+            # Reset to no content-hub entries in manifest
+            self.set_test_content_hub(app, None, None)
 
         self._update_test_security_manifests()
         self._update_test_desktop_files()
         self._update_test_url_dispatcher()
         self._update_test_scopes()
+        self._update_test_content_hub()
 
         # webapps manifests (leave empty for now)
         self.test_webapp_manifests = dict()
@@ -337,6 +355,15 @@ class TestClickReview(TestCase):
             TEST_SCOPES[app] = self.test_scopes[app]
             self.test_manifest["hooks"][app]["scope"] = \
                 TEST_SCOPES[app]["dir_rel"]
+        self._update_test_manifest()
+
+    def _update_test_content_hub(self):
+        global TEST_CONTENT_HUB
+        TEST_CONTENT_HUB = dict()
+        for app in self.test_content_hub.keys():
+            TEST_CONTENT_HUB[app] = self.test_content_hub[app]
+            self.test_manifest["hooks"][app]["content-hub"] = \
+                "%s.content.json" % app
         self._update_test_manifest()
 
     def _update_test_name(self):
@@ -468,6 +495,23 @@ class TestClickReview(TestCase):
             self.test_scopes[app] = scope
         self._update_test_scopes()
 
+    def set_test_content_hub(self, app, key, value):
+        '''Set content-hub entries. If value is None, remove key, if key is
+           None, remove content-hub from manifest'''
+        if key is None:
+            if app in self.test_content_hub:
+                self.test_content_hub.pop(app)
+        elif value is None:
+            if key in self.test_content_hub[app]:
+                self.test_content_hub[app].pop(key)
+        else:
+            if app not in self.test_content_hub:
+                self.test_content_hub[app] = dict()
+            if key not in self.test_content_hub[app]:
+                self.test_content_hub[app][key] = []
+            self.test_content_hub[app][key].append(value)
+        self._update_test_content_hub()
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         global patches
@@ -488,6 +532,8 @@ class TestClickReview(TestCase):
         TEST_URLS = dict()
         global TEST_SCOPES
         TEST_SCOPES = dict()
+        global TEST_CONTENT_HUB
+        TEST_CONTENT_HUB = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)
