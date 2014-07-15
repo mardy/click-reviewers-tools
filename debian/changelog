@@ -10,6 +10,7 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
   * warn on new hooks
   * implement url-dispatcher hook checks
   * implement scope hook checks
+  * implement content-hub hook checks
 
   [ Martin Albisetti, Daniel Holbach ]
   * refactor the way we handle frameworks into a central static list which
