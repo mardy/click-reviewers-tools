@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error, open_file_read
+from clickreviews.cr_common import ClickReview, error, open_file_read, msg
 import json
 import os
 
@@ -31,6 +31,9 @@ class ClickReviewContentHub(ClickReview):
         self.content_hub_files = dict()  # click-show-files and tests
         self.content_hub = dict()
         for app in self.manifest['hooks']:
+            if 'content-hub' not in self.manifest['hooks'][app]:
+                msg("Skipped missing content-hub hook for '%s'" % app)
+                continue
             if not isinstance(self.manifest['hooks'][app]['content-hub'], str):
                 error("manifest malformed: hooks/%s/urls is not str" % app)
             (full_fn, jd) = self._extract_content_hub(app)

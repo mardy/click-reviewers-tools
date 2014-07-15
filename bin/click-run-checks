@@ -60,10 +60,6 @@ echo "= click-check-online-accounts ="
 prefer_local click-check-online-accounts "$c"
 
 echo ""
-echo "= click-check-pay-service ="
-prefer_local click-check-pay-service "$c"
-
-echo ""
 echo "= click-check-scope ="
 prefer_local click-check-scope "$c"
 

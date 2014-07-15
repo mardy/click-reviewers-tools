@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error
+from clickreviews.cr_common import ClickReview, error, msg
 import configparser
 import os
 
@@ -28,6 +28,9 @@ class ClickReviewScope(ClickReview):
 
         self.scopes = dict()
         for app in self.manifest['hooks']:
+            if 'scope' not in self.manifest['hooks'][app]:
+                msg("Skipped missing scope hook for '%s'" % app)
+                continue
             if not isinstance(self.manifest['hooks'][app]['scope'], str):
                 error("manifest malformed: hooks/%s/scope is not str" % app)
             self.scopes[app] = self._extract_scopes(app)
