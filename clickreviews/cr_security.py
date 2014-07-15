@@ -172,7 +172,7 @@ class ClickReviewSecurity(ClickReview):
         return True
 
     def _get_highest_policy_version(self, vendor):
-        '''Determine if has specified policy version'''
+        '''Determine highest policy version for the vendor'''
         if vendor not in self.aa_policy:
             error("Could not find vendor '%s'" % vendor, do_exit=False)
             return None
