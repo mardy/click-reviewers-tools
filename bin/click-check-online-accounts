@@ -25,7 +25,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         cr_common.error("Must give path to click package")
 
-    review = cr_online_accounts.ClickReviewOnlineAccounts(sys.argv[1])
+    review = cr_online_accounts.ClickReviewAccounts(sys.argv[1])
     review.do_checks()
     rc = review.do_report()
     sys.exit(rc)

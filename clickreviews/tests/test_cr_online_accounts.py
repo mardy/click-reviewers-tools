@@ -14,11 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from clickreviews.cr_online_accounts import ClickReviewOnlineAccounts
+from clickreviews.cr_online_accounts import ClickReviewAccounts
 import clickreviews.cr_tests as cr_tests
+import lxml.etree as etree
 
 
-class TestClickReviewOnlineAccounts(cr_tests.TestClickReview):
+class TestClickReviewAccounts(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
     def setUp(self):
         # Monkey patch various file access classes. stop() is handled with
@@ -26,58 +27,25 @@ class TestClickReviewOnlineAccounts(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
-    def test_check_foo(self):
-        '''Test check_foo()'''
-        c = ClickReviewOnlineAccounts(self.test_name)
-        c.check_foo()
+    def _stub_application(self):
+        '''Stub application xml'''
+        id = "%s_%s" % (self.test_manifest["name"], self.default_appname)
+        xml = etree.Element("application", id="%s" % id)
+        services = etree.SubElement(xml, "services")
+        elem1 = etree.SubElement(services, "service", id="element1")
+        desc1 = etree.SubElement(elem1, "description")
+        desc1.text = "elem1 description"
+        elem2 = etree.SubElement(services, "service", id="element2")
+        desc2 = etree.SubElement(elem2, "description")
+        desc2.text = "elem2 description"
+        return xml
+
+    def test_check_application(self):
+        '''Test check_application()'''
+        self.set_test_account(self.default_appname, "account-application",
+                              self._stub_application())
+        c = ClickReviewAccounts(self.test_name)
+        c.check_application()
         r = c.click_report
-        # We should end up with 1 info
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-
-    def test_check_bar(self):
-        '''Test check_bar()'''
-        c = ClickReviewOnlineAccounts(self.test_name)
-        c.check_bar()
-        r = c.click_report
-        # We should end up with 1 error
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_baz(self):
-        '''Test check_baz()'''
-        c = ClickReviewOnlineAccounts(self.test_name)
-        c.check_baz()
-        r = c.click_report
-        # We should end up with 1 warning
-        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
-        self.check_results(r, expected_counts)
-
-        # Check specific entries
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        expected['warn']['online_accounts_baz'] = \
-            {"text": "TODO", "link": "http://example.com"}
-        expected['error'] = dict()
-        self.check_results(r, expected=expected)
-
-    def test_output(self):
-        '''Test output'''
-        # Update the control field and output the changes
-        self.set_test_control('Package', "my.mock.app.name")
-        self.set_test_manifest('name', "my.mock.app.name")
-        self._update_test_name()
-
-        import pprint
-        import json
-        print('''
-= test output =
-== Mock filename ==
-%s
-
-== Mock control ==
-%s
-== Mock manifest ==''' % (self.test_name, cr_tests.TEST_CONTROL))
-
-        pprint.pprint(json.loads(cr_tests.TEST_MANIFEST))

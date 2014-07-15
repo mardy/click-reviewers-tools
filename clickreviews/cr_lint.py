@@ -61,7 +61,11 @@ class ClickReviewLint(ClickReview):
 
         self._list_all_compiled_binaries()
 
-        self.known_hooks = ['apparmor',
+        self.known_hooks = ['account-application',
+                            'account-provider',
+                            'account-qml-plugin',
+                            'account-service',
+                            'apparmor',
                             'content-hub',
                             'desktop',
                             'scope',
@@ -297,7 +301,10 @@ exit 1
                 t = 'info'
                 n = 'hooks_%s_%s' % (app, f)
                 s = "OK"
-                if f == "apparmor":
+                if f == "account-application" or f == "account-provider" or \
+                   f == "account-qml-plugin" or f == "account-service":
+                    s = "OK (run check-online-accounts for more checks)"
+                elif f == "apparmor":
                     s = "OK (run check-security for more checks)"
                 elif f == "content-hub":
                     s = "OK (run check-content-hub for more checks)"

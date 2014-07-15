@@ -16,39 +16,88 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview
+from clickreviews.cr_common import ClickReview, error, open_file_read, msg
+import os
+import lxml.etree as etree
 
 
-class ClickReviewOnlineAccounts(ClickReview):
+class ClickReviewAccounts(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "online_accounts")
 
-    def check_foo(self):
-        '''Check foo'''
-        t = 'info'
-        n = 'foo'
-        s = "OK"
-        if False:
-            t = 'error'
-            s = "some message"
-        self._add_result(t, n, s)
+        self.accounts_files = dict()
+        self.accounts = dict()
 
-    def check_bar(self):
-        '''Check bar'''
-        t = 'info'
-        n = 'bar'
-        s = "OK"
-        if True:
-            t = 'error'
-            s = "some message"
-        self._add_result(t, n, s)
+        self.account_hooks = ['account-application',
+                              'account-provider',
+                              'account-qml-plugin',
+                              'account-service']
+        for app in self.manifest['hooks']:
+            for h in self.account_hooks:
+                if h not in self.manifest['hooks'][app]:
+                    msg("Skipped missing %s hook for '%s'" % (h, app))
+                    continue
+                if not isinstance(self.manifest['hooks'][app][h], str):
+                    error("manifest malformed: hooks/%s/%s is not a str" % (
+                          app, h))
+                (full_fn, xml) = self._extract_account(app, h)
 
-    def check_baz(self):
-        '''Check baz'''
-        self._add_result('warn', 'baz', 'TODO', link="http://example.com")
+                if app not in self.accounts_files:
+                    self.accounts_files[app] = dict()
+                self.accounts_files[app][h] = full_fn
 
-        # Spawn a shell to pause the script (run 'exit' to continue)
-        # import subprocess
-        # print(self.unpack_dir)
-        # subprocess.call(['bash'])
+                if app not in self.accounts:
+                    self.accounts[app] = dict()
+                self.accounts[app][h] = xml
+
+    def _extract_account(self, app, account_type):
+        '''Extract accounts'''
+        a = self.manifest['hooks'][app][account_type]
+        fn = os.path.join(self.unpack_dir, a)
+
+        bn = os.path.basename(fn)
+        if not os.path.exists(fn):
+            error("Could not find '%s'" % bn)
+
+        try:
+            tree = etree.parse(fn)
+            xml = tree.getroot()
+        except Exception as e:
+            error("accounts xml unparseable: %s (%s):\n%s" % (bn, str(e),
+                  contents))
+
+        return (fn, xml)
+
+    def check_application(self):
+        '''Check application'''
+        for app in sorted(self.accounts.keys()):
+            account_type = "account-application"
+
+            t = 'info'
+            n = '%s_%s_root' % (app, account_type)
+            s = "OK"
+            if not account_type in self.accounts[app]:
+                s = "OK (missing)"
+                self._add_result(t, n, s)
+                continue
+
+            root_tag = self.accounts[app][account_type].tag.lower()
+            if root_tag != "application":
+                t = 'error'
+                s = "'%s' is not 'application'" % root_tag
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = '%s_%s_id' % (app, account_type)
+            s = "OK"
+            expected_id = "%s_%s" % (self.manifest["name"], app)
+            if "id" not in self.accounts[app][account_type].keys():
+                t = 'error'
+                s = "Could not find 'id' in application tag"
+            elif self.accounts[app][account_type].get("id") != expected_id:
+                t = 'error'
+                s = "id '%s' != '%s'" % (
+                    self.accounts[app][account_type].get("id"),
+                    expected_id)
+            self._add_result(t, n, s)

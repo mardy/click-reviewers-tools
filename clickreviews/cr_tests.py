@@ -35,6 +35,10 @@ TEST_WEBAPP_MANIFESTS = dict()
 TEST_URLS = dict()
 TEST_SCOPES = dict()
 TEST_CONTENT_HUB = dict()
+TEST_ACCOUNTS_APPLICATION = dict()
+TEST_ACCOUNTS_PROVIDER = dict()
+TEST_ACCOUNTS_QML_PLUGIN = dict()
+TEST_ACCOUNTS_SERVICE = dict()
 
 
 #
@@ -122,6 +126,28 @@ def _extract_content_hub(self, app):
     return ("%s.content.json" % app, TEST_CONTENT_HUB[app])
 
 
+def _extract_account(self, app, account_type):
+    '''Pretend we read the accounts file'''
+    f = app
+    xml = None
+    if account_type == "account-application":
+        f += ".application"
+        xml = TEST_ACCOUNTS_APPLICATION[app]
+    elif account_type == "account-provider":
+        f += ".provider"
+        xml = TEST_ACCOUNTS_PROVIDER[app]
+    elif account_type == "account-qml-plugin":
+        f += ".qml-plugin"
+        xml = TEST_ACCOUNTS_QML_PLUGIN[app]
+    elif account_type == "account-service":
+        f += ".service"
+        xml = TEST_ACCOUNTS_SERVICE[app]
+    else:  # should never get here
+        raise ValueError("Unknown account_type '%s'" % account_type)
+
+    return (f, xml)
+
+
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
@@ -200,6 +226,11 @@ patches.append(patch(
     'clickreviews.cr_content_hub.ClickReviewContentHub._extract_content_hub',
     _extract_content_hub))
 
+# online accounts overrides
+patches.append(patch(
+    'clickreviews.cr_online_accounts.ClickReviewAccounts._extract_account',
+    _extract_account))
+
 
 def mock_patch():
     '''Call in setup of child'''
@@ -263,6 +294,10 @@ class TestClickReview(TestCase):
         self.test_url_dispatcher = dict()
         self.test_scopes = dict()
         self.test_content_hub = dict()
+        self.test_accounts_application = dict()
+        self.test_accounts_provider = dict()
+        self.test_accounts_qml_plugin = dict()
+        self.test_accounts_service = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -292,11 +327,21 @@ class TestClickReview(TestCase):
             # Reset to no content-hub entries in manifest
             self.set_test_content_hub(app, None, None)
 
+            # Reset to no content-hub entries in manifest
+            self.set_test_account(app, "account-application", None)
+            self.set_test_account(app, "account-provider", None)
+            self.set_test_account(app, "account-qml-plugin", None)
+            self.set_test_account(app, "account-service", None)
+
         self._update_test_security_manifests()
         self._update_test_desktop_files()
         self._update_test_url_dispatcher()
         self._update_test_scopes()
         self._update_test_content_hub()
+        self._update_test_accounts_application()
+        self._update_test_accounts_provider()
+        self._update_test_accounts_qml_plugin()
+        self._update_test_accounts_service()
 
         # webapps manifests (leave empty for now)
         self.test_webapp_manifests = dict()
@@ -364,6 +409,42 @@ class TestClickReview(TestCase):
             TEST_CONTENT_HUB[app] = self.test_content_hub[app]
             self.test_manifest["hooks"][app]["content-hub"] = \
                 "%s.content.json" % app
+        self._update_test_manifest()
+
+    def _update_test_accounts_application(self):
+        global TEST_ACCOUNTS_APPLICATION
+        TEST_ACCOUNTS_APPLICATION = dict()
+        for app in self.test_accounts_application.keys():
+            TEST_ACCOUNTS_APPLICATION[app] = self.test_accounts_application[app]
+            self.test_manifest["hooks"][app]["account-application"] = \
+                "%s.application" % app
+        self._update_test_manifest()
+
+    def _update_test_accounts_provider(self):
+        global TEST_ACCOUNTS_PROVIDER
+        TEST_ACCOUNTS_PROVIDER = dict()
+        for app in self.test_accounts_provider.keys():
+            TEST_ACCOUNTS_PROVIDER[app] = self.test_accounts_provider[app]
+            self.test_manifest["hooks"][app]["account-provider"] = \
+                "%s.provider" % app
+        self._update_test_manifest()
+
+    def _update_test_accounts_qml_plugin(self):
+        global TEST_ACCOUNTS_QML_PLUGIN
+        TEST_ACCOUNTS_QML_PLUGIN = dict()
+        for app in self.test_accounts_qml_plugin.keys():
+            TEST_ACCOUNTS_QML_PLUGIN[app] = self.test_accounts_qml_plugin[app]
+            self.test_manifest["hooks"][app]["account-qml_plugin"] = \
+                "%s.qml_plugin" % app
+        self._update_test_manifest()
+
+    def _update_test_accounts_service(self):
+        global TEST_ACCOUNTS_SERVICE
+        TEST_ACCOUNTS_SERVICE = dict()
+        for app in self.test_accounts_service.keys():
+            TEST_ACCOUNTS_SERVICE[app] = self.test_accounts_service[app]
+            self.test_manifest["hooks"][app]["account-service"] = \
+                "%s.service" % app
         self._update_test_manifest()
 
     def _update_test_name(self):
@@ -512,6 +593,34 @@ class TestClickReview(TestCase):
             self.test_content_hub[app][key].append(value)
         self._update_test_content_hub()
 
+    def set_test_account(self, app, account_type, value):
+        '''Set accounts XML. If value is None, remove from manifest'''
+        if account_type == "account-application":
+            d = self.test_accounts_application
+        elif account_type == "account-provider":
+            d = self.test_accounts_provider
+        elif account_type == "account-qml-plugin":
+            d = self.test_accounts_qml_plugin
+        elif account_type == "account-service":
+            d = self.test_accounts_service
+        else:  # should never get here
+            raise ValueError("Unknown account_type '%s'" % account_type)
+
+        if value is None:
+            if app in d:
+                d[app] = None
+        else:
+            d[app] = value
+
+        if account_type == "account-application":
+            self._update_test_accounts_application()
+        elif account_type == "account-provider":
+            self._update_test_accounts_provider()
+        elif account_type == "account-qml-plugin":
+            self._update_test_accounts_qml_plugin()
+        elif account_type == "account-service":
+            self._update_test_accounts_service()
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         global patches
@@ -534,6 +643,14 @@ class TestClickReview(TestCase):
         TEST_SCOPES = dict()
         global TEST_CONTENT_HUB
         TEST_CONTENT_HUB = dict()
+        global TEST_ACCOUNTS_APPLICATION
+        TEST_ACCOUNTS_APPLICATION = dict()
+        global TEST_ACCOUNTS_PROVIDER
+        TEST_ACCOUNTS_PROVIDER = dict()
+        global TEST_ACCOUNTS_QML_PLUGIN
+        TEST_ACCOUNTS_QML_PLUGIN = dict()
+        global TEST_ACCOUNTS_SERVICE
+        TEST_ACCOUNTS_APPLICTION = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)
