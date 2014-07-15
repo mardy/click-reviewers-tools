@@ -61,7 +61,9 @@ class ClickReviewLint(ClickReview):
 
         self._list_all_compiled_binaries()
 
-        self.known_hooks = ['apparmor', 'desktop']
+        self.known_hooks = ['apparmor',
+                            'desktop',
+                            'urls']
 
     def _list_control_files(self):
         '''List all control files with their full path.'''
@@ -297,6 +299,8 @@ exit 1
                     s = "OK (run check-security for more checks)"
                 elif f == "desktop":
                     s = "OK (run check-desktop for more checks)"
+                elif f == "urls":
+                    s = "OK (run check-url-dispatcher for more checks)"
 
                 if f not in self.manifest['hooks'][app]:
                     t = 'error'

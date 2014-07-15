@@ -26,58 +26,186 @@ class TestClickReviewUrlDispatcher(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
-    def test_check_foo(self):
-        '''Test check_foo()'''
+    def test_check_required(self):
+        '''Test check_required() - has protocol'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="some-protocol")
         c = ClickReviewUrlDispatcher(self.test_name)
-        c.check_foo()
+        c.check_required()
         r = c.click_report
-        # We should end up with 1 info
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_bar(self):
-        '''Test check_bar()'''
+    def test_check_required_empty_value(self):
+        '''Test check_required() - empty protocol'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="")
         c = ClickReviewUrlDispatcher(self.test_name)
-        c.check_bar()
+        c.check_required()
         r = c.click_report
-        # We should end up with 1 error
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_baz(self):
-        '''Test check_baz()'''
+    def test_check_required_bad_value(self):
+        '''Test check_required() - bad protocol'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value=[])
         c = ClickReviewUrlDispatcher(self.test_name)
-        c.check_baz()
+        c.check_required()
         r = c.click_report
-        # We should end up with 1 warning
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_required_multiple(self):
+        '''Test check_required() - multiple'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="some-protocol")
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value="example.com",
+                                     append=True)
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_required()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_required_multiple(self):
+        '''Test check_required() - multiple with nonexistent'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="some-protocol")
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value="example.com",
+                                     append=True)
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="nonexistent",
+                                     value="foo",
+                                     append=True)
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_required()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_optional_none(self):
+        '''Test check_optional() - protocol only'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="some-protocol")
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_optional()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_optional_domain_suffix_empty(self):
+        '''Test check_optional() - with empty domain-suffix'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="some-protocol")
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value="",
+                                     append=True)
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_optional()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_optional_domain_suffix_bad(self):
+        '''Test check_optional() - with bad domain-suffix'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="some-protocol")
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value=[],
+                                     append=True)
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_optional()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_optional_domain_suffix_nonexistent(self):
+        '''Test check_optional() - with domain-suffix plus nonexistent'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="some-protocol")
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value="example.com",
+                                     append=True)
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="nonexistent",
+                                     value="foo",
+                                     append=True)
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_optional()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_optional_domain_suffix_without_protocol(self):
+        '''Test check_optional() - with domain-suffix, no protocol'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value="example.com")
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_optional()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_optional_domain_suffix_without_protocol2(self):
+        '''Test check_optional() - with domain-suffix, nonexistent, no
+           protocol'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value="example.com")
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value="example.com",
+                                     append=True)
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_optional()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_unknown(self):
+        '''Test check_unknown()'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="nonexistent",
+                                     value="foo")
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_unknown()
+        r = c.click_report
         expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
-        # Check specific entries
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        expected['warn']['url_dispatcher_baz'] = {"text": "TODO",
-                                            "link": "http://example.com"}
-        expected['error'] = dict()
-        self.check_results(r, expected=expected)
-
-    def test_output(self):
-        '''Test output'''
-        # Update the control field and output the changes
-        self.set_test_control('Package', "my.mock.app.name")
-        self.set_test_manifest('name', "my.mock.app.name")
-        self._update_test_name()
-
-        import pprint
-        import json
-        print('''
-= test output =
-== Mock filename ==
-%s
-
-== Mock control ==
-%s
-== Mock manifest ==''' % (self.test_name, cr_tests.TEST_CONTROL))
-
-        pprint.pprint(json.loads(cr_tests.TEST_MANIFEST))
+    def test_check_unknown_multiple(self):
+        '''Test check_unknown() - multiple with nonexistent'''
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="protocol",
+                                     value="some-protocol")
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="domain-suffix",
+                                     value="example.com",
+                                     append=True)
+        self.set_test_url_dispatcher(self.default_appname,
+                                     key="nonexistent",
+                                     value="foo",
+                                     append=True)
+        c = ClickReviewUrlDispatcher(self.test_name)
+        c.check_unknown()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)

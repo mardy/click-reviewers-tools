@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-'''check-skeleton: perform click skeleton checks'''
+'''check-show-files: show files'''
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2014 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ from clickreviews import cr_common
 from clickreviews import cr_desktop
 from clickreviews import cr_lint
 from clickreviews import cr_security
+from clickreviews import cr_url_dispatcher
 
 # This script just dumps important files to stdout
 
@@ -64,3 +65,16 @@ if __name__ == "__main__":
         fh.close()
         print("")
     cr_common.cleanup_unpack()
+
+    review_url_dispatcher = cr_url_dispatcher.ClickReviewUrlDispatcher(sys.argv[1])
+    for app in sorted(review_url_dispatcher.url_dispatcher_files):
+        f = review_url_dispatcher.url_dispatcher_files[app]
+        fh = cr_common.open_file_read(os.path.join(review_url_dispatcher.unpack_dir,
+                                                   f))
+        print("== url_dispatcher: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+    cr_common.cleanup_unpack()
+

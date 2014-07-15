@@ -32,6 +32,7 @@ TEST_MANIFEST = ""
 TEST_SECURITY = dict()
 TEST_DESKTOP = dict()
 TEST_WEBAPP_MANIFESTS = dict()
+TEST_URLS = dict()
 
 
 #
@@ -104,6 +105,11 @@ def _extract_webapp_manifests(self):
     return TEST_WEBAPP_MANIFESTS
 
 
+def _extract_url_dispatcher(self, app):
+    '''Pretend we read the url dispatcher file'''
+    return ("%s.url-dispatcher" % app, TEST_URLS[app])
+
+
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
@@ -167,6 +173,11 @@ patches.append(patch(
     'clickreviews.cr_desktop.ClickReviewDesktop._extract_webapp_manifests',
     _extract_webapp_manifests))
 
+# url-dispatcher overrides
+patches.append(patch(
+    'clickreviews.cr_url_dispatcher.ClickReviewUrlDispatcher._extract_url_dispatcher',
+    _extract_url_dispatcher))
+
 
 def mock_patch():
     '''Call in setup of child'''
@@ -220,11 +231,14 @@ class TestClickReview(TestCase):
             "%s.json" % self.default_appname
         self.test_manifest["hooks"][self.default_appname]["desktop"] = \
             "%s.desktop" % self.default_appname
+        self.test_manifest["hooks"][self.default_appname]["urls"] = \
+            "%s.url-dispatcher" % self.default_appname
         self._update_test_manifest()
 
         # hooks
         self.test_security_manifests = dict()
         self.test_desktop_files = dict()
+        self.test_url_dispatcher = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -244,9 +258,11 @@ class TestClickReview(TestCase):
             self.set_test_desktop(app, 'Type', 'Application', no_update=True)
             self.set_test_desktop(app, 'X-Ubuntu-Touch', 'true',
                                   no_update=True)
+            self.set_test_url_dispatcher(app, None, None)
 
         self._update_test_security_manifests()
         self._update_test_desktop_files()
+        self._update_test_url_dispatcher()
 
         # webapps manifests (leave empty for now)
         self.test_webapp_manifests = dict()
@@ -291,6 +307,13 @@ class TestClickReview(TestCase):
         TEST_WEBAPP_MANIFESTS = dict()
         for i in self.test_webapp_manifests.keys():
             TEST_WEBAPP_MANIFESTS[i] = self.test_webapp_manifests[i]
+
+    def _update_test_url_dispatcher(self):
+        global TEST_URLS
+        TEST_URLS = dict()
+        for app in self.test_url_dispatcher.keys():
+            # TEST_URLS[app] = json.dumps(self.test_url_dispatcher[app])
+            TEST_URLS[app] = self.test_url_dispatcher[app]
 
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
@@ -382,7 +405,6 @@ class TestClickReview(TestCase):
     def set_test_webapp_manifest(self, fn, key, value):
         '''Set key in webapp manifest to value. If value is None, remove
            key'''
-
         if key is None and value is None:
             self.test_webapp_manifests[fn] = None
             self._update_test_webapp_manifests()
@@ -397,6 +419,19 @@ class TestClickReview(TestCase):
         else:
             self.test_webapp_manifests[fn][key] = value
         self._update_test_webapp_manifests()
+
+    def set_test_url_dispatcher(self, app, key, value, append=False):
+        '''Set url-dispatcher entries. If value is None, remove'''
+        if app not in self.test_url_dispatcher:
+            self.test_url_dispatcher[app] = []
+
+        if value is None:
+            self.test_url_dispatcher[app] = []
+        else:
+            if not append:
+                self.test_url_dispatcher[app] = []
+            self.test_url_dispatcher[app].append({key: value})
+        self._update_test_url_dispatcher()
 
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
@@ -414,6 +449,8 @@ class TestClickReview(TestCase):
         TEST_SECURITY = dict()
         global TEST_DESKTOP
         TEST_DESKTOP = dict()
+        global TEST_URLS
+        TEST_URLS = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)
