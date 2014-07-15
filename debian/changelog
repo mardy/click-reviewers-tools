@@ -7,6 +7,9 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
   * updated clickreviews/cr_tests.py for 14.10*dev2
   * bin/repack-click: use -Zgzip when repacking to remain compatible with
     debfile (ie, click install)
+  * warn on new hooks
+  * implement url-dispatcher hook checks
+  * implement scope hook checks
 
   [ Martin Albisetti, Daniel Holbach ]
   * refactor the way we handle frameworks into a central static list which
