@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-'''check-skeleton: perform click skeleton checks'''
+'''check-show-files: show files'''
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2014 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,10 @@ from clickreviews import cr_common
 from clickreviews import cr_desktop
 from clickreviews import cr_lint
 from clickreviews import cr_security
+from clickreviews import cr_url_dispatcher
+from clickreviews import cr_scope
+from clickreviews import cr_content_hub
+from clickreviews import cr_online_accounts
 
 # This script just dumps important files to stdout
 
@@ -42,11 +46,13 @@ if __name__ == "__main__":
     cr_common.cleanup_unpack()
 
     print("= hooks =")
-    review_apparmor = cr_security.ClickReviewSecurity(sys.argv[1])
-    for f in sorted(review_apparmor.security_manifests):
-        fh = cr_common.open_file_read(os.path.join(review_apparmor.unpack_dir,
-                                                   f))
-        print("== security: %s ==" % os.path.basename(f))
+
+    review_content_hub = cr_content_hub.ClickReviewContentHub(sys.argv[1])
+    for app in sorted(review_content_hub.content_hub_files):
+        f = review_content_hub.content_hub_files[app]
+        fh = cr_common.open_file_read(os.path.join(
+            review_content_hub.unpack_dir, f))
+        print("== content_hub: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
         fh.close()
@@ -59,6 +65,53 @@ if __name__ == "__main__":
         fh = cr_common.open_file_read(os.path.join(review_desktop.unpack_dir,
                                                    f))
         print("== desktop: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+    cr_common.cleanup_unpack()
+
+    review_accounts = cr_online_accounts.ClickReviewAccounts(sys.argv[1])
+    for app in sorted(review_accounts.accounts_files):
+        for account_type in review_accounts.account_hooks:
+            f = review_accounts.accounts_files[app][account_type]
+            fh = cr_common.open_file_read(os.path.join(
+                review_accounts.unpack_dir, f))
+            print("== online %s: %s ==" % (account_type, os.path.basename(f)))
+            for line in fh.readlines():
+                print(line, end="")
+            fh.close()
+            print("")
+    cr_common.cleanup_unpack()
+
+    review_scope = cr_scope.ClickReviewScope(sys.argv[1])
+    for app in sorted(review_scope.scopes):
+        f = review_scope.scopes[app]["ini_file"]
+        fh = cr_common.open_file_read(os.path.join(review_scope.unpack_dir, f))
+        print("== scope .INI: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+    cr_common.cleanup_unpack()
+
+    review_apparmor = cr_security.ClickReviewSecurity(sys.argv[1])
+    for f in sorted(review_apparmor.security_manifests):
+        fh = cr_common.open_file_read(os.path.join(review_apparmor.unpack_dir,
+                                                   f))
+        print("== security: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+    cr_common.cleanup_unpack()
+
+    review_url_dispatcher = cr_url_dispatcher.ClickReviewUrlDispatcher(sys.argv[1])
+    for app in sorted(review_url_dispatcher.url_dispatcher_files):
+        f = review_url_dispatcher.url_dispatcher_files[app]
+        fh = cr_common.open_file_read(os.path.join(review_url_dispatcher.unpack_dir,
+                                                   f))
+        print("== url_dispatcher: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
         fh.close()

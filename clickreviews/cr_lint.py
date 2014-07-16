@@ -61,6 +61,19 @@ class ClickReviewLint(ClickReview):
 
         self._list_all_compiled_binaries()
 
+        self.known_hooks = ['account-application',
+                            'account-provider',
+                            'account-qml-plugin',
+                            'account-service',
+                            'apparmor',
+                            'content-hub',
+                            'desktop',
+                            'pay-ui',
+                            'scope',
+                            'urls']
+
+        self.redflagged_hooks = ['pay-ui']
+
     def _list_control_files(self):
         '''List all control files with their full path.'''
         for i in CONTROL_FILE_NAMES:
@@ -291,10 +304,19 @@ exit 1
                 t = 'info'
                 n = 'hooks_%s_%s' % (app, f)
                 s = "OK"
-                if f == "apparmor":
+                if f in list(filter(lambda a: a.startswith('account-'),
+                   self.known_hooks)):
+                    s = "OK (run check-online-accounts for more checks)"
+                elif f == "apparmor":
                     s = "OK (run check-security for more checks)"
+                elif f == "content-hub":
+                    s = "OK (run check-content-hub for more checks)"
                 elif f == "desktop":
                     s = "OK (run check-desktop for more checks)"
+                elif f == "scope":
+                    s = "OK (run check-scope for more checks)"
+                elif f == "urls":
+                    s = "OK (run check-url-dispatcher for more checks)"
 
                 if f not in self.manifest['hooks'][app]:
                     t = 'error'
@@ -310,6 +332,42 @@ exit 1
             if len(found) > 1:
                 t = 'error'
                 s = "'%s' hooks should not be used together" % ", ".join(found)
+            self._add_result(t, n, s)
+
+    def check_hooks_unknown(self):
+        '''Check if have any unknown hooks'''
+        t = 'info'
+        n = 'unknown hooks'
+        s = 'OK'
+
+        # Verify keys are well-formatted
+        for app in self.manifest['hooks']:
+            for hook in self.manifest['hooks'][app]:
+                t = 'info'
+                n = 'hooks_%s_%s_known' % (app, hook)
+                s = "OK"
+                if hook not in self.known_hooks:
+                    t = 'warn'
+                    s = "unknown hook '%s' in %s" % (hook, app)
+                self._add_result(t, n, s)
+
+    def check_hooks_redflagged(self):
+        '''Check if have any redflagged hooks'''
+        t = 'info'
+        n = 'redflagged hooks'
+        s = 'OK'
+
+        for app in self.manifest['hooks']:
+            found = []
+            t = 'info'
+            n = 'hooks_redflag_%s' % (app)
+            s = "OK"
+            for hook in self.manifest['hooks'][app]:
+                if hook in self.redflagged_hooks:
+                    found.append(hook)
+            if len(found) > 0:
+                t = 'error'
+                s = "(MANUAL REVIEW) '%s' not allowed" % ", ".join(found)
             self._add_result(t, n, s)
 
     def check_external_symlinks(self):

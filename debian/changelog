@@ -11,13 +11,18 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
   * updated clickreviews/cr_tests.py for 14.10*dev2
   * bin/repack-click: use -Zgzip when repacking to remain compatible with
     debfile (ie, click install)
+  * warn on new hooks
+  * implement url-dispatcher hook checks
+  * implement scope hook checks
+  * implement content-hub hook checks
+  * debian/control: Build-Depends and Depends on python3-lxml
+  * redflag the upcoming pay-ui hook
   * update security tests to not require apparmor-easyprof-ubuntu or
     apparmor-easyprof by using a static list to ease updating
   * debian/control: drop Build-Depends and Depends on apparmor-easyprof and
     apparmor-easyprof-ubuntu
   * update data/apparmor-easyprof-ubuntu.json to not include friends policy
     group in 1.2 (LP: #1340869)
-
   * TODO: turn apparmor-easyprof-ubuntu.json into a web service
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 14 Jul 2014 11:56:46 -0500
