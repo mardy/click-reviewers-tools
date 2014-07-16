@@ -68,8 +68,11 @@ class ClickReviewLint(ClickReview):
                             'apparmor',
                             'content-hub',
                             'desktop',
+                            'pay-ui',
                             'scope',
                             'urls']
+
+        self.redflagged_hooks = ['pay-ui']
 
     def _list_control_files(self):
         '''List all control files with their full path.'''
@@ -346,6 +349,22 @@ exit 1
                 if hook not in self.known_hooks:
                     t = 'warn'
                     s = "unknown hook '%s' in %s" % (hook, app)
+                self._add_result(t, n, s)
+
+    def check_hooks_redflagged(self):
+        '''Check if have any redflagged hooks'''
+        t = 'info'
+        n = 'redflagged hooks'
+        s = 'OK'
+
+        for app in self.manifest['hooks']:
+            for hook in self.manifest['hooks'][app]:
+                t = 'info'
+                n = 'hooks_redflag_%s_%s' % (app, hook)
+                s = "OK"
+                if hook in self.redflagged_hooks:
+                    t = 'error'
+                    s = "(MANUAL REVIEW) hook '%s' is not allowed" % (hook)
                 self._add_result(t, n, s)
 
     def check_external_symlinks(self):

@@ -705,3 +705,13 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_check_hooks_redflagged(self):
+        '''Test check_hooks_redflagged()'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.manifest['hooks'][self.default_appname]["pay-ui"] = "foo"
+        c.check_hooks_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)

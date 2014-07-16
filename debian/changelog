@@ -12,6 +12,7 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
   * implement scope hook checks
   * implement content-hub hook checks
   * debian/control: Build-Depends and Depends on python3-lxml
+  * redflag the upcoming pay-ui hook
 
   [ Martin Albisetti, Daniel Holbach ]
   * refactor the way we handle frameworks into a central static list which
