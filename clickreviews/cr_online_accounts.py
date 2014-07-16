@@ -37,11 +37,12 @@ class ClickReviewAccounts(ClickReview):
         for app in self.manifest['hooks']:
             for h in self.account_hooks:
                 if h not in self.manifest['hooks'][app]:
-                    msg("Skipped missing %s hook for '%s'" % (h, app))
+                    # msg("Skipped missing %s hook for '%s'" % (h, app))
                     continue
                 if not isinstance(self.manifest['hooks'][app][h], str):
                     error("manifest malformed: hooks/%s/%s is not a str" % (
                           app, h))
+
                 (full_fn, xml) = self._extract_account(app, h)
 
                 if app not in self.accounts_files:
@@ -61,14 +62,18 @@ class ClickReviewAccounts(ClickReview):
         if not os.path.exists(fn):
             error("Could not find '%s'" % bn)
 
-        try:
-            tree = etree.parse(fn)
-            xml = tree.getroot()
-        except Exception as e:
-            error("accounts xml unparseable: %s (%s):\n%s" % (bn, str(e),
-                  contents))
-
-        return (fn, xml)
+        # qml-plugin points to a QML file, so just set that we have the
+        # the hook present for now
+        if account_type == "account-qml-plugin":
+            return (fn, True)
+        else:
+            try:
+                tree = etree.parse(fn)
+                xml = tree.getroot()
+            except Exception as e:
+                error("accounts xml unparseable: %s (%s):\n%s" % (bn, str(e),
+                      contents))
+            return (fn, xml)
 
     def check_application(self):
         '''Check application'''
@@ -102,9 +107,6 @@ class ClickReviewAccounts(ClickReview):
                     self.accounts[app][account_type].get("id"),
                     expected_id)
             self._add_result(t, n, s)
-
-            if t == 'error':
-                continue
 
             t = 'info'
             n = '%s_%s_services' % (app, account_type)
@@ -170,3 +172,60 @@ class ClickReviewAccounts(ClickReview):
                     t = 'error'
                     s = "Could not find '<%s>' tag" % tag
                 self._add_result(t, n, s)
+
+    def check_provider(self):
+        '''Check provider'''
+        for app in sorted(self.accounts.keys()):
+            account_type = "account-provider"
+
+            t = 'info'
+            n = '%s_%s' % (app, account_type)
+            s = "OK"
+            if not account_type in self.accounts[app]:
+                s = "OK (missing)"
+                self._add_result(t, n, s)
+                continue
+            else:
+                t = 'error'
+                s = "(MANUAL REVIEW) '%s' not allowed" % account_type
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = '%s_%s_root' % (app, account_type)
+            s = "OK"
+            root_tag = self.accounts[app][account_type].tag.lower()
+            if root_tag != "provider":
+                t = 'error'
+                s = "'%s' is not 'provider'" % root_tag
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = '%s_%s_id' % (app, account_type)
+            s = "OK"
+            expected_id = "%s_%s" % (self.manifest["name"], app)
+            if "id" not in self.accounts[app][account_type].keys():
+                t = 'error'
+                s = "Could not find 'id' in provider tag"
+            elif self.accounts[app][account_type].get("id") != expected_id:
+                t = 'error'
+                s = "id '%s' != '%s'" % (
+                    self.accounts[app][account_type].get("id"),
+                    expected_id)
+            self._add_result(t, n, s)
+
+    def check_qml_plugin(self):
+        '''Check qml-plugin'''
+        for app in sorted(self.accounts.keys()):
+            account_type = "account-qml-plugin"
+
+            t = 'info'
+            n = '%s_%s' % (app, account_type)
+            s = "OK"
+            if not account_type in self.accounts[app]:
+                s = "OK (missing)"
+                self._add_result(t, n, s)
+                continue
+            else:
+                t = 'error'
+                s = "(MANUAL REVIEW) '%s' not allowed" % account_type
+            self._add_result(t, n, s)

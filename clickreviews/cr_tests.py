@@ -129,23 +129,23 @@ def _extract_content_hub(self, app):
 def _extract_account(self, app, account_type):
     '''Pretend we read the accounts file'''
     f = app
-    xml = None
+    val = None
     if account_type == "account-application":
         f += ".application"
-        xml = TEST_ACCOUNTS_APPLICATION[app]
+        val = TEST_ACCOUNTS_APPLICATION[app]
     elif account_type == "account-provider":
         f += ".provider"
-        xml = TEST_ACCOUNTS_PROVIDER[app]
+        val = TEST_ACCOUNTS_PROVIDER[app]
     elif account_type == "account-qml-plugin":
         f += ".qml-plugin"
-        xml = TEST_ACCOUNTS_QML_PLUGIN[app]
+        val = TEST_ACCOUNTS_QML_PLUGIN[app]
     elif account_type == "account-service":
         f += ".service"
-        xml = TEST_ACCOUNTS_SERVICE[app]
+        val = TEST_ACCOUNTS_SERVICE[app]
     else:  # should never get here
         raise ValueError("Unknown account_type '%s'" % account_type)
 
-    return (f, xml)
+    return (f, val)
 
 
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
@@ -434,7 +434,7 @@ class TestClickReview(TestCase):
         TEST_ACCOUNTS_QML_PLUGIN = dict()
         for app in self.test_accounts_qml_plugin.keys():
             TEST_ACCOUNTS_QML_PLUGIN[app] = self.test_accounts_qml_plugin[app]
-            self.test_manifest["hooks"][app]["account-qml_plugin"] = \
+            self.test_manifest["hooks"][app]["account-qml-plugin"] = \
                 "%s.qml_plugin" % app
         self._update_test_manifest()
 
