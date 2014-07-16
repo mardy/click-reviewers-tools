@@ -26,6 +26,7 @@ from clickreviews import cr_security
 from clickreviews import cr_url_dispatcher
 from clickreviews import cr_scope
 from clickreviews import cr_content_hub
+from clickreviews import cr_online_accounts
 
 # This script just dumps important files to stdout
 
@@ -101,4 +102,17 @@ if __name__ == "__main__":
             print(line, end="")
         fh.close()
         print("")
+    cr_common.cleanup_unpack()
+
+    review_accounts = cr_online_accounts.ClickReviewAccounts(sys.argv[1])
+    for app in sorted(review_accounts.accounts_files):
+        for account_type in review_accounts.account_hooks:
+            f = review_accounts.accounts_files[app][account_type]
+            fh = cr_common.open_file_read(os.path.join(
+                review_accounts.unpack_dir, f))
+            print("== %s: %s ==" % (account_type, os.path.basename(f)))
+            for line in fh.readlines():
+                print(line, end="")
+            fh.close()
+            print("")
     cr_common.cleanup_unpack()

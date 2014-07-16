@@ -358,14 +358,17 @@ exit 1
         s = 'OK'
 
         for app in self.manifest['hooks']:
+            found = []
+            t = 'info'
+            n = 'hooks_redflag_%s' % (app)
+            s = "OK"
             for hook in self.manifest['hooks'][app]:
-                t = 'info'
-                n = 'hooks_redflag_%s_%s' % (app, hook)
-                s = "OK"
                 if hook in self.redflagged_hooks:
-                    t = 'error'
-                    s = "(MANUAL REVIEW) hook '%s' is not allowed" % (hook)
-                self._add_result(t, n, s)
+                    found.append(hook)
+            if len(found) > 0:
+                t = 'error'
+                s = "(MANUAL REVIEW) '%s' not allowed" % ", ".join(found)
+            self._add_result(t, n, s)
 
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''
