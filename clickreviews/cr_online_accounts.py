@@ -18,6 +18,7 @@ from __future__ import print_function
 
 from clickreviews.cr_common import ClickReview, error, open_file_read, msg
 import os
+# http://lxml.de/tutorial.html
 import lxml.etree as etree
 
 
@@ -101,3 +102,71 @@ class ClickReviewAccounts(ClickReview):
                     self.accounts[app][account_type].get("id"),
                     expected_id)
             self._add_result(t, n, s)
+
+            if t == 'error':
+                continue
+
+            t = 'info'
+            n = '%s_%s_services' % (app, account_type)
+            s = "OK"
+            if self.accounts[app][account_type].find("services") is None:
+                t = 'error'
+                s = "Could not find '<services>' tag"
+            self._add_result(t, n, s)
+
+            if t == 'error':
+                continue
+
+            t = 'info'
+            n = '%s_%s_service' % (app, account_type)
+            s = "OK"
+            if self.accounts[app][account_type].find("./services/service") \
+               is None:
+                t = 'error'
+                s = "Could not find '<service>' tag under <services>"
+            self._add_result(t, n, s)
+
+    def check_service(self):
+        '''Check service'''
+        for app in sorted(self.accounts.keys()):
+            account_type = "account-service"
+
+            t = 'info'
+            n = '%s_%s_root' % (app, account_type)
+            s = "OK"
+            if not account_type in self.accounts[app]:
+                s = "OK (missing)"
+                self._add_result(t, n, s)
+                continue
+
+            root_tag = self.accounts[app][account_type].tag.lower()
+            if root_tag != "service":
+                t = 'error'
+                s = "'%s' is not 'service'" % root_tag
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = '%s_%s_id' % (app, account_type)
+            s = "OK"
+            expected_id = "%s_%s" % (self.manifest["name"], app)
+            if "id" not in self.accounts[app][account_type].keys():
+                t = 'error'
+                s = "Could not find 'id' in service tag"
+            elif self.accounts[app][account_type].get("id") != expected_id:
+                t = 'error'
+                s = "id '%s' != '%s'" % (
+                    self.accounts[app][account_type].get("id"),
+                    expected_id)
+            self._add_result(t, n, s)
+
+            if t == 'error':
+                continue
+
+            for tag in ['type', 'name', 'provider']:
+                t = 'info'
+                n = '%s_%s_%s' % (app, account_type, tag)
+                s = "OK"
+                if self.accounts[app][account_type].find(tag) is None:
+                    t = 'error'
+                    s = "Could not find '<%s>' tag" % tag
+                self._add_result(t, n, s)
