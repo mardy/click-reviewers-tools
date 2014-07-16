@@ -35,7 +35,7 @@ class ClickReviewUrlDispatcher(ClickReview):
         self.url_dispatcher = dict()
         for app in self.manifest['hooks']:
             if 'urls' not in self.manifest['hooks'][app]:
-                msg("Skipped missing urls hook for '%s'" % app)
+                # msg("Skipped missing urls hook for '%s'" % app)
                 continue
             if not isinstance(self.manifest['hooks'][app]['urls'], str):
                 error("manifest malformed: hooks/%s/urls is not str" % app)
