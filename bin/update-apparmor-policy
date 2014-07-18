@@ -14,11 +14,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from clickreviews import frameworks
+from clickreviews import apparmor_policy
 import sys
 
 def main(filename=None):
-    frameworks.get_frameworks_file(filename)
+    apparmor_policy.get_policy_file(filename)
 
 if __name__ == '__main__':
     try:

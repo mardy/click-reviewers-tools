@@ -18,6 +18,7 @@ from __future__ import print_function
 
 from clickreviews.cr_common import ClickReview, error, warn
 import clickreviews.cr_common as cr_common
+import clickreviews.apparmor_policy as apparmor_policy
 import glob
 import json
 import os
@@ -28,9 +29,10 @@ class ClickReviewSecurity(ClickReview):
     def __init__(self, fn):
         ClickReview.__init__(self, fn, "security")
 
-        self.aa_policy = json.loads(open(
-                                    "./data/apparmor-easyprof-ubuntu.json",
-                                    'r').read())
+        local_copy = os.path.join(os.path.dirname(__file__),
+                                  '../data/apparmor-easyprof-ubuntu.json')
+        p = apparmor_policy.ApparmorPolicy(local_copy)
+        self.aa_policy = p.policy
 
         self.all_fields = ['abstractions',
                            'author',
