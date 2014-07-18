@@ -63,8 +63,8 @@ def get_remote_file(fn, url, data_dir=DATA_DIR):
         abort()
     if os.path.exists(fn):
         os.remove(fn)
-    if not os.path.exists(DATA_DIR):
-        os.makedirs(DATA_DIR)
+    if not os.path.exists(os.path.dirname(fn)):
+        os.makedirs(os.path.dirname(fn))
     with open(fn, 'bw') as local_file:
         local_file.write(f.read())
 
