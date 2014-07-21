@@ -66,6 +66,8 @@ class ClickReviewSecurity(ClickReview):
                                              'video',
                                              'webview']
 
+        self.allowed_push_helper_policy_groups = ['push-notification-client']
+
         self.redflag_templates = ['unconfined']
         self.extraneous_templates = ['ubuntu-sdk',
                                      'default']
@@ -355,6 +357,46 @@ class ClickReviewSecurity(ClickReview):
                 t = 'warn'
                 s = "'webview' not specified. Webapp may not function"
 
+            self._add_result(t, n, s)
+
+    def check_template_push_helpers(self):
+        '''Check template for push-helpers'''
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = 'template_push_helper(%s)' % f
+            s = "OK"
+            if 'push-helper' not in self.manifest['hooks'][app]:
+                # self._add_result(t, n, s)
+                continue
+            if 'template' in m and m['template'] != "ubuntu-sdk":
+                t = 'error'
+                s = "template is not 'ubuntu-sdk'"
+            self._add_result(t, n, s)
+
+    def check_policy_groups_push_helpers(self):
+        '''Check policy_groups for push-helpers'''
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = 'policy_groups_push_helper(%s)' % f
+            s = "OK"
+            if 'push-helper' not in self.manifest['hooks'][app]:
+                # self._add_result(t, n, s)
+                continue
+            if 'policy_groups' not in m or \
+               'push-notification-client' not in m['policy_groups']:
+                self._add_result('error', n,
+                                 "required group 'push-notification-client' "
+                                 "not found")
+                continue
+            bad = []
+            for p in m['policy_groups']:
+                if p not in self.allowed_push_helper_policy_groups:
+                    bad.append(p)
+            if len(bad) > 0:
+                t = 'error'
+                s = "found unusual policy groups: %s" % ", ".join(bad)
             self._add_result(t, n, s)
 
     def check_policy_groups_scopes(self):
