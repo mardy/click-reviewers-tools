@@ -56,6 +56,10 @@ echo "= click-check-online-accounts ="
 prefer_local click-check-online-accounts "$c"
 
 echo ""
+echo "= click-check-push-helper ="
+prefer_local click-check-scope "$c"
+
+echo ""
 echo "= click-check-scope ="
 prefer_local click-check-scope "$c"
 

@@ -39,6 +39,10 @@ class ClickReviewDesktop(ClickReview):
                 if 'scope' in self.manifest['hooks'][app]:
                     msg("Skipped missing desktop hook for scope '%s'" % app)
                     continue
+                if 'push-helper' in self.manifest['hooks'][app]:
+                    msg("Skipped missing desktop hook for push-helper '%s'" %
+                        app)
+                    continue
                 else:
                     error("could not find desktop hook for '%s'" % app)
             if not isinstance(self.manifest['hooks'][app]['desktop'], str):

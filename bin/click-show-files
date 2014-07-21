@@ -27,6 +27,7 @@ from clickreviews import cr_url_dispatcher
 from clickreviews import cr_scope
 from clickreviews import cr_content_hub
 from clickreviews import cr_online_accounts
+from clickreviews import cr_push_helper
 
 # This script just dumps important files to stdout
 
@@ -84,6 +85,18 @@ if __name__ == "__main__":
                 print(line, end="")
             fh.close()
             print("")
+    cr_common.cleanup_unpack()
+
+    review_push_helper = cr_push_helper.ClickReviewPushHelper(sys.argv[1])
+    for app in sorted(review_push_helper.push_helper_files):
+        f = review_push_helper.push_helper_files[app]
+        fh = cr_common.open_file_read(os.path.join(
+            review_push_helper.unpack_dir, f))
+        print("== push_helper: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
     cr_common.cleanup_unpack()
 
     review_scope = cr_scope.ClickReviewScope(sys.argv[1])

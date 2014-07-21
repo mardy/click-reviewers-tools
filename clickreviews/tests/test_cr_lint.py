@@ -644,8 +644,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_hooks_multiple_apps(self):
-        '''Test check_hooks() - multiple apps'''
+    def test_check_hooks_multiple_desktop_apps(self):
+        '''Test check_hooks() - multiple desktop apps'''
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")
         c = ClickReviewLint(self.test_name)
         tmp = c.manifest['hooks'][self.default_appname]
@@ -653,6 +653,29 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_hooks()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_multiple_apps(self):
+        '''Test check_hooks() - multiple non-desktop apps'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        tmp = dict()
+        for k in c.manifest['hooks'][self.default_appname].keys():
+            tmp[k] = c.manifest['hooks'][self.default_appname][k]
+        tmp.pop('desktop')
+        tmp['scope'] = "some-scope-exec"
+        c.manifest['hooks']["some-scope"] = tmp
+        tmp = dict()
+        for k in c.manifest['hooks'][self.default_appname].keys():
+            tmp[k] = c.manifest['hooks'][self.default_appname][k]
+        tmp.pop('desktop')
+        tmp['push-helper'] = "push.json"
+        c.manifest['hooks']["some-push-helper"] = tmp
+        print(c.manifest['hooks'])
+
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': 7, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_bad_appname(self):
