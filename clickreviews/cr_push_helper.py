@@ -93,7 +93,6 @@ class ClickReviewPushHelper(ClickReview):
                     s = "'%s' is missing" % k
                 self._add_result(t, n, s)
 
-
     def check_unknown_keys(self):
         '''Check unknown'''
         for app in sorted(self.push_helper):
