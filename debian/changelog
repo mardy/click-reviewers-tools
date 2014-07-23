@@ -27,6 +27,9 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
   * refactor the way we handle apparmor policy into a central static list
     which should be easy to update.
 
+  [ Daniel Holbach ]
+  * refer to documentation about click in case we encounter .deb packages.
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 18 Jul 2014 14:51:46 -0500
 
 click-reviewers-tools (0.7.1) utopic; urgency=medium
