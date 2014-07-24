@@ -62,7 +62,8 @@ class ClickReview(object):
         if not self.click_package.endswith(".click"):
             if self.click_package.endswith(".deb"):
                 error("filename does not end with '.click', but '.deb' "
-    "instead. See http://askubuntu.com/a/485544/94326 for how click packages are different.")
+                      "instead. See http://askubuntu.com/a/485544/94326 for "
+                      "how click packages are different.")
             error("filename does not end with '.click'")
 
         self.review_type = review_type
