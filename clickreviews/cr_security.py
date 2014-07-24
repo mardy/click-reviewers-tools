@@ -381,7 +381,6 @@ class ClickReviewSecurity(ClickReview):
             n = 'policy_groups_push_helper(%s)' % f
             s = "OK"
             if 'push-helper' not in self.manifest['hooks'][app]:
-                # self._add_result(t, n, s)
                 continue
             if 'policy_groups' not in m or \
                'push-notification-client' not in m['policy_groups']:
