@@ -367,7 +367,6 @@ class ClickReviewSecurity(ClickReview):
             n = 'template_push_helper(%s)' % f
             s = "OK"
             if 'push-helper' not in self.manifest['hooks'][app]:
-                # self._add_result(t, n, s)
                 continue
             if 'template' in m and m['template'] != "ubuntu-sdk":
                 t = 'error'
