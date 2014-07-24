@@ -671,7 +671,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         tmp.pop('desktop')
         tmp['push-helper'] = "push.json"
         c.manifest['hooks']["some-push-helper"] = tmp
-        print(c.manifest['hooks'])
 
         c.check_hooks()
         r = c.click_report
