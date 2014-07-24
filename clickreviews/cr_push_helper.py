@@ -110,3 +110,23 @@ class ClickReviewPushHelper(ClickReview):
                 t = "warn"
                 s = "Unknown fields '%s'" % ", ".join(unknown)
             self._add_result(t, n, s)
+
+    def check_hooks(self):
+        '''Verify combinations of click hooks with the push-helper hook'''
+        for app in sorted(self.manifest['hooks']):
+            if app not in self.push_helper:
+                continue
+
+            t = "info"
+            n = "other_hooks_%s" % app
+            s = "OK"
+
+            bad = []
+            for hook in self.manifest['hooks'][app]:
+                # Only the apparmor hook can be used with the push-helper
+                if hook not in ['push-helper', 'apparmor']:
+                    bad.append(hook)
+            if len(bad) > 0:
+                t = 'error'
+                s = "Found unusual hooks with push-helper: %s" % ", ".join(bad)
+            self._add_result(t, n, s)

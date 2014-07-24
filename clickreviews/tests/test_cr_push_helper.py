@@ -110,3 +110,29 @@ class TestClickReviewPushHelper(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_hooks(self):
+        '''Test check_hooks()'''
+        self.set_test_push_helper(self.default_appname, "exec", "foo")
+        c = ClickReviewPushHelper(self.test_name)
+
+        # remove hooks that are added by the framework
+        c.manifest['hooks'][self.default_appname].pop('desktop')
+        c.manifest['hooks'][self.default_appname].pop('urls')
+
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad(self):
+        '''Test check_hooks() - bad'''
+        self.set_test_push_helper(self.default_appname, "exec", "foo")
+        c = ClickReviewPushHelper(self.test_name)
+
+        # The desktop and urls hooks are specified by default in the framework,
+        # so just running this without other setup should generate an error
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
