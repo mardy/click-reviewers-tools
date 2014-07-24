@@ -69,7 +69,6 @@ class ClickReviewPushHelper(ClickReview):
 
     def check_valid(self):
         '''Check validity of push-helper entries'''
-        print(self.push_helper)
         for app in sorted(self.push_helper):
             for k in self.push_helper[app].keys():
                 t = "info"
