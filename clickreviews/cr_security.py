@@ -439,7 +439,7 @@ class ClickReviewSecurity(ClickReview):
             (f, m) = self._get_security_manifest(app)
 
             t = 'info'
-            n = 'policy_groups_exists (%s)' % f
+            n = 'policy_groups_exists_%s (%s)' % (app, f)
             if 'policy_groups' not in m:
                 # If template not specified, we just use the default
                 self._add_result('warn', n, 'no policy groups specified')
@@ -465,7 +465,7 @@ class ClickReviewSecurity(ClickReview):
 
             # Check for duplicates
             t = 'info'
-            n = 'policy_groups_duplicates (%s)' % f
+            n = 'policy_groups_duplicates_%s (%s)' % (app, f)
             s = 'OK'
             tmp = []
             for p in m['policy_groups']:
@@ -480,7 +480,7 @@ class ClickReviewSecurity(ClickReview):
             # If we got here, we can see if valid policy groups were specified
             for i in m['policy_groups']:
                 t = 'info'
-                n = 'policy_groups_valid (%s)' % i
+                n = 'policy_groups_valid_%s (%s)' % (app, i)
                 s = 'OK'
 
                 # SDK will leave and empty policy group, report but don't
@@ -503,7 +503,7 @@ class ClickReviewSecurity(ClickReview):
 
                 if found:
                     t = 'info'
-                    n = 'policy_groups_safe (%s)' % i
+                    n = 'policy_groups_safe_%s (%s)' % (app, i)
                     s = 'OK'
 
                     aa_type = self._get_policy_group_type(vendor, version, i)
