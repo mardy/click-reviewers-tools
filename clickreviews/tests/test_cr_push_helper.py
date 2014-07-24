@@ -82,16 +82,6 @@ class TestClickReviewPushHelper(cr_tests.TestClickReview):
         expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_valid_all(self):
-        '''Test check_valid() - all'''
-        self.set_test_push_helper(self.default_appname, "exec", "foo")
-        self.set_test_push_helper(self.default_appname, "app_id", "foo_foo")
-        c = ClickReviewPushHelper(self.test_name)
-        c.check_valid()
-        r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
     def test_check_valid_bad_value(self):
         '''Test check_valid() - bad value'''
         self.set_test_push_helper(self.default_appname, "exec", [])
