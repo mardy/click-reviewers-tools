@@ -294,7 +294,7 @@ exit 1
                 count += 1
         if count > 1:
             t = 'error'
-            s = "more than one app specified 'desktop' in hooks"
+            s = 'more than one desktop app specified in hooks'
         self._add_result(t, n, s)
 
         # Verify keys are well-formatted
