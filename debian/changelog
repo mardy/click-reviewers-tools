@@ -28,6 +28,9 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
     which should be easy to update.
   * implement push-helper tests
 
+  [ Daniel Holbach ]
+  * refer to documentation about click in case we encounter .deb packages.
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 24 Jul 2014 14:04:23 -0500
 
 click-reviewers-tools (0.7.1) utopic; urgency=medium
