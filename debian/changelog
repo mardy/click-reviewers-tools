@@ -1,4 +1,4 @@
-click-reviewers-tools (0.8) UNRELEASED; urgency=medium
+click-reviewers-tools (0.8) utopic; urgency=medium
 
   [ Zoltan Balogh ]
   * Give an error if the app is using deprecated Friends API (LP: #1340869)
@@ -32,7 +32,7 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
   * refer to documentation about click in case we encounter .deb packages.
   * fix some pep8 warnings.
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 24 Jul 2014 14:04:23 -0500
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 25 Jul 2014 16:20:24 +0200
 
 click-reviewers-tools (0.7.1) utopic; urgency=medium
 
