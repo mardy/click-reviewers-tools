@@ -26,7 +26,7 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
     group in 1.2 (LP: #1340869)
   * refactor the way we handle apparmor policy into a central static list
     which should be easy to update.
-  * implement push-helper tests
+  * implement push-helper tests (LP: #1346481)
 
   [ Daniel Holbach ]
   * refer to documentation about click in case we encounter .deb packages.
