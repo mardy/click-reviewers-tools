@@ -69,6 +69,7 @@ class ClickReviewLint(ClickReview):
                             'content-hub',
                             'desktop',
                             'pay-ui',
+                            'push-helper',
                             'scope',
                             'urls']
 
@@ -281,11 +282,20 @@ exit 1
         # Some checks are already handled in
         # cr_common.py:_verify_manifest_structure()
 
-        # We don't support multiple apps in 13.10
-        if len(self.manifest['hooks'].keys()) != 1:
-            self._add_result('error', 'hooks',
-                             "more than one app key specified in hooks")
-            return
+        # While we support multiple apps in the hooks db, we don't support
+        # multiple apps specifying desktop hooks. Eg, it is ok to specify a
+        # scope, an app and a push-helper, but it isn't ok to specify two apps
+        t = 'info'
+        n = 'hooks_multiple_apps'
+        s = 'OK'
+        count = 0
+        for app in self.manifest['hooks']:
+            if "desktop" in self.manifest['hooks'][app]:
+                count += 1
+        if count > 1:
+            t = 'error'
+            s = 'more than one desktop app specified in hooks'
+        self._add_result(t, n, s)
 
         # Verify keys are well-formatted
         for app in self.manifest['hooks']:

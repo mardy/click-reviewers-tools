@@ -39,6 +39,7 @@ TEST_ACCOUNTS_APPLICATION = dict()
 TEST_ACCOUNTS_PROVIDER = dict()
 TEST_ACCOUNTS_QML_PLUGIN = dict()
 TEST_ACCOUNTS_SERVICE = dict()
+TEST_PUSH_HELPER = dict()
 
 
 #
@@ -148,6 +149,11 @@ def _extract_account(self, app, account_type):
     return (f, val)
 
 
+def _extract_push_helper(self, app):
+    '''Pretend we read the push-helper file'''
+    return ("%s.push-helper.json" % app, TEST_PUSH_HELPER[app])
+
+
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
@@ -228,6 +234,11 @@ patches.append(patch(
     'clickreviews.cr_online_accounts.ClickReviewAccounts._extract_account',
     _extract_account))
 
+# push-helper overrides
+patches.append(patch(
+    'clickreviews.cr_push_helper.ClickReviewPushHelper._extract_push_helper',
+    _extract_push_helper))
+
 
 def mock_patch():
     '''Call in setup of child'''
@@ -295,6 +306,7 @@ class TestClickReview(TestCase):
         self.test_accounts_provider = dict()
         self.test_accounts_qml_plugin = dict()
         self.test_accounts_service = dict()
+        self.test_push_helper = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -330,6 +342,9 @@ class TestClickReview(TestCase):
             self.set_test_account(app, "account-qml-plugin", None)
             self.set_test_account(app, "account-service", None)
 
+            # Reset to no content-hub entries in manifest
+            self.set_test_push_helper(app, None, None)
+
         self._update_test_security_manifests()
         self._update_test_desktop_files()
         self._update_test_url_dispatcher()
@@ -339,6 +354,7 @@ class TestClickReview(TestCase):
         self._update_test_accounts_provider()
         self._update_test_accounts_qml_plugin()
         self._update_test_accounts_service()
+        self._update_test_push_helper()
 
         # webapps manifests (leave empty for now)
         self.test_webapp_manifests = dict()
@@ -442,6 +458,15 @@ class TestClickReview(TestCase):
             TEST_ACCOUNTS_SERVICE[app] = self.test_accounts_service[app]
             self.test_manifest["hooks"][app]["account-service"] = \
                 "%s.service" % app
+        self._update_test_manifest()
+
+    def _update_test_push_helper(self):
+        global TEST_PUSH_HELPER
+        TEST_PUSH_HELPER = dict()
+        for app in self.test_push_helper.keys():
+            TEST_PUSH_HELPER[app] = self.test_push_helper[app]
+            self.test_manifest["hooks"][app]["push-helper"] = \
+                "%s.push-helper.json" % app
         self._update_test_manifest()
 
     def _update_test_name(self):
@@ -618,6 +643,21 @@ class TestClickReview(TestCase):
         elif account_type == "account-service":
             self._update_test_accounts_service()
 
+    def set_test_push_helper(self, app, key, value):
+        '''Set push-helper entries. If value is None, remove key, if key is
+           None, remove content-hub from manifest'''
+        if key is None:
+            if app in self.test_push_helper:
+                self.test_push_helper.pop(app)
+        elif value is None:
+            if key in self.test_push_helper[app]:
+                self.test_push_helper[app].pop(key)
+        else:
+            if app not in self.test_push_helper:
+                self.test_push_helper[app] = dict()
+            self.test_push_helper[app][key] = value
+        self._update_test_push_helper()
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         global patches
@@ -647,7 +687,9 @@ class TestClickReview(TestCase):
         global TEST_ACCOUNTS_QML_PLUGIN
         TEST_ACCOUNTS_QML_PLUGIN = dict()
         global TEST_ACCOUNTS_SERVICE
-        TEST_ACCOUNTS_APPLICTION = dict()
+        TEST_ACCOUNTS_APPLICATION = dict()
+        global TEST_PUSH_HELPER
+        TEST_PUSH_HELPER = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)

@@ -66,6 +66,8 @@ class ClickReviewSecurity(ClickReview):
                                              'video',
                                              'webview']
 
+        self.allowed_push_helper_policy_groups = ['push-notification-client']
+
         self.redflag_templates = ['unconfined']
         self.extraneous_templates = ['ubuntu-sdk',
                                      'default']
@@ -357,6 +359,44 @@ class ClickReviewSecurity(ClickReview):
 
             self._add_result(t, n, s)
 
+    def check_template_push_helpers(self):
+        '''Check template for push-helpers'''
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = 'template_push_helper(%s)' % f
+            s = "OK"
+            if 'push-helper' not in self.manifest['hooks'][app]:
+                continue
+            if 'template' in m and m['template'] != "ubuntu-sdk":
+                t = 'error'
+                s = "template is not 'ubuntu-sdk'"
+            self._add_result(t, n, s)
+
+    def check_policy_groups_push_helpers(self):
+        '''Check policy_groups for push-helpers'''
+        for app in sorted(self.manifest['hooks']):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = 'policy_groups_push_helper(%s)' % f
+            s = "OK"
+            if 'push-helper' not in self.manifest['hooks'][app]:
+                continue
+            if 'policy_groups' not in m or \
+               'push-notification-client' not in m['policy_groups']:
+                self._add_result('error', n,
+                                 "required group 'push-notification-client' "
+                                 "not found")
+                continue
+            bad = []
+            for p in m['policy_groups']:
+                if p not in self.allowed_push_helper_policy_groups:
+                    bad.append(p)
+            if len(bad) > 0:
+                t = 'error'
+                s = "found unusual policy groups: %s" % ", ".join(bad)
+            self._add_result(t, n, s)
+
     def check_policy_groups_scopes(self):
         '''Check policy_groups for scopes'''
         for app in sorted(self.manifest['hooks']):
@@ -397,7 +437,7 @@ class ClickReviewSecurity(ClickReview):
             (f, m) = self._get_security_manifest(app)
 
             t = 'info'
-            n = 'policy_groups_exists (%s)' % f
+            n = 'policy_groups_exists_%s (%s)' % (app, f)
             if 'policy_groups' not in m:
                 # If template not specified, we just use the default
                 self._add_result('warn', n, 'no policy groups specified')
@@ -423,7 +463,7 @@ class ClickReviewSecurity(ClickReview):
 
             # Check for duplicates
             t = 'info'
-            n = 'policy_groups_duplicates (%s)' % f
+            n = 'policy_groups_duplicates_%s (%s)' % (app, f)
             s = 'OK'
             tmp = []
             for p in m['policy_groups']:
@@ -438,7 +478,7 @@ class ClickReviewSecurity(ClickReview):
             # If we got here, we can see if valid policy groups were specified
             for i in m['policy_groups']:
                 t = 'info'
-                n = 'policy_groups_valid (%s)' % i
+                n = 'policy_groups_valid_%s (%s)' % (app, i)
                 s = 'OK'
 
                 # SDK will leave and empty policy group, report but don't
@@ -461,7 +501,7 @@ class ClickReviewSecurity(ClickReview):
 
                 if found:
                     t = 'info'
-                    n = 'policy_groups_safe (%s)' % i
+                    n = 'policy_groups_safe_%s (%s)' % (app, i)
                     s = 'OK'
 
                     aa_type = self._get_policy_group_type(vendor, version, i)
