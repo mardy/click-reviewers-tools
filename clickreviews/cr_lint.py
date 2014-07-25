@@ -520,8 +520,8 @@ exit 1
                 t = 'error'
                 s = "(EMAIL NEEDS HUMAN REVIEW) email domain too short: '%s'" \
                     % self.email
-            elif len(domain_rev) >= len(pkg_domain_rev):  # also '=' to leave
-                                                          # room for app name
+            # also '=' to leave room for app name
+            elif len(domain_rev) >= len(pkg_domain_rev):
                 # Core apps have a long email, domain, but that's all right
                 if self.is_core_app:
                     t = 'info'
@@ -544,10 +544,10 @@ exit 1
                 if is_special:
                     t = 'warn'
                     s = "email=%s matches special domain=%s" % (self.email,
-                        ".".join(pkg_domain_rev))
+                                                                ".".join(pkg_domain_rev))
                 else:
                     s = "OK (email=%s, package domain=%s)" % (self.email,
-                        ".".join(pkg_domain_rev))
+                                                              ".".join(pkg_domain_rev))
             else:
                 t = 'error'
                 s = "email=%s does not match package domain=%s " \
@@ -708,8 +708,9 @@ exit 1
         s = 'OK'
         if len(tmp) >= 3:
             arch = tmp[2].partition('.click')[0]
-            if arch == "unknown":  # short-circuit here since the appstore
-                                   # doesn't determine the version yet
+            if arch == "unknown":
+                # short-circuit here since the appstore doesn't determine
+                # the version yet
                 t = 'info'
                 s = "SKIP: architecture 'unknown'"
                 self._add_result(t, n, s)

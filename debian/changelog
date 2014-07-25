@@ -30,6 +30,7 @@ click-reviewers-tools (0.8) UNRELEASED; urgency=medium
 
   [ Daniel Holbach ]
   * refer to documentation about click in case we encounter .deb packages.
+  * fix some pep8 warnings.
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 24 Jul 2014 14:04:23 -0500
 

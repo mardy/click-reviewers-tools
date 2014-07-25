@@ -83,7 +83,7 @@ class ClickReviewAccounts(ClickReview):
             t = 'info'
             n = '%s_%s_root' % (app, account_type)
             s = "OK"
-            if not account_type in self.accounts[app]:
+            if account_type not in self.accounts[app]:
                 s = "OK (missing)"
                 self._add_result(t, n, s)
                 continue
@@ -136,7 +136,7 @@ class ClickReviewAccounts(ClickReview):
             t = 'info'
             n = '%s_%s_root' % (app, account_type)
             s = "OK"
-            if not account_type in self.accounts[app]:
+            if account_type not in self.accounts[app]:
                 s = "OK (missing)"
                 self._add_result(t, n, s)
                 continue
@@ -181,7 +181,7 @@ class ClickReviewAccounts(ClickReview):
             t = 'info'
             n = '%s_%s' % (app, account_type)
             s = "OK"
-            if not account_type in self.accounts[app]:
+            if account_type not in self.accounts[app]:
                 s = "OK (missing)"
                 self._add_result(t, n, s)
                 continue
@@ -221,7 +221,7 @@ class ClickReviewAccounts(ClickReview):
             t = 'info'
             n = '%s_%s' % (app, account_type)
             s = "OK"
-            if not account_type in self.accounts[app]:
+            if account_type not in self.accounts[app]:
                 s = "OK (missing)"
                 self._add_result(t, n, s)
                 continue

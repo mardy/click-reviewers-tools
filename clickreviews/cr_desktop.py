@@ -268,7 +268,7 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Exec_webbrowser_webapp (%s)' % (app)
             s = 'OK'
-            if not '--webapp' in de.getExec().split():
+            if '--webapp' not in de.getExec().split():
                 t = 'error'
                 s = "could not find --webapp in '%s'" % \
                     (de.getExec())
@@ -304,7 +304,7 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = 'Exec_webapp_args_minimal_chrome (%s)' % (app)
             s = 'OK'
-            if not '--enable-back-forward' in de.getExec().split():
+            if '--enable-back-forward' not in de.getExec().split():
                 t = 'error'
                 s = "could not find --enable-back-forward in '%s'" % \
                     (de.getExec())
@@ -373,8 +373,9 @@ class ClickReviewDesktop(ClickReview):
             n = 'Exec_webbrowser_webapp_url_patterns_uses_safe_glob ' + \
                 '(%s, %s)' % (app, pattern)
             s = 'OK'
-            if '*' in pattern[:-1] and (pattern[:-1].count('*') != 1 or
-               not pattern.startswith('https?://*')):
+            if '*' in pattern[:-1] and \
+               (pattern[:-1].count('*') != 1 or
+                    not pattern.startswith('https?://*')):
                 t = 'warn'
                 s = "'%s' contains nested '*'" % pattern + \
                     " (needs human review)"
@@ -537,8 +538,9 @@ class ClickReviewDesktop(ClickReview):
                 s = 'could not find unity-webaps-*/manifest.json'
                 self._add_result(t, n, s)
                 continue
-            elif len(manifests) > 1:  # for now error on this since having
-                                      # multiple manifests is unknown
+            elif len(manifests) > 1:
+                # for now error on this since having
+                # multiple manifests is unknown
                 t = 'error'
                 fns = []
                 for f in manifests.keys():
