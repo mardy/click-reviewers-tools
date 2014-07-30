@@ -31,8 +31,9 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         '''Create a scope to pass to tests'''
         scope = dict()
         scope["dir_rel"] = "scope-directory"
-        scope["ini_file_rel"] = "%s/%s.ini" % (scope["dir_rel"],
-                                               self.default_appname)
+        scope["ini_file_rel"] = "%s/%s_%s.ini" % (scope["dir_rel"],
+                                               self.default_appname,
+                                               'foo')
         scope["scope_config"] = configparser.ConfigParser()
         scope["scope_config"]['ScopeConfig'] = config_dict
 

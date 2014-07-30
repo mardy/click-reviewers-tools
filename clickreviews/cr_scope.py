@@ -48,7 +48,7 @@ class ClickReviewScope(ClickReview):
         elif not os.path.isdir(fn):
             error("'%s' is not a directory" % bn)
 
-        ini_fn = os.path.join(fn, "%s.ini" % self.manifest['name'])
+        ini_fn = os.path.join(fn, "%s_%s.ini" % (self.manifest['name'], app))
         ini_fn_bn = os.path.relpath(ini_fn, self.unpack_dir)
         if not os.path.exists(ini_fn):
             error("Could not find scope INI file '%s'" % ini_fn_bn)
