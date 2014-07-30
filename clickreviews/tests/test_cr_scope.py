@@ -31,8 +31,9 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         '''Create a scope to pass to tests'''
         scope = dict()
         scope["dir_rel"] = "scope-directory"
-        scope["ini_file_rel"] = "%s/%s.ini" % (scope["dir_rel"],
-                                               self.default_appname)
+        scope["ini_file_rel"] = "%s/%s_%s.ini" % (scope["dir_rel"],
+                                                  self.default_appname,
+                                                  'foo')
         scope["scope_config"] = configparser.ConfigParser()
         scope["scope_config"]['ScopeConfig'] = config_dict
 
@@ -48,6 +49,11 @@ class TestClickReviewScope(cr_tests.TestClickReview):
             'Art': '',
             'Icon': 'foo.svg',
             'SearchHint': 'Search Foo',
+            'HotKey': 'h',
+            'IdleTimeout': '1234',
+            'Invisible': 'false',
+            'LocationDataNeeded': 'false',
+            'ResultsTtlType': 'small',
         }
 
         return config_dict
@@ -64,9 +70,9 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_scope_ini_missing_required1(self):
-        '''Test check_scope_ini() - missing ScopeRunner'''
+        '''Test check_scope_ini() - missing Description'''
         config = self._stub_config()
-        del config['ScopeRunner']
+        del config['Description']
         scope = self._create_scope(config)
 
         self.set_test_scope(self.default_appname, scope)
@@ -90,9 +96,9 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_scope_ini_missing_required3(self):
-        '''Test check_scope_ini() - missing Icon'''
+        '''Test check_scope_ini() - missing Author'''
         config = self._stub_config()
-        del config['Icon']
+        del config['Author']
         scope = self._create_scope(config)
 
         self.set_test_scope(self.default_appname, scope)
@@ -103,25 +109,11 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_scope_ini_missing_required4(self):
-        '''Test check_scope_ini() - missing SearchHint'''
-        config = self._stub_config()
-        del config['SearchHint']
-        scope = self._create_scope(config)
-
-        self.set_test_scope(self.default_appname, scope)
-        c = ClickReviewScope(self.test_name)
-        c.check_scope_ini()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_scope_ini_missing_required5(self):
         '''Test check_scope_ini() - missing multiple'''
         config = self._stub_config()
-        del config['ScopeRunner']
+        del config['Description']
         del config['DisplayName']
-        del config['Icon']
-        del config['SearchHint']
+        del config['Author']
         scope = self._create_scope(config)
 
         self.set_test_scope(self.default_appname, scope)
