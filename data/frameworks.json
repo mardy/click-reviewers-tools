@@ -15,5 +15,6 @@
  "ubuntu-sdk-14.10-dev2": "available",
  "ubuntu-sdk-14.10-html-dev2": "available",
  "ubuntu-sdk-14.10-papi-dev2": "available",
- "ubuntu-sdk-14.10-qml-dev2": "available"
+ "ubuntu-sdk-14.10-qml-dev2": "available",
+ "ubuntu-sdk-14.10-qml-dev3": "available"
 }
