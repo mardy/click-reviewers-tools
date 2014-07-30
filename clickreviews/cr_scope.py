@@ -21,6 +21,8 @@ import configparser
 import os
 
 
+KNOWN_SECTIONS = set(["ScopeConfig", "Appearance"])
+
 class ClickReviewScope(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
@@ -72,13 +74,15 @@ class ClickReviewScope(ClickReview):
             n = 'ini_%s_scope_section' % app
             s = "OK"
 
-            if len(self.scopes[app]["scope_config"].sections()) > 1:
+            sections = set(self.scopes[app]["scope_config"].sections())
+            unknown_sections = sections.difference(KNOWN_SECTIONS)
+
+            if unknown_sections:
                 t = 'error'
-                s = "'%s' has too many sections: %s" % (
+                s = "'%s' has unknown sections: %s" % (
                     self.scopes[app]["ini_file_rel"],
-                    ", ".join(self.scopes[app]["scope_config"].sections()))
-            elif "ScopeConfig" not in \
-                    self.scopes[app]["scope_config"].sections():
+                    ", ".join(unknown_sections))
+            elif "ScopeConfig" not in sections:
                 t = 'error'
                 s = "Could not find 'ScopeConfig' in '%s'" % (
                     self.scopes[app]["ini_file_rel"])
@@ -87,13 +91,18 @@ class ClickReviewScope(ClickReview):
             self._add_result(t, n, s)
 
             # Make these all lower case for easier comparisons
-            required = ['scoperunner',
-                        'displayname',
+            required = ['author',
+                        'description',
+                        'displayname']
+            optional = ['art',
+                        'hotkey',
                         'icon',
+                        'idletimeout',
+                        'invisible',
+                        'locationdataneeded',
+                        'resultsttltype',
+                        'scoperunner',
                         'searchhint']
-            optional = ['description',
-                        'author',
-                        'art']
 
             missing = []
             t = 'info'
