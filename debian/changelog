@@ -6,6 +6,10 @@ click-reviewers-tools (0.9) UNRELEASED; urgency=medium
   [ Daniel Holbach ]
   * special-case 'com.ubuntu.scopes'.
 
+  [ Pete Woods ]
+  * Match scope review with actual ini file specifications. (LP: #1350427)
+  * Point to the correct scope ini path.
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 30 Jul 2014 11:31:41 -0500
 
 click-reviewers-tools (0.8) utopic; urgency=medium
