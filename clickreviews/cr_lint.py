@@ -55,9 +55,16 @@ class ClickReviewLint(ClickReview):
                                     'com.ubuntu.developer.')
                                 and self.email ==
                                 'ubuntu-touch-coreapps@lists.launchpad.net')
+            # "core scope" is not necessarily a word we use right now, but
+            # we want to special case scopes which are written through our
+            # vetted development process.
+            self.is_core_scope = (self.click_pkgname.startswith('com.ubuntu.scopes.')
+                                  and self.email ==
+                                  'ubuntu-devel-discuss@lists.ubuntu.com')
         else:
             self.email = None
             self.is_core_app = False
+            self.is_core_scope = False
 
         self._list_all_compiled_binaries()
 
@@ -548,6 +555,9 @@ exit 1
                 else:
                     s = "OK (email=%s, package domain=%s)" % (self.email,
                                                               ".".join(pkg_domain_rev))
+            elif self.is_core_scope:
+                t = 'info'
+                s = "OK ('com.ubuntu.scopes' uses '%s' as email)" % self.email
             else:
                 t = 'error'
                 s = "email=%s does not match package domain=%s " \

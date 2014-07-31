@@ -3,6 +3,9 @@ click-reviewers-tools (0.9) UNRELEASED; urgency=medium
   [ Jamie Strandboge ]
   * data/frameworks.json: add ubuntu-sdk-14.10-qml-dev3
 
+  [ Daniel Holbach ]
+  * special-case 'com.ubuntu.scopes'.
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 30 Jul 2014 11:31:41 -0500
 
 click-reviewers-tools (0.8) utopic; urgency=medium
