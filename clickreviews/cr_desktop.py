@@ -305,7 +305,6 @@ class ClickReviewDesktop(ClickReview):
             n = 'Exec_webapp_args_minimal_chrome (%s)' % (app)
             s = 'OK'
             if '--enable-back-forward' not in de.getExec().split():
-                t = 'error'
                 s = "could not find --enable-back-forward in '%s'" % \
                     (de.getExec())
             self._add_result(t, n, s)

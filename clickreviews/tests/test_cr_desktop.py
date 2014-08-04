@@ -195,8 +195,9 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
             expected_counts = {'info': None, 'warn': 0, 'error': 1}
             self.check_results(r, expected_counts)
 
-    def test_check_desktop_exec_webapp_args_without_minimal(self):
-        '''Test check_desktop_exec_webapp_args without minimal'''
+    def test_check_desktop_exec_webapp_args_without_optional(self):
+        '''Test check_desktop_exec_webapp_args without optional
+           --enable-back-forward'''
         for exe in ['webbrowser-app --webapp', 'webapp-container']:
             c = ClickReviewDesktop(self.test_name)
             ex = "%s " % exe + \
@@ -207,7 +208,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
                                   ex)
             c.check_desktop_exec_webapp_args()
             r = c.click_report
-            expected_counts = {'info': None, 'warn': 0, 'error': 1}
+            expected_counts = {'info': 2, 'warn': 0, 'error': 0}
             self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webapp_args_with_both_required(self):
