@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import argparse
 import imp
 import inspect
 import pkgutil
@@ -61,28 +62,40 @@ def print_findings(which, kind):
             print('\t%s' % which[key]['link'])
 
 
-def report(results):
+def report(results, args):
     errors = {}
     warnings = {}
-
+    info = {}
+    
     for module in results:
         for key in results[module]['error']:
             errors[key] = results[module]['error'][key]
         for key in results[module]['warn']:
             warnings[key] = results[module]['warn'][key]
-    if not warnings and not errors:
-        print('Passed!')
-        sys.exit(0)
+        if args.verbose:
+            for key in results[module]['info']:
+                info[key] = results[module]['info'][key]
+
     print_findings(errors, 'Errors')
     print_findings(warnings, 'Warnings')
+    if args.verbose:
+        print_findings(info, 'Info')
+    else:
+        if not warnings and not errors:
+            print('Passed!')
+            sys.exit(0)
 
 
 def main():
-    if len(sys.argv) == 1:
-        print("Usage: %s <path to .click file>" % sys.argv[0])
-        sys.exit(1)
-    click_file = sys.argv[1]
-    results = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename', type=str,
+                         help='.click file to be inspected')
+    parser.add_argument('-v', '--verbose', help='increase output verbosity',
+                        action='store_true')
+    parser.add_argument('--json', help='print json output',
+                        action='store_true')
+    args = parser.parse_args()
+    click_file = args.filename
     
     # What we are doing here is basically what all the
     # ./bin/click-check-* scripts do as well, so for
@@ -92,11 +105,12 @@ def main():
     #     review.do_checks()
     #     rc = review.do_report()
     #
+    results = {}
     for module in get_modules():
         review = init_main_class(module, click_file)
         review.do_checks()
         results[module] = review.click_report
-    report(results)
+    report(results, args)
 
 
 if __name__ == '__main__':
