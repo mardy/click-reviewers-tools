@@ -45,7 +45,7 @@ def init_main_class(module_name, click_file):
     return init_object(click_file)
 
 
-def report(which, kind):
+def print_findings(which, kind):
     '''
     Print a summary of the issues found.
     '''
@@ -61,13 +61,28 @@ def report(which, kind):
             print('\t%s' % which[key]['link'])
 
 
+def report(results):
+    errors = {}
+    warnings = {}
+
+    for module in results:
+        for key in results[module]['error']:
+            errors[key] = results[module]['error'][key]
+        for key in results[module]['warn']:
+            warnings[key] = results[module]['warn'][key]
+    if not warnings and not errors:
+        print('Passed!')
+        sys.exit(0)
+    print_findings(errors, 'Errors')
+    print_findings(warnings, 'Warnings')
+
+
 def main():
     if len(sys.argv) == 1:
         print("Usage: %s <path to .click file>" % sys.argv[0])
         sys.exit(1)
     click_file = sys.argv[1]
-    errors = {}
-    warnings = {}
+    results = {}
     
     # What we are doing here is basically what all the
     # ./bin/click-check-* scripts do as well, so for
@@ -80,16 +95,8 @@ def main():
     for module in get_modules():
         review = init_main_class(module, click_file)
         review.do_checks()
-        results = review.click_report
-        for key in results['error'].keys():
-            errors[key] = results['error'][key]
-        for key in results['warn'].keys():
-            warnings[key] = results['warn'][key]
-    if not warnings and not errors:
-        print('Passed!')
-        sys.exit(0)
-    report(errors, 'Errors')
-    report(warnings, 'Warnings')
+        results[module] = review.click_report
+    report(results)
 
 
 if __name__ == '__main__':
