@@ -68,8 +68,16 @@ def main():
     click_file = sys.argv[1]
     errors = {}
     warnings = {}
+    
+    # What we are doing here is basically what all the
+    # ./bin/click-check-* scripts do as well, so for
+    # example something like:
+    #
+    #     review = cr_push_helper.ClickReviewPushHelper(sys.argv[1])
+    #     review.do_checks()
+    #     rc = review.do_report()
+    #
     modules = get_modules()
-
     for module in modules:
         review = init_main_class(module, click_file)
         review.do_checks()
