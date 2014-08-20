@@ -77,8 +77,7 @@ def main():
     #     review.do_checks()
     #     rc = review.do_report()
     #
-    modules = get_modules()
-    for module in modules:
+    for module in get_modules():
         review = init_main_class(module, click_file)
         review.do_checks()
         results = review.click_report
