@@ -6,7 +6,33 @@ import pkgutil
 import sys
 
 
+def get_modules():
+    '''
+    Here we have a look at all the modules in the
+    clickreviews package and filter out a few which
+    are not relevant.
+
+    Basically we look at all the ones which are
+    derived from cr_common, where we can later on
+    instantiate a *Review* object and run the
+    necessary checks.
+    '''
+
+    all_modules = [name for _, name, _ in
+                   pkgutil.iter_modules(['clickreviews'])]
+    narrow_down_modules = \
+        lambda a: a.startswith('cr_') and \
+        a not in ['cr_common', 'cr_tests', 'cr_skeleton']
+    return list(filter(narrow_down_modules, all_modules))
+
+
 def init_main_class(module_name, click_file):
+    '''
+    This function will find the Click*Review class in
+    the specified module and instantiate it with the
+    location of the .click file we want to inspect.
+    '''
+
     module = imp.load_source(module_name,
                              'clickreviews/%s.py' % module_name)
 
@@ -20,6 +46,10 @@ def init_main_class(module_name, click_file):
 
 
 def report(which, kind):
+    '''
+    Print a summary of the issues found.
+    '''
+
     if not which:
         return ''
     print(kind)
@@ -38,12 +68,7 @@ def main():
     click_file = sys.argv[1]
     errors = {}
     warnings = {}
-    all_modules = [name for _, name, _ in
-                   pkgutil.iter_modules(['clickreviews'])]
-    narrow_down_modules = \
-        lambda a: a.startswith('cr_') and \
-        a not in ['cr_common', 'cr_tests', 'cr_skeleton']
-    modules = list(filter(narrow_down_modules, all_modules))
+    modules = get_modules()
 
     for module in modules:
         review = init_main_class(module, click_file)
