@@ -90,8 +90,8 @@ def report(results, args):
         print(json.dumps(results, sort_keys=True, indent=2,
                          separators=(',', ': ')))
     if warnings or errors:
-        sys.exit(1)
-    sys.exit(0)
+        return 1
+    return 0
 
 
 def main():
@@ -118,7 +118,8 @@ def main():
         review = init_main_class(module, click_file)
         review.do_checks()
         results[module.replace('cr_', '')] = review.click_report
-    report(results, args)
+    rc = report(results, args)
+    sys.exit(rc)
 
 
 if __name__ == '__main__':
