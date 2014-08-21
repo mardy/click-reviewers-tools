@@ -83,9 +83,9 @@ def report(results, args):
         if args.verbose:
             print_findings(info, 'Info')
         if warnings or errors:
-            print('FAILED!')
+            print('%s: FAILED' % args.filename)
         else:
-            print('PASSED!')
+            print('%s: passed' % args.filename)
     else:
         print(json.dumps(results, sort_keys=True, indent=2,
                          separators=(',', ': ')))
