@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import clickreviews
 import imp
 import inspect
 import json
@@ -21,7 +22,7 @@ def get_modules():
     '''
 
     all_modules = [name for _, name, _ in
-                   pkgutil.iter_modules(['clickreviews'])]
+                   pkgutil.iter_modules(clickreviews.__path__)]
     narrow_down_modules = \
         lambda a: a.startswith('cr_') and \
         a not in ['cr_common', 'cr_tests', 'cr_skeleton']
@@ -36,7 +37,8 @@ def init_main_class(module_name, click_file):
     '''
 
     module = imp.load_source(module_name,
-                             'clickreviews/%s.py' % module_name)
+                             '%s/%s.py' % (clickreviews.__path__[0],
+                                           module_name))
 
     classes = inspect.getmembers(module, inspect.isclass)
     find_main_class = lambda a: a[0].startswith('Click') and \
