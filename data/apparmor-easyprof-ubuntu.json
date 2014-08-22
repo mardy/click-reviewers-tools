@@ -96,6 +96,7 @@
       },
       "policy_groups": {
         "common": [
+          "accounts",
           "audio",
           "camera",
           "connectivity",
@@ -111,7 +112,6 @@
           "webview"
         ],
         "reserved": [
-          "accounts",
           "calendar",
           "contacts",
           "debug",
