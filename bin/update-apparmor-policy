@@ -17,6 +17,7 @@
 from clickreviews import apparmor_policy
 import sys
 
+
 def main(filename=None):
     apparmor_policy.get_policy_file(filename)
 
