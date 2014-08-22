@@ -2,7 +2,7 @@
 set -e
 
 echo "= pep8 ="
-for i in ./bin/update-* ./bin/click-check-* ./bin/click-show-files \
+for i in ./bin/update-* ./bin/click-check-* ./bin/click-show-files ./bin/click-review \
 	 ./clickreviews/*py ./clickreviews/tests/*py ; do
     echo "Checking $i"
     pep8 $i

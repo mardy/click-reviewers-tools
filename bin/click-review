@@ -1,0 +1,130 @@
+#!/usr/bin/python3
+
+import argparse
+import imp
+import inspect
+import json
+import pkgutil
+import sys
+
+
+def get_modules():
+    '''
+    Here we have a look at all the modules in the
+    clickreviews package and filter out a few which
+    are not relevant.
+
+    Basically we look at all the ones which are
+    derived from cr_common, where we can later on
+    instantiate a *Review* object and run the
+    necessary checks.
+    '''
+
+    all_modules = [name for _, name, _ in
+                   pkgutil.iter_modules(['clickreviews'])]
+    narrow_down_modules = \
+        lambda a: a.startswith('cr_') and \
+        a not in ['cr_common', 'cr_tests', 'cr_skeleton']
+    return list(filter(narrow_down_modules, all_modules))
+
+
+def init_main_class(module_name, click_file):
+    '''
+    This function will find the Click*Review class in
+    the specified module and instantiate it with the
+    location of the .click file we want to inspect.
+    '''
+
+    module = imp.load_source(module_name,
+                             'clickreviews/%s.py' % module_name)
+
+    classes = inspect.getmembers(module, inspect.isclass)
+    find_main_class = lambda a: a[0].startswith('Click') and \
+        not a[0].endswith('Exception') and \
+        a[1].__module__ == module_name
+    main_class = list(filter(find_main_class, classes))
+    init_object = getattr(module, main_class[0][0])
+    return init_object(click_file)
+
+
+def print_findings(which, kind):
+    '''
+    Print a summary of the issues found.
+    '''
+
+    if not which:
+        return ''
+    print(kind)
+    print(''.center(len(kind), '-'))
+    for key in which.keys():
+        print(' - %s' % key)
+        print('\t%s' % which[key]['text'])
+        if 'link' in which[key]:
+            print('\t%s' % which[key]['link'])
+
+
+def report(results, args):
+    errors = {}
+    warnings = {}
+    info = {}
+
+    for module in results:
+        for key in results[module]['error']:
+            errors[key] = results[module]['error'][key]
+        for key in results[module]['warn']:
+            warnings[key] = results[module]['warn'][key]
+        if args.verbose:
+            for key in results[module]['info']:
+                info[key] = results[module]['info'][key]
+
+    if not args.json:
+        print_findings(errors, 'Errors')
+        print_findings(warnings, 'Warnings')
+        if args.verbose:
+            print_findings(info, 'Info')
+        if warnings or errors:
+            print('%s: FAILED' % args.filename)
+        else:
+            print('%s: passed' % args.filename)
+    else:
+        print(json.dumps(results, sort_keys=True, indent=2,
+                         separators=(',', ': ')))
+    if warnings or errors:
+        return 1
+    return 0
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename', type=str,
+                        help='.click file to be inspected')
+    parser.add_argument('-v', '--verbose', help='increase output verbosity',
+                        action='store_true')
+    parser.add_argument('--json', help='print json output',
+                        action='store_true')
+    args = parser.parse_args()
+    click_file = args.filename
+
+    # What we are doing here is basically what all the
+    # ./bin/click-check-* scripts do as well, so for
+    # example something like:
+    #
+    #     review = cr_push_helper.ClickReviewPushHelper(sys.argv[1])
+    #     review.do_checks()
+    #     rc = review.do_report()
+    #
+    results = {}
+    for module in get_modules():
+        review = init_main_class(module, click_file)
+        review.do_checks()
+        results[module.replace('cr_', '')] = review.click_report
+    rc = report(results, args)
+    sys.exit(rc)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Aborted.")
+        sys.exit(1)
