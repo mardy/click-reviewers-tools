@@ -116,7 +116,11 @@ def main():
     #     rc = review.do_report()
     #
     results = {}
-    for module in get_modules():
+    modules = get_modules()
+    if not modules:
+        print("No 'clickreviews' modules found.")
+        sys.exit(1)
+    for module in modules:
         review = init_main_class(module, click_file)
         review.do_checks()
         results[module.replace('cr_', '')] = review.click_report
