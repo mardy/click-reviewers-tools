@@ -1,7 +1,6 @@
 from clickreviews import modules, cr_tests
 import clickreviews
 import glob
-import os
 
 
 class TestModules(cr_tests.TestClickReview):
@@ -13,10 +12,8 @@ class TestModules(cr_tests.TestClickReview):
 
     def test_number_of_suitable_modules(self):
         path = clickreviews.__path__[0]
-        match = lambda a: os.path.basename(a).replace('.py', '') \
-            not in modules.IRRELEVANT_MODULES
-        module_files = glob.glob(path + '/cr_*.py')
-        relevant_module_files = list(filter(match, module_files))
+        module_files = glob.glob(path + '/*.py')
+        relevant_module_files = modules.narrow_down_modules(module_files)
         self.assertEqual(len(relevant_module_files),
                          len(self.cr_modules))
 

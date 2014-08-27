@@ -1,9 +1,24 @@
 import clickreviews
 import imp
 import inspect
+import os
 import pkgutil
 
 IRRELEVANT_MODULES = ['cr_common', 'cr_tests', 'cr_skeleton']
+
+
+def narrow_down_modules(modules):
+    '''
+    Get a list of file names or module names and filter out
+    the ones we know are irrelevant.
+    '''
+    relevant_modules = []
+    for module in modules:
+        module_name = os.path.basename(module).replace('.py', '')
+        if module_name not in IRRELEVANT_MODULES and \
+                module_name.startswith('cr_'):
+            relevant_modules += [module]
+    return relevant_modules
 
 
 def get_modules():
@@ -20,10 +35,7 @@ def get_modules():
 
     all_modules = [name for _, name, _ in
                    pkgutil.iter_modules(clickreviews.__path__)]
-    narrow_down_modules = \
-        lambda a: a.startswith('cr_') and \
-        a not in IRRELEVANT_MODULES
-    return list(filter(narrow_down_modules, all_modules))
+    return narrow_down_modules(all_modules)
 
 
 def find_main_class(module_name):
