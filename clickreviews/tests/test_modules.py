@@ -17,6 +17,9 @@ class TestModules(cr_tests.TestClickReview):
         self.assertEqual(len(relevant_module_files),
                          len(self.cr_modules))
 
+    def test_number_of_suitable_modules_greater0(self):
+        self.assertTrue(len(self.cr_modules) > 0)
+
     def test_number_of_available_review_classes(self):
         count = 0
         for module_name in self.cr_modules:
