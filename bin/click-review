@@ -1,52 +1,9 @@
 #!/usr/bin/python3
 
+from clickreviews import modules
 import argparse
-import clickreviews
-import imp
-import inspect
 import json
-import pkgutil
 import sys
-
-
-def get_modules():
-    '''
-    Here we have a look at all the modules in the
-    clickreviews package and filter out a few which
-    are not relevant.
-
-    Basically we look at all the ones which are
-    derived from cr_common, where we can later on
-    instantiate a *Review* object and run the
-    necessary checks.
-    '''
-
-    all_modules = [name for _, name, _ in
-                   pkgutil.iter_modules(clickreviews.__path__)]
-    narrow_down_modules = \
-        lambda a: a.startswith('cr_') and \
-        a not in ['cr_common', 'cr_tests', 'cr_skeleton']
-    return list(filter(narrow_down_modules, all_modules))
-
-
-def init_main_class(module_name, click_file):
-    '''
-    This function will find the Click*Review class in
-    the specified module and instantiate it with the
-    location of the .click file we want to inspect.
-    '''
-
-    module = imp.load_source(module_name,
-                             '%s/%s.py' % (clickreviews.__path__[0],
-                                           module_name))
-
-    classes = inspect.getmembers(module, inspect.isclass)
-    find_main_class = lambda a: a[0].startswith('Click') and \
-        not a[0].endswith('Exception') and \
-        a[1].__module__ == module_name
-    main_class = list(filter(find_main_class, classes))
-    init_object = getattr(module, main_class[0][0])
-    return init_object(click_file)
 
 
 def print_findings(which, kind):
@@ -116,12 +73,12 @@ def main():
     #     rc = review.do_report()
     #
     results = {}
-    modules = get_modules()
-    if not modules:
+    cr_modules = modules.get_modules()
+    if not cr_modules:
         print("No 'clickreviews' modules found.")
         sys.exit(1)
-    for module in modules:
-        review = init_main_class(module, click_file)
+    for module in cr_modules:
+        review = modules.init_main_class(module, click_file)
         review.do_checks()
         results[module.replace('cr_', '')] = review.click_report
     rc = report(results, args)
