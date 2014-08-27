@@ -1,4 +1,4 @@
-click-reviewers-tools (0.9) UNRELEASED; urgency=medium
+click-reviewers-tools (0.9) utopic; urgency=medium
 
   [ Jamie Strandboge ]
   * data/frameworks.json: add ubuntu-sdk-14.10-qml-dev3
@@ -13,7 +13,8 @@ click-reviewers-tools (0.9) UNRELEASED; urgency=medium
   * Point to the correct scope ini path.
 
   [ Daniel Holbach ]
-  * Add 'click-review', which just prints errors/warnings. (LP: #1355215)
+  * Add 'click-review', a more versatile approach to what 'click-run-checks'
+    was doing. (LP: #1355215)
   * Run pep8 during the build.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 20 Aug 2014 16:03:35 +0200
