@@ -3,86 +3,107 @@
 from clickreviews import modules
 import argparse
 import json
+import os
 import sys
 
 
-def print_findings(which, kind):
+def print_findings(results, description):
     '''
     Print a summary of the issues found.
     '''
 
-    if not which:
+    if not description or not results:
         return ''
-    print(kind)
-    print(''.center(len(kind), '-'))
-    for key in which.keys():
+    print(description)
+    print(''.center(len(description), '-'))
+    for key in results.keys():
         print(' - %s' % key)
-        print('\t%s' % which[key]['text'])
-        if 'link' in which[key]:
-            print('\t%s' % which[key]['link'])
+        print('\t%s' % results[key]['text'])
+        if 'link' in results[key]:
+            print('\t%s' % results[key]['link'])
 
 
-def report(results, args):
+class Results(object):
+    results = {}
     errors = {}
     warnings = {}
     info = {}
+    rc = 0
 
-    for module in results:
-        for key in results[module]['error']:
-            errors[key] = results[module]['error'][key]
-        for key in results[module]['warn']:
-            warnings[key] = results[module]['warn'][key]
-        if args.verbose:
-            for key in results[module]['info']:
-                info[key] = results[module]['info'][key]
+    def __init__(self, args):
+        self.args = args
+        self.click_fn = self.args.filename
+        self.cr_modules = modules.get_modules()
 
-    if not args.json:
-        print_findings(errors, 'Errors')
-        print_findings(warnings, 'Warnings')
-        if args.verbose:
-            print_findings(info, 'Info')
-        if warnings or errors:
-            print('%s: FAIL' % args.filename)
+    def _analyse_results(self):
+        for module in self.results:
+            for key in self.results[module]['error']:
+                self.errors[key] = self.results[module]['error'][key]
+            for key in self.results[module]['warn']:
+                self.warnings[key] = self.results[module]['warn'][key]
+            if self.args.verbose:
+                for key in self.results[module]['info']:
+                    self.info[key] = self.results[module]['info'][key]
+
+    def _report(self):
+        self._analyse_results()
+
+        if not self.args.json:
+            print_findings(self.errors, 'Errors')
+            print_findings(self.warnings, 'Warnings')
+            if self.args.verbose:
+                print_findings(self.info, 'Info')
+            if self.warnings or self.errors:
+                print('%s: FAIL' % self.args.filename)
+            else:
+                print('%s: pass' % self.args.filename)
         else:
-            print('%s: pass' % args.filename)
-    else:
-        print(json.dumps(results, sort_keys=True, indent=2,
-                         separators=(',', ': ')))
-    if warnings or errors:
-        return 1
-    return 0
+            print(json.dumps(self.results, sort_keys=True, indent=2,
+                             separators=(',', ': ')))
+        if self.warnings or self.errors:
+            self.rc = 1
+
+    def _run_module_checks(self, module):
+        # What we are doing here is basically what all the
+        # ./bin/click-check-* scripts do as well, so for
+        # example something like:
+        #
+        #     review = cr_push_helper.ClickReviewPushHelper(sys.argv[1])
+        #     review.do_checks()
+        #     rc = review.do_report()
+        #
+        review = modules.init_main_class(module, self.click_fn)
+        review.do_checks()
+        self.results[module.replace('cr_', '')] = review.click_report
+
+    def run_all_checks(self):
+        for module in self.cr_modules:
+            self._run_module_checks(module)
+        self._report()
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('filename', type=str,
                         help='.click file to be inspected')
-    parser.add_argument('-v', '--verbose', help='increase output verbosity',
+    parser.add_argument('-v', '--verbose',
+                        help='increase output verbosity',
                         action='store_true')
     parser.add_argument('--json', help='print json output',
                         action='store_true')
     args = parser.parse_args()
-    click_file = args.filename
 
-    # What we are doing here is basically what all the
-    # ./bin/click-check-* scripts do as well, so for
-    # example something like:
-    #
-    #     review = cr_push_helper.ClickReviewPushHelper(sys.argv[1])
-    #     review.do_checks()
-    #     rc = review.do_report()
-    #
-    results = {}
-    cr_modules = modules.get_modules()
-    if not cr_modules:
+    if not os.path.exists(args.filename):
+        print(".click file '%s' does not exist." % args.filename)
+        sys.exit(1)
+
+    results = Results(args)
+    if not results.cr_modules:
         print("No 'clickreviews' modules found.")
         sys.exit(1)
-    for module in cr_modules:
-        review = modules.init_main_class(module, click_file)
-        review.do_checks()
-        results[module.replace('cr_', '')] = review.click_report
-    rc = report(results, args)
-    sys.exit(rc)
+
+    results.run_all_checks()
+    sys.exit(results.rc)
 
 
 if __name__ == '__main__':
