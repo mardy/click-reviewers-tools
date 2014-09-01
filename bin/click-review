@@ -65,8 +65,8 @@ class Results(object):
 
     def _report_module(self, section):
         '''
-        This is currently only use for the --sdk option.
-        It will print the output for each section, whenever it's
+        This is currently only used in the --sdk option.
+        It will print the output for each section when it's
         available. This will prevent the SDK from having to wait
         until all checks have been run.
         '''
