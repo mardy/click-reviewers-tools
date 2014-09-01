@@ -24,15 +24,16 @@ def print_findings(results, description):
 
 
 class Results(object):
+    results = {}
+    errors = {}
+    warnings = {}
+    info = {}
+    rc = 0
+
     def __init__(self, args):
         self.args = args
         self.click_fn = self.args.filename
         self.cr_modules = modules.get_modules()
-        self.results = {}
-        self.errors = {}
-        self.warnings = {}
-        self.info = {}
-        self.rc = 0
 
     def _sumarise_results(self):
         for module in self.results:
@@ -116,7 +117,7 @@ def main():
     args = parser.parse_args()
 
     if not os.path.exists(args.filename):
-        print(".click file '%s' does not exist.")
+        print(".click file '%s' does not exist." % args.filename)
         sys.exit(1)
 
     results = Results(args)
