@@ -67,14 +67,14 @@ class Results(object):
         '''
         This is currently only use for the --sdk option.
         It will print the output for each section, whenever it's
-        available. This will prevent the SDK from having to wait 
+        available. This will prevent the SDK from having to wait
         until all checks have been run.
         '''
-        output = { section: self.results[section] }
+        output = self.results[section]
         print('= %s =' % section)
         print(json.dumps(output, sort_keys=True, indent=2,
                          separators=(',', ': ')))
-        if output[section]['error'] or output[section]['warn']:
+        if output['error'] or output['warn']:
             self.rc = 1
 
     def _run_module_checks(self, module):
@@ -112,7 +112,7 @@ def main():
                         action='store_true')
     parser.add_argument('--json', help='print json output',
                         action='store_true')
-    parser.add_argument('--sdk', 
+    parser.add_argument('--sdk',
                         help='use output format suitable for the Ubuntu SDK',
                         action='store_true')
     args = parser.parse_args()
