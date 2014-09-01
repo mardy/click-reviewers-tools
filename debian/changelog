@@ -2,6 +2,8 @@ click-reviewers-tools (0.10) UNRELEASED; urgency=medium
 
   * Split out code to find Click*Review classes in the clickreviews package
     into its own module, add tests for it.
+  * Refactor bin/click-review to make it easier to extend.
+  * Add --sdk option, so the SDK can start using it. (LP: #1363857)
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 27 Aug 2014 16:22:03 +0200
 
