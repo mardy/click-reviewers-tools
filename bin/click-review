@@ -35,7 +35,7 @@ class Results(object):
         self.click_fn = self.args.filename
         self.cr_modules = modules.get_modules()
 
-    def _analyse_results(self):
+    def _sumarise_results(self):
         for module in self.results:
             for key in self.results[module]['error']:
                 self.errors[key] = self.results[module]['error'][key]
@@ -45,10 +45,13 @@ class Results(object):
                 for key in self.results[module]['info']:
                     self.info[key] = self.results[module]['info'][key]
 
-    def _report(self):
-        self._analyse_results()
+    def _complete_report(self):
+        self._sumarise_results()
 
-        if not self.args.json:
+        if self.args.json:
+            print(json.dumps(self.results, sort_keys=True, indent=2,
+                             separators=(',', ': ')))
+        else:
             print_findings(self.errors, 'Errors')
             print_findings(self.warnings, 'Warnings')
             if self.args.verbose:
@@ -57,10 +60,21 @@ class Results(object):
                 print('%s: FAIL' % self.args.filename)
             else:
                 print('%s: pass' % self.args.filename)
-        else:
-            print(json.dumps(self.results, sort_keys=True, indent=2,
-                             separators=(',', ': ')))
         if self.warnings or self.errors:
+            self.rc = 1
+
+    def _report_module(self, section):
+        '''
+        This is currently only used in the --sdk option.
+        It will print the output for each section when it's
+        available. This will prevent the SDK from having to wait
+        until all checks have been run.
+        '''
+        output = self.results[section]
+        print('= %s =' % section)
+        print(json.dumps(output, sort_keys=True, indent=2,
+                         separators=(',', ': ')))
+        if output['error'] or output['warn']:
             self.rc = 1
 
     def _run_module_checks(self, module):
@@ -72,14 +86,21 @@ class Results(object):
         #     review.do_checks()
         #     rc = review.do_report()
         #
+        section = module.replace('cr_', '')
         review = modules.init_main_class(module, self.click_fn)
         review.do_checks()
-        self.results[module.replace('cr_', '')] = review.click_report
+        self.results[section] = review.click_report
+        return section
 
     def run_all_checks(self):
-        for module in self.cr_modules:
-            self._run_module_checks(module)
-        self._report()
+        if self.args.sdk:
+            for module in self.cr_modules:
+                section = self._run_module_checks(module)
+                self._report_module(section)
+        else:
+            for module in self.cr_modules:
+                self._run_module_checks(module)
+            self._complete_report()
 
 
 def main():
@@ -90,6 +111,9 @@ def main():
                         help='increase output verbosity',
                         action='store_true')
     parser.add_argument('--json', help='print json output',
+                        action='store_true')
+    parser.add_argument('--sdk',
+                        help='use output format suitable for the Ubuntu SDK',
                         action='store_true')
     args = parser.parse_args()
 
