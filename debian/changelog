@@ -4,8 +4,10 @@ click-reviewers-tools (0.10) UNRELEASED; urgency=medium
     into its own module, add tests for it.
   * Refactor bin/click-review to make it easier to extend.
   * Add --sdk option, so the SDK can start using it. (LP: #1363857)
+  * Safeguard against broken clickreviews check modules, or modules that are
+    still in development. (LP: #1364449)
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 27 Aug 2014 16:22:03 +0200
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 02 Sep 2014 18:31:50 +0200
 
 click-reviewers-tools (0.9) utopic; urgency=medium
 

@@ -26,4 +26,6 @@ class TestModules(cr_tests.TestClickReview):
             review = modules.find_main_class(module_name)
             if review:
                 count += 1
-        self.assertEqual(count, len(self.cr_modules))
+        self.assertEqual(count, len(self.cr_modules),
+                         'Not all files in clickreviews/cr_*.py contain '
+                         'classes named Click*Review.')
