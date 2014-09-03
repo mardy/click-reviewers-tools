@@ -48,11 +48,13 @@ def find_main_class(module_name):
                                            module_name))
 
     classes = inspect.getmembers(module, inspect.isclass)
-    find_main_class = lambda a: a[0].startswith('Click') and \
+    find_cr_class = lambda a: a[0].startswith('Click') and \
         not a[0].endswith('Exception') and \
         a[1].__module__ == module_name
-    main_class = list(filter(find_main_class, classes))
-    init_object = getattr(module, main_class[0][0])
+    cr_class = list(filter(find_cr_class, classes))
+    if not cr_class:
+        return None
+    init_object = getattr(module, cr_class[0][0])
     return init_object
 
 
@@ -64,4 +66,6 @@ def init_main_class(module_name, click_file):
     '''
 
     init_object = find_main_class(module_name)
+    if not init_object:
+        return None
     return init_object(click_file)
