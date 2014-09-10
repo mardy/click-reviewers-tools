@@ -188,7 +188,7 @@ class ClickReviewAccounts(ClickReview):
                 continue
             else:
                 t = 'error'
-                s = "'%s' not allowed" % account_type
+                s = "(MANUAL REVIEW) '%s' not allowed" % account_type
                 manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
 
@@ -230,6 +230,6 @@ class ClickReviewAccounts(ClickReview):
                 continue
             else:
                 t = 'error'
-                s = "'%s' not allowed" % account_type
+                s = "(MANUAL REVIEW) '%s' not allowed" % account_type
                 manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)

@@ -385,7 +385,7 @@ exit 1
                     found.append(hook)
             if len(found) > 0:
                 t = 'error'
-                s = "'%s' not allowed" % ", ".join(found)
+                s = "(MANUAL REVIEW) '%s' not allowed" % ", ".join(found)
                 manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
 
@@ -528,7 +528,8 @@ exit 1
             pkg_domain_rev = self.click_pkgname.split('.')
             if len(domain_rev) < 2:  # don't impersonate .com
                 t = 'error'
-                s = "email domain too short: '%s'" % self.email
+                s = "(EMAIL NEEDS HUMAN REVIEW) email domain too short: '%s'" \
+                    % self.email
                 manual_review = True
             # also '=' to leave room for app name
             elif len(domain_rev) >= len(pkg_domain_rev):
@@ -542,8 +543,9 @@ exit 1
                     s = "OK (email '%s' long, but special case" % self.email
                 else:
                     t = 'error'
-                    s = "email domain too long '%s' for app name '%s'" % (
-                        self.email, ".".join(pkg_domain_rev))
+                    s = ("(EMAIL NEEDS HUMAN REVIEW) email domain too long "
+                         "'%s' for app name '%s'" % (self.email,
+                                                     ".".join(pkg_domain_rev)))
                     manual_review = True
             elif domain_rev == pkg_domain_rev[:len(domain_rev)]:
                 is_special = False

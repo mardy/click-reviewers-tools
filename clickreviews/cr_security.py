@@ -297,7 +297,7 @@ class ClickReviewSecurity(ClickReview):
                 continue
             elif m['template'] in self.redflag_templates:
                 t = 'error'
-                s = "'%s' not allowed" % m['template']
+                s = "(MANUAL REVIEW) '%s' not allowed" % m['template']
                 manual_review = True
             elif m['template'] in self.extraneous_templates:
                 t = 'warn'
@@ -515,7 +515,7 @@ class ClickReviewSecurity(ClickReview):
                             "'%s': not for production use" % (i)
                     elif aa_type == "reserved":
                         t = 'error'
-                        s = "%s policy group " % aa_type + \
+                        s = "(MANUAL REVIEW) %s policy group " % aa_type + \
                             "'%s': vetted applications only" % (i)
                         manual_review = True
                     elif aa_type != "common":
