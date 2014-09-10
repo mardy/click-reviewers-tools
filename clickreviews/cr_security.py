@@ -290,6 +290,7 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = 'template_valid (%s)' % f
             s = "OK"
+            manual_review = False
             if 'template' not in m:
                 # If template not specified, we just use the default
                 self._add_result(t, n, 'OK (none specified)')
@@ -297,10 +298,11 @@ class ClickReviewSecurity(ClickReview):
             elif m['template'] in self.redflag_templates:
                 t = 'error'
                 s = "(MANUAL REVIEW) '%s' not allowed" % m['template']
+                manual_review = True
             elif m['template'] in self.extraneous_templates:
                 t = 'warn'
                 s = "No need to specify '%s' template" % m['template']
-            self._add_result(t, n, s)
+            self._add_result(t, n, s, manual_review=manual_review)
 
             t = 'info'
             n = 'template_exists (%s)' % f
@@ -504,6 +506,7 @@ class ClickReviewSecurity(ClickReview):
                     t = 'info'
                     n = 'policy_groups_safe_%s (%s)' % (app, i)
                     s = 'OK'
+                    manual_review = False
 
                     aa_type = self._get_policy_group_type(vendor, version, i)
                     if i == "debug":
@@ -514,11 +517,12 @@ class ClickReviewSecurity(ClickReview):
                         t = 'error'
                         s = "(MANUAL REVIEW) %s policy group " % aa_type + \
                             "'%s': vetted applications only" % (i)
+                        manual_review = True
                     elif aa_type != "common":
                         t = 'error'
                         s = "policy group '%s' has" % i + \
                             "unknown type '%s'" % (aa_type)
-                    self._add_result(t, n, s)
+                    self._add_result(t, n, s, manual_review=manual_review)
 
     def check_ignored(self):
         '''Check ignored fields'''

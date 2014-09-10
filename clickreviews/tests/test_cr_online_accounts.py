@@ -267,6 +267,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         # provider prompts manual review, so for now, need to have error as 1
         expected_counts = {'info': 2, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
 
     def test_check_provider_not_specified(self):
         '''Test check_provider() - no specified'''
@@ -286,6 +288,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         # provider prompts manual review, so for now, need to have error as +1
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
 
     def test_check_provider_wrong_id(self):
         '''Test check_provider() - wrong id'''
@@ -297,6 +301,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         # provider prompts manual review, so for now, need to have error as +1
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
 
     def test_check_qml_plugin(self):
         '''Test check_qml_plugin()'''
@@ -307,6 +313,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         # provider prompts manual review, so for now, need to have error as 1
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
 
     def test_check_qml_plugin_not_specified(self):
         '''Test check_qml_plugin() - no specified'''
