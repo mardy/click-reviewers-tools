@@ -286,6 +286,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+        check_name = "security_template_valid (%s.json)" % self.default_appname
+        self.check_manual_review(report, check_name)
 
     def test_check_policy_groups_webapps(self):
         '''Test check_policy_groups_webapps()'''
@@ -577,6 +579,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+        check_name = "security_policy_groups_safe_%s (video_files)" % (
+            self.default_appname,)
+        self.check_manual_review(report, check_name)
 
     def test_check_policy_groups_debug(self):
         '''Test check_policy_groups() - debug'''
