@@ -512,6 +512,11 @@ class TestClickReview(TestCase):
                                  "(%s not equal)\n%s" %
                                  (k, json.dumps(report, indent=2)))
 
+    def check_manual_review(self, report, check_name,
+                            result_type='error', manual_review=True):
+        result = report[result_type][check_name]
+        self.assertEqual(result['manual_review'], manual_review)
+
     def set_test_control(self, key, value):
         '''Set key in DEBIAN/control to value. If value is None, remove key'''
         if value is None:

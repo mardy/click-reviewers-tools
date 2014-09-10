@@ -471,6 +471,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        self.check_manual_review(r, 'lint_maintainer_domain')
 
     def test_check_maintainer_bad_email_long_domain(self):
         '''Test check_maintainer() - bad email (long domain)'''
@@ -482,6 +483,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        self.check_manual_review(r, 'lint_maintainer_domain')
 
     def test_check_maintainer_domain_appstore(self):
         '''Test check_maintainer() - appstore domain
@@ -758,3 +760,4 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        self.check_manual_review(r, 'lint_hooks_redflag_test-app')

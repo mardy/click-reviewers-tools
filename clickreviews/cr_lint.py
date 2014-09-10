@@ -379,13 +379,15 @@ exit 1
             t = 'info'
             n = 'hooks_redflag_%s' % (app)
             s = "OK"
+            manual_review = False
             for hook in self.manifest['hooks'][app]:
                 if hook in self.redflagged_hooks:
                     found.append(hook)
             if len(found) > 0:
                 t = 'error'
-                s = "(MANUAL REVIEW) '%s' not allowed" % ", ".join(found)
-            self._add_result(t, n, s)
+                s = "'%s' not allowed" % ", ".join(found)
+                manual_review = True
+            self._add_result(t, n, s, manual_review=manual_review)
 
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''
@@ -507,6 +509,7 @@ exit 1
         t = 'info'
         n = 'maintainer_domain'
         s = 'OK'
+        manual_review = False
         defaults = ('com.ubuntu.developer.', 'net.launchpad.')
 
         # Some domains give out email addresses in their toplevel namespace
@@ -525,8 +528,8 @@ exit 1
             pkg_domain_rev = self.click_pkgname.split('.')
             if len(domain_rev) < 2:  # don't impersonate .com
                 t = 'error'
-                s = "(EMAIL NEEDS HUMAN REVIEW) email domain too short: '%s'" \
-                    % self.email
+                s = "email domain too short: '%s'" % self.email
+                manual_review = True
             # also '=' to leave room for app name
             elif len(domain_rev) >= len(pkg_domain_rev):
                 # Core apps have a long email, domain, but that's all right
@@ -539,9 +542,9 @@ exit 1
                     s = "OK (email '%s' long, but special case" % self.email
                 else:
                     t = 'error'
-                    s = "(EMAIL NEEDS HUMAN REVIEW) email domain too " \
-                        "long '%s' " % self.email + "for app name '%s'" % \
-                        ".".join(pkg_domain_rev)
+                    s = "email domain too long '%s' for app name '%s'" % (
+                        self.email, ".".join(pkg_domain_rev))
+                    manual_review = True
             elif domain_rev == pkg_domain_rev[:len(domain_rev)]:
                 is_special = False
                 for special in special_domains:
@@ -564,7 +567,7 @@ exit 1
                     "(Your email domain needs to match the reverse package " \
                     "namespace.)" % (self.email,
                                      ".".join(pkg_domain_rev))
-        self._add_result(t, n, s)
+        self._add_result(t, n, s, manual_review=manual_review)
 
     def check_title(self):
         '''Check title()'''
