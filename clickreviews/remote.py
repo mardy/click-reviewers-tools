@@ -52,14 +52,20 @@ def abort(msg=None):
 #
 # Public
 #
-def get_remote_file(fn, url, data_dir=DATA_DIR):
+def get_remote_data(url):
     try:
         f = request.urlopen(url)
     except (HTTPError, URLError) as error:
         abort('Data not retrieved because %s.' % error)
     except timeout:
         abort('Socket timed out.')
-    html = f.read()
+    if not f:
+        abort()
+    return f.read()
+
+
+def get_remote_file_url(url):
+    html = get_remote_data(url)
     # XXX: This is a hack and will be gone, as soon as myapps has an API for this.
     link = re.findall(b'<a href="(\S+?)">download file</a>', html)
     if not link:
@@ -68,15 +74,17 @@ def get_remote_file(fn, url, data_dir=DATA_DIR):
         parse.urlparse(url).scheme,
         parse.urlparse(url).netloc,
         link[0].decode("utf-8"))
-    f = request.urlopen(download_link)
-    if not f:
-        abort()
+    return download_link
+
+
+def get_remote_file(fn, url, data_dir=DATA_DIR):
+    data = get_remote_data(url)
     if os.path.exists(fn):
         os.remove(fn)
     if not os.path.exists(os.path.dirname(fn)):
         os.makedirs(os.path.dirname(fn))
     with open(fn, 'bw') as local_file:
-        local_file.write(f.read())
+        local_file.write(data)
 
 
 def read_cr_file(fn, url, local_copy_fn=None):

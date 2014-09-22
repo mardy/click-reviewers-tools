@@ -17,10 +17,8 @@ import os
 import clickreviews.remote
 
 USER_DATA_FILE = os.path.join(clickreviews.remote.DATA_DIR, 'frameworks.json')
-
-# XXX: This is a hack and will be gone, as soon as myapps has an API for this.
 FRAMEWORKS_DATA_URL = \
-    "http://bazaar.launchpad.net/~ubuntu-core-dev/+junk/frameworks/view/head:/frameworks.json"
+    "https://myapps.developer.ubuntu.com/dev/api/click-framework/"
 
 
 def get_frameworks_file(fn):
