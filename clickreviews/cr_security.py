@@ -59,7 +59,8 @@ class ClickReviewSecurity(ClickReview):
                                'read_path',
                                'template_variables',
                                'write_path']
-        self.allowed_webapp_policy_groups = ['audio',
+        self.allowed_webapp_policy_groups = ['accounts',
+                                             'audio',
                                              # 'camera', non-functional ATM
                                              'content_exchange',
                                              'location',
