@@ -14,6 +14,16 @@ click-reviewers-tools (0.10) UNRELEASED; urgency=medium
     hook was implemented in previous commits, but now we should adjust the 
     cr_desktop.py hook to not error when the pay-ui hook is specified but 
     the desktop hook is not.
+  * The accounts policy group is now a common policy group (14.10) and 
+    webapps more fully integrate with accounts these days, so don't flag 
+    accounts as unusual any more.
+  * Mark checks requiring manual review by using a special key in the json
+    data.
+  * Add commented out camera policy group to list of ok policygroups for 
+    webapps.
+
+  [ Ricardo Kirkner ]
+  * Updated frameworks.json using myapps api. (LP: #1363096)
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 02 Sep 2014 18:31:50 +0200
 
