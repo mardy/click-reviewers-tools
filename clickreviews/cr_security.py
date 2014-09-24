@@ -16,10 +16,9 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error, warn
+from clickreviews.cr_common import ClickReview, error
 import clickreviews.cr_common as cr_common
 import clickreviews.apparmor_policy as apparmor_policy
-import glob
 import json
 import os
 
@@ -69,6 +68,7 @@ class ClickReviewSecurity(ClickReview):
                                              'webview']
 
         self.allowed_push_helper_policy_groups = ['push-notification-client']
+        self.allowed_network_scope_policy_groups = ['accounts', 'networking']
 
         self.redflag_templates = ['unconfined']
         self.extraneous_templates = ['ubuntu-sdk',
@@ -421,9 +421,8 @@ class ClickReviewSecurity(ClickReview):
             bad = []
             for p in m['policy_groups']:
                 if m['template'] == 'ubuntu-scope-network':
-                    # networking scopes shouldn't have access to anything
-                    # (for now, this may change with trust store (eg, location)
-                    if p != 'networking':
+                    # networking scopes should have extremely limited access
+                    if p not in self.allowed_network_scope_policy_groups:
                         bad.append(p)
 # jdstrand, 2014-06-05: ubuntu-scope-local-content is no longer available
 #                elif m['template'] == 'ubuntu-scope-local-content':

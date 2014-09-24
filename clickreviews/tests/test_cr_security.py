@@ -416,6 +416,18 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_policy_groups_scopes_network3(self):
+        '''Test check_policy_groups_scopes() - network with accounts'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-scope-network")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["accounts"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_scopes()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_policy_groups_scopes_network_missing(self):
         '''Test check_policy_groups_scopes() missing - network'''
         self.set_test_security_manifest(self.default_appname,
@@ -433,7 +445,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.set_test_security_manifest(self.default_appname,
                                         "template", "ubuntu-scope-network")
         self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups", ["accounts"])
+                                        "policy_groups", ["location"])
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_scopes()
         report = c.click_report
