@@ -1,6 +1,7 @@
 click-reviewers-tools (0.11) UNRELEASED; urgency=medium
 
-  * 
+  [ Jamie Strandboge ]
+  * allow 'accounts' policy group with network scopes
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 24 Sep 2014 16:14:13 +0200
 
