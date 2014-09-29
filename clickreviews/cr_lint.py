@@ -354,6 +354,17 @@ exit 1
                 s = "'%s' hooks should not be used together" % ", ".join(found)
             self._add_result(t, n, s)
 
+        for app in self.manifest['hooks']:
+            if "apparmor" in self.manifest['hooks'][app]:
+                t = 'info'
+                n = 'sdk_security_extension_%s' % (app)
+                s = "OK"
+                fn = self.manifest['hooks'][app]['apparmor']
+                if not fn.endswith(".apparmor"):
+                    t = 'warn'
+                    s = '%s does not end with .apparmor' % fn
+                self._add_result(t, n, s)
+
     def check_hooks_unknown(self):
         '''Check if have any unknown hooks'''
         t = 'info'

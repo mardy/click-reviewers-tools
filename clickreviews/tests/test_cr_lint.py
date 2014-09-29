@@ -697,7 +697,22 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
         c.check_hooks()
         r = c.click_report
-        expected_counts = {'info': 10, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 13, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_security_extension(self):
+        '''Test check_hooks() - security extension'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        tmp = dict()
+        for k in c.manifest['hooks'][self.default_appname].keys():
+            tmp[k] = c.manifest['hooks'][self.default_appname][k]
+        tmp['apparmor'] = "%s.json" % self.default_appname
+        c.manifest['hooks'][self.default_appname] = tmp
+
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_bad_appname(self):

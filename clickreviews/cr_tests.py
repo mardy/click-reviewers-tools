@@ -89,7 +89,7 @@ def _extract_security_manifest(self, app):
 
 def _get_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
-    return ("%s.json" % app, json.loads(TEST_SECURITY[app]))
+    return ("%s.apparmor" % app, json.loads(TEST_SECURITY[app]))
 
 
 def _get_security_supported_policy_versions(self):
@@ -289,7 +289,7 @@ class TestClickReview(TestCase):
         self.default_appname = "test-app"
         self.test_manifest["hooks"][self.default_appname] = dict()
         self.test_manifest["hooks"][self.default_appname]["apparmor"] = \
-            "%s.json" % self.default_appname
+            "%s.apparmor" % self.default_appname
         self.test_manifest["hooks"][self.default_appname]["desktop"] = \
             "%s.desktop" % self.default_appname
         self.test_manifest["hooks"][self.default_appname]["urls"] = \

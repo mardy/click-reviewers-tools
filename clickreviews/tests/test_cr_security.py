@@ -29,7 +29,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
-        self.default_security_json = "%s.json" % \
+        self.default_security_json = "%s.apparmor" % \
             self.default_appname
 
     def test_check_policy_version_vendor(self):
@@ -286,7 +286,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
-        check_name = "security_template_valid (%s.json)" % self.default_appname
+        check_name = "security_template_valid (%s.apparmor)" % self.default_appname
         self.check_manual_review(report, check_name)
 
     def test_check_policy_groups_webapps(self):
