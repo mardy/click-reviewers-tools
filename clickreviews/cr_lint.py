@@ -342,6 +342,9 @@ exit 1
 
         mutually_exclusive = ['scope', 'desktop']
         for app in self.manifest['hooks']:
+            t = 'info'
+            n = 'exclusive_hooks_%s' % (app)
+            s = "OK"
             found = []
             for i in mutually_exclusive:
                 if i in self.manifest['hooks'][app]:

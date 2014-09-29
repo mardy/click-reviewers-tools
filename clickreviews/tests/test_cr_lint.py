@@ -697,7 +697,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
         c.check_hooks()
         r = c.click_report
-        expected_counts = {'info': 7, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 10, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_bad_appname(self):
