@@ -1,8 +1,9 @@
-click-reviewers-tools (0.11ubuntu1) UNRELEASED; urgency=medium
+click-reviewers-tools (0.11) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * allow 'accounts' policy group with network scopes.
   * fix fetch URL for apparmor json to point to json file, not html page
+  * check if security policy does not end with .apparmor (LP: #1358317)
 
   [ Daniel Holbach ]
   * be clearer about unloadable ClickReview classes.
