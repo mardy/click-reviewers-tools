@@ -1,8 +1,9 @@
-click-reviewers-tools (0.11) UNRELEASED; urgency=medium
+click-reviewers-tools (0.11) utopic; urgency=medium
 
   [ Jamie Strandboge ]
   * allow 'accounts' policy group with network scopes.
   * fix fetch URL for apparmor json to point to json file, not html page
+    (LP: #1375326)
   * check if security policy does not end with .apparmor (LP: #1358317)
   * cleanup all the temp directories on shutdown (LP: #1370577)
   * shouldn't warn when app is coreapp when it uses x-source or x-test
@@ -11,7 +12,7 @@ click-reviewers-tools (0.11) UNRELEASED; urgency=medium
   [ Daniel Holbach ]
   * be clearer about unloadable ClickReview classes.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 29 Sep 2014 16:28:42 +0200
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 29 Sep 2014 17:01:58 -0500
 
 click-reviewers-tools (0.10) utopic; urgency=medium
 
