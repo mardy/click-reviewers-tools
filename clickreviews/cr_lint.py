@@ -666,14 +666,19 @@ exit 1
         for k in sorted(self.manifest):
             if k.startswith('x-'):
                 found.append(k)
+
+        # Some local extensions are ok for core apps, so just skip them
+        if self.is_core_app:
+            for i in ['x-source', 'x-test']:
+                if i in found:
+                    found.remove(i)
+
         if len(found) > 0:
             t = 'warn'
             plural = ""
             if len(found) > 1:
                 plural = "s"
             s = 'found unofficial extension%s: %s' % (plural, ', '.join(found))
-            if 'x-source' in k and self.is_core_app:
-                s += ' (x-source found, but app is a core app, which is fine)'
         self._add_result(t, n, s)
 
     def check_package_filename(self):

@@ -622,6 +622,19 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_click_local_extensions_coreapp(self):
+        '''Testeck_click_local_extensions() - coreapp'''
+        for k in self.test_manifest.keys():
+            if k.startswith("x-"):
+                self.set_test_manifest(k, None)
+        self.set_test_manifest("x-source", "foo")
+        c = ClickReviewLint(self.test_name)
+        c.is_core_app = True
+        c.check_click_local_extensions()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_framework(self):
         '''Test check_framework()'''
         self.set_test_manifest("framework", "ubuntu-sdk-14.10-qml-dev2")
