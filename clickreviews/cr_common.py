@@ -30,15 +30,18 @@ import tempfile
 import types
 
 DEBUGGING = False
-UNPACK_DIR = None
+UNPACK_DIRS = []
 
 # cleanup
 import atexit
 
 
 def cleanup_unpack():
-    if UNPACK_DIR is not None and os.path.isdir(UNPACK_DIR):
-        recursive_rm(UNPACK_DIR)
+    global UNPACK_DIRS
+    if len(UNPACK_DIRS) > 0:
+        for d in UNPACK_DIRS:
+            if d is not None and os.path.isdir(d):
+                recursive_rm(d)
 atexit.register(cleanup_unpack)
 
 
@@ -76,8 +79,8 @@ class ClickReview(object):
         self.click_report_output = "json"
 
         self.unpack_dir = unpack_click(fn)
-        global UNPACK_DIR
-        UNPACK_DIR = self.unpack_dir
+        global UNPACK_DIRS
+        UNPACK_DIRS.append(self.unpack_dir)
 
         # Get some basic information from the control file
 
