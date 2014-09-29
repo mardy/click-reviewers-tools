@@ -68,4 +68,9 @@ def init_main_class(module_name, click_file):
     init_object = find_main_class(module_name)
     if not init_object:
         return None
-    return init_object(click_file)
+    try:
+        ob = init_object(click_file)
+    except TypeError as e:
+        print('Could not init %s: %s' % (init_object, str(e)))
+        return None
+    return ob
