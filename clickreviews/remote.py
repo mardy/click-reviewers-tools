@@ -95,10 +95,16 @@ def read_cr_file(fn, url, local_copy_fn=None):
     '''
     j = {}
     if local_copy_fn and os.path.exists(local_copy_fn):
-        j = json.loads(open(local_copy_fn, 'r').read())
+        try:
+            j = json.loads(open(local_copy_fn, 'r').read())
+        except ValueError:
+            raise ValueError("Could not parse '%s'" % local_copy_fn)
     else:
         if _update_is_necessary(fn) and _update_is_possible(url):
             get_remote_file(fn, url)
         if os.path.exists(fn):
-            j = json.loads(open(fn, 'r').read())
+            try:
+                j = json.loads(open(fn, 'r').read())
+            except ValueError:
+                raise ValueError("Could not parse '%s'" % fn)
     return j
