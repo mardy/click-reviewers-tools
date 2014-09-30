@@ -91,6 +91,7 @@ class Results(object):
         if review:
             review.do_checks()
             self.results[section] = review.click_report
+            return section
         return None
 
     def run_all_checks(self):

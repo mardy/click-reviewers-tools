@@ -2,6 +2,7 @@ click-reviewers-tools (0.12) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * traceback in a more friendly way if the json can't be parsed
+  * adjust click-review --sdk to start reporting again (LP: #1375787)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 30 Sep 2014 12:51:44 -0500
 
