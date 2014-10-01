@@ -361,8 +361,8 @@ exit 1
                 s = "OK"
                 fn = self.manifest['hooks'][app]['apparmor']
                 if not fn.endswith(".apparmor"):
-                    t = 'warn'
-                    s = '%s does not end with .apparmor' % fn
+                    t = 'info'
+                    s = '%s does not end with .apparmor (ok if not using sdk)' % fn
                 self._add_result(t, n, s)
 
     def check_hooks_unknown(self):

@@ -725,8 +725,14 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
         c.check_hooks()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 1, 'error': 0}
-        self.check_results(r, expected_counts)
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        expected['info']['lint_sdk_security_extension_test-app'] = \
+            {"text": "test-app.json does not end with .apparmor (ok if not "
+                     "using sdk)"}
+        self.check_results(r, expected=expected)
 
     def test_check_hooks_bad_appname(self):
         '''Test check_hooks() - bad appname'''

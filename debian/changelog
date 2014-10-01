@@ -1,3 +1,10 @@
+click-reviewers-tools (0.13) utopic; urgency=medium
+
+  * reduce to 'info' when security policy does not end with .apparmor
+    (LP: #1358317)
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 01 Oct 2014 08:09:42 -0500
+
 click-reviewers-tools (0.12) utopic; urgency=medium
 
   [ Jamie Strandboge ]
