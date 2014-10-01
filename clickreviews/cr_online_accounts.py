@@ -97,6 +97,7 @@ class ClickReviewAccounts(ClickReview):
                 s = "missing 'apparmor' entry"
             self._add_result(t, n, s)
 
+            # account-application must always appear with desktop or scope
             t = 'info'
             n = '%s_%s_desktop_or_scope' % (app, account_type)
             s = "OK"
@@ -263,7 +264,7 @@ class ClickReviewAccounts(ClickReview):
             if found:
                 t = 'error'
                 s = "must not specify account-application or account-service" \
-                    "with %s" % account_type
+                    " with %s" % account_type
             self._add_result(t, n, s)
 
             t = 'info'
@@ -339,5 +340,5 @@ class ClickReviewAccounts(ClickReview):
             if found:
                 t = 'error'
                 s = "must not specify account-application or account-service" \
-                    "with %s" % account_type
+                    " with %s" % account_type
             self._add_result(t, n, s)

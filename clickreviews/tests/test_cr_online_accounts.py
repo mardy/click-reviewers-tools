@@ -361,6 +361,56 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
         self.check_manual_review(r, check_name)
 
+    def test_check_provider_with_application(self):
+        '''Test check_provider() - with account-application'''
+        xml = self._stub_provider()
+        self.set_test_account(self.default_appname, "account-provider", xml)
+        self.set_test_account(self.default_appname, "account-qml-plugin", True)
+        xml = self._stub_application()
+        self.set_test_account(self.default_appname, "account-application", xml)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_provider()
+        r = c.click_report
+        # provider prompts manual review, so for now, need to have error as 2
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
+
+    def test_check_provider_with_service(self):
+        '''Test check_provider() - with account-service'''
+        xml = self._stub_provider()
+        self.set_test_account(self.default_appname, "account-provider", xml)
+        self.set_test_account(self.default_appname, "account-qml-plugin", True)
+        xml = self._stub_service()
+        self.set_test_account(self.default_appname, "account-service", xml)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_provider()
+        r = c.click_report
+        # provider prompts manual review, so for now, need to have error as 2
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
+
+    def test_check_provider_with_application_and_service(self):
+        '''Test check_provider() - with account-application/account-service'''
+        xml = self._stub_provider()
+        self.set_test_account(self.default_appname, "account-provider", xml)
+        self.set_test_account(self.default_appname, "account-qml-plugin", True)
+        xml = self._stub_service()
+        self.set_test_account(self.default_appname, "account-service", xml)
+        xml = self._stub_application()
+        self.set_test_account(self.default_appname, "account-application", xml)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_provider()
+        r = c.click_report
+        # provider prompts manual review, so for now, need to have error as 2
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
+
     def test_check_provider_not_specified(self):
         '''Test check_provider() - not specified'''
         self.set_test_account(self.default_appname, "account-qml-plugin", True)
@@ -434,6 +484,56 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c.check_qml_plugin()
         r = c.click_report
         # provider prompts manual review, so for now, need to have error as 2
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
+
+    def test_check_qml_plugin_with_application(self):
+        '''Test check_qml_plugin() - with account-application'''
+        self.set_test_account(self.default_appname, "account-qml-plugin", True)
+        xml = self._stub_provider()
+        self.set_test_account(self.default_appname, "account-provider", xml)
+        xml = self._stub_application()
+        self.set_test_account(self.default_appname, "account-application", xml)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_qml_plugin()
+        r = c.click_report
+        # provider prompts manual review, so for now, need to have error as 2
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
+
+    def test_check_qml_plugin_with_service(self):
+        '''Test check_qml_plugin() - with account-service'''
+        self.set_test_account(self.default_appname, "account-qml-plugin", True)
+        xml = self._stub_provider()
+        self.set_test_account(self.default_appname, "account-provider", xml)
+        xml = self._stub_service()
+        self.set_test_account(self.default_appname, "account-service", xml)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_qml_plugin()
+        r = c.click_report
+        # provider prompts manual review, so for now, need to have error as 2
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
+        self.check_manual_review(r, check_name)
+
+    def test_check_qml_plugin_with_application_and_service(self):
+        '''Test check_qml_plugin() - with account-application/account-service'''
+        self.set_test_account(self.default_appname, "account-qml-plugin", True)
+        xml = self._stub_provider()
+        self.set_test_account(self.default_appname, "account-provider", xml)
+        xml = self._stub_service()
+        self.set_test_account(self.default_appname, "account-service", xml)
+        xml = self._stub_application()
+        self.set_test_account(self.default_appname, "account-application", xml)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_qml_plugin()
+        r = c.click_report
+        # provider prompts manual review, so for now, need to have error as 1
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
         check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
