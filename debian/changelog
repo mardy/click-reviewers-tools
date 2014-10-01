@@ -1,4 +1,4 @@
-click-reviewers-tools (0.12) UNRELEASED; urgency=medium
+click-reviewers-tools (0.12) utopic; urgency=medium
 
   [ Jamie Strandboge ]
   * traceback in a more friendly way if the json can't be parsed
@@ -7,7 +7,7 @@ click-reviewers-tools (0.12) UNRELEASED; urgency=medium
   * explicitly mark 'networking' as bad policy group when using
     push-notification-client (it was already implicitly bad)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 30 Sep 2014 12:51:44 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 01 Oct 2014 07:14:33 -0500
 
 click-reviewers-tools (0.11) utopic; urgency=medium
 
