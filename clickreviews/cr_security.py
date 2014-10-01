@@ -396,6 +396,10 @@ class ClickReviewSecurity(ClickReview):
             for p in m['policy_groups']:
                 if p not in self.allowed_push_helper_policy_groups:
                     bad.append(p)
+                elif p == "networking":
+                    # The above covers this, but let's be very explicit and
+                    # never allow networking with push-notification-client
+                    bad.append(p)
             if len(bad) > 0:
                 t = 'error'
                 s = "found unusual policy groups: %s" % ", ".join(bad)

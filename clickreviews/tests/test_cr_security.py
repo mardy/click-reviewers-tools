@@ -664,6 +664,19 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_policy_groups_pushhelper_networking(self):
+        '''Test check_policy_groups_pushhelper - networking'''
+        self.set_test_push_helper(self.default_appname, "exec", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["networking",
+                                         "push-notification-client"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_push_helpers()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
     def test_check_template_pushhelper(self):
         '''Test check_template_pushhelper'''
         self.set_test_push_helper(self.default_appname, "exec", "foo")
