@@ -46,6 +46,14 @@ class ClickReviewDesktop(ClickReview):
                 elif 'pay-ui' in self.manifest['hooks'][app]:
                     # msg("Skipped missing desktop hook for pay-ui '%s'" % app)
                     continue
+                elif 'account-provider' in self.manifest['hooks'][app]:
+                    # msg("Skipped missing desktop hook for account-provider"
+                    #     " '%s'" % app)
+                    continue
+                elif 'account-qml-plugin' in self.manifest['hooks'][app]:
+                    # msg("Skipped missing desktop hook for account-qml-plugin"
+                    #     " '%s'" % app)
+                    continue
                 else:
                     error("could not find desktop hook for '%s'" % app)
             if not isinstance(self.manifest['hooks'][app]['desktop'], str):
