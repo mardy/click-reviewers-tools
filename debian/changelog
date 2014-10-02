@@ -4,6 +4,7 @@ click-reviewers-tools (0.14) utopic; urgency=medium
     have apparmor policy. There is no policy for these yet so the errors
     are confusing
   * add Makefile for some convenience functions
+  * reuse the unpacked click dir
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 02 Oct 2014 15:15:58 -0500
 
