@@ -234,13 +234,13 @@ class ClickReviewAccounts(ClickReview):
             self._add_result(t, n, s, manual_review=manual_review)
 
             # account-provider must always appear with apparmor
-            t = 'info'
-            n = '%s_%s_apparmor' % (app, account_type)
-            s = "OK"
-            if 'apparmor' not in self.manifest['hooks'][app]:
-                t = 'error'
-                s = "missing 'apparmor' entry"
-            self._add_result(t, n, s)
+#             t = 'info'
+#             n = '%s_%s_apparmor' % (app, account_type)
+#             s = "OK"
+#             if 'apparmor' not in self.manifest['hooks'][app]:
+#                 t = 'error'
+#                 s = "missing 'apparmor' entry"
+#             self._add_result(t, n, s)
 
             # account-provider must always appear with account-qml-plugin
             t = 'info'
@@ -310,13 +310,14 @@ class ClickReviewAccounts(ClickReview):
             self._add_result(t, n, s, manual_review=manual_review)
 
             # account-qml-plugin must always appear with apparmor
-            t = 'info'
-            n = '%s_%s_apparmor' % (app, account_type)
-            s = "OK"
-            if 'apparmor' not in self.manifest['hooks'][app]:
-                t = 'error'
-                s = "missing 'apparmor' entry"
-            self._add_result(t, n, s)
+#             t = 'info'
+#             n = '%s_%s_apparmor' % (app, account_type)
+#             s = "OK"
+#             if 'apparmor' not in self.manifest['hooks'][app]:
+#                 t = 'error'
+#                 t = 'info'
+#                 s = "missing 'apparmor' entry"
+#             self._add_result(t, n, s)
 
             # account-qml-plugin must always appear with account-provider
             t = 'info'

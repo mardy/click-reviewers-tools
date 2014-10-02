@@ -328,12 +328,13 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c.check_provider()
         r = c.click_report
         # provider prompts manual review, so for now, need to have error as 1
-        expected_counts = {'info': 5, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
         self.check_manual_review(r, check_name)
 
-    def test_check_provider_missing_apparmor(self):
+# TODO: when apparmor has policy for account-provider, undo this
+    def _test_check_provider_missing_apparmor(self):
         '''Test check_provider() - missing apparmor'''
         xml = self._stub_provider()
         self.set_test_account(self.default_appname, "account-provider", xml)
@@ -457,12 +458,13 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c.check_qml_plugin()
         r = c.click_report
         # provider prompts manual review, so for now, need to have error as 1
-        expected_counts = {'info': 3, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
         self.check_manual_review(r, check_name)
 
-    def test_check_qml_plugin_missing_apparmor(self):
+# TODO: when apparmor has policy for account-qml-plugin, undo this
+    def _test_check_qml_plugin_missing_apparmor(self):
         '''Test check_qml_plugin() - missing apparmor'''
         self.set_test_account(self.default_appname, "account-qml-plugin", True)
         xml = self._stub_provider()

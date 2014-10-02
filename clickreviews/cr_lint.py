@@ -336,8 +336,14 @@ exit 1
                     s = "OK (run check-url-dispatcher for more checks)"
 
                 if f not in self.manifest['hooks'][app]:
-                    t = 'error'
-                    s = "'%s' hook not found for '%s'" % (f, app)
+                    # TODO: when have apparmor policy for account-provider and
+                    #       account-qml-plugin, remove this conditional
+                    if f != 'apparmor' or \
+                       len(self.manifest['hooks'][app]) != 2 or \
+                       'account-provider' not in self.manifest['hooks'][app] or \
+                       'account-qml-plugin' not in self.manifest['hooks'][app]:
+                        t = 'error'
+                        s = "'%s' hook not found for '%s'" % (f, app)
                 self._add_result(t, n, s)
 
         mutually_exclusive = ['scope', 'desktop']

@@ -1,3 +1,11 @@
+click-reviewers-tools (0.14) utopic; urgency=medium
+
+  * don't error when account-provider and account-qml-plugin does not also
+    have apparmor policy. There is no policy for these yet so the errors
+    are confusing
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 02 Oct 2014 15:15:58 -0500
+
 click-reviewers-tools (0.13) utopic; urgency=medium
 
   * reduce to 'info' when security policy does not end with .apparmor
