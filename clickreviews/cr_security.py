@@ -414,6 +414,23 @@ class ClickReviewSecurity(ClickReview):
                 s = "found unusual policy groups: %s" % ", ".join(bad)
             self._add_result(t, n, s)
 
+    def check_policy_groups_push_notification_client(self):
+        '''Check policy_groups for non-push-helpers do not use
+           push_notification_client policy group
+        '''
+        for app in sorted(self.security_apps):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = 'policy_groups_push_notification_client(%s)' % f
+            s = "OK"
+            if 'push-helper' not in self.manifest['hooks'][app] and \
+               'policy_groups' in m and \
+               'push-notification-client' in m['policy_groups']:
+                t = 'error'
+                s = "should only use 'push-notification-client' policy " \
+                    "group with 'push-helper' hook"
+            self._add_result(t, n, s)
+
     def check_policy_groups_scopes(self):
         '''Check policy_groups for scopes'''
         for app in sorted(self.security_apps):
