@@ -106,7 +106,7 @@ class ClickReviewAccounts(ClickReview):
                 if k in self.manifest['hooks'][app]:
                     found = True
                     break
-            if not found:
+            if not found and 'pay-ui' not in self.manifest['hooks'][app]:
                 t = 'error'
                 s = "missing 'desktop' or 'scope' entry"
             self._add_result(t, n, s)

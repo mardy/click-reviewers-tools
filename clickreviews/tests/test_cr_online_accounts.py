@@ -122,6 +122,20 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_application_missing_desktop_and_scope_with_payui(self):
+        '''Test check_application() - missing desktop and scope with pay-ui'''
+        xml = self._stub_application()
+        # print(etree.tostring(xml))
+        self.set_test_account(self.default_appname, "account-application", xml)
+        c = ClickReviewAccounts(self.test_name)
+        # The stub manifest doesn't have scope already
+        del c.manifest['hooks'][self.default_appname]['desktop']
+        c.manifest['hooks'][self.default_appname]['pay-ui'] = "foo.desktop"
+        c.check_application()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_application_not_specified(self):
         '''Test check_application() - not specified'''
         c = ClickReviewAccounts(self.test_name)
