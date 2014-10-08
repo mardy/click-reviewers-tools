@@ -1,11 +1,14 @@
-click-reviewers-tools (0.15) UNRELEASED; urgency=medium
+click-reviewers-tools (0.15) utopic; urgency=medium
 
   * error if non-push-helper specifies the push-notification-client policy
     group
   * don't error in check_application() if no scope or desktop hook when pay-ui
     hook is present
+  * updates for push security checks:
+    - apps may specify push-notification-client
+    - push-helpers must use the new 'ubuntu-push-helper' template
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 03 Oct 2014 12:32:56 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 08 Oct 2014 15:15:53 -0500
 
 click-reviewers-tools (0.14) utopic; urgency=medium
 
