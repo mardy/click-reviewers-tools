@@ -677,45 +677,11 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
-    def test_check_policy_groups_push_notification_client_app(self):
-        '''Test check_policy_groups_push_notification_client() - app'''
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups",
-                                        ["networking"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_policy_groups_push_notification_client()
-        report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_policy_groups_push_notification_client_app_bad(self):
-        '''Test check_policy_groups_push_notification_client() - app bad'''
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups",
-                                        ["push-notification-client"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_policy_groups_push_notification_client()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_policy_groups_push_notification_client(self):
-        '''Test check_policy_groups_push_notification_client()'''
-        self.set_test_push_helper(self.default_appname, "exec", "foo")
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups",
-                                        ["push-notification-client"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_policy_groups_push_notification_client()
-        report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
     def test_check_template_pushhelper(self):
         '''Test check_template_pushhelper'''
         self.set_test_push_helper(self.default_appname, "exec", "foo")
         self.set_test_security_manifest(self.default_appname,
-                                        "template", "ubuntu-sdk")
+                                        "template", "ubuntu-push-helper")
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups",
                                         ["push-notification-client"])
@@ -736,10 +702,24 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.check_results(report, expected_counts)
 
     def test_check_template_pushhelper_wrong_template(self):
-        '''Test check_template_pushhelper - wrong template()'''
+        '''Test check_template_pushhelper - wrong template'''
         self.set_test_push_helper(self.default_appname, "exec", "foo")
         self.set_test_security_manifest(self.default_appname,
                                         "template", "ubuntu-webapp")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["push-notification-client"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_template_push_helpers()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_pushhelper_wrong_template2(self):
+        '''Test check_template_pushhelper - default template'''
+        self.set_test_push_helper(self.default_appname, "exec", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", None)
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups",
                                         ["push-notification-client"])
