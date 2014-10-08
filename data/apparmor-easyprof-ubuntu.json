@@ -86,6 +86,7 @@
       "templates": {
         "common": [
           "default",
+          "ubuntu-push-helper",
           "ubuntu-scope-network",
           "ubuntu-sdk",
           "ubuntu-webapp"
