@@ -1,7 +1,5 @@
 click-reviewers-tools (0.15) utopic; urgency=medium
 
-  * error if non-push-helper specifies the push-notification-client policy
-    group
   * don't error in check_application() if no scope or desktop hook when pay-ui
     hook is present
   * updates for push security checks:
