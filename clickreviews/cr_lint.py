@@ -36,14 +36,20 @@ class ClickReviewLint(ClickReview):
         ClickReview.__init__(self, fn, "lint")
         self.control_files = dict()
         self._list_control_files()
-        # LP: #1214380
-        # self.valid_control_architectures = ['amd64', 'i386', 'armhf',
-        #                                     'powerpc', 'all']
-        self.valid_control_architectures = ['all',     # no compiled code
-                                            'multi',   # fat packages
-                                            'armhf',   # compiled, single arch
-                                            # 'i386',  # not on desktop yet
-                                            # 'amd64', # not on desktop yet
+        # Valid values for Architecture in DEBIAN/control. Note:
+        #  all    - no compiled code
+        #  multi  - fat packages (click manifest declares which ones as a list)
+        #  armhf  - compiled, single arch (unity8-based devices)
+        #  i386   - compiled, single arch (unity8-based emulator and desktop)
+        #  amd64  - compiled, single arch (unity8-based desktop)
+        #  arm64  - compiled, single arch (not available yet)
+        #  ppc64el - compiled, single arch (not available yet)
+        #  powerpc - compiled, single arch (not available yet)
+        self.valid_control_architectures = ['all',
+                                            'multi',
+                                            'armhf',
+                                            'i386',
+                                            'amd64',
                                             ]
         self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
 

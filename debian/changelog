@@ -1,3 +1,9 @@
+click-reviewers-tools (0.16) UNRELEASED; urgency=medium
+
+  * add i386 and amd64 to self.valid_control_architectures
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 09 Oct 2014 08:56:35 -0500
+
 click-reviewers-tools (0.15) utopic; urgency=medium
 
   * don't error in check_application() if no scope or desktop hook when pay-ui

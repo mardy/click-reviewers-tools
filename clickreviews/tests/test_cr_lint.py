@@ -59,6 +59,33 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_architecture_armhf(self):
+        '''Test check_architecture() - armhf'''
+        self.set_test_control("Architecture", "armhf")
+        c = ClickReviewLint(self.test_name)
+        c.check_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_i386(self):
+        '''Test check_architecture() - i386'''
+        self.set_test_control("Architecture", "i386")
+        c = ClickReviewLint(self.test_name)
+        c.check_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_amd64(self):
+        '''Test check_architecture() - amd64'''
+        self.set_test_control("Architecture", "amd64")
+        c = ClickReviewLint(self.test_name)
+        c.check_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_architecture_nonexistent(self):
         '''Test check_architecture() - nonexistent'''
         self.set_test_control("Architecture", "nonexistent")
@@ -265,9 +292,27 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_manifest_arch_single(self):
-        '''Test check_manifest_architecture() (single arch)'''
+    def test_check_manifest_arch_single_armhf(self):
+        '''Test check_manifest_architecture() (single arch, armhf)'''
         self.set_test_manifest("architecture", "armhf")
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_arch_single_i386(self):
+        '''Test check_manifest_architecture() (single arch, i386)'''
+        self.set_test_manifest("architecture", "i386")
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_arch_single_amd64(self):
+        '''Test check_manifest_architecture() (single arch, amd64)'''
+        self.set_test_manifest("architecture", "amd64")
         c = ClickReviewLint(self.test_name)
         c.check_manifest_architecture()
         r = c.click_report
