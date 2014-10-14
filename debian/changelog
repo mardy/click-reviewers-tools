@@ -3,6 +3,7 @@ click-reviewers-tools (0.17) utopic; urgency=medium
   * webapps may use content_exchange_source (LP: #1380694)
   * online accounts shouldn't specify id and should warn when they do.
     (LP: #1380534)
+  * click-show-files: cleanup unpack directory at end
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 14 Oct 2014 11:35:43 -0500
 

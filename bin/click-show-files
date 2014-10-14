@@ -44,7 +44,6 @@ if __name__ == "__main__":
             print(line, end="")
         fh.close()
         print("")
-    cr_common.cleanup_unpack()
 
     print("= hooks =")
 
@@ -58,7 +57,6 @@ if __name__ == "__main__":
             print(line, end="")
         fh.close()
         print("")
-    cr_common.cleanup_unpack()
 
     review_desktop = cr_desktop.ClickReviewDesktop(sys.argv[1])
     for app in sorted(review_desktop.desktop_files):
@@ -70,7 +68,6 @@ if __name__ == "__main__":
             print(line, end="")
         fh.close()
         print("")
-    cr_common.cleanup_unpack()
 
     review_accounts = cr_online_accounts.ClickReviewAccounts(sys.argv[1])
     for app in sorted(review_accounts.accounts_files):
@@ -85,7 +82,6 @@ if __name__ == "__main__":
                 print(line, end="")
             fh.close()
             print("")
-    cr_common.cleanup_unpack()
 
     review_push_helper = cr_push_helper.ClickReviewPushHelper(sys.argv[1])
     for app in sorted(review_push_helper.push_helper_files):
@@ -97,7 +93,6 @@ if __name__ == "__main__":
             print(line, end="")
         fh.close()
         print("")
-    cr_common.cleanup_unpack()
 
     review_scope = cr_scope.ClickReviewScope(sys.argv[1])
     for app in sorted(review_scope.scopes):
@@ -108,7 +103,6 @@ if __name__ == "__main__":
             print(line, end="")
         fh.close()
         print("")
-    cr_common.cleanup_unpack()
 
     review_apparmor = cr_security.ClickReviewSecurity(sys.argv[1])
     for f in sorted(review_apparmor.security_manifests):
@@ -119,7 +113,6 @@ if __name__ == "__main__":
             print(line, end="")
         fh.close()
         print("")
-    cr_common.cleanup_unpack()
 
     review_url_dispatcher = cr_url_dispatcher.ClickReviewUrlDispatcher(sys.argv[1])
     for app in sorted(review_url_dispatcher.url_dispatcher_files):
@@ -131,4 +124,6 @@ if __name__ == "__main__":
             print(line, end="")
         fh.close()
         print("")
+
+    # Cleanup our unpack directory
     cr_common.cleanup_unpack()
