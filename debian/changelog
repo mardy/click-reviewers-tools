@@ -1,6 +1,6 @@
 click-reviewers-tools (0.17) UNRELEASED; urgency=medium
 
-  * webapps may use content_exchange_source
+  * webapps may use content_exchange_source (LP: #1380694)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 14 Oct 2014 08:13:26 -0500
 
