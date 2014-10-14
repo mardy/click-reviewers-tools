@@ -29,31 +29,33 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
 
     def _stub_application(self, root=None, id=None, do_subtree=True):
         '''Stub application xml'''
-        if id is None:
-            id = "%s_%s" % (self.test_manifest["name"], self.default_appname)
         if root is None:
             root = "application"
-        if id == "":
+        if id == "" or id is None:
             xml = etree.Element(root)
         else:
             xml = etree.Element(root, id="%s" % id)
         if do_subtree:
             services = etree.SubElement(xml, "services")
-            elem1 = etree.SubElement(services, "service", id="element1")
+            if id is None:
+                elem1 = etree.SubElement(services, "service")
+            else:
+                elem1 = etree.SubElement(services, "service", id="element1")
             desc1 = etree.SubElement(elem1, "description")
             desc1.text = "elem1 description"
-            elem2 = etree.SubElement(services, "service", id="element2")
+            if id is None:
+                elem2 = etree.SubElement(services, "service")
+            else:
+                elem2 = etree.SubElement(services, "service", id="element2")
             desc2 = etree.SubElement(elem2, "description")
             desc2.text = "elem2 description"
         return xml
 
     def _stub_service(self, root=None, id=None, do_subtree=True):
         '''Stub service xml'''
-        if id is None:
-            id = "%s_%s" % (self.test_manifest["name"], self.default_appname)
         if root is None:
             root = "service"
-        if id == "":
+        if id == "" or id is None:
             xml = etree.Element(root)
         else:
             xml = etree.Element(root, id="%s" % id)
@@ -68,11 +70,9 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
 
     def _stub_provider(self, root=None, id=None, do_subtree=True):
         '''Stub provider xml'''
-        if id is None:
-            id = "%s_%s" % (self.test_manifest["name"], self.default_appname)
         if root is None:
             root = "provider"
-        if id == "":
+        if id == "" or id is None:
             xml = etree.Element(root)
         else:
             xml = etree.Element(root, id="%s" % id)
@@ -144,24 +144,15 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_application_wrong_id(self):
-        '''Test check_application() - wrong id'''
-        xml = self._stub_application(id="nomatch")
+    def test_check_application_has_id(self):
+        '''Test check_application() - has id'''
+        xml = self._stub_application(id="%s_%s" % (self.test_manifest["name"],
+                                                   self.default_appname))
         self.set_test_account(self.default_appname, "account-application", xml)
         c = ClickReviewAccounts(self.test_name)
         c.check_application()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_application_missing_id(self):
-        '''Test check_application() - missing id'''
-        xml = self._stub_application(id="")
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_application()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_application_wrong_root(self):
@@ -249,28 +240,17 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_service_wrong_id(self):
-        '''Test check_service() - wrong id'''
-        xml = self._stub_service(id="nomatch")
+    def test_check_service_has_id(self):
+        '''Test check_service() - has id'''
+        xml = self._stub_service(id="%s_%s" % (self.test_manifest["name"],
+                                               self.default_appname))
         self.set_test_account(self.default_appname, "account-service", xml)
         xml = self._stub_application()
         self.set_test_account(self.default_appname, "account-application", xml)
         c = ClickReviewAccounts(self.test_name)
         c.check_service()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_service_missing_id(self):
-        '''Test check_service() - missing id'''
-        xml = self._stub_service(id="")
-        self.set_test_account(self.default_appname, "account-service", xml)
-        xml = self._stub_application()
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_service()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_service_wrong_root(self):
@@ -435,30 +415,17 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_provider_missing_id(self):
-        '''Test check_provider() - missing id'''
-        xml = self._stub_provider(id="")
+    def test_check_provider_has_id(self):
+        '''Test check_provider() - has id'''
+        xml = self._stub_provider(id="%s_%s" % (self.test_manifest["name"],
+                                                self.default_appname))
         self.set_test_account(self.default_appname, "account-provider", xml)
         self.set_test_account(self.default_appname, "account-qml-plugin", True)
         c = ClickReviewAccounts(self.test_name)
         c.check_provider()
         r = c.click_report
         # provider prompts manual review, so for now, need to have error as +1
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
-
-    def test_check_provider_wrong_id(self):
-        '''Test check_provider() - wrong id'''
-        xml = self._stub_provider(id="wrongid")
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_provider()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as +1
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        expected_counts = {'info': None, 'warn': 1, 'error': 1}
         self.check_results(r, expected_counts)
         check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
         self.check_manual_review(r, check_name)

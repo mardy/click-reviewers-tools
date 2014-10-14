@@ -121,14 +121,9 @@ class ClickReviewAccounts(ClickReview):
             n = '%s_%s_id' % (app, account_type)
             s = "OK"
             expected_id = "%s_%s" % (self.manifest["name"], app)
-            if "id" not in self.accounts[app][account_type].keys():
-                t = 'error'
-                s = "Could not find 'id' in application tag"
-            elif self.accounts[app][account_type].get("id") != expected_id:
-                t = 'error'
-                s = "id '%s' != '%s'" % (
-                    self.accounts[app][account_type].get("id"),
-                    expected_id)
+            if "id" in self.accounts[app][account_type].keys():
+                t = 'warn'
+                s = "Found 'id' in application tag"
             self._add_result(t, n, s)
 
             t = 'info'
@@ -192,14 +187,9 @@ class ClickReviewAccounts(ClickReview):
             n = '%s_%s_id' % (app, account_type)
             s = "OK"
             expected_id = "%s_%s" % (self.manifest["name"], app)
-            if "id" not in self.accounts[app][account_type].keys():
-                t = 'error'
-                s = "Could not find 'id' in service tag"
-            elif self.accounts[app][account_type].get("id") != expected_id:
-                t = 'error'
-                s = "id '%s' != '%s'" % (
-                    self.accounts[app][account_type].get("id"),
-                    expected_id)
+            if "id" in self.accounts[app][account_type].keys():
+                t = 'warn'
+                s = "Found 'id' in service tag"
             self._add_result(t, n, s)
 
             if t == 'error':
@@ -280,14 +270,9 @@ class ClickReviewAccounts(ClickReview):
             n = '%s_%s_id' % (app, account_type)
             s = "OK"
             expected_id = "%s_%s" % (self.manifest["name"], app)
-            if "id" not in self.accounts[app][account_type].keys():
-                t = 'error'
-                s = "Could not find 'id' in provider tag"
-            elif self.accounts[app][account_type].get("id") != expected_id:
-                t = 'error'
-                s = "id '%s' != '%s'" % (
-                    self.accounts[app][account_type].get("id"),
-                    expected_id)
+            if "id" in self.accounts[app][account_type].keys():
+                t = 'warn'
+                s = "Found 'id' in provider tag"
             self._add_result(t, n, s)
 
     def check_qml_plugin(self):
