@@ -1,3 +1,9 @@
+click-reviewers-tools (0.19) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 15 Oct 2014 10:46:59 +0200
+
 click-reviewers-tools (0.18) utopic; urgency=medium
 
   * Let setup.py handle non-ascii characters in d/changelog.
