@@ -1,4 +1,4 @@
-click-reviewers-tools (0.18) UNRELEASED; urgency=medium
+click-reviewers-tools (0.18) utopic; urgency=medium
 
   * Let setup.py handle non-ascii characters in d/changelog.
 
