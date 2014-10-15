@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 from setuptools import setup, find_packages
+import codecs
 import glob
 import os
 import re
@@ -8,7 +9,7 @@ import re
 # look/set what version we have
 changelog = 'debian/changelog'
 if os.path.exists(changelog):
-    head = open(changelog).readline()
+    head = codecs.open(changelog, encoding='utf-8').readline()
     match = re.compile('.*\((.*)\).*').match(head)
     if match:
         version = match.group(1)
