@@ -2,6 +2,7 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
 
   [ Ricardo Kirkner ]
   * fetch framework data before running framework related checks
+  * use mtime instead of ctime to check remote file freshness
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 11 Nov 2014 10:41:43 -0600
 
