@@ -32,10 +32,9 @@ class Frameworks(object):
     OBSOLETE_FRAMEWORKS = []
     AVAILABLE_FRAMEWORKS = []
 
-    def __init__(self, local_copy_fn=None):
+    def __init__(self):
         self.FRAMEWORKS = clickreviews.remote.read_cr_file(USER_DATA_FILE,
-                                                           FRAMEWORKS_DATA_URL,
-                                                           local_copy_fn)
+                                                           FRAMEWORKS_DATA_URL)
 
         for k, v in self.FRAMEWORKS.items():
             if v == 'deprecated':
