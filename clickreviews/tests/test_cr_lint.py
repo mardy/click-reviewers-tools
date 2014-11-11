@@ -30,6 +30,21 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
+    def patch_frameworks(self):
+        def _mock_frameworks(self):
+            self.FRAMEWORKS = {
+                'ubuntu-sdk-14.10-qml-dev2': 'available',
+                'ubuntu-sdk-13.10': 'deprecated',
+                'ubuntu-sdk-14.10-qml-dev1': 'obsolete',
+            }
+            self.AVAILABLE_FRAMEWORKS = ['ubuntu-sdk-14.10-qml-dev2']
+            self.OBSOLETE_FRAMEWORKS = ['ubuntu-sdk-14.10-qml-dev1']
+            self.DEPRECATED_FRAMEWORKS = ['ubuntu-sdk-13.10']
+        p = patch('clickreviews.frameworks.Frameworks.__init__',
+                  _mock_frameworks)
+        p.start()
+        self.addCleanup(p.stop)
+
     def test_check_architecture(self):
         '''Test check_architecture()'''
         c = ClickReviewLint(self.test_name)
@@ -683,6 +698,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_framework(self):
         '''Test check_framework()'''
+        self.patch_frameworks()
         self.set_test_manifest("framework", "ubuntu-sdk-14.10-qml-dev2")
         c = ClickReviewLint(self.test_name)
         c.check_framework()
@@ -693,6 +709,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     @patch('clickreviews.remote.read_cr_file')
     def test_check_framework_fetches_remote_data(self, mock_read_cr_file):
         '''Test check_framework()'''
+        mock_read_cr_file.return_value = {
+            'ubuntu-sdk-14.10-qml-dev2': 'available',
+        }
         self.set_test_manifest("framework", "ubuntu-sdk-14.10-qml-dev2")
         c = ClickReviewLint(self.test_name)
         c.check_framework()
@@ -701,10 +720,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
         # ensure no local fn is provided when reading frameworks
         mock_read_cr_file.assert_called_once_with(
-            USER_DATA_FILE, FRAMEWORKS_DATA_URL, None)
+            USER_DATA_FILE, FRAMEWORKS_DATA_URL)
 
     def test_check_framework_bad(self):
         '''Test check_framework() - bad'''
+        self.patch_frameworks()
         self.set_test_manifest("framework", "nonexistent")
         c = ClickReviewLint(self.test_name)
         c.check_framework()
@@ -714,6 +734,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_framework_deprecated(self):
         '''Test check_framework() - deprecated'''
+        self.patch_frameworks()
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")
         c = ClickReviewLint(self.test_name)
         c.check_framework()
@@ -723,6 +744,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_framework_obsolete(self):
         '''Test check_framework() - obsolete'''
+        self.patch_frameworks()
         self.set_test_manifest("framework", "ubuntu-sdk-14.10-qml-dev1")
         c = ClickReviewLint(self.test_name)
         c.check_framework()
