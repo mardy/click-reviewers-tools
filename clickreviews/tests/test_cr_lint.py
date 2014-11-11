@@ -18,6 +18,7 @@ from unittest.mock import patch
 
 from clickreviews.cr_lint import ClickReviewLint
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
+from clickreviews.frameworks import FRAMEWORKS_DATA_URL, USER_DATA_FILE
 import clickreviews.cr_tests as cr_tests
 
 
@@ -688,6 +689,19 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+    @patch('clickreviews.remote.read_cr_file')
+    def test_check_framework_fetches_remote_data(self, mock_read_cr_file):
+        '''Test check_framework()'''
+        self.set_test_manifest("framework", "ubuntu-sdk-14.10-qml-dev2")
+        c = ClickReviewLint(self.test_name)
+        c.check_framework()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+        # ensure no local fn is provided when reading frameworks
+        mock_read_cr_file.assert_called_once_with(
+            USER_DATA_FILE, FRAMEWORKS_DATA_URL, None)
 
     def test_check_framework_bad(self):
         '''Test check_framework() - bad'''
