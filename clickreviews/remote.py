@@ -28,7 +28,7 @@ UPDATE_INTERVAL = 60 * 60 * 24 * 7
 
 def _update_is_necessary(fn):
     return (not os.path.exists(fn)) or \
-        (time.time() - os.path.getctime(fn) >= UPDATE_INTERVAL)
+        (time.time() - os.path.getmtime(fn) >= UPDATE_INTERVAL)
 
 
 def _update_is_possible(url):
