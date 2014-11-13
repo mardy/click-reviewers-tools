@@ -713,3 +713,57 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_local_app(self):
+        '''Test test_check_desktop_exec_webbrowser_local_app() local app'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webapp-container ./www/index.html"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_local_pattern(self):
+        '''Test test_check_desktop_exec_webbrowser_local_pattern() invalid pattern'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webapp-container " + \
+             "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
+             "./www/index.html"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_local_webapp(self):
+        '''Test test_check_desktop_exec_webbrowser_local_webapp() invalid webapp cli'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webapp-container " + \
+             "--webapp=DEADBEEF " + \
+             "./www/index.html"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_local_model(self):
+        '''Test test_check_desktop_exec_webbrowser_local_model() invalid model'''
+        c = ClickReviewDesktop(self.test_name)
+        ex = "webapp-container " + \
+             "--webappModelSearchPath=. " + \
+             "./www/index.html"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webbrowser_urlpatterns()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
