@@ -721,7 +721,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.set_test_desktop(self.default_appname,
                               "Exec",
                               ex)
-        c.check_desktop_exec_webbrowser_urlpatterns()
+        c.check_desktop_exec_webapp_args()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
@@ -735,7 +735,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.set_test_desktop(self.default_appname,
                               "Exec",
                               ex)
-        c.check_desktop_exec_webbrowser_urlpatterns()
+        c.check_desktop_exec_webapp_args()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
@@ -749,7 +749,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.set_test_desktop(self.default_appname,
                               "Exec",
                               ex)
-        c.check_desktop_exec_webbrowser_urlpatterns()
+        c.check_desktop_exec_webapp_args()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
@@ -763,7 +763,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.set_test_desktop(self.default_appname,
                               "Exec",
                               ex)
-        c.check_desktop_exec_webbrowser_urlpatterns()
+        c.check_desktop_exec_webapp_args()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
