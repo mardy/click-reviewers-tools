@@ -8,6 +8,9 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * add support for local html5 app launch mode for webapp-container
     (LP: #1388988)
 
+  [ Jamie Strandboge ]
+  * open scopes .ini file as utf8 (LP: #1371692)
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 13 Nov 2014 15:00:07 -0600
 
 click-reviewers-tools (0.18) utopic; urgency=medium
