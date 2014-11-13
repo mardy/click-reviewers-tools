@@ -327,19 +327,39 @@ class ClickReviewDesktop(ClickReview):
             s = 'OK'
             found_url_patterns = False
             found_model_search_path = False
+            found_named_webapp = False
+            urls = []
             for i in de.getExec().split():
                 if i.startswith('--webappUrlPatterns'):
                     found_url_patterns = True
                 if i.startswith('--webappModelSearchPath'):
                     found_model_search_path = True
-            if found_url_patterns and found_model_search_path:
-                t = 'error'
-                s = "should not specify --webappUrlPatterns when using " + \
-                    "--webappModelSearchPath"
-            elif not found_url_patterns and not found_model_search_path:
-                t = 'error'
-                s = "must specify one of --webappUrlPatterns or " + \
-                    "--webappModelSearchPath"
+                if i.startswith('--webapp='):
+                    found_model_search_path = True
+                if not i.startswith('--'):
+                    urls.append(i)
+            is_launching_local_app = True
+            for url in urls:
+                parts = urlsplit(url)
+                if parts.scheme in ['http', 'https']:
+                    is_launching_local_app = False
+                    break
+            if is_launching_local_app and \
+               (found_url_patterns or found_model_search_path \
+                or found_named_webapp):
+                    t = 'error'
+                    s = "should not specify --webappUrlPatterns, " + \
+                        "--webappModelSearchPath or --webapp= when " + \
+                        "running local application"
+            if not is_launching_local_app:
+                if found_url_patterns and found_model_search_path:
+                    t = 'error'
+                    s = "should not specify --webappUrlPatterns when using " + \
+                        "--webappModelSearchPath"
+                elif not found_url_patterns and not found_model_search_path:
+                    t = 'error'
+                    s = "must specify one of --webappUrlPatterns or " + \
+                        "--webappModelSearchPath"
             self._add_result(t, n, s)
 
     def _check_patterns(self, app, patterns, args):
