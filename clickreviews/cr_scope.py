@@ -58,7 +58,7 @@ class ClickReviewScope(ClickReview):
         try:
             d["scope_config"] = configparser.ConfigParser()
             d["scope_config"].read(ini_fn)
-        except Exception:
+        except Exception as e:
             error("scope config unparseable: %s (%s)" % (ini_fn_bn, str(e)))
 
         d["dir"] = fn
