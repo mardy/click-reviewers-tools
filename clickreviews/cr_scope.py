@@ -17,6 +17,7 @@
 from __future__ import print_function
 
 from clickreviews.cr_common import ClickReview, error, msg
+import codecs
 import configparser
 import os
 
@@ -57,7 +58,7 @@ class ClickReviewScope(ClickReview):
             error("Could not find scope INI file '%s'" % ini_fn_bn)
         try:
             d["scope_config"] = configparser.ConfigParser()
-            d["scope_config"].read(ini_fn)
+            d["scope_config"].read_file(codecs.open(ini_fn, "r", "utf8"))
         except Exception as e:
             error("scope config unparseable: %s (%s)" % (ini_fn_bn, str(e)))
 
