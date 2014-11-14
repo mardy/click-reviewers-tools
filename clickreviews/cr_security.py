@@ -78,10 +78,17 @@ class ClickReviewSecurity(ClickReview):
         # framework policy is based on major framework version. In 13.10, there
         # was only 'ubuntu-sdk-13.10', but in 14.04, there will be several,
         # like 'ubuntu-sdk-14.04-html5', 'ubuntu-sdk-14.04-platform', etc
-        self.major_framework_policy = {'ubuntu-sdk-13.10': 1.0,
-                                       'ubuntu-sdk-14.04': 1.1,
-                                       'ubuntu-sdk-14.10': 1.2,
-                                       }
+        self.major_framework_policy = {
+            'ubuntu-sdk-13.10': {
+                'policy_version': 1.0,
+            },
+            'ubuntu-sdk-14.04': {
+                'policy_version': 1.1,
+            },
+            'ubuntu-sdk-14.10': {
+                'policy_version': 1.2,
+            },
+        }
         framework_overrides = overrides.get('framework') if overrides else {}
         self.major_framework_policy.update(framework_overrides)
 
@@ -271,15 +278,15 @@ class ClickReviewSecurity(ClickReview):
             n = 'policy_version_matches_framework (%s)' % (f)
             s = "OK"
             found_major = False
-            for k in self.major_framework_policy.keys():
+            for name, data in self.major_framework_policy.items():
                 # TODO: use libclick when it is available
-                if not self.manifest['framework'].startswith(k):
+                if not self.manifest['framework'].startswith(name):
                     continue
                 found_major = True
-                if m['policy_version'] != self.major_framework_policy[k]:
+                if m['policy_version'] != data['policy_version']:
                     t = 'error'
                     s = '%s != %s (%s)' % (str(m['policy_version']),
-                                           self.major_framework_policy[k],
+                                           data['policy_version'],
                                            self.manifest['framework'])
             if not found_major:
                 t = 'error'
