@@ -25,7 +25,7 @@ import os
 
 class ClickReviewSecurity(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         ClickReview.__init__(self, fn, "security")
 
         local_copy = os.path.join(os.path.dirname(__file__),
@@ -82,6 +82,8 @@ class ClickReviewSecurity(ClickReview):
                                        'ubuntu-sdk-14.04': 1.1,
                                        'ubuntu-sdk-14.10': 1.2,
                                        }
+        framework_overrides = overrides.get('framework') if overrides else {}
+        self.major_framework_policy.update(framework_overrides)
 
         self.security_manifests = dict()
         self.security_apps = []

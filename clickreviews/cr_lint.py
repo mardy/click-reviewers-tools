@@ -31,7 +31,7 @@ MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
 class ClickReviewLint(ClickReview):
     '''This class represents click lint reviews'''
 
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         '''Set up the class.'''
         ClickReview.__init__(self, fn, "lint")
         self.control_files = dict()
@@ -87,6 +87,7 @@ class ClickReviewLint(ClickReview):
                             'urls']
 
         self.redflagged_hooks = ['pay-ui']
+        self.overrides = overrides if overrides is not None else {}
 
     def _list_control_files(self):
         '''List all control files with their full path.'''
@@ -641,7 +642,8 @@ exit 1
         '''Check framework()'''
         n = 'framework'
         l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
-        frameworks = Frameworks()
+        framework_overrides = self.overrides.get('framework')
+        frameworks = Frameworks(overrides=framework_overrides)
         if self.manifest['framework'] in frameworks.AVAILABLE_FRAMEWORKS:
             t = 'info'
             s = 'OK'
