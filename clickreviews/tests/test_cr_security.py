@@ -136,7 +136,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
             policy_version = 0
             for k in tmp.major_framework_policy.keys():
                 if f.startswith(k):
-                    policy_version = tmp.major_framework_policy[k]
+                    policy_version = tmp.major_framework_policy[k]['policy_version']
             self.set_test_security_manifest(self.default_appname,
                                             "policy_version",
                                             policy_version)

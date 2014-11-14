@@ -31,7 +31,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         super()
 
     def patch_frameworks(self):
-        def _mock_frameworks(self):
+        def _mock_frameworks(self, overrides=None):
             self.FRAMEWORKS = {
                 'ubuntu-sdk-14.10-qml-dev2': 'available',
                 'ubuntu-sdk-13.10': 'deprecated',
