@@ -31,7 +31,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         super()
 
     def patch_frameworks(self):
-        def _mock_frameworks(self):
+        def _mock_frameworks(self, overrides=None):
             self.FRAMEWORKS = {
                 'ubuntu-sdk-14.10-qml-dev2': 'available',
                 'ubuntu-sdk-13.10': 'deprecated',
@@ -750,6 +750,20 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_framework()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    @patch('clickreviews.remote.read_cr_file')
+    def test_check_framework_with_overrides(self, mock_read_cr_file):
+        '''Test check_framework() - using overrides'''
+        mock_read_cr_file.return_value = {
+            'ubuntu-sdk-14.10-qml-dev2': 'available',
+        }
+        self.set_test_manifest("framework", "nonexistent")
+        overrides = {'framework': {'nonexistent': {'state': 'available'}}}
+        c = ClickReviewLint(self.test_name, overrides=overrides)
+        c.check_framework()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks(self):

@@ -25,7 +25,7 @@ import os
 
 class ClickReviewSecurity(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         ClickReview.__init__(self, fn, "security")
 
         local_copy = os.path.join(os.path.dirname(__file__),
@@ -78,10 +78,19 @@ class ClickReviewSecurity(ClickReview):
         # framework policy is based on major framework version. In 13.10, there
         # was only 'ubuntu-sdk-13.10', but in 14.04, there will be several,
         # like 'ubuntu-sdk-14.04-html5', 'ubuntu-sdk-14.04-platform', etc
-        self.major_framework_policy = {'ubuntu-sdk-13.10': 1.0,
-                                       'ubuntu-sdk-14.04': 1.1,
-                                       'ubuntu-sdk-14.10': 1.2,
-                                       }
+        self.major_framework_policy = {
+            'ubuntu-sdk-13.10': {
+                'policy_version': 1.0,
+            },
+            'ubuntu-sdk-14.04': {
+                'policy_version': 1.1,
+            },
+            'ubuntu-sdk-14.10': {
+                'policy_version': 1.2,
+            },
+        }
+        framework_overrides = overrides.get('framework') if overrides else {}
+        self._override_framework_policies(framework_overrides)
 
         self.security_manifests = dict()
         self.security_apps = []
@@ -101,6 +110,23 @@ class ClickReviewSecurity(ClickReview):
             self.security_manifests[rel_fn] = \
                 self._extract_security_manifest(app)
             self.security_apps.append(app)
+
+    def _override_framework_policies(self, overrides):
+        # override major framework policies
+        self.major_framework_policy.update(overrides)
+
+        # override apparmor policies
+        for name, data in overrides.items():
+            vendor = data.get('policy_vendor')
+            version = str(data.get('policy_version'))
+
+            if vendor not in self.aa_policy:
+                self.aa_policy[vendor] = {}
+
+            if version not in self.aa_policy[vendor]:
+                # just ensure the version is defined
+                # TODO: add support to override templates and policy groups
+                self.aa_policy[vendor][version] = {}
 
     def _extract_security_manifest(self, app):
         '''Extract security manifest and verify it has the expected
@@ -269,15 +295,15 @@ class ClickReviewSecurity(ClickReview):
             n = 'policy_version_matches_framework (%s)' % (f)
             s = "OK"
             found_major = False
-            for k in self.major_framework_policy.keys():
+            for name, data in self.major_framework_policy.items():
                 # TODO: use libclick when it is available
-                if not self.manifest['framework'].startswith(k):
+                if not self.manifest['framework'].startswith(name):
                     continue
                 found_major = True
-                if m['policy_version'] != self.major_framework_policy[k]:
+                if m['policy_version'] != data['policy_version']:
                     t = 'error'
                     s = '%s != %s (%s)' % (str(m['policy_version']),
-                                           self.major_framework_policy[k],
+                                           data['policy_version'],
                                            self.manifest['framework'])
             if not found_major:
                 t = 'error'
