@@ -90,7 +90,7 @@ class ClickReviewSecurity(ClickReview):
             },
         }
         framework_overrides = overrides.get('framework') if overrides else {}
-        self.major_framework_policy.update(framework_overrides)
+        self._override_framework_policies(framework_overrides)
 
         self.security_manifests = dict()
         self.security_apps = []
@@ -110,6 +110,23 @@ class ClickReviewSecurity(ClickReview):
             self.security_manifests[rel_fn] = \
                 self._extract_security_manifest(app)
             self.security_apps.append(app)
+
+    def _override_framework_policies(self, overrides):
+        # override major framework policies
+        self.major_framework_policy.update(overrides)
+
+        # override apparmor policies
+        for name, data in overrides.items():
+            vendor = data.get('policy_vendor')
+            version = str(data.get('policy_version'))
+
+            if vendor not in self.aa_policy:
+                self.aa_policy[vendor] = {}
+
+            if version not in self.aa_policy[vendor]:
+                # just ensure the version is defined
+                # TODO: add support to override templates and policy groups
+                self.aa_policy[vendor][version] = {}
 
     def _extract_security_manifest(self, app):
         '''Extract security manifest and verify it has the expected
