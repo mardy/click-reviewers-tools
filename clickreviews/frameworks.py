@@ -38,10 +38,15 @@ class Frameworks(object):
         if overrides is not None:
             self.FRAMEWORKS.update(overrides)
 
-        for k, v in self.FRAMEWORKS.items():
-            if v == 'deprecated':
-                self.DEPRECATED_FRAMEWORKS.append(k)
-            elif v == 'obsolete':
-                self.OBSOLETE_FRAMEWORKS.append(k)
-            elif v == 'available':
-                self.AVAILABLE_FRAMEWORKS.append(k)
+        for name, data in self.FRAMEWORKS.items():
+            if type(data) is dict:
+                state = data.get('state')
+            else:
+                state = data
+
+            if state == 'deprecated':
+                self.DEPRECATED_FRAMEWORKS.append(name)
+            elif state == 'obsolete':
+                self.OBSOLETE_FRAMEWORKS.append(name)
+            elif state == 'available':
+                self.AVAILABLE_FRAMEWORKS.append(name)
