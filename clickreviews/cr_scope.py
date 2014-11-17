@@ -20,6 +20,7 @@ from clickreviews.cr_common import ClickReview, error, msg
 import codecs
 import configparser
 import os
+import re
 
 
 KNOWN_SECTIONS = set(["ScopeConfig", "Appearance"])
@@ -105,6 +106,9 @@ class ClickReviewScope(ClickReview):
                         'resultsttltype',
                         'scoperunner',
                         'searchhint']
+            translated = ['description',
+                          'displayname',
+                          'searchhint']
 
             missing = []
             t = 'info'
@@ -129,9 +133,12 @@ class ClickReviewScope(ClickReview):
             n = 'ini_%s_scope_unknown_fields' % (app)
             s = 'OK'
             unknown = []
-            for f in self.scopes[app]["scope_config"]['ScopeConfig'].keys():
-                if f.lower() not in required and f.lower() not in optional:
-                    unknown.append(f.lower())
+            for i in self.scopes[app]["scope_config"]['ScopeConfig'].keys():
+                f = i.lower()
+                if f not in required and f not in optional and \
+                   (f.split("[")[0] not in translated or not
+                       re.search(r'.*\[[a-z][a-z](_[a-z][a-z])?\]$', f)):
+                    unknown.append(f)
 
             if len(unknown) == 1:
                 t = 'warn'
