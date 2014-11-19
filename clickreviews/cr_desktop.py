@@ -55,7 +55,12 @@ class ClickReviewDesktop(ClickReview):
                     #     " '%s'" % app)
                     continue
                 elif 'systemd' in self.manifest['hooks'][app]:
-                    # msg("Skipped missing desktop hook for account-qml-plugin"
+                    # msg("Skipped missing desktop hook for systemd"
+                    #     " '%s'" % app)
+                    continue
+                elif 'framework' in self.manifest['hooks'][app]:
+                    #  TODO: verify this is the long term hook name
+                    # msg("Skipped missing desktop hook for framework"
                     #     " '%s'" % app)
                     continue
                 else:
