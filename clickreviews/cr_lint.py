@@ -67,10 +67,17 @@ class ClickReviewLint(ClickReview):
             self.is_core_scope = (self.click_pkgname.startswith('com.ubuntu.scopes.')
                                   and self.email ==
                                   'ubuntu-devel-discuss@lists.ubuntu.com')
+            # "core snappy" is not necessarily a word we use right now, but
+            # we want to special case scopes which are written through our
+            # vetted development process.
+            self.is_core_snappy = (self.click_pkgname.startswith('com.ubuntu.snappy.')
+                                  and self.email ==
+                                  'ubuntu-devel-discuss@lists.ubuntu.com')
         else:
             self.email = None
             self.is_core_app = False
             self.is_core_scope = False
+            self.is_core_snappy = False
 
         self._list_all_compiled_binaries()
 
@@ -590,6 +597,9 @@ exit 1
             elif self.is_core_scope:
                 t = 'info'
                 s = "OK ('com.ubuntu.scopes' uses '%s' as email)" % self.email
+            elif self.is_core_snappy:
+                t = 'info'
+                s = "OK ('com.ubuntu.snappy' uses '%s' as email)" % self.email
             else:
                 t = 'error'
                 s = "email=%s does not match package domain=%s " \

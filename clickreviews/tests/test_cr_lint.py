@@ -570,7 +570,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_maintainer_email_special(self):
-        '''Test check_maintainer() - ubuntu-devel-discuss@lists.ubuntu.com'''
+        '''Test check_maintainer() - ubuntu-devel-discuss@ - app'''
         self.set_test_control("Package", "com.canonical.app")
         self.set_test_manifest("maintainer",
                                "Ubuntu Core Developers "
@@ -591,7 +591,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected=expected)
 
     def test_check_maintainer_email_special2(self):
-        '''Test check_maintainer() - ubuntu-devel-discuss@lists.ubuntu.com'''
+        '''Test check_maintainer() - ubuntu-devel-discuss@ - scope'''
         self.set_test_control("Package", "com.ubuntu.scopes.youtube")
         self.set_test_manifest("maintainer",
                                "Ubuntu Core Developers "
@@ -608,6 +608,27 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected['error'] = dict()
         expected['info']['lint_maintainer_domain'] = \
             {"text": "OK ('com.ubuntu.scopes' uses "
+             "'ubuntu-devel-discuss@lists.ubuntu.com' as email)"}
+        self.check_results(r, expected=expected)
+
+    def test_check_maintainer_email_special3(self):
+        '''Test check_maintainer() - ubuntu-devel-discuss@ - snappy'''
+        self.set_test_control("Package", "com.ubuntu.snappy.foo")
+        self.set_test_manifest("maintainer",
+                               "Ubuntu Core Developers "
+                               "<ubuntu-devel-discuss@lists.ubuntu.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        expected['info']['lint_maintainer_domain'] = \
+            {"text": "OK ('com.ubuntu.snappy' uses "
              "'ubuntu-devel-discuss@lists.ubuntu.com' as email)"}
         self.check_results(r, expected=expected)
 
