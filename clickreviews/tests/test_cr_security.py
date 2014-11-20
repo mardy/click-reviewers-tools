@@ -224,6 +224,21 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_policy_version_framework_with_malformed_overrides(self):
+        '''Test check_policy_version() - incorrectly override framework'''
+        self.set_test_manifest("framework", "nonexistent")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", 1.3)
+        overrides = {'nonexistent': {'state': 'available',
+                                     'policy_vendor': 'ubuntu',
+                                     'policy_version': 1.3}}
+        c = ClickReviewSecurity(self.test_name, overrides=overrides)
+        c.check_policy_version()
+        report = c.click_report
+
+        expected_counts = {'info': 1, 'warn': 0, 'error': 2}
+        self.check_results(report, expected_counts)
+
     def test_check_policy_vendor_unspecified(self):
         '''Test check_policy_vendor() - unspecified'''
         c = ClickReviewSecurity(self.test_name)
