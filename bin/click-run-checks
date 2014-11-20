@@ -72,6 +72,10 @@ echo "= click-check-url-dispatcher ="
 prefer_local click-check-url-dispatcher "$c"
 
 echo ""
+echo "= click-check-bin-path ="
+prefer_local click-check-bin-path "$c"
+
+echo ""
 echo ""
 if [ "$rc" = "1" ]; then
     echo "** Warnings found **"

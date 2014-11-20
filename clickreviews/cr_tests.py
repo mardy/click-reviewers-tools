@@ -40,6 +40,8 @@ TEST_ACCOUNTS_PROVIDER = dict()
 TEST_ACCOUNTS_QML_PLUGIN = dict()
 TEST_ACCOUNTS_SERVICE = dict()
 TEST_PUSH_HELPER = dict()
+TEST_BIN_PATH = dict()
+TEST_FRAMEWORK = dict()
 
 
 #
@@ -154,6 +156,23 @@ def _extract_push_helper(self, app):
     return ("%s.push-helper.json" % app, TEST_PUSH_HELPER[app])
 
 
+def _extract_bin_path(self, app):
+    '''Pretend we found the bin-path file'''
+    return ("%s" % TEST_BIN_PATH[app])
+
+
+def _check_bin_path_executable(self, app):
+    '''Pretend we found the bin-path file'''
+    if TEST_BIN_PATH[app].endswith('.nonexec'):
+        return False
+    return True
+
+
+def _extract_framework(self, app):
+    '''Pretend we found the framework file'''
+    return ("%s.framework" % app, TEST_FRAMEWORK[app])
+
+
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
@@ -239,6 +258,19 @@ patches.append(patch(
     'clickreviews.cr_push_helper.ClickReviewPushHelper._extract_push_helper',
     _extract_push_helper))
 
+# bin-path overrides
+patches.append(patch(
+    'clickreviews.cr_bin_path.ClickReviewBinPath._extract_bin_path',
+    _extract_bin_path))
+patches.append(patch(
+    'clickreviews.cr_bin_path.ClickReviewBinPath._check_bin_path_executable',
+    _check_bin_path_executable))
+
+#framework overrides
+patches.append(patch(
+    'clickreviews.cr_framework.ClickReviewFramework._extract_framework',
+    _extract_framework))
+
 
 def mock_patch():
     '''Call in setup of child'''
@@ -307,6 +339,8 @@ class TestClickReview(TestCase):
         self.test_accounts_qml_plugin = dict()
         self.test_accounts_service = dict()
         self.test_push_helper = dict()
+        self.test_bin_path = dict()
+        self.test_framework = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -336,14 +370,20 @@ class TestClickReview(TestCase):
             # Reset to no content-hub entries in manifest
             self.set_test_content_hub(app, None, None)
 
-            # Reset to no content-hub entries in manifest
+            # Reset to no accounts entries in manifest
             self.set_test_account(app, "account-application", None)
             self.set_test_account(app, "account-provider", None)
             self.set_test_account(app, "account-qml-plugin", None)
             self.set_test_account(app, "account-service", None)
 
-            # Reset to no content-hub entries in manifest
+            # Reset to no push-helper entries in manifest
             self.set_test_push_helper(app, None, None)
+
+            # Reset to no bin-path entries in manifest
+            self.set_test_bin_path(app, None)
+
+            # Reset to no framework entries in manifest
+            self.set_test_framework(app, None, None)
 
         self._update_test_security_manifests()
         self._update_test_desktop_files()
@@ -355,6 +395,8 @@ class TestClickReview(TestCase):
         self._update_test_accounts_qml_plugin()
         self._update_test_accounts_service()
         self._update_test_push_helper()
+        self._update_test_bin_path()
+        self._update_test_framework()
 
         # webapps manifests (leave empty for now)
         self.test_webapp_manifests = dict()
@@ -362,6 +404,16 @@ class TestClickReview(TestCase):
 
         # mockup a click package name based on the above
         self._update_test_name()
+
+    def _check_allowed_peer_hooks(self, hook, allowed):
+        disallowed = []
+        for app in self.test_manifest["hooks"]:
+            if hook not in self.test_manifest["hooks"][app]:
+                continue
+            for h in self.test_manifest["hooks"][app]:
+                if h not in allowed:
+                    disallowed.append((app, h))
+        return h
 
     def _update_test_control(self):
         global TEST_CONTROL
@@ -467,6 +519,26 @@ class TestClickReview(TestCase):
             TEST_PUSH_HELPER[app] = self.test_push_helper[app]
             self.test_manifest["hooks"][app]["push-helper"] = \
                 "%s.push-helper.json" % app
+        self._update_test_manifest()
+
+    def _update_test_bin_path(self):
+        global TEST_BIN_PATH
+        TEST_BIN_PATH = dict()
+        for app in self.test_bin_path.keys():
+            TEST_BIN_PATH[app] = self.test_bin_path[app]
+            self.test_manifest["hooks"][app]["bin-path"] = \
+                "%s" % TEST_BIN_PATH[app]
+        self._update_test_manifest()
+
+    def _update_test_framework(self):
+        global TEST_FRAMEWORK
+        TEST_FRAMEWORK = dict()
+        for app in self.test_framework.keys():
+            TEST_FRAMEWORK[app] = self.test_framework[app]
+            if app not in self.test_manifest["hooks"]:
+                self.test_manifest["hooks"][app] = dict()
+            self.test_manifest["hooks"][app]["framework"] = \
+                "%s.framework" % TEST_FRAMEWORK[app]
         self._update_test_manifest()
 
     def _update_test_name(self):
@@ -650,7 +722,7 @@ class TestClickReview(TestCase):
 
     def set_test_push_helper(self, app, key, value):
         '''Set push-helper entries. If value is None, remove key, if key is
-           None, remove content-hub from manifest'''
+           None, remove push-helper from manifest'''
         if key is None:
             if app in self.test_push_helper:
                 self.test_push_helper.pop(app)
@@ -662,6 +734,33 @@ class TestClickReview(TestCase):
                 self.test_push_helper[app] = dict()
             self.test_push_helper[app][key] = value
         self._update_test_push_helper()
+
+    def set_test_bin_path(self, app, value):
+        '''Set bin-path entries. If value is None, remove bin-path from
+           manifest'''
+        if value is None:
+            if app in self.test_bin_path:
+                self.test_bin_path.pop(app)
+        else:
+            if app not in self.test_bin_path:
+                self.test_bin_path[app] = dict()
+            self.test_bin_path[app] = value
+        self._update_test_bin_path()
+
+    def set_test_framework(self, app, key, value):
+        '''Set framework entries. If value is None, remove key, if key is
+           None, remove framework from manifest'''
+        if key is None:
+            if app in self.test_framework:
+                self.test_framework.pop(app)
+        elif value is None:
+            if key in self.test_framework[app]:
+                self.test_framework[app].pop(key)
+        else:
+            if app not in self.test_framework:
+                self.test_framework[app] = dict()
+            self.test_framework[app][key] = value
+        self._update_test_framework()
 
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
@@ -695,6 +794,10 @@ class TestClickReview(TestCase):
         TEST_ACCOUNTS_APPLICATION = dict()
         global TEST_PUSH_HELPER
         TEST_PUSH_HELPER = dict()
+        global TEST_BIN_PATH
+        TEST_BIN_PATH = dict()
+        global TEST_FRAMEWORK
+        TEST_FRAMEWORK = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)

@@ -36,7 +36,8 @@ class ClickReviewPushHelper(ClickReview):
                 # msg("Skipped missing push-helper hook for '%s'" % app)
                 continue
             if not isinstance(self.manifest['hooks'][app]['push-helper'], str):
-                error("manifest malformed: hooks/%s/urls is not str" % app)
+                error("manifest malformed: hooks/%s/push-helper is not str" %
+                      app)
             (full_fn, jd) = self._extract_push_helper(app)
             self.push_helper_files[app] = full_fn
             self.push_helper[app] = jd
