@@ -37,3 +37,34 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
             'warn': {},
             'error': {},
         })
+
+    def test_verify_peer_hooks_empty(self):
+        '''Check verify_peer_hooks() - empty'''
+        hook = "foo"
+        allowed = []
+        required = []
+
+        d = self.review.verify_peer_hooks(hook, allowed, required)
+        self.assertEqual(0, len(d.keys()))
+
+    def test_verify_peer_hooks_missing(self):
+        '''Check verify_peer_hooks() - missing required'''
+        hook = "desktop"
+        allowed = ["apparmor", "urls"]
+        required = ["nonexistent"]
+
+        d = self.review.verify_peer_hooks(hook, allowed, required)
+        self.assertEqual(1, len(d.keys()))
+        self.assertTrue('missing' in d.keys())
+        self.assertTrue('nonexistent' in d['missing'][self.default_appname])
+
+    def test_verify_peer_hooks_disallowed(self):
+        '''Check verify_peer_hooks() - disallowed'''
+        hook = "desktop"
+        allowed = ["apparmor"]
+        required = []
+
+        d = self.review.verify_peer_hooks(hook, allowed, required)
+        self.assertEqual(1, len(d.keys()))
+        self.assertTrue('disallowed' in d.keys())
+        self.assertTrue('urls' in d['disallowed'][self.default_appname])

@@ -107,8 +107,9 @@ if __name__ == "__main__":
         print("")
 
     review_framework = cr_framework.ClickReviewFramework(sys.argv[1])
-    for app in sorted(review_framework.frameworks):
-        f = os.path.join(review_framework.unpack_dir, review_framework.frameworks[app])
+    for app in sorted(review_framework.frameworks_file):
+        f = os.path.join(review_framework.unpack_dir,
+                         review_framework.frameworks_file[app])
         fh = cr_common.open_file_read(os.path.join(review_framework.unpack_dir, f))
         print("== click .framework: %s ==" % os.path.basename(f))
         for line in fh.readlines():

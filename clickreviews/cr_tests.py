@@ -405,16 +405,6 @@ class TestClickReview(TestCase):
         # mockup a click package name based on the above
         self._update_test_name()
 
-    def _check_allowed_peer_hooks(self, hook, allowed):
-        disallowed = []
-        for app in self.test_manifest["hooks"]:
-            if hook not in self.test_manifest["hooks"][app]:
-                continue
-            for h in self.test_manifest["hooks"][app]:
-                if h not in allowed:
-                    disallowed.append((app, h))
-        return h
-
     def _update_test_control(self):
         global TEST_CONTROL
         TEST_CONTROL = ""

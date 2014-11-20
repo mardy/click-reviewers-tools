@@ -216,6 +216,33 @@ class ClickReview(object):
                 error("manifest malformed: unsupported field '%s':\n%s" % (k,
                                                                            mp))
 
+    def verify_peer_hooks(self, hook, allowed, required):
+        d = dict()
+        print (self.manifest["hooks"])
+        for app in self.manifest["hooks"]:
+            for h in required:
+                if h == hook:
+                    continue
+                if h not in self.manifest["hooks"][app]:
+                    if 'missing' not in d:
+                        d['missing'] = dict()
+                    if app not in d['missing']:
+                        d['missing'][app] = []
+                    d['missing'][app].append(h)
+            if hook not in self.manifest["hooks"][app]:
+                continue
+            for h in self.manifest["hooks"][app]:
+                if h == hook:
+                    continue
+                if h not in allowed:
+                    if 'disallowed' not in d:
+                        d['disallowed'] = dict()
+                    if app not in d['disallowed']:
+                        d['disallowed'][app] = []
+                    d['disallowed'][app].append(h)
+
+        return d
+
     def set_review_type(self, name):
         '''Set review name'''
         self.review_type = name
