@@ -218,7 +218,6 @@ class ClickReview(object):
 
     def verify_peer_hooks(self, hook, allowed, required):
         d = dict()
-        print (self.manifest["hooks"])
         for app in self.manifest["hooks"]:
             for h in required:
                 if h == hook:

@@ -129,7 +129,6 @@ class ClickReviewFramework(ClickReview):
                                    allowed=[],
                                    # required=[])
                                    required=['apparmor-policy'])
-        print(d)
         t = 'info'
         n = "peer_hooks_required"
         s = "OK"
@@ -138,7 +137,7 @@ class ClickReviewFramework(ClickReview):
             t = 'error'
             for app in d['missing']:
                 s = "Missing required hooks for '%s': %s" % (app,
-                    ", ".join(d['missing'][app]))
+                                                             ", ".join(d['missing'][app]))
                 self._add_result(t, n, s)
         else:
             self._add_result(t, n, s)
@@ -151,7 +150,7 @@ class ClickReviewFramework(ClickReview):
             t = 'error'
             for app in d['disallowed']:
                 s = "Found disallowed hooks for '%s': %s" % (app,
-                    ", ".join(d['disallowed'][app]))
+                                                             ", ".join(d['disallowed'][app]))
                 self._add_result(t, n, s)
         else:
             self._add_result(t, n, s)
