@@ -266,7 +266,7 @@ patches.append(patch(
     'clickreviews.cr_bin_path.ClickReviewBinPath._check_bin_path_executable',
     _check_bin_path_executable))
 
-#framework overrides
+# framework overrides
 patches.append(patch(
     'clickreviews.cr_framework.ClickReviewFramework._extract_framework',
     _extract_framework))
