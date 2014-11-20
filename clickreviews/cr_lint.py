@@ -71,8 +71,8 @@ class ClickReviewLint(ClickReview):
             # we want to special case scopes which are written through our
             # vetted development process.
             self.is_core_snappy = (self.click_pkgname.startswith('com.ubuntu.snappy.')
-                                  and self.email ==
-                                  'ubuntu-devel-discuss@lists.ubuntu.com')
+                                   and self.email ==
+                                   'ubuntu-devel-discuss@lists.ubuntu.com')
         else:
             self.email = None
             self.is_core_app = False
