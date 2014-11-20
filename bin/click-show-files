@@ -28,6 +28,7 @@ from clickreviews import cr_scope
 from clickreviews import cr_content_hub
 from clickreviews import cr_online_accounts
 from clickreviews import cr_push_helper
+from clickreviews import cr_bin_path
 
 # This script just dumps important files to stdout
 
@@ -102,6 +103,12 @@ if __name__ == "__main__":
         for line in fh.readlines():
             print(line, end="")
         fh.close()
+        print("")
+
+    review_bin_path = cr_bin_path.ClickReviewBinPath(sys.argv[1])
+    for app in sorted(review_bin_path.bin_paths):
+        f = os.path.join(review_bin_path.unpack_dir, review_bin_path.bin_paths[app])
+        print("bin_path: %s" % os.path.relpath(f, review_bin_path.unpack_dir))
         print("")
 
     review_apparmor = cr_security.ClickReviewSecurity(sys.argv[1])
