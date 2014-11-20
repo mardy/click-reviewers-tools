@@ -15,6 +15,7 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * don't require desktop hook with systemd or framework
   * com.ubuntu.snappy can use ubuntu-devel-discuss@lists.ubuntu.com
   * add bin-path click hook checks and tests
+  * add preliminary framework hook checks and tests
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 13 Nov 2014 15:00:07 -0600
 
