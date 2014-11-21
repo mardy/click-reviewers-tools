@@ -86,14 +86,18 @@ class ClickReviewLint(ClickReview):
                             'account-qml-plugin',
                             'account-service',
                             'apparmor',
+                            'bin-path',
                             'content-hub',
                             'desktop',
+                            'framework',
                             'pay-ui',
                             'push-helper',
                             'scope',
                             'urls']
 
-        self.redflagged_hooks = ['pay-ui']
+        self.redflagged_hooks = ['framework',
+                                 'pay-ui',
+                                 ]
         self.overrides = overrides if overrides is not None else {}
 
     def _list_control_files(self):
