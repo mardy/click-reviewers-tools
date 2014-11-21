@@ -26,7 +26,13 @@ import os
 class ClickReviewUrlDispatcher(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "url_dispatcher")
+        peer_hooks = dict()
+        my_hook = 'urls'
+        peer_hooks[my_hook] = dict()
+        peer_hooks[my_hook]['allowed'] = ClickReview.app_allowed_peer_hooks
+        peer_hooks[my_hook]['required'] = []
+
+        ClickReview.__init__(self, fn, "url_dispatcher", peer_hooks=peer_hooks)
 
         self.required_keys = ['protocol']
         self.optional_keys = ['domain-suffix']
