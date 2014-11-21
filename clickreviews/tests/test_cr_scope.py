@@ -175,7 +175,6 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
-
     def test_check_peer_hooks(self):
         '''Test check_peer_hooks()'''
         c = ClickReviewScope(self.test_name)
