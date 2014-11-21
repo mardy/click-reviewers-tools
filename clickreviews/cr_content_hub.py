@@ -24,7 +24,13 @@ import os
 class ClickReviewContentHub(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "content_hub")
+        peer_hooks = dict()
+        my_hook = 'content-hub'
+        peer_hooks[my_hook] = dict()
+        peer_hooks[my_hook]['allowed'] = ClickReview.app_allowed_peer_hooks
+        peer_hooks[my_hook]['required'] = []
+
+        ClickReview.__init__(self, fn, "content_hub", peer_hooks=peer_hooks)
 
         self.valid_keys = ['destination', 'share', 'source']
 

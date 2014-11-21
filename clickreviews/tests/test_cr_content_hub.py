@@ -109,3 +109,54 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks(self):
+        '''Test check_peer_hooks()'''
+        self.set_test_content_hub(self.default_appname, "destination", "pictures")
+        self.set_test_content_hub(self.default_appname, "share", "pictures")
+        self.set_test_content_hub(self.default_appname, "source", "pictures")
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["content-hub"] = \
+            self.test_manifest["hooks"][self.default_appname]["content-hub"]
+
+        self.test_manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        #  do the test
+        c = ClickReviewContentHub(self.test_name)
+
+        c.check_peer_hooks()
+        r = c.click_report
+        # We should end up with 2 info
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_disallowed(self):
+        '''Test check_peer_hooks() - disallowed'''
+        self.set_test_content_hub(self.default_appname, "destination", "pictures")
+        self.set_test_content_hub(self.default_appname, "share", "pictures")
+        self.set_test_content_hub(self.default_appname, "source", "pictures")
+        c = ClickReviewContentHub(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["content-hub"] = \
+            self.test_manifest["hooks"][self.default_appname]["content-hub"]
+
+        # add something not allowed
+        tmp["nonexistent"] = "nonexistent-hook"
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        #  do the test
+        c.check_peer_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
