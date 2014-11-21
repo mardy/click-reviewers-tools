@@ -26,12 +26,8 @@ class ClickReviewFramework(ClickReview):
         peer_hooks = dict()
         my_hook = 'framework'
         peer_hooks[my_hook] = dict()
-        peer_hooks[my_hook]['allowed'] = []
-        peer_hooks[my_hook]['required'] = []
-        # FIXME: coordinate with test_check_peer_hooks_required() when
-        # 'apparmor-policy' hook is implemeted
-        # peer_hooks[my_hook]['allowed'] = ['apparmor-policy']
-        # peer_hooks[my_hook]['required'] = ['apparmor-policy']
+        peer_hooks[my_hook]['allowed'] = ClickReview.framework_allowed_peer_hooks
+        peer_hooks[my_hook]['required'] = peer_hooks[my_hook]['allowed']
         ClickReview.__init__(self, fn, "framework", peer_hooks=peer_hooks)
 
         self.frameworks_file = dict()
