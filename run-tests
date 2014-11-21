@@ -15,10 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import unittest
 
 test_directory = 'clickreviews/tests/'
 test_filename = 'test_*'
+if len(sys.argv) > 1:
+    test_filename = sys.argv[1]
 
 suite = unittest.TestLoader().discover(test_directory, pattern=test_filename)
 unittest.TextTestRunner(verbosity=2).run(suite)
