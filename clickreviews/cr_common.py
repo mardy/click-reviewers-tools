@@ -219,9 +219,14 @@ class ClickReview(object):
                                                                            mp))
 
     def _verify_peer_hooks(self):
+        '''Compare manifest for required and allowed hooks'''
+        d = dict()
+        if self.peer_hooks is None:
+            return d
+
         if len(self.peer_hooks.keys()) != 1:
             raise ValueError
-        d = dict()
+
         my_hook = list(self.peer_hooks.keys())[0]
         for app in self.manifest["hooks"]:
             for h in self.peer_hooks[my_hook]['required']:
@@ -249,6 +254,10 @@ class ClickReview(object):
 
     def check_peer_hooks(self):
         '''Check if peer hooks are valid'''
+        # Nothing to verify
+        if self.peer_hooks is None:
+            return
+
         d = self._verify_peer_hooks()
         t = 'info'
         n = "peer_hooks_required"
