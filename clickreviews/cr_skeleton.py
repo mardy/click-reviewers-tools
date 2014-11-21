@@ -22,7 +22,19 @@ from clickreviews.cr_common import ClickReview
 class ClickReviewSkeleton(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "skeleton")
+        # Many test classes are for verify click hooks. 'peer_hooks' is used
+        # to declare what hooks may be use with my_hook. When using this
+        # mechanism, ClickReview.check_peer_hooks() is run for you.
+        peer_hooks = dict()
+        my_hook = 'skeleton'
+        peer_hooks[my_hook] = dict()
+        peer_hooks[my_hook]['allowed'] = ["desktop", "apparmor", "urls"]
+        peer_hooks[my_hook]['required'] = ["desktop", "apparmor"]
+
+        ClickReview.__init__(self, fn, "skeleton", peer_hooks)
+
+        # If not a hooks test, skip the above and omit peer_hooks like so:
+        # ClickReview.__init__(self, fn, "skeleton")
 
     def check_foo(self):
         '''Check foo'''
