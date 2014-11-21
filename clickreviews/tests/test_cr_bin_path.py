@@ -108,6 +108,9 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
         # skip adding required hooks
 
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
         # do the test
         c.check_peer_hooks()
         r = c.click_report
