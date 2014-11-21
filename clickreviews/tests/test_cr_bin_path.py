@@ -48,24 +48,22 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_peer_hooks(self):
         '''Test check_peer_hooks()'''
-        # add our hook
-        self.set_test_bin_path(self.default_appname, "bin/foo.nonexec")
+        c = ClickReviewBinPath(self.test_name)
 
-        # strip out all the default hooks from the hooks database
+        # create a new hooks database for our peer hooks tests
         tmp = dict()
-        for k in self.test_manifest["hooks"][self.default_appname]:
-            if k == "bin-path":
-                tmp[k] = self.test_manifest["hooks"][self.default_appname][k]
+
+        # add our hook
+        tmp["bin-path"] = "usr/bin/foo"
+
         # add any required peer hooks
         tmp["systemd"] = "foo.systemd"
         tmp["apparmor"] = "foo.apparmor"
 
-        self.test_manifest["hooks"][self.default_appname] = tmp
+        c.manifest["hooks"][self.default_appname] = tmp
         self._update_test_manifest()
 
         #  do the test
-        c = ClickReviewBinPath(self.test_name)
-
         c.check_peer_hooks()
         r = c.click_report
         # We should end up with 2 info
@@ -74,14 +72,14 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_peer_hooks_disallowed(self):
         '''Test check_peer_hooks() - disallowed'''
-        # add our hook
-        self.set_test_bin_path(self.default_appname, "bin/foo.nonexec")
+        c = ClickReviewBinPath(self.test_name)
 
-        # strip out all the default hooks from the hooks database
+        # create a new hooks database for our peer hooks tests
         tmp = dict()
-        for k in self.test_manifest["hooks"][self.default_appname]:
-            if k == "bin-path":
-                tmp[k] = self.test_manifest["hooks"][self.default_appname][k]
+
+        # add our hook
+        tmp["bin-path"] = "usr/bin/foo"
+
         # add any required peer hooks
         tmp["systemd"] = "foo.systemd"
         tmp["apparmor"] = "foo.apparmor"
@@ -89,35 +87,29 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         # add something not allowed
         tmp["nonexistent"] = "nonexistent-hook"
 
-        self.test_manifest["hooks"][self.default_appname] = tmp
+        c.manifest["hooks"][self.default_appname] = tmp
         self._update_test_manifest()
 
-        #  do the test
-        c = ClickReviewBinPath(self.test_name)
-
+        # do the test
         c.check_peer_hooks()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_peer_hooks_required(self):
         '''Test check_peer_hooks() - required'''
-        # add our hook
-        self.set_test_bin_path(self.default_appname, "bin/foo.nonexec")
-
-        # strip out all the default hooks from the hooks database
-        tmp = dict()
-        for k in self.test_manifest["hooks"][self.default_appname]:
-            if k == "bin-path":
-                tmp[k] = self.test_manifest["hooks"][self.default_appname][k]
-        # skip adding required hooks
-
-        self.test_manifest["hooks"][self.default_appname] = tmp
-        self._update_test_manifest()
-
         c = ClickReviewBinPath(self.test_name)
 
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["bin-path"] = "usr/bin/foo"
+
+        # skip adding required hooks
+
+        # do the test
         c.check_peer_hooks()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
