@@ -131,20 +131,24 @@ class TestClickReviewFramework(cr_tests.TestClickReview):
 
     def test_check_peer_hooks(self):
         '''Test check_peer_hooks()'''
-        # add our hook
         self.set_test_framework(self.default_appname, "Base-Version", 0.1)
-
-        # strip out all the default hooks from the hooks database
-        tmp = dict()
-        for k in self.test_manifest["hooks"][self.default_appname]:
-            if k == "framework":
-                tmp[k] = self.test_manifest["hooks"][self.default_appname][k]
-        self.test_manifest["hooks"][self.default_appname] = tmp
-        self._update_test_manifest()
-
-        #  do the test
         c = ClickReviewFramework(self.test_name)
 
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["framework"] = "foo.framework"
+
+        # add any required peer hooks
+        # FIXME:
+        # tmp["apparmor-policy"] = "apparmor/"
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
         c.check_peer_hooks()
         r = c.click_report
         # We should end up with 2 info
@@ -153,47 +157,53 @@ class TestClickReviewFramework(cr_tests.TestClickReview):
 
     def test_check_peer_hooks_disallowed(self):
         '''Test check_peer_hooks() - disallowed'''
-        # add our hook
         self.set_test_framework(self.default_appname, "Base-Version", 0.1)
-
-        # strip out all the default hooks from the hooks database
-        tmp = dict()
-        for k in self.test_manifest["hooks"][self.default_appname]:
-            if k == "framework":
-                tmp[k] = self.test_manifest["hooks"][self.default_appname][k]
-        tmp["nonexistent"] = "nonexistent-hook"
-        self.test_manifest["hooks"][self.default_appname] = tmp
-        self._update_test_manifest()
-
-        #  do the test
         c = ClickReviewFramework(self.test_name)
 
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["framework"] = "foo.framework"
+
+        # add any required peer hooks
+        # FIXME:
+        # tmp["apparmor-policy"] = "apparmor/"
+
+        # add disallowed framework
+        tmp["nonexistent"] = "nonexistent-hook"
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
         c.check_peer_hooks()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_peer_hooks_required(self):
         '''Test check_peer_hooks() - required'''
-        # add our hook
         self.set_test_framework(self.default_appname, "Base-Version", 0.1)
+        c = ClickReviewFramework(self.test_name)
 
-        # strip out all the default hooks from the hooks database
+        # create a new hooks database for our peer hooks tests
         tmp = dict()
-        for k in self.test_manifest["hooks"][self.default_appname]:
-            if k == "framework":
-                tmp[k] = self.test_manifest["hooks"][self.default_appname][k]
-        tmp["apparmor-policy"] = "apparmor/"
-        self.test_manifest["hooks"][self.default_appname] = tmp
+
+        # add our hook
+        tmp["framework"] = "foo.framework"
+
+        # skip adding required hooks
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
         self._update_test_manifest()
 
-        c = ClickReviewFramework(self.test_name)
-        # FIXME: 'apparmor-policy' doesn't exist yet. When it does, adjust
-        # ClickReviewFramework.__init__() to add it
-        c.peer_hooks["framework"]["required"].append("apparmor-policy")
-        c.peer_hooks["framework"]["allowed"].append("apparmor-policy")
-
+        # do the test
         c.check_peer_hooks()
         r = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        # FIXME: apparmor-policy is not defined yet, so no error, when it is
+        # adjust to 'error': 1
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
