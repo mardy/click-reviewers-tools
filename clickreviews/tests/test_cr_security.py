@@ -743,3 +743,46 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+
+    def test_check_peer_hooks(self):
+        '''Test check_peer_hooks()'''
+        c = ClickReviewSecurity(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["apparmor"] = "foo.apparmor"
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks()
+        r = c.click_report
+        # We should end up with 2 info
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_disallowed(self):
+        '''Test check_peer_hooks() - disallowed'''
+        c = ClickReviewSecurity(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["apparmor"] = "foo.apparmor"
+
+        # add something not allowed
+        tmp["framework"] = "foo.framework"
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)

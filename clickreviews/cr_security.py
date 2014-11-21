@@ -26,7 +26,16 @@ import os
 class ClickReviewSecurity(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn, overrides=None):
-        ClickReview.__init__(self, fn, "security")
+        peer_hooks = dict()
+        my_hook = 'apparmor'
+        peer_hooks[my_hook] = dict()
+        # Basically, everything except frameworks
+        peer_hooks[my_hook]['allowed'] = ClickReview.app_allowed_peer_hooks + \
+                ClickReview.scope_allowed_peer_hooks + \
+                ClickReview.service_allowed_peer_hooks
+        peer_hooks[my_hook]['required'] = []
+
+        ClickReview.__init__(self, fn, "security", peer_hooks=peer_hooks)
 
         local_copy = os.path.join(os.path.dirname(__file__),
                                   '../data/apparmor-easyprof-ubuntu.json')
@@ -96,14 +105,8 @@ class ClickReviewSecurity(ClickReview):
         self.security_apps = []
         for app in self.manifest['hooks']:
             if 'apparmor' not in self.manifest['hooks'][app]:
-                # TODO: when we have apparmor templates for these, we want
-                #       to remove this
-                if 'account-provider' in self.manifest['hooks'][app] or \
-                   'account-qml-plugin' in self.manifest['hooks'][app]:
-                    #  msg("Skipped missing desktop hook for account-provider "
-                    #      "and account-qml-plugin '%s'" % app)
-                    continue
-                error("could not find apparmor hook for '%s'" % app)
+                #  msg("Skipped missing apparmor hook for '%s'" % app)
+                continue
             if not isinstance(self.manifest['hooks'][app]['apparmor'], str):
                 error("manifest malformed: hooks/%s/apparmor is not str" % app)
             rel_fn = self.manifest['hooks'][app]['apparmor']
