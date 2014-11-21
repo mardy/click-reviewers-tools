@@ -24,7 +24,13 @@ import os
 class ClickReviewPushHelper(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "push_helper")
+        peer_hooks = dict()
+        my_hook = 'push-helper'
+        peer_hooks[my_hook] = dict()
+        peer_hooks[my_hook]['allowed'] = ['apparmor']
+        peer_hooks[my_hook]['required'] = ['apparmor']
+
+        ClickReview.__init__(self, fn, "push_helper", peer_hooks=peer_hooks)
 
         self.required_keys = ['exec']
         self.optional_keys = ['app_id']
