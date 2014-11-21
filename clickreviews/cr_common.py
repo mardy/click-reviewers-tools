@@ -57,7 +57,7 @@ class ClickReviewException(Exception):
 
 class ClickReview(object):
     '''This class represents click reviews'''
-    def __init__(self, fn, review_type):
+    def __init__(self, fn, review_type, peer_hooks=None):
         self.click_package = fn
         self._check_path_exists()
         if not self.click_package.endswith(".click"):
@@ -113,6 +113,8 @@ class ClickReview(object):
         # self._list_all_compiled_binaries()
 
         self.valid_frameworks = self._extract_click_frameworks()
+
+        self.peer_hooks = peer_hooks
 
     def _extract_click_frameworks(self):
         '''Extract installed click frameworks'''
@@ -216,11 +218,14 @@ class ClickReview(object):
                 error("manifest malformed: unsupported field '%s':\n%s" % (k,
                                                                            mp))
 
-    def verify_peer_hooks(self, hook, allowed, required):
+    def _verify_peer_hooks(self):
+        if len(self.peer_hooks.keys()) != 1:
+            raise ValueError
         d = dict()
+        my_hook = list(self.peer_hooks.keys())[0]
         for app in self.manifest["hooks"]:
-            for h in required:
-                if h == hook:
+            for h in self.peer_hooks[my_hook]['required']:
+                if h == my_hook:
                     continue
                 if h not in self.manifest["hooks"][app]:
                     if 'missing' not in d:
@@ -228,12 +233,12 @@ class ClickReview(object):
                     if app not in d['missing']:
                         d['missing'][app] = []
                     d['missing'][app].append(h)
-            if hook not in self.manifest["hooks"][app]:
+            if my_hook not in self.manifest["hooks"][app]:
                 continue
             for h in self.manifest["hooks"][app]:
-                if h == hook:
+                if h == my_hook:
                     continue
-                if h not in allowed:
+                if h not in self.peer_hooks[my_hook]['allowed']:
                     if 'disallowed' not in d:
                         d['disallowed'] = dict()
                     if app not in d['disallowed']:
@@ -241,6 +246,35 @@ class ClickReview(object):
                     d['disallowed'][app].append(h)
 
         return d
+
+    def check_peer_hooks(self):
+        '''Check if peer hooks are valid'''
+        d = self._verify_peer_hooks()
+        t = 'info'
+        n = "peer_hooks_required"
+        s = "OK"
+
+        if 'missing' in d and len(d['missing'].keys()) > 0:
+            t = 'error'
+            for app in d['missing']:
+                s = "Missing required hooks for '%s': %s" % (app,
+                                                             ", ".join(d['missing'][app]))
+                self._add_result(t, n, s)
+        else:
+            self._add_result(t, n, s)
+
+        t = 'info'
+        n = "peer_hooks_disallowed"
+        s = "OK"
+
+        if 'disallowed' in d and len(d['disallowed'].keys()) > 0:
+            t = 'error'
+            for app in d['disallowed']:
+                s = "Found disallowed hooks for '%s': %s" % (app,
+                                                             ", ".join(d['disallowed'][app]))
+                self._add_result(t, n, s)
+        else:
+            self._add_result(t, n, s)
 
     def set_review_type(self, name):
         '''Set review name'''

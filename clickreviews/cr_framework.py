@@ -23,7 +23,17 @@ import os
 class ClickReviewFramework(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "framework")
+        peer_hooks = dict()
+        my_hook = 'framework'
+        peer_hooks[my_hook] = dict()
+        peer_hooks[my_hook]['allowed'] = []
+        peer_hooks[my_hook]['required'] = []
+        # FIXME: coordinate with test_check_peer_hooks_required() when
+        # 'apparmor-policy' hook is implemeted
+        # peer_hooks[my_hook]['allowed'] = ['apparmor-policy']
+        # peer_hooks[my_hook]['required'] = ['apparmor-policy']
+        ClickReview.__init__(self, fn, "framework", peer_hooks=peer_hooks)
+
         self.frameworks_file = dict()
         self.frameworks = dict()
         for app in self.manifest['hooks']:
@@ -121,36 +131,4 @@ class ClickReviewFramework(ClickReview):
             if float(v) < 0:
                 t = 'error'
                 s = "'Base-Version' malformed: '%s' is negative" % v
-            self._add_result(t, n, s)
-
-    def check_framework_hooks(self):
-        '''Check if peer hooks are valid'''
-        d = self.verify_peer_hooks("framework",
-                                   allowed=[],
-                                   # required=[])
-                                   required=['apparmor-policy'])
-        t = 'info'
-        n = "peer_hooks_required"
-        s = "OK"
-
-        if 'missing' in d and len(d['missing'].keys()) > 0:
-            t = 'error'
-            for app in d['missing']:
-                s = "Missing required hooks for '%s': %s" % (app,
-                                                             ", ".join(d['missing'][app]))
-                self._add_result(t, n, s)
-        else:
-            self._add_result(t, n, s)
-
-        t = 'info'
-        n = "peer_hooks_disallowed"
-        s = "OK"
-
-        if 'disallowed' in d and len(d['disallowed'].keys()) > 0:
-            t = 'error'
-            for app in d['disallowed']:
-                s = "Found disallowed hooks for '%s': %s" % (app,
-                                                             ", ".join(d['disallowed'][app]))
-                self._add_result(t, n, s)
-        else:
             self._add_result(t, n, s)
