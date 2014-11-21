@@ -247,6 +247,8 @@ class ClickReview(object):
             return d
 
         for app in self.manifest["hooks"]:
+            if my_hook not in self.manifest["hooks"][app]:
+                continue
             for h in self.peer_hooks[my_hook]['required']:
                 if h == my_hook:
                     continue
@@ -256,8 +258,6 @@ class ClickReview(object):
                     if app not in d['missing']:
                         d['missing'][app] = []
                     d['missing'][app].append(h)
-            if my_hook not in self.manifest["hooks"][app]:
-                continue
             for h in self.manifest["hooks"][app]:
                 if h == my_hook:
                     continue
@@ -288,7 +288,7 @@ class ClickReview(object):
                 t = 'error'
                 for app in d['missing']:
                     s = "Missing required hooks for '%s': %s" % (app,
-                                                             ", ".join(d['missing'][app]))
+                                                                 ", ".join(d['missing'][app]))
                     self._add_result(t, n, s)
             else:
                 self._add_result(t, n, s)
