@@ -31,8 +31,8 @@ class ClickReviewSecurity(ClickReview):
         peer_hooks[my_hook] = dict()
         # Basically, everything except frameworks
         peer_hooks[my_hook]['allowed'] = ClickReview.app_allowed_peer_hooks + \
-                ClickReview.scope_allowed_peer_hooks + \
-                ClickReview.service_allowed_peer_hooks
+            ClickReview.scope_allowed_peer_hooks + \
+            ClickReview.service_allowed_peer_hooks
         peer_hooks[my_hook]['required'] = []
 
         ClickReview.__init__(self, fn, "security", peer_hooks=peer_hooks)
