@@ -23,7 +23,13 @@ import os
 class ClickReviewBinPath(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "bin-path")
+        peer_hooks = dict()
+        my_hook = 'bin-path'
+        peer_hooks[my_hook] = dict()
+        peer_hooks[my_hook]['required'] = ["systemd", "apparmor"]
+        peer_hooks[my_hook]['allowed'] = peer_hooks[my_hook]['required']
+
+        ClickReview.__init__(self, fn, "bin-path", peer_hooks=peer_hooks)
 
         self.bin_paths = dict()
         for app in self.manifest['hooks']:
