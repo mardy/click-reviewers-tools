@@ -240,16 +240,12 @@ class ClickReview(object):
                 error("manifest malformed: unsupported field '%s':\n%s" % (k,
                                                                            mp))
 
-    def _verify_peer_hooks(self):
+    def _verify_peer_hooks(self, my_hook):
         '''Compare manifest for required and allowed hooks'''
         d = dict()
         if self.peer_hooks is None:
             return d
 
-        if len(self.peer_hooks.keys()) != 1:
-            raise ValueError
-
-        my_hook = list(self.peer_hooks.keys())[0]
         for app in self.manifest["hooks"]:
             for h in self.peer_hooks[my_hook]['required']:
                 if h == my_hook:
@@ -274,38 +270,41 @@ class ClickReview(object):
 
         return d
 
-    def check_peer_hooks(self):
+    def check_peer_hooks(self, hooks_sublist=[]):
         '''Check if peer hooks are valid'''
         # Nothing to verify
         if self.peer_hooks is None:
             return
 
-        d = self._verify_peer_hooks()
-        t = 'info'
-        n = "peer_hooks_required"
-        s = "OK"
+        for hook in self.peer_hooks:
+            if len(hooks_sublist) > 0 and hook not in hooks_sublist:
+                continue
+            d = self._verify_peer_hooks(hook)
+            t = 'info'
+            n = "peer_hooks_required_%s" % hook
+            s = "OK"
 
-        if 'missing' in d and len(d['missing'].keys()) > 0:
-            t = 'error'
-            for app in d['missing']:
-                s = "Missing required hooks for '%s': %s" % (app,
+            if 'missing' in d and len(d['missing'].keys()) > 0:
+                t = 'error'
+                for app in d['missing']:
+                    s = "Missing required hooks for '%s': %s" % (app,
                                                              ", ".join(d['missing'][app]))
+                    self._add_result(t, n, s)
+            else:
                 self._add_result(t, n, s)
-        else:
-            self._add_result(t, n, s)
 
-        t = 'info'
-        n = "peer_hooks_disallowed"
-        s = "OK"
+            t = 'info'
+            n = "peer_hooks_disallowed_%s" % hook
+            s = "OK"
 
-        if 'disallowed' in d and len(d['disallowed'].keys()) > 0:
-            t = 'error'
-            for app in d['disallowed']:
-                s = "Found disallowed hooks for '%s': %s" % (app,
-                                                             ", ".join(d['disallowed'][app]))
+            if 'disallowed' in d and len(d['disallowed'].keys()) > 0:
+                t = 'error'
+                for app in d['disallowed']:
+                    s = "Found disallowed hooks for '%s': %s" % (app,
+                                                                 ", ".join(d['disallowed'][app]))
+                    self._add_result(t, n, s)
+            else:
                 self._add_result(t, n, s)
-        else:
-            self._add_result(t, n, s)
 
     def set_review_type(self, name):
         '''Set review name'''

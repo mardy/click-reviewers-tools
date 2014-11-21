@@ -25,7 +25,37 @@ import lxml.etree as etree
 class ClickReviewAccounts(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "online_accounts")
+        peer_hooks = dict()
+        peer_hooks['account-application'] = dict()
+        peer_hooks['account-application']['allowed'] = ['account-service',
+                                                        'apparmor',
+                                                        'desktop',
+                                                        'scope']
+        peer_hooks['account-application']['required'] = ['apparmor',
+                                                         ]
+
+        peer_hooks['account-service'] = dict()
+        peer_hooks['account-service']['required'] = ['account-application',
+                                                     'apparmor'
+                                                     ]
+        peer_hooks['account-service']['allowed'] = \
+            peer_hooks['account-service']['required']
+
+        peer_hooks['account-provider'] = dict()
+        peer_hooks['account-provider']['required'] = ['account-qml-plugin',
+                                                      # 'apparmor'
+                                                      ]
+        peer_hooks['account-provider']['allowed'] = \
+            peer_hooks['account-provider']['required']
+
+        peer_hooks['account-qml-plugin'] = dict()
+        peer_hooks['account-qml-plugin']['required'] = ['account-provider',
+                                                        # 'apparmor'
+                                                       ]
+        peer_hooks['account-qml-plugin']['allowed'] = \
+            peer_hooks['account-qml-plugin']['required']
+
+        ClickReview.__init__(self, fn, "online_accounts", peer_hooks)
 
         self.accounts_files = dict()
         self.accounts = dict()
@@ -88,29 +118,6 @@ class ClickReviewAccounts(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
-            # account-application must always appear with apparmor
-            t = 'info'
-            n = '%s_%s_apparmor' % (app, account_type)
-            s = "OK"
-            if 'apparmor' not in self.manifest['hooks'][app]:
-                t = 'error'
-                s = "missing 'apparmor' entry"
-            self._add_result(t, n, s)
-
-            # account-application must always appear with desktop or scope
-            t = 'info'
-            n = '%s_%s_desktop_or_scope' % (app, account_type)
-            s = "OK"
-            found = False
-            for k in ['desktop', 'scope']:
-                if k in self.manifest['hooks'][app]:
-                    found = True
-                    break
-            if not found and 'pay-ui' not in self.manifest['hooks'][app]:
-                t = 'error'
-                s = "missing 'desktop' or 'scope' entry"
-            self._add_result(t, n, s)
-
             root_tag = self.accounts[app][account_type].tag.lower()
             if root_tag != "application":
                 t = 'error'
@@ -159,24 +166,6 @@ class ClickReviewAccounts(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
-            #  account service must always appear with account-application
-            t = 'info'
-            n = '%s_%s_account-application' % (app, account_type)
-            s = "OK"
-            if 'account-application' not in self.accounts[app]:
-                t = 'error'
-                s = "missing 'account-application' entry"
-            self._add_result(t, n, s)
-
-            # account-service must always appear with apparmor
-            t = 'info'
-            n = '%s_%s_apparmor' % (app, account_type)
-            s = "OK"
-            if 'apparmor' not in self.manifest['hooks'][app]:
-                t = 'error'
-                s = "missing 'apparmor' entry"
-            self._add_result(t, n, s)
-
             root_tag = self.accounts[app][account_type].tag.lower()
             if root_tag != "service":
                 t = 'error'
@@ -223,40 +212,6 @@ class ClickReviewAccounts(ClickReview):
                 manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
 
-            # account-provider must always appear with apparmor
-#             t = 'info'
-#             n = '%s_%s_apparmor' % (app, account_type)
-#             s = "OK"
-#             if 'apparmor' not in self.manifest['hooks'][app]:
-#                 t = 'error'
-#                 s = "missing 'apparmor' entry"
-#             self._add_result(t, n, s)
-
-            # account-provider must always appear with account-qml-plugin
-            t = 'info'
-            n = '%s_%s_account-qml-plugin' % (app, account_type)
-            s = "OK"
-            if 'account-qml-plugin' not in self.accounts[app]:
-                t = 'error'
-                s = "missing 'account-qml-plugin' entry"
-            self._add_result(t, n, s)
-
-            # account-provider must never appear with account-application or
-            # account-service
-            t = 'info'
-            n = '%s_%s_account-application_or_account-service' % (app,
-                                                                  account_type)
-            s = "OK"
-            found = False
-            for i in ['account-application', 'account-service']:
-                if i in self.accounts[app]:
-                    found = True
-            if found:
-                t = 'error'
-                s = "must not specify account-application or account-service" \
-                    " with %s" % account_type
-            self._add_result(t, n, s)
-
             t = 'info'
             n = '%s_%s_root' % (app, account_type)
             s = "OK"
@@ -293,38 +248,3 @@ class ClickReviewAccounts(ClickReview):
                 s = "(MANUAL REVIEW) '%s' not allowed" % account_type
                 manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
-
-            # account-qml-plugin must always appear with apparmor
-#             t = 'info'
-#             n = '%s_%s_apparmor' % (app, account_type)
-#             s = "OK"
-#             if 'apparmor' not in self.manifest['hooks'][app]:
-#                 t = 'error'
-#                 t = 'info'
-#                 s = "missing 'apparmor' entry"
-#             self._add_result(t, n, s)
-
-            # account-qml-plugin must always appear with account-provider
-            t = 'info'
-            n = '%s_%s_account-provider' % (app, account_type)
-            s = "OK"
-            if 'account-provider' not in self.accounts[app]:
-                t = 'error'
-                s = "missing 'account-provider' entry"
-            self._add_result(t, n, s)
-
-            # account-qml-plugin must never appear with account-application or
-            # account-service
-            t = 'info'
-            n = '%s_%s_account-application_or_account-service' % (app,
-                                                                  account_type)
-            s = "OK"
-            found = False
-            for i in ['account-application', 'account-service']:
-                if i in self.accounts[app]:
-                    found = True
-            if found:
-                t = 'error'
-                s = "must not specify account-application or account-service" \
-                    " with %s" % account_type
-            self._add_result(t, n, s)

@@ -94,46 +94,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_application()
         r = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_application_missing_apparmor(self):
-        '''Test check_application() - missing apparmor'''
-        xml = self._stub_application()
-        # print(etree.tostring(xml))
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        del c.manifest['hooks'][self.default_appname]['apparmor']
-        c.check_application()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_application_missing_desktop_and_scope(self):
-        '''Test check_application() - missing desktop and scope'''
-        xml = self._stub_application()
-        # print(etree.tostring(xml))
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        # The stub manifest doesn't have scope already
-        del c.manifest['hooks'][self.default_appname]['desktop']
-        c.check_application()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_application_missing_desktop_and_scope_with_payui(self):
-        '''Test check_application() - missing desktop and scope with pay-ui'''
-        xml = self._stub_application()
-        # print(etree.tostring(xml))
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        # The stub manifest doesn't have scope already
-        del c.manifest['hooks'][self.default_appname]['desktop']
-        c.manifest['hooks'][self.default_appname]['pay-ui'] = "foo.desktop"
-        c.check_application()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_application_not_specified(self):
@@ -206,30 +167,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_service()
         r = c.click_report
-        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_service_missing_application(self):
-        '''Test check_service() - missing account-application'''
-        xml = self._stub_service()
-        self.set_test_account(self.default_appname, "account-service", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_service()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_service_missing_apparmor(self):
-        '''Test check_service() - missing apparmor'''
-        xml = self._stub_service()
-        self.set_test_account(self.default_appname, "account-service", xml)
-        xml = self._stub_application()
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        del c.manifest['hooks'][self.default_appname]['apparmor']
-        c.check_service()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_service_not_specified(self):
@@ -322,98 +260,10 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c.check_provider()
         r = c.click_report
         # provider prompts manual review, so for now, need to have error as 1
-        expected_counts = {'info': 4, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
         self.check_manual_review(r, check_name)
-
-# TODO: when apparmor has policy for account-provider, undo this
-    def _test_check_provider_missing_apparmor(self):
-        '''Test check_provider() - missing apparmor'''
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        c = ClickReviewAccounts(self.test_name)
-        del c.manifest['hooks'][self.default_appname]['apparmor']
-        c.check_provider()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
-
-    def test_check_provider_missing_qml_plugin(self):
-        '''Test check_provider() - missing account-qml-plugin'''
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_provider()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
-
-    def test_check_provider_with_application(self):
-        '''Test check_provider() - with account-application'''
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        xml = self._stub_application()
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_provider()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
-
-    def test_check_provider_with_service(self):
-        '''Test check_provider() - with account-service'''
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        xml = self._stub_service()
-        self.set_test_account(self.default_appname, "account-service", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_provider()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
-
-    def test_check_provider_with_application_and_service(self):
-        '''Test check_provider() - with account-application/account-service'''
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        xml = self._stub_service()
-        self.set_test_account(self.default_appname, "account-service", xml)
-        xml = self._stub_application()
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_provider()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
-
-    def test_check_provider_not_specified(self):
-        '''Test check_provider() - not specified'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_provider()
-        r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
 
     def test_check_provider_has_id(self):
         '''Test check_provider() - has id'''
@@ -439,95 +289,219 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c.check_qml_plugin()
         r = c.click_report
         # provider prompts manual review, so for now, need to have error as 1
-        expected_counts = {'info': 2, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
         self.check_manual_review(r, check_name)
 
-# TODO: when apparmor has policy for account-qml-plugin, undo this
-    def _test_check_qml_plugin_missing_apparmor(self):
-        '''Test check_qml_plugin() - missing apparmor'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
+    def test_check_peer_hooks_application(self):
+        '''Test check_peer_hooks() - application'''
         c = ClickReviewAccounts(self.test_name)
-        del c.manifest['hooks'][self.default_appname]['apparmor']
-        c.check_qml_plugin()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
 
-    def test_check_qml_plugin_missing_provider(self):
-        '''Test check_qml_plugin() - missing account-provider'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_qml_plugin()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
 
-    def test_check_qml_plugin_with_application(self):
-        '''Test check_qml_plugin() - with account-application'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        xml = self._stub_application()
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_qml_plugin()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
+        # add our hook
+        tmp["account-application"] = "foo.application"
 
-    def test_check_qml_plugin_with_service(self):
-        '''Test check_qml_plugin() - with account-service'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        xml = self._stub_service()
-        self.set_test_account(self.default_appname, "account-service", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_qml_plugin()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 2
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
+        # add any required peer hooks
+        tmp["apparmor"] = "foo.apparmor"
 
-    def test_check_qml_plugin_with_application_and_service(self):
-        '''Test check_qml_plugin() - with account-application/account-service'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", True)
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        xml = self._stub_service()
-        self.set_test_account(self.default_appname, "account-service", xml)
-        xml = self._stub_application()
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_qml_plugin()
-        r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 1
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
 
-    def test_check_qml_plugin_not_specified(self):
-        '''Test check_qml_plugin() - not specified'''
-        xml = self._stub_provider()
-        self.set_test_account(self.default_appname, "account-provider", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_qml_plugin()
+        # do the test
+        c.check_peer_hooks(["account-application"])
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        # We should end up with 8 info
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_application_disallowed(self):
+        '''Test check_peer_hooks() - disallowed (application)'''
+        c = ClickReviewAccounts(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["account-application"] = "foo.application"
+
+        # add any required peer hooks
+        tmp["apparmor"] = "foo.apparmor"
+
+        # add something not allowed
+        tmp["nonexistent"] = "nonexistent-hook"
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks(["account-application"])
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_application_required(self):
+        '''Test check_peer_hooks() - required (application)'''
+        c = ClickReviewAccounts(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["account-application"] = "foo.application"
+
+        # skip adding required hooks
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks(["account-application"])
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_service(self):
+        '''Test check_peer_hooks() - service'''
+        c = ClickReviewAccounts(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["account-service"] = "foo.service"
+
+        # add any required peer hooks
+        tmp["account-application"] = "foo.application"
+        tmp["apparmor"] = "foo.apparmor"
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks(["account-service"])
+        r = c.click_report
+        # We should end up with 8 info
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_service_disallowed(self):
+        '''Test check_peer_hooks() - disallowed (service)'''
+        c = ClickReviewAccounts(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["account-service"] = "foo.service"
+
+        # add any required peer hooks
+        tmp["account-application"] = "foo.application"
+        tmp["apparmor"] = "foo.apparmor"
+
+        # add something not allowed
+        tmp["nonexistent"] = "nonexistent-hook"
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks(["account-service"])
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_service_required(self):
+        '''Test check_peer_hooks() - required (service)'''
+        c = ClickReviewAccounts(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["account-service"] = "foo.service"
+
+        # skip adding required hooks
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks(["account-service"])
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_provider(self):
+        '''Test check_peer_hooks() - provider'''
+        c = ClickReviewAccounts(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["account-provider"] = "foo.provider"
+
+        # add any required peer hooks
+        tmp["account-qml-plugin"] = "foo.qml_plugin"
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks(["account-provider"])
+        r = c.click_report
+        # We should end up with 8 info
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_provider_disallowed(self):
+        '''Test check_peer_hooks() - disallowed (provider)'''
+        c = ClickReviewAccounts(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["account-provider"] = "foo.provider"
+
+        # add any required peer hooks
+        tmp["account-qml-plugin"] = "foo.qml_plugin"
+
+        # add something not allowed
+        tmp["nonexistent"] = "nonexistent-hook"
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks(["account-provider"])
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_provider_required(self):
+        '''Test check_peer_hooks() - required (provider)'''
+        c = ClickReviewAccounts(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["account-provider"] = "foo.provider"
+
+        # skip adding required hooks
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks(["account-provider"])
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)

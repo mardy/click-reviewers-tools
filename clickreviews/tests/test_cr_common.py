@@ -47,7 +47,7 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
         peer_hooks[my_hook]['required'] = []
         self.review.peer_hooks = peer_hooks
 
-        d = self.review._verify_peer_hooks()
+        d = self.review._verify_peer_hooks(my_hook)
         self.assertEqual(0, len(d.keys()))
 
     def test_verify_peer_hooks_missing(self):
@@ -59,7 +59,7 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
         peer_hooks[my_hook]['required'] = ["nonexistent"]
         self.review.peer_hooks = peer_hooks
 
-        d = self.review._verify_peer_hooks()
+        d = self.review._verify_peer_hooks(my_hook)
         self.assertEqual(1, len(d.keys()))
         self.assertTrue('missing' in d.keys())
         self.assertTrue('nonexistent' in d['missing'][self.default_appname])
@@ -73,7 +73,7 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
         peer_hooks[my_hook]['required'] = []
         self.review.peer_hooks = peer_hooks
 
-        d = self.review._verify_peer_hooks()
+        d = self.review._verify_peer_hooks(my_hook)
         self.assertEqual(1, len(d.keys()))
         self.assertTrue('disallowed' in d.keys())
         self.assertTrue('urls' in d['disallowed'][self.default_appname])
