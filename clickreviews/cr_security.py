@@ -89,7 +89,9 @@ class ClickReviewSecurity(ClickReview):
                 'policy_version': 1.2,
             },
         }
-        framework_overrides = overrides.get('framework') if overrides else {}
+        if overrides is None:
+            overrides = {}
+        framework_overrides = overrides.get('framework', {})
         self._override_framework_policies(framework_overrides)
 
         self.security_manifests = dict()

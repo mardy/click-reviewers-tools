@@ -94,7 +94,9 @@ class ClickReviewLint(ClickReview):
                             'urls']
 
         self.redflagged_hooks = ['pay-ui']
-        self.overrides = overrides if overrides is not None else {}
+        if overrides is None:
+            overrides = {}
+        self.overrides = overrides
 
     def _list_control_files(self):
         '''List all control files with their full path.'''
@@ -652,7 +654,7 @@ exit 1
         '''Check framework()'''
         n = 'framework'
         l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
-        framework_overrides = self.overrides.get('framework')
+        framework_overrides = self.overrides.get('framework', {})
         frameworks = Frameworks(overrides=framework_overrides)
         if self.manifest['framework'] in frameworks.AVAILABLE_FRAMEWORKS:
             t = 'info'
