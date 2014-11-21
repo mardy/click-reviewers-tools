@@ -29,7 +29,13 @@ KNOWN_SECTIONS = set(["ScopeConfig", "Appearance"])
 class ClickReviewScope(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn):
-        ClickReview.__init__(self, fn, "scope")
+        peer_hooks = dict()
+        my_hook = 'scope'
+        peer_hooks[my_hook] = dict()
+        peer_hooks[my_hook]['allowed'] = ClickReview.scope_allowed_peer_hooks
+        peer_hooks[my_hook]['required'] = ['apparmor']
+
+        ClickReview.__init__(self, fn, "scope", peer_hooks=peer_hooks)
 
         self.scopes = dict()
         for app in self.manifest['hooks']:

@@ -65,10 +65,11 @@ class ClickReview(object):
                               "content-hub",
                               "desktop",
                               "push-helper",
-                              "scope",
                               "urls",
                               ]
-    scope_allowed_peer_hooks = ["apparmor",
+    scope_allowed_peer_hooks = ["account-application",
+                                "account-service",
+                                "apparmor",
                                 "scope",
                                 ]
     # FIXME: when apparmor-policy is implemented, use this

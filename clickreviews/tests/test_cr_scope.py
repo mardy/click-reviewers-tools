@@ -174,3 +174,76 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
+
+
+    def test_check_peer_hooks(self):
+        '''Test check_peer_hooks()'''
+        c = ClickReviewScope(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["scope"] = "scope.ini"
+
+        # add any required peer hooks
+        tmp["apparmor"] = "foo.apparmor"
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks()
+        r = c.click_report
+        # We should end up with 2 info
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_disallowed(self):
+        '''Test check_peer_hooks() - disallowed'''
+        c = ClickReviewScope(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["scope"] = "scope.ini"
+
+        # add any required peer hooks
+        tmp["apparmor"] = "foo.apparmor"
+
+        # add something not allowed
+        tmp["desktop"] = "foo.desktop"
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_required(self):
+        '''Test check_peer_hooks() - required'''
+        c = ClickReviewScope(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["scope"] = "scope.ini"
+
+        # skip adding required hooks
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
