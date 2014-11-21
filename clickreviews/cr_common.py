@@ -57,6 +57,27 @@ class ClickReviewException(Exception):
 
 class ClickReview(object):
     '''This class represents click reviews'''
+    # Convenience to break out common types of clicks (eg, app, scope,
+    # framework, click service)
+    app_allowed_peer_hooks = ["account-application",
+                              "account-service",
+                              "apparmor",
+                              "content-hub",
+                              "desktop",
+                              "push-helper",
+                              "scope",
+                              "urls",
+                              ]
+    scope_allowed_peer_hooks = ["apparmor",
+                                "scope",
+                                ]
+    # FIXME: when apparmor-policy is implemented, use this
+    # framework_allowed_peer_hooks = ["apparmor-policy"]
+    framework_allowed_peer_hooks = []
+    service_allowed_peer_hooks = ["bin-path",
+                                  "systemd",
+                                  ]
+
     def __init__(self, fn, review_type, peer_hooks=None):
         self.click_package = fn
         self._check_path_exists()
