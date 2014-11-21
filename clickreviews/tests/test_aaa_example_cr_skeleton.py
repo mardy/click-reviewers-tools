@@ -84,6 +84,8 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
 
     def test_check_peer_hooks(self):
         '''Test check_peer_hooks()'''
+        c = ClickReviewSkeleton(self.test_name)
+
         # create a new hooks database for our peer hooks tests
         tmp = dict()
 
@@ -94,12 +96,11 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
         tmp["desktop"] = "foo.desktop"
         tmp["apparmor"] = "foo.apparmor"
 
-        self.test_manifest["hooks"][self.default_appname] = tmp
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname] = tmp
         self._update_test_manifest()
 
-        #  do the test
-        c = ClickReviewSkeleton(self.test_name)
-
+        # do the test
         c.check_peer_hooks()
         r = c.click_report
         # We should end up with 2 info
