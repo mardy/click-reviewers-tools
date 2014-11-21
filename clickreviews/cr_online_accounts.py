@@ -51,7 +51,7 @@ class ClickReviewAccounts(ClickReview):
         peer_hooks['account-qml-plugin'] = dict()
         peer_hooks['account-qml-plugin']['required'] = ['account-provider',
                                                         # 'apparmor'
-                                                       ]
+                                                        ]
         peer_hooks['account-qml-plugin']['allowed'] = \
             peer_hooks['account-qml-plugin']['required']
 
