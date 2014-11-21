@@ -109,6 +109,8 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
 
     def test_check_peer_hooks_disallowed(self):
         '''Test check_peer_hooks() - disallowed'''
+        c = ClickReviewSkeleton(self.test_name)
+
         # create a new hooks database for our peer hooks tests
         tmp = dict()
 
@@ -122,12 +124,10 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
         # add something not allowed
         tmp["nonexistent"] = "nonexistent-hook"
 
-        self.test_manifest["hooks"][self.default_appname] = tmp
+        c.manifest["hooks"][self.default_appname] = tmp
         self._update_test_manifest()
 
-        #  do the test
-        c = ClickReviewSkeleton(self.test_name)
-
+        # do the test
         c.check_peer_hooks()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
@@ -135,6 +135,8 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
 
     def test_check_peer_hooks_required(self):
         '''Test check_peer_hooks() - required'''
+        c = ClickReviewSkeleton(self.test_name)
+
         # create a new hooks database for our peer hooks tests
         tmp = dict()
 
@@ -143,11 +145,10 @@ class TestClickReviewSkeleton(cr_tests.TestClickReview):
 
         # skip adding required hooks
 
-        self.test_manifest["hooks"][self.default_appname] = tmp
+        c.manifest["hooks"][self.default_appname] = tmp
         self._update_test_manifest()
 
-        c = ClickReviewSkeleton(self.test_name)
-
+        # do the test
         c.check_peer_hooks()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
