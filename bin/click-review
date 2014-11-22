@@ -16,7 +16,7 @@ def print_findings(results, description):
         return ''
     print(description)
     print(''.center(len(description), '-'))
-    for key in results.keys():
+    for key in sorted(results.keys()):
         print(' - %s' % key)
         print('\t%s' % results[key]['text'])
         if 'link' in results[key]:
