@@ -18,8 +18,9 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * add bin-path click hook checks and tests (LP: #1395001)
   * add preliminary framework hook checks and tests (LP: #1395004)
   * refactor hooks checks into parent class (LP: #1395005)
+  * sort click-review results in print_findings
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 13 Nov 2014 15:00:07 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 21 Nov 2014 22:34:08 -0600
 
 click-reviewers-tools (0.18) utopic; urgency=medium
 
