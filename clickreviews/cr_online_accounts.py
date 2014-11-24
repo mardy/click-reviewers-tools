@@ -27,19 +27,18 @@ class ClickReviewAccounts(ClickReview):
     def __init__(self, fn):
         peer_hooks = dict()
         peer_hooks['account-application'] = dict()
-        peer_hooks['account-application']['allowed'] = ['account-service',
-                                                        'apparmor',
-                                                        'desktop',
-                                                        'scope']
-        peer_hooks['account-application']['required'] = ['apparmor',
-                                                         ]
+        peer_hooks['account-application']['allowed'] = \
+                ClickReview.app_allowed_peer_hooks + \
+                ClickReview.scope_allowed_peer_hooks
+        peer_hooks['account-application']['required'] = ['apparmor']
 
         peer_hooks['account-service'] = dict()
         peer_hooks['account-service']['required'] = ['account-application',
                                                      'apparmor'
                                                      ]
         peer_hooks['account-service']['allowed'] = \
-            peer_hooks['account-service']['required']
+            ClickReview.app_allowed_peer_hooks + \
+            ClickReview.scope_allowed_peer_hooks
 
         peer_hooks['account-provider'] = dict()
         peer_hooks['account-provider']['required'] = ['account-qml-plugin',

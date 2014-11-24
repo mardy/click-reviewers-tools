@@ -287,22 +287,22 @@ class ClickReview(object):
             if 'missing' in d and len(d['missing'].keys()) > 0:
                 t = 'error'
                 for app in d['missing']:
-                    s = "Missing required hooks for '%s': %s" % (app,
-                                                                 ", ".join(d['missing'][app]))
-                    self._add_result(t, n, s)
+                    s = "Missing required hooks for '%s': %s" % (
+                            app, ", ".join(d['missing'][app]))
+                    self._add_result(t, n, s, manual_review=True)
             else:
                 self._add_result(t, n, s)
 
             t = 'info'
-            n = "peer_hooks_disallowed_%s" % hook
+            n = "peer_hooks_disallowed_with_%s" % hook
             s = "OK"
 
             if 'disallowed' in d and len(d['disallowed'].keys()) > 0:
                 t = 'error'
                 for app in d['disallowed']:
-                    s = "Found disallowed hooks for '%s': %s" % (app,
-                                                                 ", ".join(d['disallowed'][app]))
-                    self._add_result(t, n, s)
+                    s = "Disallowed with %s (%s): %s" % (
+                            hook, app, ", ".join(d['disallowed'][app]))
+                    self._add_result(t, n, s, manual_review=True)
             else:
                 self._add_result(t, n, s)
 
