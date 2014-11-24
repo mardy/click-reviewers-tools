@@ -28,8 +28,8 @@ class ClickReviewAccounts(ClickReview):
         peer_hooks = dict()
         peer_hooks['account-application'] = dict()
         peer_hooks['account-application']['allowed'] = \
-                ClickReview.app_allowed_peer_hooks + \
-                ClickReview.scope_allowed_peer_hooks
+            ClickReview.app_allowed_peer_hooks + \
+            ClickReview.scope_allowed_peer_hooks
         peer_hooks['account-application']['required'] = ['apparmor']
 
         peer_hooks['account-service'] = dict()

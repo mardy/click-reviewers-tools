@@ -288,7 +288,7 @@ class ClickReview(object):
                 t = 'error'
                 for app in d['missing']:
                     s = "Missing required hooks for '%s': %s" % (
-                            app, ", ".join(d['missing'][app]))
+                        app, ", ".join(d['missing'][app]))
                     self._add_result(t, n, s, manual_review=True)
             else:
                 self._add_result(t, n, s)
@@ -301,7 +301,7 @@ class ClickReview(object):
                 t = 'error'
                 for app in d['disallowed']:
                     s = "Disallowed with %s (%s): %s" % (
-                            hook, app, ", ".join(d['disallowed'][app]))
+                        hook, app, ", ".join(d['disallowed'][app]))
                     self._add_result(t, n, s, manual_review=True)
             else:
                 self._add_result(t, n, s)
