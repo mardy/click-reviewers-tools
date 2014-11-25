@@ -598,6 +598,9 @@ class ClickReviewSecurity(ClickReview):
             found = []
             for i in self.redflag_fields:
                 if i in m:
+                    if i == 'policy_vendor' and \
+                       m[i] in ['ubuntu', 'ubuntu-snappy']:
+                        continue
                     found.append(i)
 
             if len(found) > 0:

@@ -242,6 +242,18 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_policy_vendor_ubuntu_snappy(self):
+        '''Test check_policy_vendor() - ubuntu-snappy'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu-snappy")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", 1.3)
+        c.check_policy_vendor()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_policy_vendor_nonexistent(self):
         '''Test check_policy_vendor() - nonexistent'''
         c = ClickReviewSecurity(self.test_name)
@@ -786,3 +798,83 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_redflag_policy_vendor_ubuntu(self):
+        '''Test check_redflag() - policy_vendor - ubuntu'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu")
+        c.check_redflag()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_redflag_policy_vendor_ubuntu_snappy(self):
+        '''Test check_redflag() - policy_vendor - ubuntu-snappy'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu-snappy")
+        c.check_redflag()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_redflag_policy_vendor_notubuntu(self):
+        '''Test check_redflag() - policy_vendor - notubuntu'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "notubuntu")
+        c.check_redflag()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_redflag_abstractions(self):
+        '''Test check_redflag() - abstractions'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "abstractions", ["python"])
+        c.check_redflag()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_redflag_binary(self):
+        '''Test check_redflag() - binary'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "binary", "/bin/foo")
+        c.check_redflag()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_redflag_read_path(self):
+        '''Test check_redflag() - read_path'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "read_path", ["/"])
+        c.check_redflag()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_redflag_template_variables(self):
+        '''Test check_redflag() - template_variables'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                "template_variables", { "FOO": "bar" })
+        c.check_redflag()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_redflag_write_path(self):
+        '''Test check_redflag() - write_path'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "write_path", ["/"])
+        c.check_redflag()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
