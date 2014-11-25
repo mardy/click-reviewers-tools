@@ -13,13 +13,15 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * open scopes .ini file as utf8 (LP: #1371692)
   * allow for translatable fields in the scopes .ini file (LP: #1392133)
   * don't require desktop hook with systemd or framework
-  * com.ubuntu.snappy can use ubuntu-devel-discuss@lists.ubuntu.coms
+  * com.ubuntu.snappy can use ubuntu-devel-discuss@lists.ubuntu.com
     (LP: #1395007)
   * add bin-path click hook checks and tests (LP: #1395001)
   * add preliminary framework hook checks and tests (LP: #1395004)
   * refactor hooks checks into parent class (LP: #1395005)
   * sort click-review results in print_findings
   * add preliminary systemd hook checks and tests
+  * update apparmor policy json and adjust security checks to properly handle
+    different policy vendors
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 21 Nov 2014 22:34:08 -0600
 
