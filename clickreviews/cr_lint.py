@@ -93,6 +93,7 @@ class ClickReviewLint(ClickReview):
                             'pay-ui',
                             'push-helper',
                             'scope',
+                            'systemd',
                             'urls']
 
         self.redflagged_hooks = ['framework',

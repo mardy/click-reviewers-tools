@@ -30,6 +30,7 @@ from clickreviews import cr_online_accounts
 from clickreviews import cr_push_helper
 from clickreviews import cr_bin_path
 from clickreviews import cr_framework
+from clickreviews import cr_systemd
 
 # This script just dumps important files to stdout
 
@@ -128,6 +129,17 @@ if __name__ == "__main__":
         fh = cr_common.open_file_read(os.path.join(review_apparmor.unpack_dir,
                                                    f))
         print("== security: %s ==" % os.path.basename(f))
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+
+    review_systemd = cr_systemd.ClickReviewSystemd(sys.argv[1])
+    for app in sorted(review_systemd.systemd_files):
+        f = review_systemd.systemd_files[app]
+        fh = cr_common.open_file_read(os.path.join(review_systemd.unpack_dir,
+                                                   f))
+        print("== systemd: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
         fh.close()

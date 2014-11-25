@@ -42,6 +42,7 @@ TEST_ACCOUNTS_SERVICE = dict()
 TEST_PUSH_HELPER = dict()
 TEST_BIN_PATH = dict()
 TEST_FRAMEWORK = dict()
+TEST_SYSTEMD = dict()
 
 
 #
@@ -173,6 +174,11 @@ def _extract_framework(self, app):
     return ("%s.framework" % app, TEST_FRAMEWORK[app])
 
 
+def _extract_systemd(self, app):
+    '''Pretend we found the systemd file'''
+    return ("%s.click-service" % app, TEST_SYSTEMD[app])
+
+
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
@@ -271,6 +277,11 @@ patches.append(patch(
     'clickreviews.cr_framework.ClickReviewFramework._extract_framework',
     _extract_framework))
 
+# systemd overrides
+patches.append(patch(
+    'clickreviews.cr_systemd.ClickReviewSystemd._extract_systemd',
+    _extract_systemd))
+
 
 def mock_patch():
     '''Call in setup of child'''
@@ -341,6 +352,7 @@ class TestClickReview(TestCase):
         self.test_push_helper = dict()
         self.test_bin_path = dict()
         self.test_framework = dict()
+        self.test_systemd = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -385,6 +397,9 @@ class TestClickReview(TestCase):
             # Reset to no framework entries in manifest
             self.set_test_framework(app, None, None)
 
+            # Reset to no systemd entries in manifest
+            self.set_test_systemd(app, None, None)
+
         self._update_test_security_manifests()
         self._update_test_desktop_files()
         self._update_test_url_dispatcher()
@@ -397,6 +412,7 @@ class TestClickReview(TestCase):
         self._update_test_push_helper()
         self._update_test_bin_path()
         self._update_test_framework()
+        self._update_test_systemd()
 
         # webapps manifests (leave empty for now)
         self.test_webapp_manifests = dict()
@@ -530,6 +546,12 @@ class TestClickReview(TestCase):
             self.test_manifest["hooks"][app]["framework"] = \
                 "%s.framework" % TEST_FRAMEWORK[app]
         self._update_test_manifest()
+
+    def _update_test_systemd(self):
+        global TEST_SYSTEMD
+        TEST_SYSTEMD = dict()
+        for app in self.test_systemd.keys():
+            TEST_SYSTEMD[app] = self.test_systemd[app]
 
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
@@ -752,6 +774,19 @@ class TestClickReview(TestCase):
             self.test_framework[app][key] = value
         self._update_test_framework()
 
+    def set_test_systemd(self, app, key, value, append=False):
+        '''Set systemd entries. If value is None, remove'''
+        if app not in self.test_systemd:
+            self.test_systemd[app] = []
+
+        if value is None:
+            self.test_systemd[app] = []
+        else:
+            if not append:
+                self.test_systemd[app] = []
+            self.test_systemd[app].append({key: value})
+        self._update_test_systemd()
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         global patches
@@ -788,6 +823,8 @@ class TestClickReview(TestCase):
         TEST_BIN_PATH = dict()
         global TEST_FRAMEWORK
         TEST_FRAMEWORK = dict()
+        global TEST_SYSTEMD
+        TEST_SYSTEMD = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)
