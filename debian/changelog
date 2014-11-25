@@ -19,6 +19,7 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * add preliminary framework hook checks and tests (LP: #1395004)
   * refactor hooks checks into parent class (LP: #1395005)
   * sort click-review results in print_findings
+  * add preliminary systemd hook checks and tests
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 21 Nov 2014 22:34:08 -0600
 
