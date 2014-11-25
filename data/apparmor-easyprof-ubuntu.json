@@ -126,5 +126,24 @@
         ]
       }
     }
+  },
+  "ubuntu-snappy": {
+    "1.3": {
+      "templates": {
+        "common": [
+          "default",
+          "service"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "networking"
+        ],
+        "reserved": []
+      }
+    }
   }
 }

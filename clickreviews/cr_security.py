@@ -258,7 +258,8 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = 'policy_vendor (%s)' % f
             s = "OK"
-            if 'policy_vendor' in m and m['policy_vendor'] != "ubuntu":
+            if 'policy_vendor' in m and \
+               m['policy_vendor'] not in self.aa_policy:
                 t = 'error'
                 s = "policy_vendor '%s' not found" % m['policy_vendor']
             self._add_result(t, n, s)
