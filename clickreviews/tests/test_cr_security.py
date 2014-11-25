@@ -863,7 +863,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         '''Test check_redflag() - template_variables'''
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
-                "template_variables", { "FOO": "bar" })
+                                        "template_variables", {"FOO": "bar"})
         c.check_redflag()
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
