@@ -209,20 +209,29 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
             {"text": "Invalid framework 'nonexistent'"}
         self.check_results(report, expected=expected)
 
-    def test_check_policy_version_framework_with_overrides(self):
+    def _test_check_policy_version_framework_with_overrides(self, overrides):
         '''Test check_policy_version() - override framework (nonexistent)'''
         self.set_test_manifest("framework", "nonexistent")
         self.set_test_security_manifest(self.default_appname,
                                         "policy_version", 1.3)
-        overrides = {'framework': {'nonexistent': {'state': 'available',
-                                                   'policy_vendor': 'ubuntu',
-                                                   'policy_version': 1.3}}}
         c = ClickReviewSecurity(self.test_name, overrides=overrides)
         c.check_policy_version()
         report = c.click_report
 
         expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
+
+    def test_check_policy_version_framework_overrides_version_float(self):
+        overrides = {'framework': {'nonexistent': {'state': 'available',
+                                                   'policy_vendor': 'ubuntu',
+                                                   'policy_version': 1.3}}}
+        self._test_check_policy_version_framework_with_overrides(overrides)
+
+    def test_check_policy_version_framework_overrides_version_string(self):
+        overrides = {'framework': {'nonexistent': {'state': 'available',
+                                                   'policy_vendor': 'ubuntu',
+                                                   'policy_version': '1.3'}}}
+        self._test_check_policy_version_framework_with_overrides(overrides)
 
     def test_check_policy_version_framework_with_malformed_overrides(self):
         '''Test check_policy_version() - incorrectly override framework'''
