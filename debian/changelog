@@ -23,8 +23,9 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * add preliminary systemd hook checks and tests
   * update apparmor policy json and adjust security checks to properly handle
     different policy vendors
+  * update data/apparmor-easyprof-ubuntu.json for 1.3
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 21 Nov 2014 22:34:08 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 03 Dec 2014 09:43:57 -0600
 
 click-reviewers-tools (0.18) utopic; urgency=medium
 

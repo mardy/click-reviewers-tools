@@ -228,10 +228,10 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         '''Test check_policy_version() - incorrectly override framework'''
         self.set_test_manifest("framework", "nonexistent")
         self.set_test_security_manifest(self.default_appname,
-                                        "policy_version", 1.3)
+                                        "policy_version", 999999999.3)
         overrides = {'nonexistent': {'state': 'available',
                                      'policy_vendor': 'ubuntu',
-                                     'policy_version': 1.3}}
+                                     'policy_version': 999999999.3}}
         c = ClickReviewSecurity(self.test_name, overrides=overrides)
         c.check_policy_version()
         report = c.click_report
