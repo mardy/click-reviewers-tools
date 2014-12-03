@@ -5,7 +5,6 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * use mtime instead of ctime to check remote file freshness
   * allow specifying overrides for framework checks
   * handle case when overrides data is malformed
-  * handle policy_version overrides as float or string
 
   [ Alexandre Abreu ]
   * add support for local html5 app launch mode for webapp-container

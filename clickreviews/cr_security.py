@@ -293,9 +293,9 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = 'policy_version_is_highest (%s, %s)' % (str(highest), f)
             s = "OK"
-            if float(version) != highest:
+            if float(m['policy_version']) != highest:
                 t = 'info'
-                s = '%s != %s' % (version, str(highest))
+                s = '%s != %s' % (str(m['policy_version']), str(highest))
             self._add_result(t, n, s)
 
             t = 'info'
@@ -307,10 +307,10 @@ class ClickReviewSecurity(ClickReview):
                 if not self.manifest['framework'].startswith(name):
                     continue
                 found_major = True
-                if version != str(data['policy_version']):
+                if m['policy_version'] != data['policy_version']:
                     t = 'error'
-                    s = '%s != %s (%s)' % (version,
-                                           str(data['policy_version']),
+                    s = '%s != %s (%s)' % (str(m['policy_version']),
+                                           data['policy_version'],
                                            self.manifest['framework'])
             if not found_major:
                 t = 'error'
