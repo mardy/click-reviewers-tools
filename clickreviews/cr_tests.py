@@ -42,7 +42,7 @@ TEST_ACCOUNTS_SERVICE = dict()
 TEST_PUSH_HELPER = dict()
 TEST_BIN_PATH = dict()
 TEST_FRAMEWORK = dict()
-TEST_SYSTEMD = dict()
+TEST_SNAPPY_SYSTEMD = dict()
 
 
 #
@@ -176,7 +176,7 @@ def _extract_framework(self, app):
 
 def _extract_systemd(self, app):
     '''Pretend we found the systemd file'''
-    return ("%s.click-service" % app, TEST_SYSTEMD[app])
+    return ("%s.click-service" % app, TEST_SNAPPY_SYSTEMD[app])
 
 
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
@@ -548,10 +548,10 @@ class TestClickReview(TestCase):
         self._update_test_manifest()
 
     def _update_test_systemd(self):
-        global TEST_SYSTEMD
-        TEST_SYSTEMD = dict()
+        global TEST_SNAPPY_SYSTEMD
+        TEST_SNAPPY_SYSTEMD = dict()
         for app in self.test_systemd.keys():
-            TEST_SYSTEMD[app] = self.test_systemd[app]
+            TEST_SNAPPY_SYSTEMD[app] = self.test_systemd[app]
 
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
@@ -823,8 +823,8 @@ class TestClickReview(TestCase):
         TEST_BIN_PATH = dict()
         global TEST_FRAMEWORK
         TEST_FRAMEWORK = dict()
-        global TEST_SYSTEMD
-        TEST_SYSTEMD = dict()
+        global TEST_SNAPPY_SYSTEMD
+        TEST_SNAPPY_SYSTEMD = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)

@@ -93,7 +93,7 @@ class ClickReviewLint(ClickReview):
                             'pay-ui',
                             'push-helper',
                             'scope',
-                            'systemd',
+                            'snappy-systemd',
                             'urls']
 
         self.redflagged_hooks = ['framework',
@@ -722,8 +722,11 @@ exit 1
                 os.path.basename(self.click_package)
         self._add_result(t, n, s)
 
-        #  handle $pkgname.click
-        pkgname = tmp[0].partition('\.click')[0]
+        #  handle $pkgname.click or $pkgname.snap
+        if tmp[0].endswith('.snap'):
+            pkgname = tmp[0].partition('.snap')[0]
+        else:
+            pkgname = tmp[0].partition('.click')[0]
         t = 'info'
         n = 'package_filename_pkgname_match'
         s = 'OK'
@@ -753,8 +756,11 @@ exit 1
         s = 'OK'
         l = None
         if len(tmp) >= 2:
-            #  handle $pkgname_$version.click
-            version = tmp[1].partition('.click')[0]
+            #  handle $pkgname_$version.click or $pkgname_$version.snap
+            if tmp[0].endswith('.snap'):
+                version = tmp[1].partition('.snap')[0]
+            else:
+                version = tmp[1].partition('.click')[0]
             if version != self.click_version:
                 t = 'error'
                 s = "'%s' != '%s' from DEBIAN/control" % (version,
@@ -770,7 +776,10 @@ exit 1
         n = 'package_filename_arch_valid'
         s = 'OK'
         if len(tmp) >= 3:
-            arch = tmp[2].partition('.click')[0]
+            if tmp[0].endswith('.snap'):
+                arch = tmp[2].partition('.snap')[0]
+            else:
+                arch = tmp[2].partition('.click')[0]
             if arch == "unknown":
                 # short-circuit here since the appstore doesn't determine
                 # the version yet
@@ -791,7 +800,10 @@ exit 1
         n = 'package_filename_arch_match'
         s = 'OK'
         if len(tmp) >= 3:
-            arch = tmp[2].partition('.click')[0]
+            if tmp[0].endswith('.snap'):
+                arch = tmp[2].partition('.snap')[0]
+            else:
+                arch = tmp[2].partition('.click')[0]
             if arch != self.click_arch:
                 t = 'error'
                 s = "'%s' != '%s' from DEBIAN/control" % (arch,

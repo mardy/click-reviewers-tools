@@ -42,35 +42,8 @@ class ClickReviewDesktop(ClickReview):
         self.desktop_hook_entries = 0
         for app in self.manifest['hooks']:
             if 'desktop' not in self.manifest['hooks'][app]:
-                if 'scope' in self.manifest['hooks'][app]:
-                    # msg("Skipped missing desktop hook for scope '%s'" % app)
-                    continue
-                elif 'push-helper' in self.manifest['hooks'][app]:
-                    # msg("Skipped missing desktop hook for push-helper '%s'" %
-                    #     app)
-                    continue
-                elif 'pay-ui' in self.manifest['hooks'][app]:
-                    # msg("Skipped missing desktop hook for pay-ui '%s'" % app)
-                    continue
-                elif 'account-provider' in self.manifest['hooks'][app]:
-                    # msg("Skipped missing desktop hook for account-provider"
-                    #     " '%s'" % app)
-                    continue
-                elif 'account-qml-plugin' in self.manifest['hooks'][app]:
-                    # msg("Skipped missing desktop hook for account-qml-plugin"
-                    #     " '%s'" % app)
-                    continue
-                elif 'systemd' in self.manifest['hooks'][app]:
-                    # msg("Skipped missing desktop hook for systemd"
-                    #     " '%s'" % app)
-                    continue
-                elif 'framework' in self.manifest['hooks'][app]:
-                    #  TODO: verify this is the long term hook name
-                    # msg("Skipped missing desktop hook for framework"
-                    #     " '%s'" % app)
-                    continue
-                else:
-                    error("could not find desktop hook for '%s'" % app)
+                # msg("Skipped missing desktop hook for '%s'" % app)
+                continue
             if not isinstance(self.manifest['hooks'][app]['desktop'], str):
                 error("manifest malformed: hooks/%s/desktop is not str" % app)
             self.desktop_hook_entries += 1

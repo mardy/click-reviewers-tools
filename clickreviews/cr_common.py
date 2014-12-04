@@ -76,13 +76,14 @@ class ClickReview(object):
     # framework_allowed_peer_hooks = ["apparmor-policy"]
     framework_allowed_peer_hooks = []
     service_allowed_peer_hooks = ["bin-path",
-                                  "systemd",
+                                  "snappy-systemd",
                                   ]
 
     def __init__(self, fn, review_type, peer_hooks=None):
         self.click_package = fn
         self._check_path_exists()
-        if not self.click_package.endswith(".click"):
+        if not self.click_package.endswith(".click") and \
+                not self.click_package.endswith(".snap"):
             if self.click_package.endswith(".deb"):
                 error("filename does not end with '.click', but '.deb' "
                       "instead. See http://askubuntu.com/a/485544/94326 for "

@@ -26,7 +26,7 @@ class ClickReviewBinPath(ClickReview):
         peer_hooks = dict()
         my_hook = 'bin-path'
         peer_hooks[my_hook] = dict()
-        peer_hooks[my_hook]['required'] = ["systemd", "apparmor"]
+        peer_hooks[my_hook]['required'] = ["snappy-systemd", "apparmor"]
         peer_hooks[my_hook]['allowed'] = peer_hooks[my_hook]['required']
 
         ClickReview.__init__(self, fn, "bin-path", peer_hooks=peer_hooks)
@@ -34,8 +34,7 @@ class ClickReviewBinPath(ClickReview):
         self.bin_paths = dict()
         for app in self.manifest['hooks']:
             if 'bin-path' not in self.manifest['hooks'][app]:
-                #  msg("Skipped missing framework
-                #  hook for '%s'" % app)
+                #  msg("Skipped missing bin-path hook for '%s'" % app)
                 continue
             self.bin_paths[app] = self._extract_bin_path(app)
 
