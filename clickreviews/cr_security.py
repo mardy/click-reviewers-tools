@@ -82,8 +82,9 @@ class ClickReviewSecurity(ClickReview):
         self.allowed_network_scope_policy_groups = ['accounts', 'networking']
 
         self.redflag_templates = ['unconfined']
-        self.extraneous_templates = ['ubuntu-sdk',
-                                     'default']
+        # TODO: how to deal with other vendors
+        self.extraneous_ubuntu_templates = ['ubuntu-sdk',
+                                            'default']
 
         # framework policy is based on major framework version. In 13.10, there
         # was only 'ubuntu-sdk-13.10', but in 14.04, there will be several,
@@ -343,7 +344,8 @@ class ClickReviewSecurity(ClickReview):
                 t = 'error'
                 s = "(MANUAL REVIEW) '%s' not allowed" % m['template']
                 manual_review = True
-            elif m['template'] in self.extraneous_templates:
+            elif ('policy_vendor' not in m or m['policy_vendor'] == 'ubuntu') \
+                    and m['template'] in self.extraneous_ubuntu_templates:
                 t = 'warn'
                 s = "No need to specify '%s' template" % m['template']
             self._add_result(t, n, s, manual_review=manual_review)

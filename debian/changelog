@@ -24,6 +24,7 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * update apparmor policy json and adjust security checks to properly handle
     different policy vendors
   * update data/apparmor-easyprof-ubuntu.json for 1.3
+  * don't warn if specifying 'default' with ubuntu-snappy vendor
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 03 Dec 2014 09:43:57 -0600
 

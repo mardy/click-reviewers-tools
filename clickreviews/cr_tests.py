@@ -97,7 +97,7 @@ def _get_security_manifest(self, app):
 
 def _get_security_supported_policy_versions(self):
     '''Pretend we read the contens of /usr/share/apparmor/easyprof'''
-    return [1.0, 1.1, 1.2]
+    return [1.0, 1.1, 1.2, 1.3]
 
 
 def _extract_desktop_entry(self, app):

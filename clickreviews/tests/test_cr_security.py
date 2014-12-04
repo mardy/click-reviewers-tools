@@ -309,6 +309,56 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
             {"text": "No need to specify 'ubuntu-sdk' template"}
         self.check_results(report, expected=expected)
 
+    def test_check_template_default(self):
+        '''Test check_template() - default specified with no vendor'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "default")
+        c.check_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_default_with_ubuntu(self):
+        '''Test check_template() - default specified with ubuntu vendor'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "default")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu")
+        c.check_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_default_with_snappy(self):
+        '''Test check_template() - default specified with ubuntu-snappy vendor'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "default")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu-snappy")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", 1.3)
+        c.check_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_nonexistent_with_snappy(self):
+        '''Test check_template() - nonexistent with ubuntu-snappy vendor'''
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "nonexistent")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu-snappy")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", 1.3)
+        c.check_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
     def test_check_template_webapp(self):
         '''Test check_template() - webapp'''
         c = ClickReviewSecurity(self.test_name)
