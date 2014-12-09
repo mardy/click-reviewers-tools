@@ -732,10 +732,13 @@ exit 1
         s = 'OK'
         l = None
         if pkgname != self.click_pkgname:
-            t = 'error'
-            s = "'%s' != '%s' from DEBIAN/control" % (pkgname,
-                                                      self.click_pkgname)
-            l = 'http://askubuntu.com/questions/417361/what-does-lint-package-filename-pkgname-match-mean'
+            if pkgname.startswith('com.ubuntu.snappy.'):
+                s = "OK (store snappy workaround)"
+            else:
+                t = 'error'
+                s = "'%s' != '%s' from DEBIAN/control" % (pkgname,
+                                                          self.click_pkgname)
+                l = 'http://askubuntu.com/questions/417361/what-does-lint-package-filename-pkgname-match-mean'
         self._add_result(t, n, s, l)
 
         # check if namespaces matches with filename

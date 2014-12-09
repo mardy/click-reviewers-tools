@@ -204,6 +204,8 @@ class ClickReview(object):
         optional = ["title", "description", "maintainer", "architecture",
                     "installed-size", "icon"]
 
+        snappy_optional = ["ports"]
+
         for f in optional:
             if f in self.manifest:
                 if f != "architecture" and \
@@ -233,7 +235,7 @@ class ClickReview(object):
                 error("manifest malformed: hooks/%s is empty:\n%s" % (app, mp))
 
         for k in sorted(self.manifest):
-            if k not in required + optional + ['hooks']:
+            if k not in required + optional + snappy_optional + ['hooks']:
                 # click supports local extensions via 'x-...', ignore those
                 # here but report in lint
                 if k.startswith('x-'):
