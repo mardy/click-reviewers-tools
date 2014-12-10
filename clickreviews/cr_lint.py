@@ -613,6 +613,10 @@ exit 1
                     "(Your email domain needs to match the reverse package " \
                     "namespace.)" % (self.email,
                                      ".".join(pkg_domain_rev))
+        # flat namespaces are ok now
+        if self.click_pkgname.count('.') < 1:
+            t = 'info'
+            s = 'OK (flat namespace)'
         self._add_result(t, n, s, manual_review=manual_review)
 
     def check_title(self):

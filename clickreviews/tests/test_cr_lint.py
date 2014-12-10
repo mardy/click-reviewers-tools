@@ -632,6 +632,25 @@ class TestClickReviewLint(cr_tests.TestClickReview):
              "'ubuntu-devel-discuss@lists.ubuntu.com' as email)"}
         self.check_results(r, expected=expected)
 
+    def test_check_maintainer_flat_namespace(self):
+        '''Test check_maintainer() - flat namespace'''
+        self.set_test_control("Package", "snapp")
+        self.set_test_manifest("maintainer",
+                               "Foo User <user@example.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        expected['info']['lint_maintainer_domain'] = \
+            {"text": "OK (flat namespace)"}
+        self.check_results(r, expected=expected)
+
     def test_check_icon(self):
         '''Test check_icon()'''
         self.set_test_manifest("icon", "someicon")

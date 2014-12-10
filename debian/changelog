@@ -27,6 +27,7 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * don't warn if specifying 'default' with ubuntu-snappy vendor
   * systemd hook renamed to snappy-systemd
   * allow filenames to end with .snap
+  * allow flat namesapces in check_maintainer_email()
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 03 Dec 2014 09:43:57 -0600
 
