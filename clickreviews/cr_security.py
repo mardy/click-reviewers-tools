@@ -294,10 +294,12 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = 'policy_version_is_highest (%s, %s)' % (str(highest), f)
             s = "OK"
+            l = None
             if float(m['policy_version']) != highest:
                 t = 'info'
+                l = 'http://askubuntu.com/q/562116/94326'
                 s = '%s != %s' % (str(m['policy_version']), str(highest))
-            self._add_result(t, n, s)
+            self._add_result(t, n, s, l)
 
             t = 'info'
             n = 'policy_version_matches_framework (%s)' % (f)

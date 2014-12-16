@@ -29,7 +29,10 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * allow filenames to end with .snap
   * allow flat namesapces in check_maintainer_email()
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 03 Dec 2014 09:43:57 -0600
+  [ Daniel Holbach ]
+  * Add askubuntu explanation for policy_version_is_highest.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 16 Dec 2014 17:07:36 +0100
 
 click-reviewers-tools (0.18) utopic; urgency=medium
 
