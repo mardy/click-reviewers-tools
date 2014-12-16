@@ -557,6 +557,7 @@ class ClickReviewSecurity(ClickReview):
                     t = 'info'
                     n = 'policy_groups_safe_%s (%s)' % (app, i)
                     s = 'OK'
+                    l = None
                     manual_review = False
 
                     aa_type = self._get_policy_group_type(vendor, version, i)
@@ -568,12 +569,14 @@ class ClickReviewSecurity(ClickReview):
                         t = 'error'
                         s = "(MANUAL REVIEW) %s policy group " % aa_type + \
                             "'%s': vetted applications only" % (i)
+                        if i == "debug":
+                            l = 'http://askubuntu.com/a/562123/94326'
                         manual_review = True
                     elif aa_type != "common":
                         t = 'error'
                         s = "policy group '%s' has" % i + \
                             "unknown type '%s'" % (aa_type)
-                    self._add_result(t, n, s, manual_review=manual_review)
+                    self._add_result(t, n, s, l, manual_review=manual_review)
 
     def check_ignored(self):
         '''Check ignored fields'''
