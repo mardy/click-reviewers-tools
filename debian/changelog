@@ -1,4 +1,4 @@
-click-reviewers-tools (0.19) UNRELEASED; urgency=medium
+click-reviewers-tools (0.19) vivid; urgency=medium
 
   [ Ricardo Kirkner ]
   * fetch framework data before running framework related checks
