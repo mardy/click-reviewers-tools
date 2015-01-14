@@ -1,11 +1,11 @@
-click-reviewers-tools (0.20) UNRELEASED; urgency=medium
+click-reviewers-tools (0.20) vivid; urgency=medium
 
   [ Martin Albisetti ]
   * Remove checks that validate namespaces and email addresses, those are
     better suited for the store, which knows the information about the
     uploading user. (LP: #1408644)
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 05 Jan 2015 16:52:10 +0100
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2015 12:12:25 +0100
 
 click-reviewers-tools (0.19) vivid; urgency=medium
 
