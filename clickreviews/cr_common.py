@@ -204,7 +204,7 @@ class ClickReview(object):
         optional = ["title", "description", "maintainer", "architecture",
                     "installed-size", "icon"]
 
-        snappy_optional = ["ports"]
+        snappy_optional = ["ports", "source", "type"]
 
         for f in optional:
             if f in self.manifest:
