@@ -104,6 +104,7 @@ class ClickReviewScope(ClickReview):
                         'description',
                         'displayname']
             optional = ['art',
+                        'childscopes',
                         'hotkey',
                         'icon',
                         'idletimeout',
