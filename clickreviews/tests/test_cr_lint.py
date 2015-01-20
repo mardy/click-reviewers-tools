@@ -462,28 +462,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_maintainer_non_default(self):
-        '''Test check_maintainer() - non-default'''
-        self.set_test_control("Package", "com.example.app")
-        self.set_test_manifest("maintainer",
-                               "Foo User <user@example.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_maintainer_non_match(self):
-        '''Test check_maintainer() - non-match'''
-        self.set_test_control("Package", "com.example.app")
-        self.set_test_manifest("maintainer",
-                               "Foo User <user@foo.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
     def test_check_maintainer_empty(self):
         '''Test check_maintainer() - empty'''
         self.set_test_manifest("maintainer", "")
@@ -522,30 +500,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_maintainer_bad_email_short_domain(self):
-        '''Test check_maintainer() - bad email (short domain)'''
-        self.set_test_control("Package", "com.example.app")
-        self.set_test_manifest("maintainer",
-                               "Foo User <user@com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-        self.check_manual_review(r, 'lint_maintainer_domain')
-
-    def test_check_maintainer_bad_email_long_domain(self):
-        '''Test check_maintainer() - bad email (long domain)'''
-        self.set_test_control("Package", "com.example.app")
-        self.set_test_manifest("maintainer",
-                               "Foo User <user@foo.example.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-        self.check_manual_review(r, 'lint_maintainer_domain')
-
     def test_check_maintainer_domain_appstore(self):
         '''Test check_maintainer() - appstore domain
            (com.ubuntu.developer)'''
@@ -557,99 +511,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-
-    def test_check_maintainer_domain_special(self):
-        '''Test check_maintainer() - special (com.facebook)'''
-        self.set_test_control("Package", "com.facebook.app")
-        self.set_test_manifest("maintainer",
-                               "Foo User <user@facebook.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 1, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_maintainer_email_special(self):
-        '''Test check_maintainer() - ubuntu-devel-discuss@ - app'''
-        self.set_test_control("Package", "com.canonical.app")
-        self.set_test_manifest("maintainer",
-                               "Ubuntu Core Developers "
-                               "<ubuntu-devel-discuss@lists.ubuntu.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        expected['error'] = dict()
-        expected['info']['lint_maintainer_domain'] = \
-            {"text": "OK (email 'ubuntu-devel-discuss@lists.ubuntu.com' long, "
-             "but special case"}
-        self.check_results(r, expected=expected)
-
-    def test_check_maintainer_email_special2(self):
-        '''Test check_maintainer() - ubuntu-devel-discuss@ - scope'''
-        self.set_test_control("Package", "com.ubuntu.scopes.youtube")
-        self.set_test_manifest("maintainer",
-                               "Ubuntu Core Developers "
-                               "<ubuntu-devel-discuss@lists.ubuntu.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        expected['error'] = dict()
-        expected['info']['lint_maintainer_domain'] = \
-            {"text": "OK ('com.ubuntu.scopes' uses "
-             "'ubuntu-devel-discuss@lists.ubuntu.com' as email)"}
-        self.check_results(r, expected=expected)
-
-    def test_check_maintainer_email_special3(self):
-        '''Test check_maintainer() - ubuntu-devel-discuss@ - snappy'''
-        self.set_test_control("Package", "com.ubuntu.snappy.foo")
-        self.set_test_manifest("maintainer",
-                               "Ubuntu Core Developers "
-                               "<ubuntu-devel-discuss@lists.ubuntu.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        expected['error'] = dict()
-        expected['info']['lint_maintainer_domain'] = \
-            {"text": "OK ('com.ubuntu.snappy' uses "
-             "'ubuntu-devel-discuss@lists.ubuntu.com' as email)"}
-        self.check_results(r, expected=expected)
-
-    def test_check_maintainer_flat_namespace(self):
-        '''Test check_maintainer() - flat namespace'''
-        self.set_test_control("Package", "snapp")
-        self.set_test_manifest("maintainer",
-                               "Foo User <user@example.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_maintainer()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        expected['error'] = dict()
-        expected['info']['lint_maintainer_domain'] = \
-            {"text": "OK (flat namespace)"}
-        self.check_results(r, expected=expected)
 
     def test_check_icon(self):
         '''Test check_icon()'''

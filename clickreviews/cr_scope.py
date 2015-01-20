@@ -22,6 +22,8 @@ import configparser
 import os
 import re
 
+# Please refer to the config file documentation at:
+# http://bazaar.launchpad.net/~unity-team/unity-scopes-api/trunk/view/head:/CONFIGFILES
 
 KNOWN_SECTIONS = set(["ScopeConfig", "Appearance"])
 
@@ -104,6 +106,7 @@ class ClickReviewScope(ClickReview):
                         'description',
                         'displayname']
             optional = ['art',
+                        'childscopes',
                         'hotkey',
                         'icon',
                         'idletimeout',

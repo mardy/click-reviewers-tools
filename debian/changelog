@@ -1,4 +1,25 @@
-click-reviewers-tools (0.19) UNRELEASED; urgency=medium
+click-reviewers-tools (0.21) UNRELEASED; urgency=medium
+
+  [ Pete Woods ]
+  * Add childscopes field to recognised list.
+  * Add documentation link of the scope config files:
+    CONFIGFILES in lp:unity-scopes-api.
+
+  [ Michael Vogt ]
+  * snappy: add two new optional fields: source, type.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2015 12:13:56 +0100
+
+click-reviewers-tools (0.20) vivid; urgency=medium
+
+  [ Martin Albisetti ]
+  * Remove checks that validate namespaces and email addresses, those are
+    better suited for the store, which knows the information about the
+    uploading user. (LP: #1408644)
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2015 12:12:25 +0100
+
+click-reviewers-tools (0.19) vivid; urgency=medium
 
   [ Ricardo Kirkner ]
   * fetch framework data before running framework related checks
@@ -29,7 +50,11 @@ click-reviewers-tools (0.19) UNRELEASED; urgency=medium
   * allow filenames to end with .snap
   * allow flat namesapces in check_maintainer_email()
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 03 Dec 2014 09:43:57 -0600
+  [ Daniel Holbach ]
+  * Add askubuntu explanation for policy_version_is_highest.
+  * Add askubuntu explanation for debug builds. (LP: #1390163)
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 16 Dec 2014 17:07:36 +0100
 
 click-reviewers-tools (0.18) utopic; urgency=medium
 
