@@ -367,6 +367,20 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_manifest_valid_arch_multi2(self):
+        '''Test check_manifest_architecture() (valid multi2)'''
+        arch = "multi"
+        self.set_test_manifest("architecture", ["armhf", "i386"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
+                                        self.test_control['Version'],
+                                        arch)
+        c = ClickReviewLint(test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_manifest_invalid_arch_multi_nonexistent(self):
         '''Test check_manifest_architecture() (invalid multi)'''
         arch = "multi"
