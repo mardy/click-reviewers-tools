@@ -1,6 +1,9 @@
 click-reviewers-tools (0.21) UNRELEASED; urgency=medium
 
-  * 
+  [ Pete Woods ]
+  * Add childscopes field to recognised list.
+  * Add documentation link of the scope config files:
+    CONFIGFILES in lp:unity-scopes-api.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2015 12:13:56 +0100
 

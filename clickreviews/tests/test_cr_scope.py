@@ -43,6 +43,7 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         '''Stub configparser file'''
         config_dict = {
             'ScopeRunner': "%s" % self.default_appname,
+            'ChildScopes': 'Child1',
             'DisplayName': 'Foo',
             'Description': 'Some description',
             'Author': 'Foo Ltd.',
