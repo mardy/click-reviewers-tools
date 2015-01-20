@@ -5,6 +5,9 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
   * Add documentation link of the scope config files:
     CONFIGFILES in lp:unity-scopes-api.
 
+  [ Michael Vogt ]
+  * snappy: add two new optional fields: source, type.
+
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2015 12:13:56 +0100
 
 click-reviewers-tools (0.20) vivid; urgency=medium
