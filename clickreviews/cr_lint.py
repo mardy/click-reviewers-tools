@@ -45,12 +45,13 @@ class ClickReviewLint(ClickReview):
         #  arm64  - compiled, single arch (not available yet)
         #  ppc64el - compiled, single arch (not available yet)
         #  powerpc - compiled, single arch (not available yet)
+        self.valid_compiled_architectures = ['armhf',
+                                             'i386',
+                                             'amd64',
+                                             ]
         self.valid_control_architectures = ['all',
                                             'multi',
-                                            'armhf',
-                                            'i386',
-                                            'amd64',
-                                            ]
+                                            ] + self.valid_compiled_architectures
         self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
 
         if 'maintainer' in self.manifest:
@@ -200,7 +201,19 @@ class ClickReviewLint(ClickReview):
         n = 'control_architecture_match'
         s = 'OK'
         if 'architecture' in self.manifest:
-            if control['Architecture'] != self.manifest['architecture']:
+            if control['Architecture'] == "multi":
+                if not isinstance(self.manifest['architecture'],
+                                  (list, tuple)):
+                    t = 'error'
+                    s = 'If arch=multi, manifest architecture needs to ' + \
+                        'list all the individual architectures.'
+                elif list(filter(lambda a:
+                                 a not in self.valid_compiled_architectures,
+                                 self.manifest['architecture'])):
+                    t = 'error'
+                    s = 'If arch=multi, manifest architecture needs to ' + \
+                        'comprise of only compiled architectures.'
+            elif control['Architecture'] != self.manifest['architecture']:
                 t = 'error'
                 s = "Architecture=%s " % control['Architecture'] + \
                     "does not match manifest architecture=%s" % \
