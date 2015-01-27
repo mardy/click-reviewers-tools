@@ -8,6 +8,9 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
   [ Michael Vogt ]
   * snappy: add two new optional fields: source, type.
 
+  [ Jamie Strandboge ]
+  * also use ubuntu-devel-discuss@lists.ubuntu.com to signify a core-app
+
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2015 12:13:56 +0100
 
 click-reviewers-tools (0.20) vivid; urgency=medium

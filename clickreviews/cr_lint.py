@@ -60,8 +60,10 @@ class ClickReviewLint(ClickReview):
             self.is_core_app = (self.click_pkgname.startswith('com.ubuntu.')
                                 and not self.click_pkgname.startswith(
                                     'com.ubuntu.developer.')
-                                and self.email ==
-                                'ubuntu-touch-coreapps@lists.launchpad.net')
+                                and (self.email ==
+                                'ubuntu-touch-coreapps@lists.launchpad.net' or
+                                     self.email ==
+                                     'ubuntu-devel-discuss@lists.ubuntu.com'))
             # "core scope" is not necessarily a word we use right now, but
             # we want to special case scopes which are written through our
             # vetted development process.
