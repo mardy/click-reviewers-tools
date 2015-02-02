@@ -224,7 +224,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
                                   ex)
             c.check_desktop_exec_webapp_args()
             r = c.click_report
-            expected_counts = {'info': None, 'warn': 0, 'error': 1}
+            expected_counts = {'info': None, 'warn': 0, 'error': 0}
             self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_missing_exec(self):
