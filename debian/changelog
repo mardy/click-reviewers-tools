@@ -11,6 +11,8 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
   [ Jamie Strandboge ]
   * also use ubuntu-devel-discuss@lists.ubuntu.com to signify a core-app
   * calculate arch correctly in check_package_filename()
+  * add ubuntu-core-15.04 to self.major_framework_policy
+  * add checks for self.major_framework_policy to policy_vendor checks
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Feb 2015 15:50:18 -0600
 

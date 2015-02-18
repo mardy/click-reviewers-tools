@@ -244,7 +244,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_vendor()
         report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_vendor_ubuntu(self):
@@ -254,11 +254,12 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "policy_vendor", "ubuntu")
         c.check_policy_vendor()
         report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_vendor_ubuntu_snappy(self):
         '''Test check_policy_vendor() - ubuntu-snappy'''
+        self.set_test_manifest("framework", "ubuntu-core-15.04")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
                                         "policy_vendor", "ubuntu-snappy")
@@ -266,17 +267,112 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "policy_version", 1.3)
         c.check_policy_vendor()
         report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_vendor_nonexistent(self):
         '''Test check_policy_vendor() - nonexistent'''
+        self.set_test_manifest("framework", "nonexistent")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
-                                        "policy_vendor", "nonexistent")
+                                        "policy_vendor", "ubuntu")
         c.check_policy_vendor()
         report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_vendor_framework(self):
+        '''Test check_policy_vendor() - matching framework'''
+        tmp = ClickReviewSecurity(self.test_name)
+        # for each installed framework on the system, verify that the policy
+        # matches the framework
+        for f in tmp.valid_frameworks:
+            self.set_test_manifest("framework", f)
+            policy_vendor = "ubuntu"
+            for k in tmp.major_framework_policy.keys():
+                if f.startswith(k):
+                    if 'policy_vendor' not in tmp.major_framework_policy[k]:
+                        policy_vendor = 'ubuntu'
+                    else:
+                        policy_vendor = tmp.major_framework_policy[k]['policy_vendor']
+            self.set_test_security_manifest(self.default_appname,
+                                            "policy_vendor",
+                                            policy_vendor)
+            c = ClickReviewSecurity(self.test_name)
+            c.check_policy_vendor()
+            report = c.click_report
+            expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+            self.check_results(report, expected_counts)
+
+    def test_check_policy_vendor_framework_unmatch1(self):
+        '''Test check_policy_vendor() - unmatching framework'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu-snappy")
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_vendor()
+        report = c.click_report
+
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        expected['error']["security_policy_vendor_matches_framework (%s)" %
+                          self.default_security_json] = \
+            {"text": "ubuntu-snappy != ubuntu (ubuntu-sdk-13.10)"}
+        self.check_results(report, expected=expected)
+
+    def test_check_policy_vendor_framework_unmatch2(self):
+        '''Test check_policy_vendor() - unmatching framework - nonexistent'''
+        self.set_test_manifest("framework", "nonexistent")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu")
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_vendor()
+        report = c.click_report
+
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        expected['error']["security_policy_vendor_matches_framework (%s)" %
+                          self.default_security_json] = \
+            {"text": "Invalid framework 'nonexistent'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_policy_vendor_framework_with_overrides(self):
+        '''Test check_policy_vendor() - override framework (nonexistent)'''
+        self.set_test_manifest("framework", "nonexistent")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu")
+        overrides = {'framework': {'nonexistent': {'state': 'available',
+                                                   'policy_vendor': 'ubuntu',
+                                                   'policy_version': 1.2}}}
+        c = ClickReviewSecurity(self.test_name, overrides=overrides)
+        c.check_policy_vendor()
+        report = c.click_report
+
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_vendor_framework_with_malformed_overrides(self):
+        '''Test check_policy_vendor() - incorrectly override framework'''
+        self.set_test_manifest("framework", "nonexistent")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu")
+        overrides = {'nonexistent': {'state': 'available',
+                                     'policy_vendor': 'ubuntu',
+                                     'policy_version': 1.2}}
+        c = ClickReviewSecurity(self.test_name, overrides=overrides)
+        c.check_policy_vendor()
+        report = c.click_report
+
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_template_unspecified(self):

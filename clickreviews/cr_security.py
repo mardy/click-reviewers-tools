@@ -99,6 +99,10 @@ class ClickReviewSecurity(ClickReview):
             'ubuntu-sdk-14.10': {
                 'policy_version': 1.2,
             },
+            'ubuntu-core-15.04': {
+                'policy_vendor': 'ubuntu-snappy',
+                'policy_version': 1.3,
+            },
         }
         if overrides is None:
             overrides = {}
@@ -265,6 +269,29 @@ class ClickReviewSecurity(ClickReview):
                m['policy_vendor'] not in self.aa_policy:
                 t = 'error'
                 s = "policy_vendor '%s' not found" % m['policy_vendor']
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'policy_vendor_matches_framework (%s)' % (f)
+            s = "OK"
+            if 'policy_vendor' in m: # policy_vendor is optional
+                found_major = False
+                for name, data in self.major_framework_policy.items():
+                    # TODO: use libclick when it is available
+                    if not self.manifest['framework'].startswith(name):
+                        continue
+                    elif 'policy_vendor' not in data: # when not specified,
+                                                      # default to 'ubuntu'
+                        data['policy_vendor'] = "ubuntu"
+                    found_major = True
+                    if m['policy_vendor'] != data['policy_vendor']:
+                        t = 'error'
+                        s = '%s != %s (%s)' % (str(m['policy_vendor']),
+                                               data['policy_vendor'],
+                                               self.manifest['framework'])
+                if not found_major:
+                    t = 'error'
+                    s = "Invalid framework '%s'" % self.manifest['framework']
             self._add_result(t, n, s)
 
     def check_policy_version(self):
