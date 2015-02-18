@@ -10,8 +10,9 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * also use ubuntu-devel-discuss@lists.ubuntu.com to signify a core-app
+  * calculate arch correctly in check_package_filename()
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2015 12:13:56 +0100
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Feb 2015 15:50:18 -0600
 
 click-reviewers-tools (0.20) vivid; urgency=medium
 

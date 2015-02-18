@@ -665,7 +665,7 @@ exit 1
         s = 'OK'
         if len(tmp) != 3:
             t = 'warn'
-            s = "'%s' not of form $pkgname_$version_$arch.click" % \
+            s = "'%s' not of form $pkgname_$version_$arch.[click|snap]" % \
                 os.path.basename(self.click_package)
         self._add_result(t, n, s)
 
@@ -726,7 +726,7 @@ exit 1
         n = 'package_filename_arch_valid'
         s = 'OK'
         if len(tmp) >= 3:
-            if tmp[0].endswith('.snap'):
+            if tmp[2].endswith('.snap'):
                 arch = tmp[2].partition('.snap')[0]
             else:
                 arch = tmp[2].partition('.click')[0]
