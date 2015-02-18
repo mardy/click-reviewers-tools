@@ -57,7 +57,6 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         tmp["bin-path"] = "usr/bin/foo"
 
         # add any required peer hooks
-        tmp["snappy-systemd"] = "foo.systemd"
         tmp["apparmor"] = "foo.apparmor"
 
         c.manifest["hooks"][self.default_appname] = tmp

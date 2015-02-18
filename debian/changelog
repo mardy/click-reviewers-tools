@@ -13,6 +13,7 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
   * calculate arch correctly in check_package_filename()
   * add ubuntu-core-15.04 to self.major_framework_policy
   * add checks for self.major_framework_policy to policy_vendor checks
+  * bin-path should no longer require snappy-systemd hook
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Feb 2015 15:50:18 -0600
 

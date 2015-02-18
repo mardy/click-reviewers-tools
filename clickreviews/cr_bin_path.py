@@ -26,7 +26,7 @@ class ClickReviewBinPath(ClickReview):
         peer_hooks = dict()
         my_hook = 'bin-path'
         peer_hooks[my_hook] = dict()
-        peer_hooks[my_hook]['required'] = ["snappy-systemd", "apparmor"]
+        peer_hooks[my_hook]['required'] = ["apparmor"]
         peer_hooks[my_hook]['allowed'] = peer_hooks[my_hook]['required']
 
         ClickReview.__init__(self, fn, "bin-path", peer_hooks=peer_hooks)
