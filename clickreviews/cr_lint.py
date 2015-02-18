@@ -670,7 +670,7 @@ exit 1
         self._add_result(t, n, s)
 
         #  handle $pkgname.click or $pkgname.snap
-        if tmp[0].endswith('.snap'):
+        if self.click_package.endswith('.snap'):
             pkgname = tmp[0].partition('.snap')[0]
         else:
             pkgname = tmp[0].partition('.click')[0]
@@ -707,7 +707,7 @@ exit 1
         l = None
         if len(tmp) >= 2:
             #  handle $pkgname_$version.click or $pkgname_$version.snap
-            if tmp[0].endswith('.snap'):
+            if self.click_package.endswith('.snap'):
                 version = tmp[1].partition('.snap')[0]
             else:
                 version = tmp[1].partition('.click')[0]
@@ -726,7 +726,7 @@ exit 1
         n = 'package_filename_arch_valid'
         s = 'OK'
         if len(tmp) >= 3:
-            if tmp[2].endswith('.snap'):
+            if self.click_package.endswith('.snap'):
                 arch = tmp[2].partition('.snap')[0]
             else:
                 arch = tmp[2].partition('.click')[0]
@@ -750,7 +750,7 @@ exit 1
         n = 'package_filename_arch_match'
         s = 'OK'
         if len(tmp) >= 3:
-            if tmp[0].endswith('.snap'):
+            if self.click_package.endswith('.snap'):
                 arch = tmp[2].partition('.snap')[0]
             else:
                 arch = tmp[2].partition('.click')[0]
