@@ -274,14 +274,14 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = 'policy_vendor_matches_framework (%s)' % (f)
             s = "OK"
-            if 'policy_vendor' in m: # policy_vendor is optional
+            if 'policy_vendor' in m:  # policy_vendor is optional
                 found_major = False
                 for name, data in self.major_framework_policy.items():
                     # TODO: use libclick when it is available
                     if not self.manifest['framework'].startswith(name):
                         continue
-                    elif 'policy_vendor' not in data: # when not specified,
-                                                      # default to 'ubuntu'
+                    elif 'policy_vendor' not in data:
+                        # when not specified, default to 'ubuntu'
                         data['policy_vendor'] = "ubuntu"
                     found_major = True
                     if m['policy_vendor'] != data['policy_vendor']:
