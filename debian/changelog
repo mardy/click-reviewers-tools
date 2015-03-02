@@ -17,6 +17,7 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
   * warn, don't error, on 'Could not find compiled binaries for architecture'
     since it might be ok to, for example, ship a shell script but you only
     want it on ARM devices
+  * apparmor-profile is an allowed hook, but a redflagged one
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Feb 2015 15:50:18 -0600
 

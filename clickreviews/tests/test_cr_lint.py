@@ -1,6 +1,6 @@
 '''test_cr_lint.py: tests for the cr_lint module'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -809,11 +809,22 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_hooks_redflagged(self):
-        '''Test check_hooks_redflagged()'''
+    def test_check_hooks_redflagged_payui(self):
+        '''Test check_hooks_redflagged() - pay-ui'''
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")
         c = ClickReviewLint(self.test_name)
         c.manifest['hooks'][self.default_appname]["pay-ui"] = "foo"
+        c.check_hooks_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        self.check_manual_review(r, 'lint_hooks_redflag_test-app')
+
+    def test_check_hooks_redflagged_apparmor_profile(self):
+        '''Test check_hooks_redflagged() - apparmor-profile'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.manifest['hooks'][self.default_appname]["apparmor-profile"] = "foo"
         c.check_hooks_redflagged()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}

@@ -1,6 +1,6 @@
 '''cr_lint.py: click lint checks'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ class ClickReviewLint(ClickReview):
                             'account-qml-plugin',
                             'account-service',
                             'apparmor',
+                            'apparmor-profile',
                             'bin-path',
                             'content-hub',
                             'desktop',
@@ -101,6 +102,7 @@ class ClickReviewLint(ClickReview):
 
         self.redflagged_hooks = ['framework',
                                  'pay-ui',
+                                 'apparmor-profile',
                                  ]
         if overrides is None:
             overrides = {}
