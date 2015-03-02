@@ -376,10 +376,16 @@ exit 1
                 if f not in self.manifest['hooks'][app]:
                     # TODO: when have apparmor policy for account-provider and
                     #       account-qml-plugin, remove this conditional
-                    if f != 'apparmor' or \
-                       len(self.manifest['hooks'][app]) != 2 or \
-                       'account-provider' not in self.manifest['hooks'][app] or \
-                       'account-qml-plugin' not in self.manifest['hooks'][app]:
+                    if f == 'apparmor' and \
+                       'apparmor-profile' in self.manifest['hooks'][app]:
+                        # Don't require apparmor if have apparmor-profile
+                        pass
+                    elif f != 'apparmor' or \
+                            len(self.manifest['hooks'][app]) != 2 or \
+                            'account-provider' not in \
+                            self.manifest['hooks'][app] or \
+                            'account-qml-plugin' not in \
+                            self.manifest['hooks'][app]:
                         t = 'error'
                         s = "'%s' hook not found for '%s'" % (f, app)
                 self._add_result(t, n, s)

@@ -780,6 +780,17 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_hooks_missing_apparmor_with_apparmor_profile(self):
+        '''Test check_hooks() - missing apparmor with apparmor-profile'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        del c.manifest['hooks'][self.default_appname]['apparmor']
+        c.manifest['hooks'][self.default_appname]['apparmor-profile'] = 'foo'
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_hooks_has_desktop_and_scope(self):
         '''Test check_hooks() - desktop with scope'''
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")

@@ -18,6 +18,7 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
     since it might be ok to, for example, ship a shell script but you only
     want it on ARM devices
   * apparmor-profile is an allowed hook, but a redflagged one
+  * don't error that apparmor is missing if apparmor-profile is present
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Feb 2015 15:50:18 -0600
 
