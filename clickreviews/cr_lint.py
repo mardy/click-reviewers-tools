@@ -527,7 +527,7 @@ exit 1
             return
 
         if len(self.pkg_bin_files) == 0:
-            t = 'error'
+            t = 'warn'
             s = "Could not find compiled binaries for architecture '%s'" % \
                 self.click_arch
         self._add_result(t, n, s)

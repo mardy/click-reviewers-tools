@@ -172,7 +172,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.pkg_bin_files = []
         c.check_architecture_specified_needed()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_architecture_specified_needed2(self):

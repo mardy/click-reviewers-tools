@@ -14,6 +14,9 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
   * add ubuntu-core-15.04 to self.major_framework_policy
   * add checks for self.major_framework_policy to policy_vendor checks
   * bin-path should no longer require snappy-systemd hook
+  * warn, don't error, on 'Could not find compiled binaries for architecture'
+    since it might be ok to, for example, ship a shell script but you only
+    want it on ARM devices
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Feb 2015 15:50:18 -0600
 
