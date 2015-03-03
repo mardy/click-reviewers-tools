@@ -1,4 +1,4 @@
-click-reviewers-tools (0.21) UNRELEASED; urgency=medium
+click-reviewers-tools (0.21) vivid; urgency=medium
 
   [ Pete Woods ]
   * Add childscopes field to recognised list.
@@ -20,7 +20,10 @@ click-reviewers-tools (0.21) UNRELEASED; urgency=medium
   * apparmor-profile is an allowed hook, but a redflagged one
   * don't error that apparmor is missing if apparmor-profile is present
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Feb 2015 15:50:18 -0600
+  [ Daniel Holbach ]
+  * Deal with multi-arch clicks properly. (LP: #1395204)
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 03 Mar 2015 14:17:13 +0100
 
 click-reviewers-tools (0.20) vivid; urgency=medium
 
