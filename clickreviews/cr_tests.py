@@ -1,6 +1,6 @@
 '''cr_tests.py: common setup and tests for test modules'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import clickreviews.cr_common as cr_common
 TEST_CONTROL = ""
 TEST_MANIFEST = ""
 TEST_SECURITY = dict()
+TEST_SECURITY_PROFILES = dict()
 TEST_DESKTOP = dict()
 TEST_WEBAPP_MANIFESTS = dict()
 TEST_URLS = dict()
@@ -93,6 +94,16 @@ def _extract_security_manifest(self, app):
 def _get_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
     return ("%s.apparmor" % app, json.loads(TEST_SECURITY[app]))
+
+
+def _extract_security_profile(self, app):
+    '''Pretend we read the security profile'''
+    return io.StringIO(TEST_SECURITY_PROFILES[app])
+
+
+def _get_security_profile(self, app):
+    '''Pretend we read the security profile'''
+    return ("%s.profile" % app, TEST_SECURITY_PROFILES[app])
 
 
 def _get_security_supported_policy_versions(self):
@@ -227,6 +238,12 @@ patches.append(patch(
 patches.append(patch(
     'clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
     _get_security_manifest))
+patches.append(patch(
+    'clickreviews.cr_security.ClickReviewSecurity._extract_security_profile',
+    _extract_security_profile))
+patches.append(patch(
+    'clickreviews.cr_security.ClickReviewSecurity._get_security_profile',
+    _get_security_profile))
 
 # desktop overrides
 patches.append(patch(
@@ -341,6 +358,7 @@ class TestClickReview(TestCase):
 
         # hooks
         self.test_security_manifests = dict()
+        self.test_security_profiles = dict()
         self.test_desktop_files = dict()
         self.test_url_dispatcher = dict()
         self.test_scopes = dict()
@@ -400,7 +418,11 @@ class TestClickReview(TestCase):
             # Reset to no systemd entries in manifest
             self.set_test_systemd(app, None, None)
 
+            # Reset to no security profiles
+            self.set_test_security_profile(app, None)
+
         self._update_test_security_manifests()
+        self._update_test_security_profiles()
         self._update_test_desktop_files()
         self._update_test_url_dispatcher()
         self._update_test_scopes()
@@ -436,6 +458,15 @@ class TestClickReview(TestCase):
         TEST_SECURITY = dict()
         for app in self.test_security_manifests.keys():
             TEST_SECURITY[app] = json.dumps(self.test_security_manifests[app])
+
+    def _update_test_security_profiles(self):
+        global TEST_SECURITY_PROFILES
+        TEST_SECURITY_PROFILES = dict()
+        for app in self.test_security_profiles.keys():
+            TEST_SECURITY_PROFILES[app] = self.test_security_profiles[app]
+            self.test_manifest["hooks"][app]["apparmor-profile"] = \
+                "%s.profile" % app
+        self._update_test_manifest()
 
     def _update_test_desktop_files(self):
         global TEST_DESKTOP
@@ -632,6 +663,17 @@ class TestClickReview(TestCase):
             self.test_security_manifests[app][key] = value
         self._update_test_security_manifests()
 
+    def set_test_security_profile(self, app, policy):
+        '''Set policy in security profile'''
+        if policy is None:
+            if app in self.test_security_profiles:
+                self.test_security_profiles.pop(app)
+        else:
+            if app not in self.test_security_profiles:
+                self.test_security_profiles[app] = dict()
+            self.test_security_profiles[app] = policy
+        self._update_test_security_profiles()
+
     def set_test_desktop(self, app, key, value, no_update=False):
         '''Set key in desktop file to value. If value is None, remove key'''
         if app not in self.test_desktop_files:
@@ -801,6 +843,8 @@ class TestClickReview(TestCase):
         TEST_MANIFEST = ""
         global TEST_SECURITY
         TEST_SECURITY = dict()
+        global TEST_SECURITY_PROFILES
+        TEST_SECURITY_PROFILES = dict()
         global TEST_DESKTOP
         TEST_DESKTOP = dict()
         global TEST_URLS

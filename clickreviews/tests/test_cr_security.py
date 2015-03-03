@@ -1,6 +1,6 @@
 '''test_cr_security.py: tests for the cr_security module'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1103,4 +1103,37 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_redflag()
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile(self):
+        '''Test check_apparmor_profile()'''
+        policy = '''
+###VAR###
+###PROFILEATTACH### {
+  #include <abstractions/base>
+  # Read-only for the install directory
+  @{CLICK_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
+}
+'''
+        self.set_test_security_profile(self.default_appname, policy)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_apparmor_profile()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_missing_var(self):
+        '''Test check_apparmor_profile() - missing ###VAR###'''
+        policy = '''
+###PROFILEATTACH### {
+  #include <abstractions/base>
+  # Read-only for the install directory
+  @{CLICK_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
+}
+'''
+        self.set_test_security_profile(self.default_appname, policy)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_apparmor_profile()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(report, expected_counts)

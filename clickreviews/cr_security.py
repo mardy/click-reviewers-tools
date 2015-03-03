@@ -1,6 +1,6 @@
 '''cr_security.py: click security checks'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error
+from clickreviews.cr_common import ClickReview, error, open_file_read
 import clickreviews.cr_common as cr_common
 import clickreviews.apparmor_policy as apparmor_policy
 import json
@@ -39,10 +39,8 @@ class ClickReviewSecurity(ClickReview):
         my_hook2 = 'apparmor-profile'
         peer_hooks[my_hook2] = dict()
         # Basically, everything except frameworks
-        peer_hooks[my_hook2]['allowed'] = ClickReview.app_allowed_peer_hooks + \
-            ClickReview.scope_allowed_peer_hooks + \
-            ClickReview.service_allowed_peer_hooks + \
-            ['pay-ui']
+        peer_hooks[my_hook2]['allowed'] = \
+            ClickReview.service_allowed_peer_hooks
         peer_hooks[my_hook2]['required'] = []
 
         ClickReview.__init__(self, fn, "security", peer_hooks=peer_hooks)
@@ -131,6 +129,21 @@ class ClickReviewSecurity(ClickReview):
                 self._extract_security_manifest(app)
             self.security_apps.append(app)
 
+        self.security_profiles = dict()
+        self.security_apps_profiles = []
+        for app in self.manifest['hooks']:
+            if 'apparmor-profile' not in self.manifest['hooks'][app]:
+                #  msg("Skipped missing apparmor hook for '%s'" % app)
+                continue
+            if not isinstance(self.manifest['hooks'][app]['apparmor-profile'],
+                              str):
+                error("manifest malformed: hooks/%s/apparmor-profile is not "
+                      "str" % app)
+            rel_fn = self.manifest['hooks'][app]['apparmor-profile']
+            self.security_profiles[rel_fn] = \
+                self._extract_security_profile(app)
+            self.security_apps_profiles.append(app)
+
     def _override_framework_policies(self, overrides):
         # override major framework policies
         self.major_framework_policy.update(overrides)
@@ -199,6 +212,38 @@ class ClickReviewSecurity(ClickReview):
         f = self.manifest['hooks'][app]['apparmor']
         m = self.security_manifests[f]
         return (f, m)
+
+    def _extract_security_profile(self, app):
+        '''Extract security profile'''
+        d = self.manifest['hooks'][app]['apparmor-profile']
+        fn = os.path.join(self.unpack_dir, d)
+        rel_fn = self.manifest['hooks'][app]['apparmor-profile']
+
+        if not os.path.exists(fn):
+            error("Could not find '%s'" % rel_fn)
+
+        fh = open_file_read(fn)
+        contents = ""
+        for line in fh.readlines():
+            contents += line
+        fh.close()
+
+        # We could try to run this through apparmor_parser, but that is going
+        # to be system dependent (eg, a profile may reference features on a
+        # new parser and fail here on the local parser)
+
+        return contents
+
+    def _get_security_profile(self, app):
+        '''Get the security profile for app'''
+        if app not in self.manifest['hooks']:
+            error("Could not find '%s' in click manifest" % app)
+        elif 'apparmor-profile' not in self.manifest['hooks'][app]:
+            error("Could not find apparmor-profile hook for '%s' in click "
+                  "manifest" % app)
+        f = self.manifest['hooks'][app]['apparmor-profile']
+        p = self.security_profiles[f]
+        return (f, p)
 
     def _get_policy_versions(self, vendor):
         '''Get the supported AppArmor policy versions'''
@@ -671,3 +716,23 @@ class ClickReviewSecurity(ClickReview):
                 t = 'error'
                 s = "missing required fields: %s" % ", ".join(not_found)
             self._add_result(t, n, s)
+
+    def check_apparmor_profile(self):
+        '''Check apparmor-profile'''
+        for app in sorted(self.security_apps_profiles):
+            (f, p) = self._get_security_profile(app)
+
+            for v in ['###VAR###',
+                      '###PROFILEATTACH###',
+                      '@{CLICK_DIR}',
+                      '@{APP_PKGNAME}',
+                      '@{APP_VERSION}',
+                      ]:
+                t = 'info'
+                n = 'apparmor_profile_%s (%s)' % (v, f)
+                s = "OK"
+                if v not in p:
+                    self._add_result('warn', n,
+                                     "could not find '%s' in profile" % v)
+                    continue
+                self._add_result(t, n, s)

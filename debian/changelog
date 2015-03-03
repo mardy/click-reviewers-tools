@@ -9,6 +9,7 @@ click-reviewers-tools (0.22) UNRELEASED; urgency=medium
   [ Jamie Strandboge ]
   * add testsuite test to verify apparmor-profile can't be specified with
     apparmor
+  * add apparmor-profile hook tests
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 03 Mar 2015 14:45:23 -0600
 

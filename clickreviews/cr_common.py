@@ -1,6 +1,6 @@
 '''common.py: common classes and functions'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ class ClickReview(object):
     framework_allowed_peer_hooks = []
     service_allowed_peer_hooks = ["bin-path",
                                   "snappy-systemd",
+                                  "apparmor-profile"
                                   ]
 
     def __init__(self, fn, review_type, peer_hooks=None):
