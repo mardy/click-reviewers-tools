@@ -960,6 +960,28 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_peer_hooks_disallowed_apparmor_profile(self):
+        '''Test check_peer_hooks() - disallowed (apparmor-profile)'''
+        c = ClickReviewSecurity(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["apparmor"] = "foo.apparmor"
+
+        # add something not allowed
+        tmp["apparmor-profile"] = "foo.profile"
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_redflag_policy_vendor_ubuntu(self):
         '''Test check_redflag() - policy_vendor - ubuntu'''
         c = ClickReviewSecurity(self.test_name)
