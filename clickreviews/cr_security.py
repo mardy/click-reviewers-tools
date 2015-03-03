@@ -36,6 +36,15 @@ class ClickReviewSecurity(ClickReview):
             ['pay-ui']
         peer_hooks[my_hook]['required'] = []
 
+        my_hook2 = 'apparmor-profile'
+        peer_hooks[my_hook2] = dict()
+        # Basically, everything except frameworks
+        peer_hooks[my_hook2]['allowed'] = ClickReview.app_allowed_peer_hooks + \
+            ClickReview.scope_allowed_peer_hooks + \
+            ClickReview.service_allowed_peer_hooks + \
+            ['pay-ui']
+        peer_hooks[my_hook2]['required'] = []
+
         ClickReview.__init__(self, fn, "security", peer_hooks=peer_hooks)
 
         local_copy = os.path.join(os.path.dirname(__file__),
