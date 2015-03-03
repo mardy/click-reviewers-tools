@@ -3,10 +3,14 @@ click-reviewers-tools (0.22) UNRELEASED; urgency=medium
   [ Alexandre Abreu ]
   * Relax the rule that states that webapps with a model search path shouldn't
     have url patterns listed in the command line. In order to avoid confusion,
-    we allow this to happen (and it already works fine the command line 
+    we allow this to happen (and it already works fine the command line
     patterns being appended to the locally defined ones). (LP: #1406643)
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 03 Mar 2015 14:24:38 +0100
+  [ Jamie Strandboge ]
+  * add testsuite test to verify apparmor-profile can't be specified with
+    apparmor
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 03 Mar 2015 14:45:23 -0600
 
 click-reviewers-tools (0.21) vivid; urgency=medium
 
