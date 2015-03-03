@@ -340,11 +340,7 @@ class ClickReviewDesktop(ClickReview):
                         "--webappModelSearchPath or --webapp= when " + \
                         "running local application"
             elif not is_launching_local_app:
-                if found_url_patterns and found_model_search_path:
-                    t = 'error'
-                    s = "should not specify --webappUrlPatterns when using " + \
-                        "--webappModelSearchPath"
-                elif not found_url_patterns and not found_model_search_path:
+                if not found_url_patterns and not found_model_search_path:
                     t = 'error'
                     s = "must specify one of --webappUrlPatterns or " + \
                         "--webappModelSearchPath"
