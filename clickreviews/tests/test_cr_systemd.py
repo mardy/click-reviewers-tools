@@ -221,6 +221,9 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         # add our hook
         tmp["snappy-systemd"] = "meta/foo.snappy-systemd"
 
+        # add required hooks
+        tmp["apparmor"] = "meta/foo.apparmor"
+
         # update the manifest and test_manifest
         c.manifest["hooks"][self.default_appname] = tmp
         self._update_test_manifest()
@@ -244,6 +247,9 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
         # add our hook
         tmp["snappy-systemd"] = "meta/foo.snappy-systemd"
+
+        # add required hooks
+        tmp["apparmor"] = "meta/foo.apparmor"
 
         # add something not allowed
         tmp["nonexistent"] = "nonexistent-hook"
