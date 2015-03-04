@@ -221,7 +221,7 @@ class TestClickReviewUrlDispatcher(cr_tests.TestClickReview):
         tmp = dict()
 
         # add our hook
-        tmp["url-dispatcher"] = \
+        tmp["urls"] = \
             self.test_manifest["hooks"][self.default_appname]["urls"]
 
         # update the manifest and test_manifest
