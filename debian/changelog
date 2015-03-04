@@ -12,6 +12,10 @@ click-reviewers-tools (0.22) UNRELEASED; urgency=medium
   * add apparmor-profile hook tests
   * fix test_check_optional_domain_suffix_without_protocol2() to actually test
     with 'nonexistent' key
+  * debian/control:
+    - add python3-yaml to Build-Depends and Depends
+    - update Vcs-Bzr to point to lp:click-reviewers-tools
+  * add snappy-systemd hook tests and update the testsuite accordingly
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 03 Mar 2015 14:45:23 -0600
 
