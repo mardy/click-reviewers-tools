@@ -171,7 +171,7 @@ class TestClickReviewUrlDispatcher(cr_tests.TestClickReview):
                                      key="domain-suffix",
                                      value="example.com")
         self.set_test_url_dispatcher(self.default_appname,
-                                     key="domain-suffix",
+                                     key="nonexistent",
                                      value="example.com",
                                      append=True)
         c = ClickReviewUrlDispatcher(self.test_name)
