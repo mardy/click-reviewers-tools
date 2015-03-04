@@ -11,10 +11,11 @@ Build-Depends: debhelper (>= 9~),
                python3-magic,
                python3-setuptools,
                python3-simplejson,
-               python3-xdg
+               python3-xdg,
+               python3-yaml
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/click-reviewers-tools
-Vcs-Bzr: lp:ubuntu-dev-tools
+Vcs-Bzr: lp:click-reviewers-tools
 Vcs-Browser: http://bazaar.launchpad.net/~click-reviewers/click-reviewers-tools/trunk/files
 X-Python3-Version: >= 3.2
 
@@ -26,6 +27,7 @@ Depends: python3-apt,
          python3-magic,
          python3-simplejson,
          python3-xdg,
+         python3-yaml,
          ${misc:Depends},
          ${python3:Depends}
 Description: tools to review click packages
