@@ -187,7 +187,7 @@ def _extract_framework(self, app):
 
 def _extract_systemd(self, app):
     '''Pretend we found the systemd file'''
-    return ("%s.click-service" % app, TEST_SNAPPY_SYSTEMD[app])
+    return ("%s.snappy-systemd" % app, TEST_SNAPPY_SYSTEMD[app])
 
 
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
@@ -583,6 +583,9 @@ class TestClickReview(TestCase):
         TEST_SNAPPY_SYSTEMD = dict()
         for app in self.test_systemd.keys():
             TEST_SNAPPY_SYSTEMD[app] = self.test_systemd[app]
+            self.test_manifest["hooks"][app]["snappy-systemd"] = \
+                "%s.snappy-systemd" % app
+        self._update_test_manifest()
 
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
@@ -816,17 +819,21 @@ class TestClickReview(TestCase):
             self.test_framework[app][key] = value
         self._update_test_framework()
 
-    def set_test_systemd(self, app, key, value, append=False):
-        '''Set systemd entries. If value is None, remove'''
-        if app not in self.test_systemd:
-            self.test_systemd[app] = []
-
-        if value is None:
-            self.test_systemd[app] = []
+    def set_test_systemd(self, app, key, value):
+        '''Set systemd entries. If key is None, remove hook, if value is None,
+           remove key'''
+        if key is None:
+            if app in self.test_systemd:
+                self.test_systemd.pop(app)
         else:
-            if not append:
-                self.test_systemd[app] = []
-            self.test_systemd[app].append({key: value})
+            if app not in self.test_systemd:
+                self.test_systemd[app] = {}
+
+            if value is None:
+                if key in self.test_systemd[app]:
+                    del(self.test_systemd[app][key])
+            else:
+                self.test_systemd[app][key] = value
         self._update_test_systemd()
 
     def setUp(self):
