@@ -27,8 +27,8 @@ class ClickReviewSystemd(ClickReview):
         peer_hooks = dict()
         my_hook = 'snappy-systemd'
         peer_hooks[my_hook] = dict()
-        peer_hooks[my_hook]['allowed'] = ClickReview.service_allowed_peer_hooks
         peer_hooks[my_hook]['required'] = ["apparmor"]
+        peer_hooks[my_hook]['allowed'] = peer_hooks[my_hook]['required']
 
         ClickReview.__init__(self, fn, "snappy-systemd", peer_hooks=peer_hooks)
 

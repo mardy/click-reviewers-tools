@@ -252,6 +252,34 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         tmp["apparmor"] = "meta/foo.apparmor"
 
         # add something not allowed
+        tmp["bin-path"] = "bin/bar"
+
+        c.manifest["hooks"][self.default_appname] = tmp
+        self._update_test_manifest()
+
+        # do the test
+        c.check_peer_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_peer_hooks_disallowed2(self):
+        '''Test check_peer_hooks() - disallowed (nonexistent)'''
+        self.set_test_systemd(self.default_appname,
+                              key="start",
+                              value="/bin/foo")
+        c = ClickReviewSystemd(self.test_name)
+
+        # create a new hooks database for our peer hooks tests
+        tmp = dict()
+
+        # add our hook
+        tmp["snappy-systemd"] = "meta/foo.snappy-systemd"
+
+        # add required hooks
+        tmp["apparmor"] = "meta/foo.apparmor"
+
+        # add something not allowed
         tmp["nonexistent"] = "nonexistent-hook"
 
         c.manifest["hooks"][self.default_appname] = tmp
