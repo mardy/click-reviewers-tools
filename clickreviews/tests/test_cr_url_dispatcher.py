@@ -216,7 +216,6 @@ class TestClickReviewUrlDispatcher(cr_tests.TestClickReview):
                                      key="protocol",
                                      value="some-protocol")
         c = ClickReviewUrlDispatcher(self.test_name)
-        print(c.manifest["hooks"])
 
         # create a new hooks database for our peer hooks tests
         tmp = dict()
