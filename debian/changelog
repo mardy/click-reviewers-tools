@@ -16,6 +16,8 @@ click-reviewers-tools (0.22) UNRELEASED; urgency=medium
     - add python3-yaml to Build-Depends and Depends
     - update Vcs-Bzr to point to lp:click-reviewers-tools
   * add snappy-systemd hook tests and update the testsuite accordingly
+  * apparmor-profile hook may be used anywhere apparmor can be, but not with
+    apparmor itself (apparmor-profile is still redflagged)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 03 Mar 2015 14:45:23 -0600
 
