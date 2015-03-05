@@ -1,6 +1,6 @@
 '''common.py: common classes and functions'''
 #
-# Copyright (C) 2013-2015 Canonical Ltd.
+# Copyright (C) 2013-2014 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -75,9 +75,9 @@ class ClickReview(object):
     # FIXME: when apparmor-policy is implemented, use this
     # framework_allowed_peer_hooks = ["apparmor-policy"]
     framework_allowed_peer_hooks = []
-    service_allowed_peer_hooks = ["bin-path",
+    service_allowed_peer_hooks = ["apparmor",
+                                  "bin-path",
                                   "snappy-systemd",
-                                  "apparmor-profile"
                                   ]
 
     def __init__(self, fn, review_type, peer_hooks=None):
@@ -258,6 +258,11 @@ class ClickReview(object):
                 if h == my_hook:
                     continue
                 if h not in self.manifest["hooks"][app]:
+                    # Treat these as equivalent for satisfying peer hooks
+                    if h == 'apparmor' and \
+                       'apparmor-profile' in self.manifest["hooks"][app]:
+                        continue
+
                     if 'missing' not in d:
                         d['missing'] = dict()
                     if app not in d['missing']:
@@ -267,6 +272,13 @@ class ClickReview(object):
                 if h == my_hook:
                     continue
                 if h not in self.peer_hooks[my_hook]['allowed']:
+                    # 'apparmor-profile' is allowed when 'apparmor' is, but
+                    # they may not be used together
+                    if h == 'apparmor-profile':
+                        if 'apparmor' in self.peer_hooks[my_hook]['allowed'] \
+                           and 'apparmor' not in self.manifest["hooks"][app]:
+                            continue
+
                     if 'disallowed' not in d:
                         d['disallowed'] = dict()
                     if app not in d['disallowed']:
