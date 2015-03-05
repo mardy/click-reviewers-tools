@@ -841,3 +841,426 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         self.check_manual_review(r, 'lint_hooks_redflag_test-app')
+
+    def test_snappy_name1(self):
+        '''Test check_snappy_name - toplevel'''
+        self.set_test_pkg_yaml("name", "foo")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name2(self):
+        '''Test check_snappy_name - flat'''
+        self.set_test_pkg_yaml("name", "foo.bar")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name3(self):
+        '''Test check_snappy_name - reverse domain'''
+        self.set_test_pkg_yaml("name", "com.ubuntu.develeper.baz.foo")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name_bad(self):
+        '''Test check_snappy_name - bad'''
+        self.set_test_pkg_yaml("name", "foo?bar")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name_bad2(self):
+        '''Test check_snappy_name - empty'''
+        self.set_test_pkg_yaml("name", "")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name_bad3(self):
+        '''Test check_snappy_name - list'''
+        self.set_test_pkg_yaml("name", [])
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name_bad4(self):
+        '''Test check_snappy_name - dict'''
+        self.set_test_pkg_yaml("name", {})
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version1(self):
+        '''Test check_snappy_version - integer'''
+        self.set_test_pkg_yaml("version", 1)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version2(self):
+        '''Test check_snappy_version - float'''
+        self.set_test_pkg_yaml("version", 1.0)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version3(self):
+        '''Test check_snappy_version - MAJOR.MINOR.MICRO'''
+        self.set_test_pkg_yaml("version", "1.0.1")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version4(self):
+        '''Test check_snappy_version - str'''
+        self.set_test_pkg_yaml("version", "1.0a")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version5(self):
+        '''Test check_snappy_version - alpha'''
+        self.set_test_pkg_yaml("version", "a.b")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version_bad(self):
+        '''Test check_snappy_version - bad'''
+        self.set_test_pkg_yaml("version", "foo?bar")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version_bad2(self):
+        '''Test check_snappy_version - empty'''
+        self.set_test_pkg_yaml("version", "")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version_bad3(self):
+        '''Test check_snappy_version - list'''
+        self.set_test_pkg_yaml("version", [])
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version_bad4(self):
+        '''Test check_snappy_version - dict'''
+        self.set_test_pkg_yaml("version", {})
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type(self):
+        '''Test check_snappy_type - unspecified'''
+        self.set_test_pkg_yaml("type", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_app(self):
+        '''Test check_snappy_type - app'''
+        self.set_test_pkg_yaml("type", "app")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_framework(self):
+        '''Test check_snappy_type - framework'''
+        self.set_test_pkg_yaml("type", "framework")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_framework_policy(self):
+        '''Test check_snappy_type - framework-policy'''
+        self.set_test_pkg_yaml("type", "framework-policy")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        # TODO: update this when 'framework-policy' is implemented
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_oem(self):
+        '''Test check_snappy_type - oem'''
+        self.set_test_pkg_yaml("type", "oem")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        # TODO: update this when 'oem' is implemented
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged(self):
+        '''Test check_snappy_type_redflagged - unspecified'''
+        self.set_test_pkg_yaml("type", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged_app(self):
+        '''Test check_snappy_type_redflagged - app'''
+        self.set_test_pkg_yaml("type", "app")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged_framework(self):
+        '''Test check_snappy_type_redflagged - framework'''
+        self.set_test_pkg_yaml("type", "framework")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_vendor(self):
+        '''Test check_snappy_vendor'''
+        self.set_test_pkg_yaml("vendor", "Foo Bar <foo.bar@example.com>")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_vendor()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_vendor_missing(self):
+        '''Test check_snappy_vendor - missing'''
+        self.set_test_pkg_yaml("vendor", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_vendor()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_vendor_empty(self):
+        '''Test check_snappy_vendor - empty'''
+        self.set_test_pkg_yaml("vendor", "")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_vendor()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_vendor_bad(self):
+        '''Test check_snappy_vendor - bad'''
+        self.set_test_pkg_yaml("vendor", "Foo Bar")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_vendor()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_icon(self):
+        '''Test check_snappy_icon()'''
+        self.set_test_pkg_yaml("icon", "someicon")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_icon()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_icon_unspecified(self):
+        '''Test check_snappy_icon() - unspecified'''
+        self.set_test_pkg_yaml("icon", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_icon()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_empty(self):
+        '''Test check_snappy_icon() - empty'''
+        self.set_test_pkg_yaml("icon", "")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_icon()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_icon_absolute_path(self):
+        '''Test check_snappy_icon() - absolute path'''
+        self.set_test_pkg_yaml("icon", "/foo/bar/someicon")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_missing_arch(self):
+        '''Test check_snappy_architecture() (missing)'''
+        self.set_test_pkg_yaml("architecture", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_arch_all(self):
+        '''Test check_snappy_architecture() (all)'''
+        self.set_test_pkg_yaml("architecture", "all")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_arch_single_armhf(self):
+        '''Test check_snappy_architecture() (single arch, armhf)'''
+        self.set_test_pkg_yaml("architecture", "armhf")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_arch_single_i386(self):
+        '''Test check_snappy_architecture() (single arch, i386)'''
+        self.set_test_pkg_yaml("architecture", "i386")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_arch_single_amd64(self):
+        '''Test check_snappy_architecture() (single arch, amd64)'''
+        self.set_test_pkg_yaml("architecture", "amd64")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_arch_single_nonexistent(self):
+        '''Test check_snappy_architecture() (single nonexistent arch)'''
+        self.set_test_pkg_yaml("architecture", "nonexistent")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_arch_single_multi(self):
+        '''Test check_snappy_architecture() (single arch: invalid multi)'''
+        self.set_test_pkg_yaml("architecture", "multi")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_valid_arch_multi(self):
+        '''Test check_snappy_architecture() (valid multi)'''
+        arch = "multi"
+        self.set_test_pkg_yaml("architecture", ["armhf"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
+                                       self.test_control['Version'],
+                                       arch)
+        c = ClickReviewLint(test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_valid_arch_multi2(self):
+        '''Test check_snappy_architecture() (valid multi2)'''
+        arch = "multi"
+        self.set_test_pkg_yaml("architecture", ["armhf", "i386"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
+                                       self.test_control['Version'],
+                                       arch)
+        c = ClickReviewLint(test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_invalid_arch_multi_nonexistent(self):
+        '''Test check_snappy_architecture() (invalid multi)'''
+        arch = "multi"
+        self.set_test_pkg_yaml("architecture", ["armhf", "nonexistent"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
+                                       self.test_control['Version'],
+                                       arch)
+        c = ClickReviewLint(test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_invalid_arch_multi_all(self):
+        '''Test check_snappy_architecture() (invalid all)'''
+        arch = "multi"
+        self.set_test_pkg_yaml("architecture", ["armhf", "all"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
+                                       self.test_control['Version'],
+                                       arch)
+        c = ClickReviewLint(test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_invalid_arch_multi_multi(self):
+        '''Test check_snappy_architecture() (invalid multi)'''
+        arch = "multi"
+        self.set_test_pkg_yaml("architecture", ["multi", "armhf"])
+        self.set_test_control("Architecture", arch)
+        test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
+                                       self.test_control['Version'],
+                                       arch)
+        c = ClickReviewLint(test_name)
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)

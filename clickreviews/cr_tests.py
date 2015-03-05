@@ -19,6 +19,7 @@ import json
 import os
 import tempfile
 from xdg.DesktopEntry import DesktopEntry
+import yaml
 
 from unittest.mock import patch
 from unittest import TestCase
@@ -29,6 +30,7 @@ import clickreviews.cr_common as cr_common
 # These should be set in the test cases
 TEST_CONTROL = ""
 TEST_MANIFEST = ""
+TEST_PKG_YAML = ""
 TEST_SECURITY = dict()
 TEST_SECURITY_PROFILES = dict()
 TEST_DESKTOP = dict()
@@ -62,6 +64,11 @@ def _extract_control_file(self):
 def _extract_manifest_file(self):
     '''Pretend we read the manifest file'''
     return io.StringIO(TEST_MANIFEST)
+
+
+def _extract_package_yaml(self):
+    '''Pretend we read the package.yaml file'''
+    return io.StringIO(TEST_PKG_YAML)
 
 
 def _extract_click_frameworks(self):
@@ -212,6 +219,9 @@ patches.append(patch(
     'clickreviews.cr_common.ClickReview._extract_manifest_file',
     _extract_manifest_file))
 patches.append(patch(
+    'clickreviews.cr_common.ClickReview._extract_package_yaml',
+    _extract_package_yaml))
+patches.append(patch(
     'clickreviews.cr_common.ClickReview._extract_click_frameworks',
     _extract_click_frameworks))
 patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
@@ -356,6 +366,13 @@ class TestClickReview(TestCase):
             "%s.url-dispatcher" % self.default_appname
         self._update_test_manifest()
 
+        self.test_pkg_yaml = dict()
+        self.set_test_pkg_yaml("name", self.test_control['Package'])
+        self.set_test_pkg_yaml("version", self.test_control['Version'])
+        self.set_test_pkg_yaml("architecture",
+                               self.test_control['Architecture'])
+        self._update_test_pkg_yaml()
+
         # hooks
         self.test_security_manifests = dict()
         self.test_security_profiles = dict()
@@ -452,6 +469,12 @@ class TestClickReview(TestCase):
     def _update_test_manifest(self):
         global TEST_MANIFEST
         TEST_MANIFEST = json.dumps(self.test_manifest)
+
+    def _update_test_pkg_yaml(self):
+        global TEST_PKG_YAML
+        TEST_PKG_YAML = yaml.dump(self.test_pkg_yaml,
+                                  default_flow_style=False,
+                                  indent=4)
 
     def _update_test_security_manifests(self):
         global TEST_SECURITY
@@ -653,6 +676,16 @@ class TestClickReview(TestCase):
             self.test_manifest[key] = value
         self._update_test_manifest()
 
+    def set_test_pkg_yaml(self, key, value):
+        '''Set key in meta/package.yaml to value. If value is None, remove
+           key'''
+        if value is None:
+            if key in self.test_pkg_yaml:
+                self.test_pkg_yaml.pop(key, None)
+        else:
+            self.test_pkg_yaml[key] = value
+        self._update_test_pkg_yaml()
+
     def set_test_security_manifest(self, app, key, value):
         '''Set key in security manifest to value. If value is None, remove
            key'''
@@ -848,6 +881,8 @@ class TestClickReview(TestCase):
         TEST_CONTROL = ""
         global TEST_MANIFEST
         TEST_MANIFEST = ""
+        global TEST_PKG_YAML
+        TEST_PKG_YAML = ""
         global TEST_SECURITY
         TEST_SECURITY = dict()
         global TEST_SECURITY_PROFILES

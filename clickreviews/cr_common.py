@@ -23,11 +23,13 @@ import json
 import magic
 import os
 import pprint
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 import types
+import yaml
 
 DEBUGGING = False
 UNPACK_DIR = None
@@ -106,7 +108,6 @@ class ClickReview(object):
         self.unpack_dir = UNPACK_DIR
 
         # Get some basic information from the control file
-
         control_file = self._extract_control_file()
         tmp = list(Deb822.iter_paragraphs(control_file))
         if len(tmp) != 1:
@@ -123,6 +124,17 @@ class ClickReview(object):
         except Exception:
             error("Could not load manifest file. Is it properly formatted?")
         self._verify_manifest_structure()
+
+        # Parse and store the package.yaml
+        pkg_yaml = self._extract_package_yaml()
+        self.is_snap = False
+        if pkg_yaml is not None:
+            try:
+                self.pkg_yaml = yaml.safe_load(pkg_yaml)
+            except Exception as e:
+                error("Could not load package.yaml. Is it properly formatted?")
+            self._verify_package_yaml_structure()
+            self.is_snap = True
 
         # Get a list of all unpacked files, except DEBIAN/
         self.pkg_files = []
@@ -160,6 +172,13 @@ class ClickReview(object):
         if not os.path.isfile(m):
             error("Could not find manifest file")
         return open_file_read(m)
+
+    def _extract_package_yaml(self):
+        '''Extract and read the snappy package.yaml'''
+        y = os.path.join(self.unpack_dir, "meta/package.yaml")
+        if not os.path.isfile(y):
+            return None  # snappy packaging is still optional
+        return open_file_read(y)
 
     def _check_path_exists(self):
         '''Check that the provided path exists'''
@@ -245,6 +264,63 @@ class ClickReview(object):
                 error("manifest malformed: unsupported field '%s':\n%s" % (k,
                                                                            mp))
 
+    def _verify_package_yaml_structure(self):
+        '''Verify package.yaml has the expected structure'''
+        # https://developer.ubuntu.com/en/snappy/guides/packaging-format-apps/
+        # lp:click doc/file-format.rst
+        yp = yaml.dump(self.pkg_yaml, default_flow_style=False, indent=4)
+        if not isinstance(self.pkg_yaml, dict):
+            error("package yaml malformed:\n%s" % self.pkg_yaml)
+
+        required = ["name", "version"]  # snappy required
+        for f in required:
+            if f not in self.pkg_yaml:
+                error("could not find required '%s' in package.yaml:\n%s" %
+                      (f, yp))
+            elif f in ['name', 'version']:
+                # make sure this is a string for other tests since
+                # yaml.safe_load may make it an int, float or str
+                self.pkg_yaml[f] = str(self.pkg_yaml[f])
+
+        # optional snappy fields here (may be required by appstore)
+        optional = ["architecture",
+                    "binaries",
+                    "frameworks",
+                    "icon",
+                    "integration",
+                    "services",
+                    "source",
+                    "type",
+                    "vendor",
+                    ]
+
+        deprecated = ["maintainer"]
+
+        for f in optional:
+            if f in self.pkg_yaml:
+                if f in ["architecture", "frameworks"] and not \
+                    (isinstance(self.pkg_yaml[f], str) or
+                     isinstance(self.pkg_yaml[f], list)):
+                    error("yaml malformed: '%s' is not str or list:\n%s" %
+                          (f, mp))
+                elif f in ["binaries", "services"] and not \
+                        isinstance(self.pkg_yaml[f], list):
+                    error("yaml malformed: '%s' is not list:\n%s" % (f, yp))
+                elif f == "integration" and not isinstance(self.pkg_yaml[f],
+                                                           dict):
+                    error("yaml malformed: '%s' is not dict:\n%s" % (f, yp))
+                elif f in ["icon", "source", "type", "vendor"] and not \
+                        isinstance(self.pkg_yaml[f], str):
+                    error("yaml malformed: '%s' is not str:\n%s" % (f, yp))
+
+        unknown = []
+        for f in self.pkg_yaml:
+            if f not in required + optional + deprecated:
+                unknown.append(f)
+        if len(unknown) > 0:
+            error("yaml malformed: unknown entries '%s'" % (",".join(unknown)),
+                  yp)
+
     def _verify_peer_hooks(self, my_hook):
         '''Compare manifest for required and allowed hooks'''
         d = dict()
@@ -286,6 +362,29 @@ class ClickReview(object):
                     d['disallowed'][app].append(h)
 
         return d
+
+    def _verify_pkgname(self, n):
+        '''Verify package name'''
+        if re.search(r'^[a-z0-9][a-z0-9+.-]+$', n):
+            return True
+        return False
+
+    def _verify_pkgversion(self, v):
+        '''Verify package name'''
+        re_valid_version = re.compile(r'^((\d+):)?'              # epoch
+                                      '([A-Za-z0-9.+:~-]+?)'     # upstream
+                                      '(-([A-Za-z0-9+.~]+))?$')  # debian
+        if re_valid_version.match(v):
+            return True
+        return False
+
+    def _verify_maintainer(self, m):
+        '''Verify maintainer email'''
+        #  Simple regex as used by python3-debian. If we wanted to be more
+        #  thorough we could use email_re from django.core.validators
+        if re.search(r"^(.*)\s+<(.*@.*)>$", m):
+            return True
+        return False
 
     def check_peer_hooks(self, hooks_sublist=[]):
         '''Check if peer hooks are valid'''

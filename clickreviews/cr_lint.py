@@ -1,4 +1,4 @@
-'''cr_lint.py: click lint checks'''
+'''cr_lint.py: lint checks'''
 #
 # Copyright (C) 2013-2015 Canonical Ltd.
 #
@@ -104,6 +104,20 @@ class ClickReviewLint(ClickReview):
                                  'pay-ui',
                                  'apparmor-profile',
                                  ]
+
+        # Valid values for 'type' in packaging yaml
+        # - app
+        # - framework
+        # - oem
+        self.snappy_valid_types = ['app',
+                                   'framework',
+                                   # 'framework-policy',  # TBI
+                                   # 'oem',               # TBI
+                                   ]
+        self.snappy_redflagged_types = ['framework',
+                                        # 'oem',           # TBI
+                                        ]
+
         if overrides is None:
             overrides = {}
         self.overrides = overrides
@@ -475,7 +489,7 @@ exit 1
         t = 'info'
         n = 'pkgname_valid'
         s = "OK"
-        if not re.search(r'^[a-z0-9][a-z0-9+.-]+$', p):
+        if not self._verify_pkgname(p):
             t = 'error'
             s = "'%s' not properly formatted" % p
         self._add_result(t, n, s)
@@ -561,7 +575,7 @@ exit 1
                                          'like "Joe Bloggs <joe.bloggs@isp.com>")',
                              'http://askubuntu.com/questions/417351/what-does-lint-maintainer-format-mean/417352')
             return
-        elif not re.search(r"^(.*)\s+<(.*@.*)>$", self.manifest['maintainer']):
+        elif not self._verify_maintainer(self.manifest['maintainer']):
             self._add_result('error', n,
                              'invalid format for maintainer: %s (should be '
                              'like "Joe Bloggs <joe.bloggs@isp.com>")' %
@@ -826,28 +840,27 @@ exit 1
                     pass
         self._add_result(t, n, s)
 
-    def check_manifest_architecture(self):
-        '''Check package architecture in manifest is valid'''
+    def _verify_architecture(self, my_dict, test_str):
         t = 'info'
-        n = 'manifest_architecture_valid'
+        n = '%s_architecture_valid' % test_str
         s = 'OK'
-        if 'architecture' not in self.manifest:
+        if 'architecture' not in my_dict:
             s = 'OK (architecture not specified)'
             self._add_result(t, n, s)
             return
 
-        manifest_archs_list = list(self.valid_control_architectures)
-        manifest_archs_list.remove("multi")
+        archs_list = list(self.valid_control_architectures)
+        archs_list.remove("multi")
 
-        if isinstance(self.manifest['architecture'], str) and \
-           self.manifest['architecture'] not in manifest_archs_list:
+        if isinstance(my_dict['architecture'], str) and \
+           my_dict['architecture'] not in archs_list:
             t = 'error'
-            s = "not a valid architecture: %s" % self.manifest['architecture']
-        elif isinstance(self.manifest['architecture'], list):
-            manifest_archs_list.remove("all")
+            s = "not a valid architecture: %s" % my_dict['architecture']
+        elif isinstance(my_dict['architecture'], list):
+            archs_list.remove("all")
             bad_archs = []
-            for a in self.manifest['architecture']:
-                if a not in manifest_archs_list:
+            for a in my_dict['architecture']:
+                if a not in archs_list:
                     bad_archs.append(a)
                 if len(bad_archs) > 0:
                     t = 'error'
@@ -855,31 +868,131 @@ exit 1
                         ",".join(bad_archs)
         self._add_result(t, n, s)
 
-    def check_icon(self):
-        '''Check icon()'''
+    def check_manifest_architecture(self):
+        '''Check package architecture in manifest is valid'''
+        self._verify_architecture(self.manifest, "manifest")
+
+    def _verify_icon(self, my_dict, test_str):
         t = 'info'
-        n = 'icon_present'
+        n = '%s_icon_present' % test_str
         s = 'OK'
-        if 'icon' not in self.manifest:
+        if 'icon' not in my_dict:
             s = 'Skipped, optional icon not present'
             self._add_result(t, n, s)
             return
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'icon_empty'
+        n = '%s_icon_empty' % test_str
         s = 'OK'
-        if len(self.manifest['icon']) == 0:
+        if len(my_dict['icon']) == 0:
             t = 'error'
-            s = "icon manifest entry is empty"
+            s = "icon entry is empty"
             return
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'icon_absolute_path'
+        n = '%s_icon_absolute_path' % test_str
         s = 'OK'
-        if self.manifest['icon'].startswith('/'):
+        if my_dict['icon'].startswith('/'):
             t = 'error'
-            s = "icon manifest entry '%s' should not specify absolute path" % \
-                self.manifest['icon']
+            s = "icon entry '%s' should not specify absolute path" % \
+                my_dict['icon']
         self._add_result(t, n, s)
+
+    def check_icon(self):
+        '''Check icon()'''
+        self._verify_icon(self.manifest, "manifest")
+
+    def check_snappy_name(self):
+        '''Check package name'''
+        if not self.is_snap:
+            return
+
+        t = 'info'
+        n = 'snappy_name_valid'
+        s = 'OK'
+        if 'name' not in self.pkg_yaml:
+            t = 'error'
+            s = "could not find 'name' in yaml"
+        elif not self._verify_pkgname(self.pkg_yaml['name']):
+            t = 'error'
+            s = "malformed 'name': '%s'" % self.pkg_yaml['name']
+        self._add_result(t, n, s)
+
+    def check_snappy_version(self):
+        '''Check package version'''
+        if not self.is_snap:
+            return
+
+        t = 'info'
+        n = 'snappy_version_valid'
+        s = 'OK'
+        if 'version' not in self.pkg_yaml:
+            t = 'error'
+            s = "could not find 'version' in yaml"
+        elif not self._verify_pkgversion(self.pkg_yaml['version']):
+            t = 'error'
+            s = "malformed 'version': '%s'" % self.pkg_yaml['version']
+        self._add_result(t, n, s)
+
+    def check_snappy_type(self):
+        '''Check type'''
+        if not self.is_snap:
+            return
+
+        t = 'info'
+        n = 'snappy_type_valid'
+        s = 'OK'
+        if 'type' not in self.pkg_yaml:
+            s = 'OK (skip missing)'
+        elif self.pkg_yaml['type'] not in self.snappy_valid_types:
+            t = 'error'
+            s = "unknown 'type': '%s'" % self.pkg_yaml['type']
+        self._add_result(t, n, s)
+
+    def check_snappy_type_redflagged(self):
+        '''Check if snappy type is redflagged'''
+        if not self.is_snap:
+            return
+
+        t = 'info'
+        n = 'snappy_type_redflag'
+        s = "OK"
+        manual_review = False
+        if 'type' not in self.pkg_yaml:
+            s = 'OK (skip missing)'
+        elif self.pkg_yaml['type'] in self.snappy_redflagged_types:
+            t = 'error'
+            s = "(MANUAL REVIEW) type '%s' not allowed" % self.pkg_yaml['type']
+            manual_review = True
+        self._add_result(t, n, s, manual_review=manual_review)
+
+    def check_snappy_vendor(self):
+        '''Check package vendor'''
+        if not self.is_snap:
+            return
+
+        t = 'info'
+        n = 'snappy_vendor_valid'
+        s = 'OK'
+        if 'vendor' not in self.pkg_yaml:
+            s = "OK (skip missing)"
+        elif not self._verify_maintainer(self.pkg_yaml['vendor']):
+            t = 'error'
+            s = "malformed 'vendor': '%s'" % self.pkg_yaml['vendor']
+        self._add_result(t, n, s)
+
+    def check_snappy_icon(self):
+        '''Check icon()'''
+        if not self.is_snap:
+            return
+
+        self._verify_icon(self.pkg_yaml, "package_yaml")
+
+    def check_snappy_architecture(self):
+        '''Check package architecture in package.yaml is valid'''
+        if not self.is_snap:
+            return
+
+        self._verify_architecture(self.pkg_yaml, "package yaml")
