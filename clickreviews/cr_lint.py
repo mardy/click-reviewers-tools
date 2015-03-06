@@ -1013,3 +1013,38 @@ exit 1
             t = 'warn'
             s = "unknown entries in package.yaml: '%s'" % (",".join(unknown))
         self._add_result(t, n, s)
+
+    def _extract_readme_md(self):
+        '''Extract '''
+        contents = None
+        readme = os.path.join(self.unpack_dir, "meta/readme.md")
+        if os.path.exists(readme):
+            fh = open_file_read(readme)
+            contents = fh.readlines()
+        return contents
+
+    def check_snappy_readme_md(self):
+        '''Check package architecture in package.yaml is valid'''
+        if not self.is_snap:
+            return
+
+        contents = self._extract_readme_md()
+
+        t = 'info'
+        n = 'snappy_readme.md'
+        s = 'OK'
+        if contents is None:
+            t = 'error'
+            s = 'meta/readme.md does not exist'
+            self._add_result(t, n, s)
+            return
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'snappy_readme.md_length'
+        s = 'OK'
+        pkgname_base = self.pkg_yaml['name'].split('.')[0]
+        if len(contents) < len(pkgname_base):
+            t = 'warn'
+            s = "meta/readme.md is too short"
+        self._add_result(t, n, s)

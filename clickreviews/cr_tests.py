@@ -31,6 +31,7 @@ import clickreviews.cr_common as cr_common
 TEST_CONTROL = ""
 TEST_MANIFEST = ""
 TEST_PKG_YAML = ""
+TEST_README_MD = ""
 TEST_SECURITY = dict()
 TEST_SECURITY_PROFILES = dict()
 TEST_DESKTOP = dict()
@@ -69,6 +70,11 @@ def _extract_manifest_file(self):
 def _extract_package_yaml(self):
     '''Pretend we read the package.yaml file'''
     return io.StringIO(TEST_PKG_YAML)
+
+
+def _extract_readme_md(self):
+    '''Pretend we read the meta/readme.md file'''
+    return TEST_README_MD
 
 
 def _extract_click_frameworks(self):
@@ -240,6 +246,9 @@ patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_all_files',
 patches.append(patch(
     'clickreviews.cr_lint.ClickReview._list_all_compiled_binaries',
     _mock_func))
+patches.append(patch(
+    'clickreviews.cr_lint.ClickReviewLint._extract_readme_md',
+    _extract_readme_md))
 
 # security overrides
 patches.append(patch(
@@ -373,6 +382,9 @@ class TestClickReview(TestCase):
                                self.test_control['Architecture'])
         self._update_test_pkg_yaml()
 
+        self.test_readme_md = self.test_control['Description']
+        self._update_test_readme_md()
+
         # hooks
         self.test_security_manifests = dict()
         self.test_security_profiles = dict()
@@ -475,6 +487,10 @@ class TestClickReview(TestCase):
         TEST_PKG_YAML = yaml.dump(self.test_pkg_yaml,
                                   default_flow_style=False,
                                   indent=4)
+
+    def _update_test_readme_md(self):
+        global TEST_README_MD
+        TEST_README_MD = self.test_readme_md
 
     def _update_test_security_manifests(self):
         global TEST_SECURITY
@@ -686,6 +702,14 @@ class TestClickReview(TestCase):
             self.test_pkg_yaml[key] = value
         self._update_test_pkg_yaml()
 
+    def set_test_readme_md(self, contents):
+        '''Set contents of meta/readme.md'''
+        if contents is None:
+            self.test_readme_md = None
+        else:
+            self.test_readme_md = contents
+        self._update_test_readme_md()
+
     def set_test_security_manifest(self, app, key, value):
         '''Set key in security manifest to value. If value is None, remove
            key'''
@@ -883,6 +907,8 @@ class TestClickReview(TestCase):
         TEST_MANIFEST = ""
         global TEST_PKG_YAML
         TEST_PKG_YAML = ""
+        global TEST_README_MD
+        TEST_README_MD = ""
         global TEST_SECURITY
         TEST_SECURITY = dict()
         global TEST_SECURITY_PROFILES

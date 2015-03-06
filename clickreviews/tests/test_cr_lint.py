@@ -1282,3 +1282,33 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_check_snappy_readme_md(self):
+        '''Test check_snappy_readme_md()'''
+        self.set_test_pkg_yaml("name", self.test_name)
+        self.set_test_readme_md("%s - some description" % self.test_name)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_readme_md()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_readme_md_bad(self):
+        '''Test check_snappy_readme_md() - short'''
+        self.set_test_pkg_yaml("name", self.test_name)
+        self.set_test_readme_md("a")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_readme_md()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_readme_md_bad2(self):
+        '''Test check_snappy_readme_md() - missing'''
+        self.set_test_pkg_yaml("name", self.test_name)
+        self.set_test_readme_md(None)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_readme_md()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
