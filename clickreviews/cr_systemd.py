@@ -81,21 +81,6 @@ class ClickReviewSystemd(ClickReview):
 
         return (fn, yd)
 
-    def _create_service_dict(self, service_list):
-        '''Converts snappy package.yaml service list to service dictionary'''
-        service_dict = dict()
-        for service in service_list:
-            if 'name' not in service:
-                error("required field 'name' not present in service: %s" %
-                      service)
-            name = service['name']
-            service_dict[name] = dict()
-            for key in service:
-                if key == 'name':
-                    continue
-                service_dict[name][key] = service[key]
-        return service_dict
-
     def _verify_required(self, my_dict, test_str):
         for app in sorted(my_dict):
             for r in self.required_keys:
@@ -125,8 +110,8 @@ class ClickReviewSystemd(ClickReview):
         '''Check for package.yaml required fields'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
-        self._verify_required(self._create_service_dict(
-                              self.pkg_yaml['services']), 'package_yaml')
+        self._verify_required(self._create_dict(self.pkg_yaml['services']),
+                              'package_yaml')
 
     def _verify_optional(self, my_dict, test_str):
         for app in sorted(my_dict):
@@ -160,8 +145,8 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy packate.yaml optional fields'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
-        self._verify_optional(self._create_service_dict(
-                              self.pkg_yaml['services']), 'package_yaml')
+        self._verify_optional(self._create_dict(self.pkg_yaml['services']),
+                              'package_yaml')
 
     def _verify_unknown(self, my_dict, test_str):
         for app in sorted(my_dict):
@@ -191,8 +176,8 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy package.yaml unknown fields'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
-        self._verify_unknown(self._create_service_dict(
-                             self.pkg_yaml['services']), 'package_yaml')
+        self._verify_unknown(self._create_dict(self.pkg_yaml['services']),
+                             'package_yaml')
 
     def _verify_service_description(self, my_dict, test_str):
         '''Check snappy-systemd description'''
@@ -222,9 +207,7 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy package.yaml description'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
-        print(self.pkg_yaml['services'])
-        print(self._create_service_dict(self.pkg_yaml['services']))
-        self._verify_service_description(self._create_service_dict(
+        self._verify_service_description(self._create_dict(
                                          self.pkg_yaml['services']),
                                          'package_yaml')
 
@@ -259,8 +242,8 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy package.yaml start'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
-        self._verify_entry(self._create_service_dict(
-                           self.pkg_yaml['services']), 'start', 'package_yaml')
+        self._verify_entry(self._create_dict(self.pkg_yaml['services']),
+                           'start', 'package_yaml')
 
     def check_service_stop(self):
         '''Check snappy-systemd stop'''
@@ -270,8 +253,8 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy package.yaml stop'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
-        self._verify_entry(self._create_service_dict(
-                           self.pkg_yaml['services']), 'stop', 'package_yaml')
+        self._verify_entry(self._create_dict(self.pkg_yaml['services']),
+                           'stop', 'package_yaml')
 
     def check_service_poststop(self):
         '''Check snappy-systemd poststop'''
@@ -281,8 +264,7 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy package.yaml poststop'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
-        self._verify_entry(self._create_service_dict(
-                           self.pkg_yaml['services']),
+        self._verify_entry(self._create_dict(self.pkg_yaml['services']),
                            'poststop', 'package_yaml')
 
     def _verify_service_stop_timeout(self, my_dict, test_str):
@@ -312,6 +294,6 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy package.yaml top-timeout'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
-        self._verify_service_stop_timeout(self._create_service_dict(
+        self._verify_service_stop_timeout(self._create_dict(
                                           self.pkg_yaml['services']),
                                           'package_yaml')

@@ -376,6 +376,21 @@ class ClickReview(object):
             return True
         return False
 
+    def _create_dict(self, lst, topkey='name'):
+        '''Converts list of dicts into dict[topkey][<the rest>]. Useful for
+           conversions from yaml list to json dict'''
+        d = dict()
+        for entry in lst:
+            if topkey not in entry:
+                error("required field '%s' not present: %s" % (topkey, entry))
+            name = entry['name']
+            d[topkey] = dict()
+            for key in entry:
+                if key == topkey:
+                    continue
+                d[topkey][key] = entry[key]
+        return d
+
     def check_peer_hooks(self, hooks_sublist=[]):
         '''Check if peer hooks are valid'''
         # Nothing to verify
