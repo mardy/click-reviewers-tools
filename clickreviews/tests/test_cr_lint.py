@@ -1285,8 +1285,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_readme_md(self):
         '''Test check_snappy_readme_md()'''
-        self.set_test_pkg_yaml("name", self.test_name)
-        self.set_test_readme_md("%s - some description" % self.test_name)
+        self.set_test_pkg_yaml("name", self.test_name.split('_')[0])
+        self.set_test_readme_md("%s - some description" %
+                                self.test_name.split('_')[0])
         c = ClickReviewLint(self.test_name)
         c.check_snappy_readme_md()
         r = c.click_report
@@ -1295,8 +1296,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_readme_md_bad(self):
         '''Test check_snappy_readme_md() - short'''
-        self.set_test_pkg_yaml("name", self.test_name)
-        self.set_test_readme_md("a")
+        self.set_test_pkg_yaml("name", "prettylong.name")
+        self.set_test_readme_md("abc")
         c = ClickReviewLint(self.test_name)
         c.check_snappy_readme_md()
         r = c.click_report
@@ -1305,7 +1306,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_readme_md_bad2(self):
         '''Test check_snappy_readme_md() - missing'''
-        self.set_test_pkg_yaml("name", self.test_name)
+        self.set_test_pkg_yaml("name", self.test_name.split('_')[0])
         self.set_test_readme_md(None)
         c = ClickReviewLint(self.test_name)
         c.check_snappy_readme_md()

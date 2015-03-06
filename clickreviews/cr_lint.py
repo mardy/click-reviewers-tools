@@ -1020,7 +1020,7 @@ exit 1
         readme = os.path.join(self.unpack_dir, "meta/readme.md")
         if os.path.exists(readme):
             fh = open_file_read(readme)
-            contents = fh.readlines()
+            contents = fh.read()
         return contents
 
     def check_snappy_readme_md(self):
