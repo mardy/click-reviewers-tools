@@ -81,19 +81,33 @@ class ClickReviewSystemd(ClickReview):
 
         return (fn, yd)
 
-    def check_required(self):
-        '''Check snappy-systemd required fields'''
-        for app in sorted(self.systemd):
+    def _create_service_dict(self, service_list):
+        '''Converts snappy package.yaml service list to service dictionary'''
+        service_dict = dict()
+        for service in service_list:
+            if 'name' not in service:
+                error("required field 'name' not present in service: %s" %
+                      service)
+            name = service['name']
+            service_dict[name] = dict()
+            for key in service:
+                if key == 'name':
+                    continue
+                service_dict[name][key] = service[key]
+        return service_dict
+
+    def _verify_required(self, my_dict, test_str):
+        for app in sorted(my_dict):
             for r in self.required_keys:
                 found = False
                 t = 'info'
-                n = 'required_key_%s_%s' % (app, r)
+                n = '%s_required_key_%s_%s' % (test_str, app, r)
                 s = "OK"
-                if r in self.systemd[app]:
-                    if not isinstance(self.systemd[app][r], str):
+                if r in my_dict[app]:
+                    if not isinstance(my_dict[app][r], str):
                         t = 'error'
                         s = "'%s' is not a string" % r
-                    elif self.systemd[app][r] == "":
+                    elif my_dict[app][r] == "":
                         t = 'error'
                         s = "'%s' is empty" % r
                     else:
@@ -103,23 +117,33 @@ class ClickReviewSystemd(ClickReview):
                     s = "Missing required field '%s'" % r
                 self._add_result(t, n, s)
 
-    def check_optional(self):
-        '''Check snappy-systemd optional fields'''
-        for app in sorted(self.systemd):
+    def check_required(self):
+        '''Check snappy-systemd required fields'''
+        self._verify_required(self.systemd, 'hook')
+
+    def check_snappy_required(self):
+        '''Check for package.yaml required fields'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_required(self._create_service_dict(
+                              self.pkg_yaml['services']), 'package_yaml')
+
+    def _verify_optional(self, my_dict, test_str):
+        for app in sorted(my_dict):
             for o in self.optional_keys:
                 found = False
                 t = 'info'
-                n = 'optional_key_%s_%s' % (app, o)
+                n = '%s_optional_key_%s_%s' % (test_str, app, o)
                 s = "OK"
-                if o in self.systemd[app]:
+                if o in my_dict[app]:
                     if o == 'stop-timeout' and \
-                       not isinstance(self.systemd[app][o], int):
+                       not isinstance(my_dict[app][o], int):
                         t = 'error'
                         s = "'%s' is not an integer" % o
-                    elif not isinstance(self.systemd[app][o], str):
+                    elif not isinstance(my_dict[app][o], str):
                         t = 'error'
                         s = "'%s' is not a string" % o
-                    elif self.systemd[app][o] == "":
+                    elif my_dict[app][o] == "":
                         t = 'error'
                         s = "'%s' is empty" % o
                     else:
@@ -128,15 +152,25 @@ class ClickReviewSystemd(ClickReview):
                     s = "OK (skip missing)"
                 self._add_result(t, n, s)
 
-    def check_unknown(self):
-        '''Check snappy-systemd unknown fields'''
-        for app in sorted(self.systemd):
+    def check_optional(self):
+        '''Check snappy-systemd optional fields'''
+        self._verify_optional(self.systemd, 'hook')
+
+    def check_snappy_optional(self):
+        '''Check snappy packate.yaml optional fields'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_optional(self._create_service_dict(
+                              self.pkg_yaml['services']), 'package_yaml')
+
+    def _verify_unknown(self, my_dict, test_str):
+        for app in sorted(my_dict):
             unknown = []
             t = 'info'
-            n = 'unknown_key_%s' % app
+            n = '%s_unknown_key_%s' % (test_str, app)
             s = "OK"
 
-            for f in self.systemd[app].keys():
+            for f in my_dict[app].keys():
                 if f not in self.required_keys and \
                    f not in self.optional_keys:
                     unknown.append(f)
@@ -148,3 +182,136 @@ class ClickReviewSystemd(ClickReview):
                 t = 'warn'
                 s = "Unknown fields '%s'" % ", ".join(unknown)
             self._add_result(t, n, s)
+
+    def check_unknown(self):
+        '''Check snappy-systemd unknown fields'''
+        self._verify_unknown(self.systemd, 'hook')
+
+    def check_snappy_unknown(self):
+        '''Check snappy package.yaml unknown fields'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_unknown(self._create_service_dict(
+                             self.pkg_yaml['services']), 'package_yaml')
+
+    def _verify_service_description(self, my_dict, test_str):
+        '''Check snappy-systemd description'''
+        for app in sorted(my_dict):
+            t = 'info'
+            n = '%s_description_present_%s' % (test_str, app)
+            s = 'OK'
+            if 'description' not in my_dict[app]:
+                s = 'required description field not specified'
+                self._add_result('error', n, s)
+                return
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = '%s_description_empty_%s' % (test_str, app)
+            s = 'OK'
+            if len(my_dict[app]['description']) == 0:
+                t = 'error'
+                s = "description is empty"
+            self._add_result(t, n, s)
+
+    def check_service_description(self):
+        '''Check snappy-systemd description'''
+        self._verify_service_description(self.systemd, 'hook')
+
+    def check_snappy_service_description(self):
+        '''Check snappy package.yaml description'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        print(self.pkg_yaml['services'])
+        print(self._create_service_dict(self.pkg_yaml['services']))
+        self._verify_service_description(self._create_service_dict(
+                                         self.pkg_yaml['services']),
+                                         'package_yaml')
+
+    def _verify_entry(self, my_dict, d, test_str):
+        for app in sorted(my_dict):
+            if d not in my_dict[app]:
+                continue
+
+            t = 'info'
+            n = '%s_%s_empty_%s' % (test_str, d, app)
+            s = 'OK'
+            if len(my_dict[app][d]) == 0:
+                t = 'error'
+                s = "%s entry is empty" % d
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = '%s_%s_absolute_path_%s' % (test_str, d, app)
+            s = 'OK'
+            if my_dict[app][d].startswith('/'):
+                t = 'error'
+                s = "'%s' should not specify absolute path" % my_dict[app][d]
+            self._add_result(t, n, s)
+
+    def check_service_start(self):
+        '''Check snappy-systemd start'''
+        self._verify_entry(self.systemd, 'start', 'hook')
+
+    def check_snappy_service_start(self):
+        '''Check snappy package.yaml start'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_entry(self._create_service_dict(
+                           self.pkg_yaml['services']), 'start', 'package_yaml')
+
+    def check_service_stop(self):
+        '''Check snappy-systemd stop'''
+        self._verify_entry(self.systemd, 'stop', 'hook')
+
+    def check_snappy_service_stop(self):
+        '''Check snappy package.yaml stop'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_entry(self._create_service_dict(
+                           self.pkg_yaml['services']), 'stop', 'package_yaml')
+
+    def check_service_poststop(self):
+        '''Check snappy-systemd poststop'''
+        self._verify_entry(self.systemd, 'poststop', 'hook')
+
+    def check_snappy_service_poststop(self):
+        '''Check snappy package.yaml poststop'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_entry(self._create_service_dict(
+                           self.pkg_yaml['services']),
+                           'poststop', 'package_yaml')
+
+    def _verify_service_stop_timeout(self, my_dict, test_str):
+        for app in sorted(my_dict):
+            t = 'info'
+            n = '%s_stop_timeout_%s' % (test_str, app)
+            s = "OK"
+
+            if 'stop-timeout' not in my_dict[app]:
+                s = "OK (skip missing)"
+            elif not isinstance(my_dict[app]['stop-timeout'], int):
+                t = 'error'
+                s = 'stop-timeout is not an integer'
+            elif my_dict[app]['stop-timeout'] < 0 or \
+                    my_dict[app]['stop-timeout'] > 60:
+                t = 'error'
+                s = "stop-timeout '%d' out of range (0-60)" % \
+                    my_dict[app]['stop-timeout']
+
+            self._add_result(t, n, s)
+
+    def check_service_stop_timeout(self):
+        '''Check snappy-systemd'''
+        self._verify_service_stop_timeout(self.systemd, 'hook')
+
+    def check_snappy_service_stop_timeout(self):
+        '''Check snappy package.yaml top-timeout'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_service_stop_timeout(self._create_service_dict(
+                                          self.pkg_yaml['services']),
+                                          'package_yaml')

@@ -1,6 +1,6 @@
 '''test_cr_systemd.py: tests for the cr_systemd module'''
 #
-# Copyright (C) 2014 Canonical Ltd.
+# Copyright (C) 2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,15 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         # addCleanup in super()
         cr_tests.mock_patch()
         super()
+
+    def _set_service(self, key, value, name=None):
+        d = dict()
+        if name is None:
+            d['name'] = 'foo'
+        else:
+            d['name'] = name
+        d[key] = value
+        self.set_test_pkg_yaml("services", [d])
 
     def test_check_required(self):
         '''Test check_required() - has start and description'''
@@ -314,6 +323,448 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
         # do the test
         c.check_peer_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_description(self):
+        '''Test check_service_description()'''
+        self.set_test_systemd(self.default_appname,
+                              "description",
+                              "some description")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_description()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_description_unspecified(self):
+        '''Test check_service_description() - unspecified'''
+        self.set_test_systemd(self.default_appname,
+                              "description",
+                              None)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_description()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_description_empty(self):
+        '''Test check_service_description() - empty'''
+        self.set_test_systemd(self.default_appname,
+                              "description",
+                              "")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_description()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_start(self):
+        '''Test check_service_start()'''
+        self.set_test_systemd(self.default_appname,
+                              "start",
+                              "some/start")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_start()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_start_unspecified(self):
+        '''Test check_service_start() - unspecified'''
+        self.set_test_systemd(self.default_appname,
+                              "start",
+                              None)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_start()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_start_empty(self):
+        '''Test check_service_start() - empty'''
+        self.set_test_systemd(self.default_appname,
+                              "start",
+                              "")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_start()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_start_absolute_path(self):
+        '''Test check_service_start() - absolute path'''
+        self.set_test_systemd(self.default_appname,
+                              "start",
+                              "/foo/bar/some/start")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_start()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop(self):
+        '''Test check_service_stop()'''
+        self.set_test_systemd(self.default_appname,
+                              "stop",
+                              "some/stop")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_unspecified(self):
+        '''Test check_service_stop() - unspecified'''
+        self.set_test_systemd(self.default_appname,
+                              "stop",
+                              None)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_empty(self):
+        '''Test check_service_stop() - empty'''
+        self.set_test_systemd(self.default_appname,
+                              "stop",
+                              "")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_absolute_path(self):
+        '''Test check_service_stop() - absolute path'''
+        self.set_test_systemd(self.default_appname,
+                              "stop",
+                              "/foo/bar/some/stop")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_poststop(self):
+        '''Test check_service_poststop()'''
+        self.set_test_systemd(self.default_appname,
+                              "poststop",
+                              "some/poststop")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_poststop()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_poststop_unspecified(self):
+        '''Test check_service_poststop() - unspecified'''
+        self.set_test_systemd(self.default_appname,
+                              "poststop",
+                              None)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_poststop()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_poststop_empty(self):
+        '''Test check_service_poststop() - empty'''
+        self.set_test_systemd(self.default_appname,
+                              "poststop",
+                              "")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_poststop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_poststop_absolute_path(self):
+        '''Test check_service_poststop() - absolute path'''
+        self.set_test_systemd(self.default_appname,
+                              "poststop",
+                              "/foo/bar/some/poststop")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_poststop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_timeout(self):
+        '''Test check_service_stop_timeout()'''
+        self.set_test_systemd(self.default_appname,
+                              key="start",
+                              value="bin/foo")
+        self.set_test_systemd(self.default_appname,
+                              key="description",
+                              value="something")
+        self.set_test_systemd(self.default_appname,
+                              key="stop-timeout",
+                              value=30)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_timeout_empty(self):
+        '''Test check_service_stop_timeout() - empty'''
+        self.set_test_systemd(self.default_appname,
+                              key="start",
+                              value="bin/foo")
+        self.set_test_systemd(self.default_appname,
+                              key="description",
+                              value="something")
+        self.set_test_systemd(self.default_appname,
+                              key="stop-timeout",
+                              value="")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_timeout_bad(self):
+        '''Test check_service_stop_timeout() - bad'''
+        self.set_test_systemd(self.default_appname,
+                              key="start",
+                              value="bin/foo")
+        self.set_test_systemd(self.default_appname,
+                              key="description",
+                              value="something")
+        self.set_test_systemd(self.default_appname,
+                              key="stop-timeout",
+                              value="a")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_timeout_range_low(self):
+        '''Test check_service_stop_timeout() - out of range (low)'''
+        self.set_test_systemd(self.default_appname,
+                              key="start",
+                              value="bin/foo")
+        self.set_test_systemd(self.default_appname,
+                              key="description",
+                              value="something")
+        self.set_test_systemd(self.default_appname,
+                              key="stop-timeout",
+                              value=-1)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_timeout_range_high(self):
+        '''Test check_service_stop_timeout() - out of range (high)'''
+        self.set_test_systemd(self.default_appname,
+                              key="start",
+                              value="bin/foo")
+        self.set_test_systemd(self.default_appname,
+                              key="description",
+                              value="something")
+        self.set_test_systemd(self.default_appname,
+                              key="stop-timeout",
+                              value=61)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_description(self):
+        '''Test check_snappy_service_description()'''
+        self._set_service("description", "some description")
+        c = ClickReviewSystemd(self.test_name)
+        print(c.pkg_yaml)
+        c.check_snappy_service_description()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_description_unspecified(self):
+        '''Test check_snappy_service_description() - unspecified'''
+        # self._set_service("description", None)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_description()
+        r = c.click_report
+        # required check is done elsewhere, so no error
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_description_empty(self):
+        '''Test check_snappy_service_description() - empty'''
+        self._set_service("description", "")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_description()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_start(self):
+        '''Test check_snappy_service_start()'''
+        self._set_service("start", "some/start")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_start()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_start_unspecified(self):
+        '''Test check_snappy_service_start() - unspecified'''
+        # self._set_service("start", None)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_start()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_start_empty(self):
+        '''Test check_snappy_service_start() - empty'''
+        self._set_service("start", "")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_start()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_start_absolute_path(self):
+        '''Test check_snappy_service_start() - absolute path'''
+        self._set_service("start", "/foo/bar/some/start")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_start()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop(self):
+        '''Test check_snappy_service_stop()'''
+        self._set_service("stop", "some/stop")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop_unspecified(self):
+        '''Test check_snappy_service_stop() - unspecified'''
+        # self._set_service("stop", None)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop_empty(self):
+        '''Test check_snappy_service_stop() - empty'''
+        self._set_service("stop", "")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop_absolute_path(self):
+        '''Test check_snappy_service_stop() - absolute path'''
+        self._set_service("stop", "/foo/bar/some/stop")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_poststop(self):
+        '''Test check_snappy_service_poststop()'''
+        self._set_service("poststop", "some/poststop")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_poststop()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_poststop_unspecified(self):
+        '''Test check_snappy_service_poststop() - unspecified'''
+        # self._set_service("poststop", None)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_poststop()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_poststop_empty(self):
+        '''Test check_snappy_service_poststop() - empty'''
+        self._set_service("poststop", "")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_poststop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_poststop_absolute_path(self):
+        '''Test check_snappy_service_poststop() - absolute path'''
+        self._set_service("poststop", "/foo/bar/some/poststop")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_poststop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop_timeout(self):
+        '''Test check_snappy_service_stop_timeout()'''
+        self._set_service(key="start", value="bin/foo")
+        self._set_service(key="description", value="something")
+        self._set_service(key="stop-timeout", value=30)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop_timeout_empty(self):
+        '''Test check_snappy_service_stop_timeout() - empty'''
+        self._set_service(key="start", value="bin/foo")
+        self._set_service(key="description", value="something")
+        self._set_service(key="stop-timeout", value="")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop_timeout_bad(self):
+        '''Test check_snappy_service_stop_timeout() - bad'''
+        self._set_service(key="start", value="bin/foo")
+        self._set_service(key="description", value="something")
+        self._set_service(key="stop-timeout", value="a")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop_timeout_range_low(self):
+        '''Test check_snappy_service_stop_timeout() - out of range (low)'''
+        self._set_service(key="start", value="bin/foo")
+        self._set_service(key="description", value="something")
+        self._set_service(key="stop-timeout", value=-1)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_stop_timeout_range_high(self):
+        '''Test check_snappy_service_stop_timeout() - out of range (high)'''
+        self._set_service(key="start", value="bin/foo")
+        self._set_service(key="description", value="something")
+        self._set_service(key="stop-timeout", value=61)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_stop_timeout()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
