@@ -1,6 +1,6 @@
 '''cr_bin_path.py: click bin-path'''
 #
-# Copyright (C) 2014 Canonical Ltd.
+# Copyright (C) 2014-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -66,4 +66,29 @@ class ClickReviewBinPath(ClickReview):
                 t = 'error'
                 s = "'%s' is not executable" % \
                     (self.manifest['hooks'][app]['bin-path'])
+            self._add_result(t, n, s)
+
+    def check_binary_description(self):
+        '''Check package.yaml binary description'''
+        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+            return
+
+        my_dict = self._create_dict(self.pkg_yaml['binaries'])
+
+        for app in sorted(my_dict):
+            t = 'info'
+            n = 'package_yaml_description_present_%s' % (app)
+            s = 'OK'
+            if 'description' not in my_dict[app]:
+                s = 'required description field not specified'
+                self._add_result('error', n, s)
+                return
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'package_yaml_description_empty_%s' % (app)
+            s = 'OK'
+            if len(my_dict[app]['description']) == 0:
+                t = 'error'
+                s = "description is empty"
             self._add_result(t, n, s)

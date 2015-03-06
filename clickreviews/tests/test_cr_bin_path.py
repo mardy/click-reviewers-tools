@@ -26,6 +26,15 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
+    def _set_binary(self, key, value, name=None):
+        d = dict()
+        if name is None:
+            d['name'] = 'foo'
+        else:
+            d['name'] = name
+        d[key] = value
+        self.set_test_pkg_yaml("binaries", [d])
+
     def test_check_path(self):
         '''Test check_path()'''
         self.set_test_bin_path(self.default_appname, "bin/foo.exe")
@@ -112,6 +121,35 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
         # do the test
         c.check_peer_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_binary_description(self):
+        '''Test check_binary_description()'''
+        self._set_binary("description", "some description")
+        c = ClickReviewBinPath(self.test_name)
+        print(c.pkg_yaml)
+        c.check_binary_description()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_binary_description_unspecified(self):
+        '''Test check_binary_description() - unspecified'''
+        # self._set_binary("description", None)
+        c = ClickReviewBinPath(self.test_name)
+        c.check_binary_description()
+        r = c.click_report
+        # required check is done elsewhere, so no error
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_binary_description_empty(self):
+        '''Test check_binary_description() - empty'''
+        self._set_binary("description", "")
+        c = ClickReviewBinPath(self.test_name)
+        c.check_binary_description()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
