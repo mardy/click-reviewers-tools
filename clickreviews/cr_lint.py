@@ -1015,7 +1015,7 @@ exit 1
         self._add_result(t, n, s)
 
     def _extract_readme_md(self):
-        '''Extract '''
+        '''Extract meta/readme.md'''
         contents = None
         readme = os.path.join(self.unpack_dir, "meta/readme.md")
         if os.path.exists(readme):
