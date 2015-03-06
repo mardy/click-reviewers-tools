@@ -19,6 +19,7 @@ click-reviewers-tools (0.22) UNRELEASED; urgency=medium
   * apparmor-profile hook may be used anywhere apparmor can be, but not with
     apparmor itself (apparmor-profile is still redflagged)
   * implement some snappy package.yaml lint tests
+  * implement snappy readme.md lint tests
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 05 Mar 2015 17:36:00 -0600
 
