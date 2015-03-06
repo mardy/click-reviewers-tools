@@ -996,3 +996,20 @@ exit 1
             return
 
         self._verify_architecture(self.pkg_yaml, "package yaml")
+
+    def check_snappy_unknown_entries(self):
+        '''Check for any unknown fields'''
+        if not self.is_snap:
+            return
+
+        t = 'info'
+        n = 'snappy_unknown'
+        s = 'OK'
+        unknown = []
+        for f in self.pkg_yaml:
+            if f not in self.snappy_required + self.snappy_optional:
+                unknown.append(f)
+        if len(unknown) > 0:
+            t = 'warn'
+            s = "unknown entries in package.yaml: '%s'" % (",".join(unknown))
+        self._add_result(t, n, s)

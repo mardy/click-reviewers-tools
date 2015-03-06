@@ -1264,3 +1264,21 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_snappy_unknown_entries(self):
+        '''Test check_snappy_unknown_entries - none'''
+        self.set_test_pkg_yaml("name", "foo")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_unknown_entries()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_unknown_entries2(self):
+        '''Test check_snappy_unknown_entries - one'''
+        self.set_test_pkg_yaml("nonexistent", "bar")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_unknown_entries()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)

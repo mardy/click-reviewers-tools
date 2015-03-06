@@ -82,6 +82,19 @@ class ClickReview(object):
                                   "snappy-systemd",
                                   ]
 
+    snappy_required = ["name", "version"]
+    # optional snappy fields here (may be required by appstore)
+    snappy_optional = ["architecture",
+                       "binaries",
+                       "frameworks",
+                       "icon",
+                       "integration",
+                       "services",
+                       "source",
+                       "type",
+                       "vendor",  # replaces maintainer
+                       ]
+
     def __init__(self, fn, review_type, peer_hooks=None):
         self.click_package = fn
         self._check_path_exists()
@@ -272,8 +285,7 @@ class ClickReview(object):
         if not isinstance(self.pkg_yaml, dict):
             error("package yaml malformed:\n%s" % self.pkg_yaml)
 
-        required = ["name", "version"]  # snappy required
-        for f in required:
+        for f in self.snappy_required:
             if f not in self.pkg_yaml:
                 error("could not find required '%s' in package.yaml:\n%s" %
                       (f, yp))
@@ -282,21 +294,7 @@ class ClickReview(object):
                 # yaml.safe_load may make it an int, float or str
                 self.pkg_yaml[f] = str(self.pkg_yaml[f])
 
-        # optional snappy fields here (may be required by appstore)
-        optional = ["architecture",
-                    "binaries",
-                    "frameworks",
-                    "icon",
-                    "integration",
-                    "services",
-                    "source",
-                    "type",
-                    "vendor",
-                    ]
-
-        deprecated = ["maintainer"]
-
-        for f in optional:
+        for f in self.snappy_optional:
             if f in self.pkg_yaml:
                 if f in ["architecture", "frameworks"] and not \
                     (isinstance(self.pkg_yaml[f], str) or
@@ -312,14 +310,6 @@ class ClickReview(object):
                 elif f in ["icon", "source", "type", "vendor"] and not \
                         isinstance(self.pkg_yaml[f], str):
                     error("yaml malformed: '%s' is not str:\n%s" % (f, yp))
-
-        unknown = []
-        for f in self.pkg_yaml:
-            if f not in required + optional + deprecated:
-                unknown.append(f)
-        if len(unknown) > 0:
-            error("yaml malformed: unknown entries '%s'" % (",".join(unknown)),
-                  yp)
 
     def _verify_peer_hooks(self, my_hook):
         '''Compare manifest for required and allowed hooks'''
