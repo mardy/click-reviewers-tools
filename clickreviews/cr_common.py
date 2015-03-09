@@ -1,6 +1,6 @@
 '''common.py: common classes and functions'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -383,12 +383,12 @@ class ClickReview(object):
         for entry in lst:
             if topkey not in entry:
                 error("required field '%s' not present: %s" % (topkey, entry))
-            name = entry['name']
-            d[topkey] = dict()
+            name = entry[topkey]
+            d[name] = dict()
             for key in entry:
                 if key == topkey:
                     continue
-                d[topkey][key] = entry[key]
+                d[name][key] = entry[key]
         return d
 
     def check_peer_hooks(self, hooks_sublist=[]):
