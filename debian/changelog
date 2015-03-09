@@ -22,6 +22,7 @@ click-reviewers-tools (0.22) UNRELEASED; urgency=medium
   * implement snappy package.yaml services tests
   * implement snappy readme.md lint tests
   * implement snappy package.yaml binaries tests
+  * one more snappy workaround for check_package_filename()
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 05 Mar 2015 17:36:00 -0600
 

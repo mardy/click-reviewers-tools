@@ -687,13 +687,14 @@ exit 1
     def check_package_filename(self):
         '''Check filename of package'''
         tmp = os.path.basename(self.click_package).split('_')
+        click_package_bn = os.path.basename(self.click_package)
         t = 'info'
         n = 'package_filename_format'
         s = 'OK'
         if len(tmp) != 3:
             t = 'warn'
             s = "'%s' not of form $pkgname_$version_$arch.[click|snap]" % \
-                os.path.basename(self.click_package)
+                click_package_bn
         self._add_result(t, n, s)
 
         #  handle $pkgname.click or $pkgname.snap
@@ -706,7 +707,8 @@ exit 1
         s = 'OK'
         l = None
         if pkgname != self.click_pkgname:
-            if pkgname.startswith('com.ubuntu.snappy.'):
+            if pkgname.startswith('com.ubuntu.snappy.') or \
+               click_package_bn.startswith('com.ubuntu.snappy.'):
                 s = "OK (store snappy workaround)"
             else:
                 t = 'error'
