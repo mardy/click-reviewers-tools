@@ -80,8 +80,8 @@ class ClickReviewBinPath(ClickReview):
             n = 'package_yaml_description_present_%s' % (app)
             s = 'OK'
             if 'description' not in my_dict[app]:
-                s = 'required description field not specified'
-                self._add_result('error', n, s)
+                s = 'OK (skip missing)'
+                self._add_result('info', n, s)
                 return
             self._add_result(t, n, s)
 

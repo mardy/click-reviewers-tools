@@ -137,12 +137,11 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_binary_description_unspecified(self):
         '''Test check_binary_description() - unspecified'''
-        # self._set_binary("description", None)
+        self._set_binary("name", "foo")
         c = ClickReviewBinPath(self.test_name)
         c.check_binary_description()
         r = c.click_report
-        # required check is done elsewhere, so no error
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_binary_description_empty(self):
