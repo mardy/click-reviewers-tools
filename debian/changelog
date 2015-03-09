@@ -1,4 +1,4 @@
-click-reviewers-tools (0.22) UNRELEASED; urgency=medium
+click-reviewers-tools (0.22) vivid; urgency=medium
 
   [ Alexandre Abreu ]
   * Relax the rule that states that webapps with a model search path shouldn't
@@ -24,7 +24,7 @@ click-reviewers-tools (0.22) UNRELEASED; urgency=medium
   * implement snappy package.yaml binaries tests
   * one more snappy workaround for check_package_filename()
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 05 Mar 2015 17:36:00 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 09 Mar 2015 15:08:44 -0500
 
 click-reviewers-tools (0.21) vivid; urgency=medium
 
