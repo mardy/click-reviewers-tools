@@ -83,10 +83,11 @@ class ClickReviewSystemd(ClickReview):
 
     def _verify_required(self, my_dict, test_str):
         for app in sorted(my_dict):
+            f = os.path.basename(self.systemd_files[app])
             for r in self.required_keys:
                 found = False
                 t = 'info'
-                n = '%s_required_key_%s_%s' % (test_str, app, r)
+                n = '%s_required_key_%s_%s' % (test_str, r, f)
                 s = "OK"
                 if r in my_dict[app]:
                     if not isinstance(my_dict[app][r], str):
@@ -115,10 +116,11 @@ class ClickReviewSystemd(ClickReview):
 
     def _verify_optional(self, my_dict, test_str):
         for app in sorted(my_dict):
+            f = os.path.basename(self.systemd_files[app])
             for o in self.optional_keys:
                 found = False
                 t = 'info'
-                n = '%s_optional_key_%s_%s' % (test_str, app, o)
+                n = '%s_optional_key_%s_%s' % (test_str, o, f)
                 s = "OK"
                 if o in my_dict[app]:
                     if o == 'stop-timeout' and \
@@ -150,9 +152,10 @@ class ClickReviewSystemd(ClickReview):
 
     def _verify_unknown(self, my_dict, test_str):
         for app in sorted(my_dict):
+            f = os.path.basename(self.systemd_files[app])
             unknown = []
             t = 'info'
-            n = '%s_unknown_key_%s' % (test_str, app)
+            n = '%s_unknown_key_%s' % (test_str, f)
             s = "OK"
 
             for f in my_dict[app].keys():
@@ -182,8 +185,9 @@ class ClickReviewSystemd(ClickReview):
     def _verify_service_description(self, my_dict, test_str):
         '''Check snappy-systemd description'''
         for app in sorted(my_dict):
+            f = os.path.basename(self.systemd_files[app])
             t = 'info'
-            n = '%s_description_present_%s' % (test_str, app)
+            n = '%s_description_present_%s' % (test_str, f)
             s = 'OK'
             if 'description' not in my_dict[app]:
                 s = 'required description field not specified'
@@ -192,7 +196,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_description_empty_%s' % (test_str, app)
+            n = '%s_description_empty_%s' % (test_str, f)
             s = 'OK'
             if len(my_dict[app]['description']) == 0:
                 t = 'error'
@@ -215,9 +219,10 @@ class ClickReviewSystemd(ClickReview):
         for app in sorted(my_dict):
             if d not in my_dict[app]:
                 continue
+            f = os.path.basename(self.systemd_files[app])
 
             t = 'info'
-            n = '%s_%s_empty_%s' % (test_str, d, app)
+            n = '%s_%s_empty_%s' % (test_str, d, f)
             s = 'OK'
             if len(my_dict[app][d]) == 0:
                 t = 'error'
@@ -227,7 +232,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_%s_absolute_path_%s' % (test_str, d, app)
+            n = '%s_%s_absolute_path_%s' % (test_str, d, f)
             s = 'OK'
             if my_dict[app][d].startswith('/'):
                 t = 'error'
@@ -269,8 +274,9 @@ class ClickReviewSystemd(ClickReview):
 
     def _verify_service_stop_timeout(self, my_dict, test_str):
         for app in sorted(my_dict):
+            f = os.path.basename(self.systemd_files[app])
             t = 'info'
-            n = '%s_stop_timeout_%s' % (test_str, app)
+            n = '%s_stop_timeout_%s' % (test_str, f)
             s = "OK"
 
             if 'stop-timeout' not in my_dict[app]:
