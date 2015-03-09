@@ -1,3 +1,9 @@
+click-reviewers-tools (0.24) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 09 Mar 2015 16:22:37 -0500
+
 click-reviewers-tools (0.23) vivid; urgency=medium
 
   * fix pep8 warning when building on trusty
