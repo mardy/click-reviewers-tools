@@ -1283,6 +1283,20 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_snappy_unknown_obsoleted(self):
+        '''Test check_snappy_unknown_entries - obsoleted'''
+        self.set_test_pkg_yaml("maintainer", "bar")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_unknown_entries()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+        # Lets check that the right warning is triggering
+        print(r)
+        m = r['warn']['lint_snappy_unknown']['text']
+        self.assertIn("unknown entries in package.yaml: 'maintainer' "
+                      "(maintainer obsoleted)", m)
+
     def test_check_snappy_readme_md(self):
         '''Test check_snappy_readme_md()'''
         self.set_test_pkg_yaml("name", self.test_name.split('_')[0])

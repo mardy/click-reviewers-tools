@@ -1012,6 +1012,10 @@ exit 1
         if len(unknown) > 0:
             t = 'warn'
             s = "unknown entries in package.yaml: '%s'" % (",".join(unknown))
+            obsoleted = ['maintainer', 'ports']
+            tmp = list(set(unknown) & set(obsoleted))
+            if len(tmp) > 0:
+                s += " (%s obsoleted)" % ",".join(tmp)
         self._add_result(t, n, s)
 
     def _extract_readme_md(self):
