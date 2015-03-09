@@ -1289,11 +1289,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.check_snappy_unknown_entries()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         # Lets check that the right warning is triggering
         print(r)
-        m = r['warn']['lint_snappy_unknown']['text']
+        m = r['error']['lint_snappy_unknown']['text']
         self.assertIn("unknown entries in package.yaml: 'maintainer' "
                       "(maintainer obsoleted)", m)
 

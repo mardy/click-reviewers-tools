@@ -1015,6 +1015,7 @@ exit 1
             obsoleted = ['maintainer', 'ports']
             tmp = list(set(unknown) & set(obsoleted))
             if len(tmp) > 0:
+                t = 'error'
                 s += " (%s obsoleted)" % ",".join(tmp)
         self._add_result(t, n, s)
 
