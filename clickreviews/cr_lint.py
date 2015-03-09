@@ -621,8 +621,9 @@ exit 1
         pkgname_base = self.click_pkgname.split('.')[-1]
         if len(self.manifest['description']) < len(pkgname_base):
             t = 'warn'
-            if self.is_snap and self.manifest['description'] == '\n':
-                s = "manifest description is '\\n'. Is meta/readme.md " + \
+            if self.is_snap and (self.manifest['description'] == '\n' or
+                                 self.manifest['description'] == ''):
+                s = "manifest description is empty. Is meta/readme.md " + \
                     "formatted correctly?"
             else:
                 s = "'%s' is too short" % self.manifest['description']
