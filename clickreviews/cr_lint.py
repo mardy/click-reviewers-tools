@@ -621,7 +621,12 @@ exit 1
         pkgname_base = self.click_pkgname.split('.')[-1]
         if len(self.manifest['description']) < len(pkgname_base):
             t = 'warn'
-            s = "'%s' is too short" % self.manifest['description']
+            if self.is_snap and self.manifest['description'] == '\n':
+                s = "manifest description is '\\n'. Is meta/readme.md " + \
+                    "formatted correctly?"
+            else:
+                s = "'%s' is too short" % self.manifest['description']
+
         self._add_result(t, n, s)
 
     def check_framework(self):
