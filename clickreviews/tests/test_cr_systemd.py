@@ -581,7 +581,6 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         '''Test check_snappy_service_description()'''
         self._set_service("description", "some description")
         c = ClickReviewSystemd(self.test_name)
-        print(c.pkg_yaml)
         c.check_snappy_service_description()
         r = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
