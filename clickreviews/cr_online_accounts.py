@@ -1,6 +1,6 @@
 '''cr_online_accounts.py: click online accounts'''
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import lxml.etree as etree
 
 class ClickReviewAccounts(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         peer_hooks = dict()
         peer_hooks['account-application'] = dict()
         peer_hooks['account-application']['allowed'] = \
@@ -54,7 +54,8 @@ class ClickReviewAccounts(ClickReview):
         peer_hooks['account-qml-plugin']['allowed'] = \
             peer_hooks['account-qml-plugin']['required']
 
-        ClickReview.__init__(self, fn, "online_accounts", peer_hooks)
+        ClickReview.__init__(self, fn, "online_accounts", peer_hooks=peer_hooks,
+                             overrides=overrides)
 
         self.accounts_files = dict()
         self.accounts = dict()

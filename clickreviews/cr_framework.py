@@ -1,6 +1,6 @@
 '''cr_framework.py: click framework'''
 #
-# Copyright (C) 2014 Canonical Ltd.
+# Copyright (C) 2014-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,13 +22,14 @@ import os
 
 class ClickReviewFramework(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         peer_hooks = dict()
         my_hook = 'framework'
         peer_hooks[my_hook] = dict()
         peer_hooks[my_hook]['allowed'] = ClickReview.framework_allowed_peer_hooks
         peer_hooks[my_hook]['required'] = peer_hooks[my_hook]['allowed']
-        ClickReview.__init__(self, fn, "framework", peer_hooks=peer_hooks)
+        ClickReview.__init__(self, fn, "framework", peer_hooks=peer_hooks,
+                             overrides=overrides)
 
         self.frameworks_file = dict()
         self.frameworks = dict()

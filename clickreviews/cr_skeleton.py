@@ -1,6 +1,6 @@
 '''cr_skeleton.py: click skeleton'''
 #
-# Copyright (C) 2014 Canonical Ltd.
+# Copyright (C) 2014-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ from clickreviews.cr_common import ClickReview
 
 class ClickReviewSkeleton(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         # Many test classes are for verify click hooks. 'peer_hooks' is used
         # to declare what hooks may be use with my_hook. When using this
         # mechanism, ClickReview.check_peer_hooks() is run for you.
@@ -31,7 +31,8 @@ class ClickReviewSkeleton(ClickReview):
         peer_hooks[my_hook]['allowed'] = ["desktop", "apparmor", "urls"]
         peer_hooks[my_hook]['required'] = ["desktop", "apparmor"]
 
-        ClickReview.__init__(self, fn, "skeleton", peer_hooks)
+        ClickReview.__init__(self, fn, "skeleton", peer_hooks=peer_hooks,
+                             overrides=overrides)
 
         # If not a hooks test, skip the above and omit peer_hooks like so:
         # ClickReview.__init__(self, fn, "skeleton")

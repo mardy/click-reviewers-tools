@@ -1,6 +1,6 @@
 '''cr_push_helper.py: click push-helper checks'''
 #
-# Copyright (C) 2014 Canonical Ltd.
+# Copyright (C) 2014-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,14 +23,15 @@ import os
 
 class ClickReviewPushHelper(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         peer_hooks = dict()
         my_hook = 'push-helper'
         peer_hooks[my_hook] = dict()
         peer_hooks[my_hook]['allowed'] = ['apparmor']
         peer_hooks[my_hook]['required'] = ['apparmor']
 
-        ClickReview.__init__(self, fn, "push_helper", peer_hooks=peer_hooks)
+        ClickReview.__init__(self, fn, "push_helper", peer_hooks=peer_hooks,
+                             overrides=overrides)
 
         self.required_keys = ['exec']
         self.optional_keys = ['app_id']

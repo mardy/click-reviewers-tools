@@ -23,14 +23,15 @@ import os
 
 class ClickReviewSystemd(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         peer_hooks = dict()
         my_hook = 'snappy-systemd'
         peer_hooks[my_hook] = dict()
         peer_hooks[my_hook]['required'] = ["apparmor"]
         peer_hooks[my_hook]['allowed'] = peer_hooks[my_hook]['required']
 
-        ClickReview.__init__(self, fn, "snappy-systemd", peer_hooks=peer_hooks)
+        ClickReview.__init__(self, fn, "snappy-systemd", peer_hooks=peer_hooks,
+                             overrides=overrides)
 
         # snappy-systemd currently only allows specifying:
         # - start (required)

@@ -1,6 +1,6 @@
 '''cr_desktop.py: click desktop checks'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,14 +28,15 @@ from xdg.Exceptions import ParsingError as xdgParsingError
 
 class ClickReviewDesktop(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
+    def __init__(self, fn, overrides=None):
         peer_hooks = dict()
         my_hook = 'desktop'
         peer_hooks[my_hook] = dict()
         peer_hooks[my_hook]['allowed'] = ClickReview.app_allowed_peer_hooks
         peer_hooks[my_hook]['required'] = ["apparmor"]
 
-        ClickReview.__init__(self, fn, "desktop", peer_hooks=peer_hooks)
+        ClickReview.__init__(self, fn, "desktop", peer_hooks=peer_hooks,
+                             overrides=overrides)
 
         self.desktop_files = dict()  # click-show-files and a couple tests
         self.desktop_entries = dict()

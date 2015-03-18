@@ -35,53 +35,12 @@ set_rc() {
 
 prefer_local click-show-files "$c"
 
-echo ""
-echo "= click-check-lint ="
-prefer_local click-check-lint "$c"
-
-echo ""
-echo "= click-check-bin-path ="
-prefer_local click-check-bin-path "$c"
-
-echo ""
-echo "= click-check-content-hub ="
-prefer_local click-check-content-hub "$c"
-
-echo ""
-echo "= click-check-desktop ="
-prefer_local click-check-desktop "$c"
-
-echo ""
-echo "= click-check-framework ="
-prefer_local click-check-framework "$c"
-
-echo ""
-echo "= click-check-functional ="
-prefer_local click-check-functional "$c"
-
-echo ""
-echo "= click-check-online-accounts ="
-prefer_local click-check-online-accounts "$c"
-
-echo ""
-echo "= click-check-push-helper ="
-prefer_local click-check-push-helper "$c"
-
-echo ""
-echo "= click-check-scope ="
-prefer_local click-check-scope "$c"
-
-echo ""
-echo "= click-check-security ="
-prefer_local click-check-security "$c"
-
-echo ""
-echo "= click-check-systemd ="
-prefer_local click-check-systemd "$c"
-
-echo ""
-echo "= click-check-url-dispatcher ="
-prefer_local click-check-url-dispatcher "$c"
+CLICK_CHECKS=`ls bin/click-check-* | grep -v click-check-skeleton`
+for check in ${CLICK_CHECKS}; do
+    echo ""
+    echo "=" $check "="
+    prefer_local $check "$c"
+done
 
 echo ""
 echo ""

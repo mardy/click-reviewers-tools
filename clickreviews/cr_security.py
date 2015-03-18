@@ -43,7 +43,8 @@ class ClickReviewSecurity(ClickReview):
             ClickReview.service_allowed_peer_hooks
         peer_hooks[my_hook2]['required'] = []
 
-        ClickReview.__init__(self, fn, "security", peer_hooks=peer_hooks)
+        ClickReview.__init__(self, fn, "security", peer_hooks=peer_hooks,
+                             overrides=overrides)
 
         local_copy = os.path.join(os.path.dirname(__file__),
                                   '../data/apparmor-easyprof-ubuntu.json')
@@ -111,9 +112,7 @@ class ClickReviewSecurity(ClickReview):
                 'policy_version': 1.3,
             },
         }
-        if overrides is None:
-            overrides = {}
-        framework_overrides = overrides.get('framework', {})
+        framework_overrides = self.overrides.get('framework', {})
         self._override_framework_policies(framework_overrides)
 
         self.security_manifests = dict()

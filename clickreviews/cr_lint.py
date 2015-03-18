@@ -33,7 +33,7 @@ class ClickReviewLint(ClickReview):
 
     def __init__(self, fn, overrides=None):
         '''Set up the class.'''
-        ClickReview.__init__(self, fn, "lint")
+        ClickReview.__init__(self, fn, "lint", overrides=overrides)
         self.control_files = dict()
         self._list_control_files()
         # Valid values for Architecture in DEBIAN/control. Note:
@@ -117,10 +117,6 @@ class ClickReviewLint(ClickReview):
         self.snappy_redflagged_types = ['framework',
                                         # 'oem',           # TBI
                                         ]
-
-        if overrides is None:
-            overrides = {}
-        self.overrides = overrides
 
     def _list_control_files(self):
         '''List all control files with their full path.'''

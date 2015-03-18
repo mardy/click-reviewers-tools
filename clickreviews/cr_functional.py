@@ -1,6 +1,6 @@
 '''cr_functional.py: click functional'''
 #
-# Copyright (C) 2013-2014 Canonical Ltd.
+# Copyright (C) 2013-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ from clickreviews.cr_common import ClickReview, open_file_read
 
 class ClickReviewFunctional(ClickReview):
     '''This class represents click lint reviews'''
-    def __init__(self, fn):
-        ClickReview.__init__(self, fn, "functional")
+    def __init__(self, fn, overrides=None):
+        ClickReview.__init__(self, fn, "functional", overrides=overrides)
 
         self.qml_files = []
         for i in self.pkg_files:

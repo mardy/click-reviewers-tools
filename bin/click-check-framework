@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 '''click-check-framework: perform click framework checks'''
 #
-# Copyright (C) 2014 Canonical Ltd.
+# Copyright (C) 2014-2015 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+import json
 import sys
 
 import clickreviews.cr_common as cr_common
@@ -25,7 +26,14 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         cr_common.error("Must give path to click package")
 
-    review = cr_framework.ClickReviewFramework(sys.argv[1])
+    # extract args
+    fn = sys.argv[1]
+    if len(sys.argv) > 2:
+        overrides = json.loads(sys.argv[2])
+    else:
+        overrides = None
+
+    review = cr_framework.ClickReviewFramework(fn, overrides=overrides)
     review.do_checks()
     rc = review.do_report()
     sys.exit(rc)

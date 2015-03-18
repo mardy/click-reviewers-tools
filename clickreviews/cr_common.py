@@ -95,7 +95,7 @@ class ClickReview(object):
                        "vendor",  # replaces maintainer
                        ]
 
-    def __init__(self, fn, review_type, peer_hooks=None):
+    def __init__(self, fn, review_type, peer_hooks=None, overrides=None):
         self.click_package = fn
         self._check_path_exists()
         if not self.click_package.endswith(".click") and \
@@ -164,6 +164,7 @@ class ClickReview(object):
         self.valid_frameworks = self._extract_click_frameworks()
 
         self.peer_hooks = peer_hooks
+        self.overrides = overrides if overrides is not None else {}
 
     def _extract_click_frameworks(self):
         '''Extract installed click frameworks'''
