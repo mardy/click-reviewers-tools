@@ -1,8 +1,9 @@
-click-reviewers-tools (0.24) UNRELEASED; urgency=medium
+click-reviewers-tools (0.24) vivid; urgency=medium
 
-  * 
+  * don't fail if DEBIAN/md5sums doesn't exist with snap packages. The snap
+    package format uses a different method for integrity checking
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 09 Mar 2015 16:22:37 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Mar 2015 11:21:17 -0500
 
 click-reviewers-tools (0.23) vivid; urgency=medium
 

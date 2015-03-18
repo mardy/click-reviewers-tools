@@ -135,8 +135,11 @@ class ClickReviewLint(ClickReview):
             n = 'DEBIAN_has_%s' % os.path.basename(f)
             s = "OK"
             if not os.path.isfile(self.control_files[os.path.basename(f)]):
-                t = 'error'
-                s = "'%s' not found in DEBIAN/" % os.path.basename(f)
+                if self.is_snap and os.path.basename(f) == 'md5sums':
+                    s = "OK (skip md5sums with snap)"
+                else:
+                    t = 'error'
+                    s = "'%s' not found in DEBIAN/" % os.path.basename(f)
             self._add_result(t, n, s)
 
         found = []
@@ -294,6 +297,8 @@ class ClickReviewLint(ClickReview):
 
     def check_md5sums(self):
         '''Check md5sums()'''
+        if self.is_snap:
+            return
         curdir = os.getcwd()
         fh = open_file_read(self.control_files["md5sums"])
         badsums = []
