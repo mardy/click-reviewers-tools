@@ -610,3 +610,20 @@ def recursive_rm(dirPath, contents_only=False):
             recursive_rm(path)
     if contents_only is False:
         os.rmdir(dirPath)
+
+
+def run_click_check(cls):
+    if len(sys.argv) < 2:
+        error("Must give path to click package")
+
+    # extract args
+    fn = sys.argv[1]
+    if len(sys.argv) > 2:
+        overrides = json.loads(sys.argv[2])
+    else:
+        overrides = None
+
+    review = cls(fn, overrides=overrides)
+    review.do_checks()
+    rc = review.do_report()
+    sys.exit(rc)
