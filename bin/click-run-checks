@@ -11,8 +11,10 @@ if [ ! -f "$c" ]; then
 fi
 
 # prefer local script for testing, otherwise use system location
+CLICK_CHECKS_BIN_PATH="$(dirname $(readlink -f "$0"))"
+
 prefer_local() {
-    path="$(dirname $(readlink -f "$0"))/$1"
+    path="${CLICK_CHECKS_BIN_PATH}/$1"
     if [ -x $path ]; then
         "$path" "$2" || set_rc "$?"
         return
@@ -35,8 +37,10 @@ set_rc() {
 
 prefer_local click-show-files "$c"
 
-CLICK_CHECKS=`ls bin/click-check-* | grep -v click-check-skeleton`
-for check in ${CLICK_CHECKS}; do
+CLICK_CHECKS=$(ls ${CLICK_CHECKS_BIN_PATH}/click-check-* | grep -v click-check-skeleton | grep -v click-check-lint)
+CLICK_CHECKS="click-check-lint ${CLICK_CHECKS}"
+for check_path in ${CLICK_CHECKS}; do
+    check=$(basename ${check_path} ${CLICK_CHECKS_BIN_PATH})
     echo ""
     echo "=" $check "="
     prefer_local $check "$c"
