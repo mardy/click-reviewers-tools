@@ -40,12 +40,20 @@ echo "= click-check-lint ="
 prefer_local click-check-lint "$c"
 
 echo ""
+echo "= click-check-bin-path ="
+prefer_local click-check-bin-path "$c"
+
+echo ""
 echo "= click-check-content-hub ="
 prefer_local click-check-content-hub "$c"
 
 echo ""
 echo "= click-check-desktop ="
 prefer_local click-check-desktop "$c"
+
+echo ""
+echo "= click-check-framework ="
+prefer_local click-check-framework "$c"
 
 echo ""
 echo "= click-check-functional ="
@@ -68,16 +76,12 @@ echo "= click-check-security ="
 prefer_local click-check-security "$c"
 
 echo ""
+echo "= click-check-systemd ="
+prefer_local click-check-systemd "$c"
+
+echo ""
 echo "= click-check-url-dispatcher ="
 prefer_local click-check-url-dispatcher "$c"
-
-echo ""
-echo "= click-check-bin-path ="
-prefer_local click-check-bin-path "$c"
-
-echo ""
-echo "= click-check-framework ="
-prefer_local click-check-framework "$c"
 
 echo ""
 echo ""

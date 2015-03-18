@@ -2,8 +2,10 @@ click-reviewers-tools (0.24) vivid; urgency=medium
 
   * don't fail if DEBIAN/md5sums doesn't exist with snap packages. The snap
     package format uses a different method for integrity checking
+  * add bin/click-check-systemd
+  * adjust bin/click-run-checks to call click-check-systemd
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Mar 2015 11:21:17 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 Mar 2015 14:27:51 -0500
 
 click-reviewers-tools (0.23) vivid; urgency=medium
 
