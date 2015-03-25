@@ -85,13 +85,16 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self.set_test_systemd(self.default_appname,
                               key="description",
                               value="something")
+        self.set_test_systemd(self.default_appname,
+                              key="stop",
+                              value="/bin/foo-stop")
         c = ClickReviewSystemd(self.test_name)
         c.check_required()
         r = c.click_report
-        expected_counts = {'info': -1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_required_multiple(self):
+    def test_check_required_multiple2(self):
         '''Test check_required() - multiple with nonexistent'''
         self.set_test_systemd(self.default_appname,
                               key="start",
