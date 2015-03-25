@@ -851,7 +851,44 @@ class TestClickReview(TestCase):
 
     def set_test_bin_path(self, app, value):
         '''Set bin-path entries. If value is None, remove bin-path from
-           manifest'''
+           manifest and yaml. If app != value, set 'exec' in the yaml
+
+           Note the click manifest and the package.yaml use different
+           storage types. pkg_yaml['binaries'] is a list of dictionaries where
+           manifest['hooks'] is a dictionary of dictionaries. This function
+           sets the manifest entry and then a yaml entry with 'name' and 'exec'
+           fields.
+
+             manifest['hooks'][app]['bin-path'] = value
+             pkg_yaml['binaries'][*]['name'] = app
+             pkg_yaml['binaries'][*]['exec'] = value
+        '''
+
+        # Update the package.yaml
+        if value is None:
+            if 'binaries' in self.test_pkg_yaml:
+                for b in self.test_pkg_yaml['binaries']:
+                    if 'name' in b and b['name'] == app:
+                        self.test_pkg_yaml['binaries'].remove(b)
+                        break
+        else:
+            found = False
+            if 'binaries' in self.test_pkg_yaml:
+                for b in self.test_pkg_yaml['binaries']:
+                    if 'name' in b and b['name'] == app:
+                        found = True
+                        break
+            if not found:
+                if 'binaries' not in self.test_pkg_yaml:
+                    self.test_pkg_yaml['binaries'] = []
+                if value == app:
+                    self.test_pkg_yaml['binaries'].append({'name': app})
+                else:
+                    self.test_pkg_yaml['binaries'].append({'name': app,
+                                                           'exec': value})
+        self._update_test_pkg_yaml()
+
+        # Update the click manifest (we still support click format)
         if value is None:
             if app in self.test_bin_path:
                 self.test_bin_path.pop(app)
@@ -859,6 +896,8 @@ class TestClickReview(TestCase):
             if app not in self.test_bin_path:
                 self.test_bin_path[app] = dict()
             self.test_bin_path[app] = value
+
+        # Now update TEST_BIN_PATH
         self._update_test_bin_path()
 
     def set_test_framework(self, app, key, value):

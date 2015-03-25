@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview
+from clickreviews.cr_common import ClickReview, error
 import os
 
 
@@ -32,16 +32,47 @@ class ClickReviewBinPath(ClickReview):
         ClickReview.__init__(self, fn, "bin-path", peer_hooks=peer_hooks,
                              overrides=overrides)
 
+        # snappy yaml currently only allows specifying:
+        # - exec (optional)
+        # - description (optional)
+        # - TODO: caps (optional)
+        self.required_keys = []
+        self.optional_keys = ['description', 'exec']
+
+        self.bin_paths_files = dict()
         self.bin_paths = dict()
+
+        if self.is_snap and 'binaries' in self.pkg_yaml:
+            for binary in self.pkg_yaml['binaries']:
+                if 'name' not in binary:
+                    error("package.yaml malformed: required 'name' not found "
+                          "for entry in %s" % self.pkg_yaml['binaries'])
+                elif not isinstance(binary['name'], str):
+                    error("package.yaml malformed: required 'name' is not str"
+                          "for entry in %s" % self.pkg_yaml['binaries'])
+
+                app = os.path.basename(binary['name'])
+                if 'exec' in binary:
+                    rel = binary['exec']
+                else:
+                    rel = binary['name']
+                self.bin_paths[app] = rel
+                self.bin_paths_files[app] = self._extract_bin_path(app)
+
+        # Now verify click manifest
         for app in self.manifest['hooks']:
-            if 'bin-path' not in self.manifest['hooks'][app]:
+            if not self.is_snap and \
+               'bin-path' not in self.manifest['hooks'][app]:
+                # non-snappy clicks don't need bin-path hook
                 #  msg("Skipped missing bin-path hook for '%s'" % app)
                 continue
-            self.bin_paths[app] = self._extract_bin_path(app)
+            elif 'bin-path' in self.manifest['hooks'][app] and \
+                 not isinstance(self.manifest['hooks'][app]['bin-path'], str):
+                error("manifest malformed: hooks/%s/bin-path is not str" % app)
 
     def _extract_bin_path(self, app):
         '''Get bin-path for app'''
-        rel = self.manifest['hooks'][app]['bin-path']
+        rel = self.bin_paths[app]
         fn = os.path.join(self.unpack_dir, rel)
         if not os.path.exists(fn):
             error("Could not find '%s'" % rel)
@@ -49,9 +80,121 @@ class ClickReviewBinPath(ClickReview):
 
     def _check_bin_path_executable(self, app):
         '''Check that the provided path exists'''
-        rel = self.manifest['hooks'][app]['bin-path']
-        fn = os.path.join(self.unpack_dir, rel)
+        fn = self.bin_paths_files[app]
         return os.access(fn, os.X_OK)
+
+    def check_click_hooks(self):
+        '''Check that the click hooks match the package.yaml'''
+        t = 'info'
+        n = 'manifest_matches_yaml'
+        s = "OK"
+        extra = []
+        for app in self.manifest['hooks']:
+            if app not in self.bin_paths:
+                extra.append(app)
+        if len(extra) > 0:
+            t = 'error'
+            s = 'manifest has extra bin-path hooks: %s' % ",".join(extra)
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'yaml_matches_manifest'
+        s = "OK"
+        missing = []
+        for app in self.bin_paths:
+            if app not in self.manifest['hooks'] or \
+               'bin-path' not in self.manifest['hooks'][app]:
+                missing.append(app)
+        if len(missing) > 0:
+            t = 'error'
+            s = 'manifest has missing bin-path hooks: %s' % ",".join(missing)
+        self._add_result(t, n, s)
+
+    def _verify_required(self, my_dict, test_str):
+        for app in sorted(my_dict):
+            for r in self.required_keys:
+                found = False
+                t = 'info'
+                n = '%s_required_key_%s_%s' % (test_str, r, app)
+                s = "OK"
+                if r in my_dict[app]:
+                    if not isinstance(my_dict[app][r], str):
+                        t = 'error'
+                        s = "'%s' is not a string" % r
+                    elif my_dict[app][r] == "":
+                        t = 'error'
+                        s = "'%s' is empty" % r
+                    else:
+                        found = True
+                if not found and t != 'error':
+                    t = 'error'
+                    s = "Missing required field '%s'" % r
+                self._add_result(t, n, s)
+
+    def check_snappy_required(self):
+        '''Check for package.yaml required fields'''
+        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+            return
+        self._verify_required(self._create_dict(self.pkg_yaml['binaries']),
+                              'package_yaml')
+
+    def _verify_optional(self, my_dict, test_str):
+        for app in sorted(my_dict):
+            for o in self.optional_keys:
+                found = False
+                t = 'info'
+                n = '%s_optional_key_%s_%s' % (test_str, o, app)
+                s = "OK"
+                if o in my_dict[app]:
+                    if o == 'stop-timeout' and \
+                       not isinstance(my_dict[app][o], int):
+                        t = 'error'
+                        s = "'%s' is not an integer" % o
+                    elif not isinstance(my_dict[app][o], str):
+                        t = 'error'
+                        s = "'%s' is not a string" % o
+                    elif my_dict[app][o] == "":
+                        t = 'error'
+                        s = "'%s' is empty" % o
+                    else:
+                        found = True
+                if not found and t != 'error':
+                    s = "OK (skip missing)"
+                self._add_result(t, n, s)
+
+    def check_snappy_optional(self):
+        '''Check snappy packate.yaml optional fields'''
+        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+            return
+        self._verify_optional(self._create_dict(self.pkg_yaml['binaries']),
+                              'package_yaml')
+
+    def _verify_unknown(self, my_dict, test_str):
+        for app in sorted(my_dict):
+            unknown = []
+            t = 'info'
+            n = '%s_unknown_key_%s' % (test_str, app)
+            s = "OK"
+
+            for f in my_dict[app].keys():
+                if f not in self.required_keys and \
+                   f not in self.optional_keys:
+                    unknown.append(f)
+
+            if len(unknown) == 1:
+                t = 'warn'
+                s = "Unknown field '%s'" % unknown[0]
+            elif len(unknown) > 1:
+                t = 'warn'
+                s = "Unknown fields '%s'" % ", ".join(unknown)
+            self._add_result(t, n, s)
+
+    def check_snappy_unknown(self):
+        '''Check snappy package.yaml unknown fields'''
+        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+            return
+        self._verify_unknown(self._create_dict(self.pkg_yaml['binaries']),
+                             'package_yaml')
 
     def check_path(self):
         '''Check path exists'''
@@ -59,14 +202,14 @@ class ClickReviewBinPath(ClickReview):
         n = 'path exists'
         s = "OK"
 
-        for app in sorted(self.bin_paths):
+        for app in sorted(self.bin_paths_files):
             t = 'info'
             n = 'path executable'
             s = "OK"
             if not self._check_bin_path_executable(app):
                 t = 'error'
                 s = "'%s' is not executable" % \
-                    (self.manifest['hooks'][app]['bin-path'])
+                    os.path.relpath(self.bin_paths_files[app], self.unpack_dir)
             self._add_result(t, n, s)
 
     def check_binary_description(self):

@@ -26,14 +26,20 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
-    def _set_binary(self, key, value, name=None):
+    def _set_binary(self, entries, name=None):
         d = dict()
         if name is None:
-            d['name'] = 'foo'
+            d['name'] = self.default_appname
         else:
             d['name'] = name
-        d[key] = value
+        for (key, value) in entries:
+            d[key] = value
         self.set_test_pkg_yaml("binaries", [d])
+
+        if 'exec' in d:
+            self.set_test_bin_path(d['name'], d['exec'])
+        else:
+            self.set_test_bin_path(d['name'], d['name'])
 
     def test_check_path(self):
         '''Test check_path()'''
@@ -51,12 +57,12 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         c = ClickReviewBinPath(self.test_name)
         c.check_path()
         r = c.click_report
-        # We should end up with 1 info
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_peer_hooks(self):
         '''Test check_peer_hooks()'''
+        self.set_test_bin_path(self.default_appname, self.default_appname)
         c = ClickReviewBinPath(self.test_name)
 
         # create a new hooks database for our peer hooks tests
@@ -80,6 +86,7 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_peer_hooks_disallowed(self):
         '''Test check_peer_hooks() - disallowed'''
+        self.set_test_bin_path(self.default_appname, self.default_appname)
         c = ClickReviewBinPath(self.test_name)
 
         # create a new hooks database for our peer hooks tests
@@ -106,6 +113,7 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_peer_hooks_required(self):
         '''Test check_peer_hooks() - required'''
+        self.set_test_bin_path(self.default_appname, self.default_appname)
         c = ClickReviewBinPath(self.test_name)
 
         # create a new hooks database for our peer hooks tests
@@ -125,9 +133,96 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_required(self):
+        '''Test check_snappy_required()'''
+        self._set_binary([("exec", "bin/foo")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_required()
+        r = c.click_report
+        # Only 'name' is required at this time so 0s for all
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_required_empty_value(self):
+        '''Test check_snappy_required() - empty exec'''
+        self._set_binary([("exec", "")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_required()
+        r = c.click_report
+        # Only 'name' is required at this time so 0s for all
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_required_bad_value(self):
+        '''Test check_snappy_required() - bad exec'''
+        self._set_binary([("exec", [])])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_required()
+        r = c.click_report
+        # Only 'name' is required at this time so 0s for all
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_required_multiple(self):
+        '''Test check_snappy_required() - multiple'''
+        self._set_binary([("exec", "bin/foo"),
+                          ("description", "foo desc")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_required()
+        r = c.click_report
+        # Only 'name' is required at this time so 0s for all
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_optional(self):
+        '''Test check_snappy_optional()'''
+        self._set_binary([("description", "some description")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_optional()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_optional_empty_value(self):
+        '''Test check_snappy_optional() - empty description'''
+        self._set_binary([("description", "")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_optional()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_optional_bad_value(self):
+        '''Test check_snappy_optional() - bad description'''
+        self._set_binary([("description", [])])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_optional()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_unknown(self):
+        '''Test check_snappy_unknown()'''
+        self._set_binary([("nonexistent", "foo")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_unknown()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_unknown_multiple(self):
+        '''Test check_snappy_unknown() - multiple'''
+        self._set_binary([("exec", "bin/foo"),
+                          ("nonexistent", "foo")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_unknown()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_binary_description(self):
         '''Test check_binary_description()'''
-        self._set_binary("description", "some description")
+        self._set_binary([("description", "some description")])
         c = ClickReviewBinPath(self.test_name)
         c.check_binary_description()
         r = c.click_report
@@ -136,7 +231,7 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_binary_description_unspecified(self):
         '''Test check_binary_description() - unspecified'''
-        self._set_binary("name", "foo")
+        self._set_binary([("exec", "foo")])
         c = ClickReviewBinPath(self.test_name)
         c.check_binary_description()
         r = c.click_report
@@ -145,9 +240,40 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_binary_description_empty(self):
         '''Test check_binary_description() - empty'''
-        self._set_binary("description", "")
+        self._set_binary([("description", "")])
         c = ClickReviewBinPath(self.test_name)
         c.check_binary_description()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_click_hooks(self):
+        '''Test check_click_hooks()'''
+        self._set_binary([("description", "some description")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_click_hooks()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_click_hooks_missing_hook(self):
+        '''Test check_click_hooks() - missing'''
+        self._set_binary([("description", "some description")])
+        c = ClickReviewBinPath(self.test_name)
+        del c.manifest['hooks'][self.default_appname]['bin-path']
+        c.check_click_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_click_hooks_added_hook(self):
+        '''Test check_click_hooks() - added'''
+        self._set_binary([("description", "some description")])
+        c = ClickReviewBinPath(self.test_name)
+        tmp = c.manifest['hooks']
+        tmp['extra-app'] = c.manifest['hooks'][self.default_appname]
+        c.manifest['hooks'] = tmp
+        c.check_click_hooks()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
