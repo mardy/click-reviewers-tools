@@ -33,12 +33,11 @@ class ClickReviewBinPath(ClickReview):
                              overrides=overrides)
 
         # snappy yaml currently only allows specifying:
-        # - name (required)
-        # - exec (required)
-        # - TODO: caps (optional)
+        # - exec (optional)
         # - description (optional)
-        self.required_keys = ['exec']
-        self.optional_keys = ['description']
+        # - TODO: caps (optional)
+        self.required_keys = []
+        self.optional_keys = ['description', 'exec']
 
         self.bin_paths_files = dict()
         self.bin_paths = dict()

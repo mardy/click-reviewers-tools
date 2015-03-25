@@ -136,7 +136,8 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         c = ClickReviewBinPath(self.test_name)
         c.check_snappy_required()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        # Only 'name' is required at this time
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_required_empty_value(self):
@@ -145,7 +146,8 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         c = ClickReviewBinPath(self.test_name)
         c.check_snappy_required()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        # Only 'name' is required at this time
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_required_bad_value(self):
@@ -154,7 +156,8 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         c = ClickReviewBinPath(self.test_name)
         c.check_snappy_required()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        # Only 'name' is required at this time
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_required_multiple(self):
@@ -164,7 +167,8 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         c = ClickReviewBinPath(self.test_name)
         c.check_snappy_required()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        # Only 'name' is required at this time
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_optional(self):
@@ -173,7 +177,7 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         c = ClickReviewBinPath(self.test_name)
         c.check_snappy_optional()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_empty_value(self):
