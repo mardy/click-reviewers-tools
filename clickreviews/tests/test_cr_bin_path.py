@@ -167,6 +167,33 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_snappy_optional(self):
+        '''Test check_snappy_optional()'''
+        self._set_binary([("description", "some description")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_optional()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_optional_empty_value(self):
+        '''Test check_snappy_optional() - empty exec'''
+        self._set_binary([("description", "")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_optional()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_optional_bad_value(self):
+        '''Test check_snappy_optional() - bad exec'''
+        self._set_binary([("description", [])])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_optional()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_binary_description(self):
         '''Test check_binary_description()'''
         self._set_binary([("description", "some description")])

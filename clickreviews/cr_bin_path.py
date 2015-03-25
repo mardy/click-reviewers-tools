@@ -96,6 +96,37 @@ class ClickReviewBinPath(ClickReview):
         self._verify_required(self._create_dict(self.pkg_yaml['binaries']),
                               'package_yaml')
 
+    def _verify_optional(self, my_dict, test_str):
+        for app in sorted(my_dict):
+            for o in self.optional_keys:
+                found = False
+                t = 'info'
+                n = '%s_optional_key_%s_%s' % (test_str, o, app)
+                s = "OK"
+                if o in my_dict[app]:
+                    if o == 'stop-timeout' and \
+                       not isinstance(my_dict[app][o], int):
+                        t = 'error'
+                        s = "'%s' is not an integer" % o
+                    elif not isinstance(my_dict[app][o], str):
+                        t = 'error'
+                        s = "'%s' is not a string" % o
+                    elif my_dict[app][o] == "":
+                        t = 'error'
+                        s = "'%s' is empty" % o
+                    else:
+                        found = True
+                if not found and t != 'error':
+                    s = "OK (skip missing)"
+                self._add_result(t, n, s)
+
+    def check_snappy_optional(self):
+        '''Check snappy packate.yaml optional fields'''
+        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+            return
+        self._verify_optional(self._create_dict(self.pkg_yaml['binaries']),
+                              'package_yaml')
+
     def check_path(self):
         '''Check path exists'''
         t = 'info'
