@@ -41,21 +41,41 @@ class ClickReviewBinPath(ClickReview):
 
         self.bin_paths_files = dict()
         self.bin_paths = dict()
+
+        if self.is_snap and 'binaries' in self.pkg_yaml:
+            for binary in self.pkg_yaml['binaries']:
+                if 'name' not in binary:
+                    error("package.yaml malformed: required 'name' not found "
+                          "for entry in %s" % self.pkg_yaml['binaries'])
+                elif not isinstance(binary['name'], str):
+                    error("package.yaml malformed: required 'name' is not str"
+                          "for entry in %s" % self.pkg_yaml['binaries'])
+
+                app = os.path.basename(binary['name'])
+                if 'exec' in binary:
+                    rel = binary['exec']
+                else:
+                    rel = binary['name']
+                self.bin_paths[app] = rel
+                self.bin_paths_files[app] = self._extract_bin_path(app)
+
+        # Now verify click manifest
         for app in self.manifest['hooks']:
-            if 'bin-path' not in self.manifest['hooks'][app]:
+            if not self.is_snap and \
+               'bin-path' not in self.manifest['hooks'][app]:
+                # non-snappy clicks don't need bin-path hook
                 #  msg("Skipped missing bin-path hook for '%s'" % app)
                 continue
-            if not isinstance(self.manifest['hooks'][app]['bin-path'],
+#             elif self.is_snap and app not in self.bin_paths:
+#                 error("manifest malformed: hooks/%s/bin-path does not have " +
+#                       "match in package.yaml")
+            elif not isinstance(self.manifest['hooks'][app]['bin-path'],
                str):
-                error("manifest malformed: hooks/%s/bin-path is not str"
-                      % app)
-
-            self.bin_paths = self.manifest['hooks'][app]['bin-path']
-            self.bin_paths_files[app] = self._extract_bin_path(app)
+                error("manifest malformed: hooks/%s/bin-path is not str" % app)
 
     def _extract_bin_path(self, app):
         '''Get bin-path for app'''
-        rel = self.manifest['hooks'][app]['bin-path']
+        rel = self.bin_paths[app]
         fn = os.path.join(self.unpack_dir, rel)
         if not os.path.exists(fn):
             error("Could not find '%s'" % rel)
@@ -63,9 +83,13 @@ class ClickReviewBinPath(ClickReview):
 
     def _check_bin_path_executable(self, app):
         '''Check that the provided path exists'''
-        rel = self.manifest['hooks'][app]['bin-path']
-        fn = os.path.join(self.unpack_dir, rel)
+        fn = self.bin_paths_files[app]
         return os.access(fn, os.X_OK)
+
+    def check_click_hooks(self):
+        '''Check that the click hooks match the package.yaml'''
+        # TODO: verify no extra hooks
+        # TODO: verify have all hooks
 
     def _verify_required(self, my_dict, test_str):
         for app in sorted(my_dict):
@@ -166,7 +190,7 @@ class ClickReviewBinPath(ClickReview):
             if not self._check_bin_path_executable(app):
                 t = 'error'
                 s = "'%s' is not executable" % \
-                    (self.manifest['hooks'][app]['bin-path'])
+                    os.path.relpath(self.bin_paths_files[app], self.unpack_dir)
             self._add_result(t, n, s)
 
     def check_binary_description(self):
