@@ -39,6 +39,7 @@ class ClickReviewSystemd(ClickReview):
         # - stop
         # - poststop
         # - stop-timeout
+        # - TODO: caps
         self.required_keys = ['start', 'description']
         self.optional_keys = ['stop', 'poststop', 'stop-timeout']
 
@@ -52,9 +53,9 @@ class ClickReviewSystemd(ClickReview):
                str):
                 error("manifest malformed: hooks/%s/snappy-systemd is not str"
                       % app)
-            (full_fn, jd) = self._extract_systemd(app)
+            (full_fn, yd) = self._extract_systemd(app)
             self.systemd_files[app] = full_fn
-            self.systemd[app] = jd
+            self.systemd[app] = yd
 
     def _extract_systemd(self, app):
         '''Get systemd yaml'''
