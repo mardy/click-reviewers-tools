@@ -69,8 +69,7 @@ class ClickReviewBinPath(ClickReview):
 #             elif self.is_snap and app not in self.bin_paths:
 #                 error("manifest malformed: hooks/%s/bin-path does not have " +
 #                       "match in package.yaml")
-            elif not isinstance(self.manifest['hooks'][app]['bin-path'],
-               str):
+            elif not isinstance(self.manifest['hooks'][app]['bin-path'], str):
                 error("manifest malformed: hooks/%s/bin-path is not str" % app)
 
     def _extract_bin_path(self, app):
