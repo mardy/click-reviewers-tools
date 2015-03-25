@@ -127,6 +127,33 @@ class ClickReviewBinPath(ClickReview):
         self._verify_optional(self._create_dict(self.pkg_yaml['binaries']),
                               'package_yaml')
 
+    def _verify_unknown(self, my_dict, test_str):
+        for app in sorted(my_dict):
+            unknown = []
+            t = 'info'
+            n = '%s_unknown_key_%s' % (test_str, app)
+            s = "OK"
+
+            for f in my_dict[app].keys():
+                if f not in self.required_keys and \
+                   f not in self.optional_keys:
+                    unknown.append(f)
+
+            if len(unknown) == 1:
+                t = 'warn'
+                s = "Unknown field '%s'" % unknown[0]
+            elif len(unknown) > 1:
+                t = 'warn'
+                s = "Unknown fields '%s'" % ", ".join(unknown)
+            self._add_result(t, n, s)
+
+    def check_snappy_unknown(self):
+        '''Check snappy package.yaml unknown fields'''
+        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+            return
+        self._verify_unknown(self._create_dict(self.pkg_yaml['binaries']),
+                             'package_yaml')
+
     def check_path(self):
         '''Check path exists'''
         t = 'info'
