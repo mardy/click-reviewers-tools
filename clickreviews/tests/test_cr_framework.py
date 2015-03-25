@@ -13,6 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import sys
+from io import StringIO
 
 from clickreviews.cr_framework import ClickReviewFramework
 import clickreviews.cr_tests as cr_tests
@@ -207,3 +209,22 @@ class TestClickReviewFramework(cr_tests.TestClickReview):
         # adjust to 'error': 1
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_framework_not_string_error(self):
+        '''Test manifest framework is non-string.'''
+        self.test_manifest['hooks'][self.default_appname]['framework'] = 1234
+        self._update_test_manifest()
+
+        error = ""
+        stderr = sys.stderr
+        try:
+            sys.stderr = StringIO()
+            with self.assertRaises(SystemExit):
+                ClickReviewFramework(self.test_name)
+            error = sys.stderr.getvalue()
+        finally:
+            sys.stderr = stderr
+
+        self.assertEqual(
+            error,
+            "ERROR: manifest malformed: hooks/test-app/framework is not str\n")
