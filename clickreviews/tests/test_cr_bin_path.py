@@ -26,18 +26,21 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
-    def _set_binary(self, key, value, name=None):
+    def _set_binary(self, entries, name=None):
         d = dict()
         if name is None:
             d['name'] = 'foo'
         else:
             d['name'] = name
-        d[key] = value
+        for (key, value) in entries:
+            d[key] = value
         self.set_test_pkg_yaml("binaries", [d])
 
     def test_check_path(self):
         '''Test check_path()'''
-        self.set_test_bin_path(self.default_appname, "bin/foo.exe")
+        self.set_test_bin_path(self.default_appname,
+                               key="exec",
+                               value="bin/foo.exe")
         c = ClickReviewBinPath(self.test_name)
         c.check_path()
         r = c.click_report
@@ -47,7 +50,9 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_path_nonexecutable(self):
         '''Test check_path() - nonexecutable'''
-        self.set_test_bin_path(self.default_appname, "bin/foo.nonexec")
+        self.set_test_bin_path(self.default_appname,
+                               key="exec",
+                               value="bin/foo.nonexec")
         c = ClickReviewBinPath(self.test_name)
         c.check_path()
         r = c.click_report
@@ -125,9 +130,46 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_required(self):
+        '''Test check_snappy_required() - has exec'''
+        self._set_binary([("exec", "bin/foo")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_required()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_required_empty_value(self):
+        '''Test check_snappy_required() - empty exec'''
+        self._set_binary([("exec", "")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_required()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_required_bad_value(self):
+        '''Test check_snappy_required() - bad exec'''
+        self._set_binary([("exec", [])])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_required()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_required_multiple(self):
+        '''Test check_snappy_required() - multiple'''
+        self._set_binary([("exec", "bin/foo"),
+                          ("description", "foo desc")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_snappy_required()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_binary_description(self):
         '''Test check_binary_description()'''
-        self._set_binary("description", "some description")
+        self._set_binary([("description", "some description")])
         c = ClickReviewBinPath(self.test_name)
         c.check_binary_description()
         r = c.click_report
@@ -136,7 +178,7 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_binary_description_unspecified(self):
         '''Test check_binary_description() - unspecified'''
-        self._set_binary("name", "foo")
+        self._set_binary([("name", "foo")])
         c = ClickReviewBinPath(self.test_name)
         c.check_binary_description()
         r = c.click_report
@@ -145,7 +187,7 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
 
     def test_check_binary_description_empty(self):
         '''Test check_binary_description() - empty'''
-        self._set_binary("description", "")
+        self._set_binary([("description", "")])
         c = ClickReviewBinPath(self.test_name)
         c.check_binary_description()
         r = c.click_report

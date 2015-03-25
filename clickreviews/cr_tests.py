@@ -188,7 +188,7 @@ def _extract_bin_path(self, app):
 
 def _check_bin_path_executable(self, app):
     '''Pretend we found the bin-path file'''
-    if TEST_BIN_PATH[app].endswith('.nonexec'):
+    if TEST_BIN_PATH[app]['exec'].endswith('.nonexec'):
         return False
     return True
 
@@ -439,7 +439,7 @@ class TestClickReview(TestCase):
             self.set_test_push_helper(app, None, None)
 
             # Reset to no bin-path entries in manifest
-            self.set_test_bin_path(app, None)
+            self.set_test_bin_path(app, None, None)
 
             # Reset to no framework entries in manifest
             self.set_test_framework(app, None, None)
@@ -849,16 +849,21 @@ class TestClickReview(TestCase):
             self.test_push_helper[app][key] = value
         self._update_test_push_helper()
 
-    def set_test_bin_path(self, app, value):
+    def set_test_bin_path(self, app, key, value):
         '''Set bin-path entries. If value is None, remove bin-path from
            manifest'''
-        if value is None:
+        if key is None:
             if app in self.test_bin_path:
                 self.test_bin_path.pop(app)
         else:
             if app not in self.test_bin_path:
-                self.test_bin_path[app] = dict()
-            self.test_bin_path[app] = value
+                self.test_bin_path[app] = {}
+
+            if value is None:
+                if key in self.test_bin_path[app]:
+                    del(self.test_bin_path[app][key])
+            else:
+                self.test_bin_path[app][key] = value
         self._update_test_bin_path()
 
     def set_test_framework(self, app, key, value):
