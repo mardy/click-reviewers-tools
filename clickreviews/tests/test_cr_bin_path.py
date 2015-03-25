@@ -246,3 +246,34 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_click_hooks(self):
+        '''Test check_click_hooks()'''
+        self._set_binary([("description", "some description")])
+        c = ClickReviewBinPath(self.test_name)
+        c.check_click_hooks()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_click_hooks_missing_hook(self):
+        '''Test check_click_hooks() - missing'''
+        self._set_binary([("description", "some description")])
+        c = ClickReviewBinPath(self.test_name)
+        del c.manifest['hooks'][self.default_appname]['bin-path']
+        c.check_click_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_click_hooks_added_hook(self):
+        '''Test check_click_hooks() - added'''
+        self._set_binary([("description", "some description")])
+        c = ClickReviewBinPath(self.test_name)
+        tmp = c.manifest['hooks']
+        tmp['extra-app'] = c.manifest['hooks'][self.default_appname]
+        c.manifest['hooks'] = tmp
+        c.check_click_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)

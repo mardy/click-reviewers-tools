@@ -66,10 +66,8 @@ class ClickReviewBinPath(ClickReview):
                 # non-snappy clicks don't need bin-path hook
                 #  msg("Skipped missing bin-path hook for '%s'" % app)
                 continue
-#             elif self.is_snap and app not in self.bin_paths:
-#                 error("manifest malformed: hooks/%s/bin-path does not have " +
-#                       "match in package.yaml")
-            elif not isinstance(self.manifest['hooks'][app]['bin-path'], str):
+            elif 'bin-path' in self.manifest['hooks'][app] and \
+                 not isinstance(self.manifest['hooks'][app]['bin-path'], str):
                 error("manifest malformed: hooks/%s/bin-path is not str" % app)
 
     def _extract_bin_path(self, app):
@@ -87,8 +85,30 @@ class ClickReviewBinPath(ClickReview):
 
     def check_click_hooks(self):
         '''Check that the click hooks match the package.yaml'''
-        # TODO: verify no extra hooks
-        # TODO: verify have all hooks
+        t = 'info'
+        n = 'manifest_matches_yaml'
+        s = "OK"
+        extra = []
+        for app in self.manifest['hooks']:
+            if app not in self.bin_paths:
+                extra.append(app)
+        if len(extra) > 0:
+            t = 'error'
+            s = 'manifest has extra bin-path hooks: %s' % ",".join(extra)
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'yaml_matches_manifest'
+        s = "OK"
+        missing = []
+        for app in self.bin_paths:
+            if app not in self.manifest['hooks'] or \
+               'bin-path' not in self.manifest['hooks'][app]:
+                missing.append(app)
+        if len(missing) > 0:
+            t = 'error'
+            s = 'manifest has missing bin-path hooks: %s' % ",".join(missing)
+        self._add_result(t, n, s)
 
     def _verify_required(self, my_dict, test_str):
         for app in sorted(my_dict):
