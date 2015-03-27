@@ -111,11 +111,10 @@ class ClickReviewLint(ClickReview):
         # - oem
         self.snappy_valid_types = ['app',
                                    'framework',
-                                   # 'framework-policy',  # TBI
-                                   # 'oem',               # TBI
+                                   'oem',
                                    ]
         self.snappy_redflagged_types = ['framework',
-                                        # 'oem',           # TBI
+                                        'oem', # TBD
                                         ]
 
     def _list_control_files(self):
@@ -339,6 +338,10 @@ exit 1
 
     def check_hooks(self):
         '''Check click manifest hooks'''
+        #  oem snaps don't have a hooks entry
+        if self.is_snap_oem:
+            return
+
         # Some checks are already handled in
         # cr_common.py:_verify_manifest_structure()
 
@@ -432,6 +435,10 @@ exit 1
 
     def check_hooks_unknown(self):
         '''Check if have any unknown hooks'''
+        #  oem snaps don't have a hooks entry
+        if self.is_snap_oem:
+            return
+
         t = 'info'
         n = 'unknown hooks'
         s = 'OK'

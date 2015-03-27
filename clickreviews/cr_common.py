@@ -149,6 +149,11 @@ class ClickReview(object):
             self._verify_package_yaml_structure()
             self.is_snap = True
 
+        self.is_snap_oem = False
+        if self.is_snap and 'type' in self.pkg_yaml and \
+           self.pkg_yaml['type'] == 'oem':
+            self.is_snap_oem = True
+
         # Get a list of all unpacked files, except DEBIAN/
         self.pkg_files = []
         self._list_all_files()
@@ -251,6 +256,14 @@ class ClickReview(object):
                      isinstance(self.manifest[f], list)):
                     error("manifest malformed: '%s' is not str or list:\n%s" %
                           (f, mp))
+
+        # FIXME: this is kinda gross but the best we can do while we are trying
+        # to support clicks and native snaps
+        if 'type' in self.manifest and self.manifest['type'] == 'oem':
+            if 'hooks' in self.manifest:
+                error("'hooks' present in manifest with type 'oem'")
+            # mock up something for other tests
+            self.manifest['hooks'] = {'oem': {'reviewtools': True}}
 
         # Not required by click, but required by appstore. 'hooks' is assumed
         # to be present in other checks

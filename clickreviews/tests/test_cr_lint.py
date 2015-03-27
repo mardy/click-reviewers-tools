@@ -801,6 +801,17 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_hooks_type_oem(self):
+        '''Test check_hooks() - type: oem'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap_oem = True
+        c.check_hooks()
+        r = c.click_report
+        # oem type has no hooks so these should all be '0'
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_hooks_unknown_nonexistent(self):
         '''Test check_hooks_unknown() - nonexistent'''
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")
@@ -818,6 +829,17 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_hooks_unknown()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_unknown_type_oem(self):
+        '''Test check_hooks_unknown() - type: oem'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap_oem = True
+        c.check_hooks_unknown()
+        r = c.click_report
+        # oem type has no hooks so these should all be '0'
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_redflagged_payui(self):
@@ -1013,24 +1035,13 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_snappy_type_framework_policy(self):
-        '''Test check_snappy_type - framework-policy'''
-        self.set_test_pkg_yaml("type", "framework-policy")
-        c = ClickReviewLint(self.test_name)
-        c.check_snappy_type()
-        r = c.click_report
-        # TODO: update this when 'framework-policy' is implemented
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
     def test_snappy_type_oem(self):
         '''Test check_snappy_type - oem'''
         self.set_test_pkg_yaml("type", "oem")
         c = ClickReviewLint(self.test_name)
         c.check_snappy_type()
         r = c.click_report
-        # TODO: update this when 'oem' is implemented
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_snappy_type_redflagged(self):
