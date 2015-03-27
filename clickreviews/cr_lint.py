@@ -114,7 +114,7 @@ class ClickReviewLint(ClickReview):
                                    'oem',
                                    ]
         self.snappy_redflagged_types = ['framework',
-                                        'oem', # TBD
+                                        'oem',  # TBD
                                         ]
 
     def _list_control_files(self):

@@ -10,6 +10,7 @@ click-reviewers-tools (0.25) utopic; urgency=medium
   * update bin-path tests for new binaries yaml
   * 'oem' is a valid type
   * handle missing 'hooks' in manifest with oem snaps (LP: #1434279)
+  * cr_common.py: add config, immutable-config and oem in support of oem snaps
 
   [ Fabian Ezequiel Gallina ]
   * fix missing import on clickreviews/cr_framework.py
