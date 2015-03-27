@@ -90,7 +90,8 @@ class ClickReviewBinPath(ClickReview):
         s = "OK"
         extra = []
         for app in self.manifest['hooks']:
-            if app not in self.bin_paths:
+            if 'bin-path' in self.manifest['hooks'][app] and \
+               app not in self.bin_paths:
                 extra.append(app)
         if len(extra) > 0:
             t = 'error'
