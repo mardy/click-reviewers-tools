@@ -13,6 +13,8 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
   * cr_common.py: add config, immutable-config and oem in support of oem snaps
   * obsolete framework click hook and meta/*.framework
   * don't allow 'type: framework' to specify 'frameworks'
+  * fix click-show-files with native snaps
+  * click-show-files should show package.yaml
 
   [ Fabian Ezequiel Gallina ]
   * fix missing import on clickreviews/cr_framework.py

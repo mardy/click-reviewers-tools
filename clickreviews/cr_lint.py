@@ -24,7 +24,7 @@ import re
 from clickreviews.frameworks import Frameworks
 from clickreviews.cr_common import ClickReview, open_file_read, cmd
 
-CONTROL_FILE_NAMES = ["control", "manifest", "md5sums", "preinst"]
+CONTROL_FILE_NAMES = ["control", "manifest", "preinst"]
 MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
 
 
@@ -34,6 +34,8 @@ class ClickReviewLint(ClickReview):
     def __init__(self, fn, overrides=None):
         '''Set up the class.'''
         ClickReview.__init__(self, fn, "lint", overrides=overrides)
+        if not self.is_snap and "md5sums" not in CONTROL_FILE_NAMES:
+            CONTROL_FILE_NAMES.append("md5sums")
         self.control_files = dict()
         self._list_control_files()
         # Valid values for Architecture in DEBIAN/control. Note:

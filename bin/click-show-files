@@ -48,6 +48,15 @@ if __name__ == "__main__":
         fh.close()
         print("")
 
+    fn = os.path.join(review.unpack_dir, "meta", "package.yaml")
+    if os.path.exists(fn):
+        print("= %s =" % os.path.basename(fn))
+        fh = cr_common.open_file_read(fn)
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+
     print("= hooks =")
 
     review_content_hub = cr_content_hub.ClickReviewContentHub(sys.argv[1])
