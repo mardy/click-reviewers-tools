@@ -40,8 +40,28 @@ class TestClickReviewFramework(cr_tests.TestClickReview):
 
     def test_snappy_framework_file_obsolete(self):
         '''Test check_snappy_framework_file_obsolete()'''
+        self.set_test_pkg_yaml("type", "framework")
         c = ClickReviewFramework(self.test_name)
         c.check_snappy_framework_file_obsolete()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_framework_depends(self):
+        '''Test check_snappy_framework_depends)'''
+        self.set_test_pkg_yaml("type", "framework")
+        c = ClickReviewFramework(self.test_name)
+        c.check_snappy_framework_depends()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_framework_depends(self):
+        '''Test check_snappy_framework_depends)'''
+        self.set_test_pkg_yaml("type", "framework")
+        self.set_test_pkg_yaml("frameworks", ['foo'])
+        c = ClickReviewFramework(self.test_name)
+        c.check_snappy_framework_depends()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)

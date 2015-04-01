@@ -78,7 +78,7 @@ class ClickReviewFramework(ClickReview):
 
     def check_snappy_framework_file_obsolete(self):
         '''Check snap doesn't ship .framework file'''
-        if not self.is_snap:
+        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
             return
         t = 'info'
         n = "obsolete_framework_file"
@@ -86,4 +86,15 @@ class ClickReviewFramework(ClickReview):
         if self._has_framework_in_metadir():
             t = 'warn'
             s = "found '%s.framework' (safe to remove)" % self.pkg_yaml['name']
+        self._add_result(t, n, s)
+
+    def check_snappy_framework_depends(self):
+        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+            return
+        t = 'info'
+        n = "framework_dependency"
+        s = "OK"
+        if "frameworks" in self.pkg_yaml:
+            t = 'error'
+            s = "'type: framework' may not specify 'frameworks'"
         self._add_result(t, n, s)
