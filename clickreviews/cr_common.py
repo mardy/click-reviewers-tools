@@ -60,7 +60,7 @@ class ClickReviewException(Exception):
 class ClickReview(object):
     '''This class represents click reviews'''
     # Convenience to break out common types of clicks (eg, app, scope,
-    # framework, click service)
+    # click service)
     app_allowed_peer_hooks = ["account-application",
                               "account-service",
                               "apparmor",
@@ -75,8 +75,6 @@ class ClickReview(object):
                                 "scope",
                                 ]
     # FIXME: when apparmor-policy is implemented, use this
-    # framework_allowed_peer_hooks = ["apparmor-policy"]
-    framework_allowed_peer_hooks = []
     service_allowed_peer_hooks = ["apparmor",
                                   "bin-path",
                                   "snappy-systemd",
@@ -151,6 +149,10 @@ class ClickReview(object):
                 error("Could not load package.yaml. Is it properly formatted?")
             self._verify_package_yaml_structure()
             self.is_snap = True
+
+            #  default to 'app'
+            if 'type' not in self.pkg_yaml:
+                self.pkg_yaml['type'] = 'app'
 
         self.is_snap_oem = False
         if self.is_snap and 'type' in self.pkg_yaml and \

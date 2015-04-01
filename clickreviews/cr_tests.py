@@ -198,6 +198,11 @@ def _extract_framework(self, app):
     return ("%s.framework" % app, TEST_FRAMEWORK[app])
 
 
+def _has_framework_in_metadir(self):
+    '''Pretend we found the framework file'''
+    return True
+
+
 def _extract_systemd(self, app):
     '''Pretend we found the systemd file'''
     return ("%s.snappy-systemd" % app, TEST_SNAPPY_SYSTEMD[app])
@@ -312,6 +317,9 @@ patches.append(patch(
 patches.append(patch(
     'clickreviews.cr_framework.ClickReviewFramework._extract_framework',
     _extract_framework))
+patches.append(patch(
+    'clickreviews.cr_framework.ClickReviewFramework._has_framework_in_metadir',
+    _has_framework_in_metadir))
 
 # systemd overrides
 patches.append(patch(

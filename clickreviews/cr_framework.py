@@ -23,13 +23,7 @@ import os
 class ClickReviewFramework(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn, overrides=None):
-        peer_hooks = dict()
-        my_hook = 'framework'
-        peer_hooks[my_hook] = dict()
-        peer_hooks[my_hook]['allowed'] = ClickReview.framework_allowed_peer_hooks
-        peer_hooks[my_hook]['required'] = peer_hooks[my_hook]['allowed']
-        ClickReview.__init__(self, fn, "framework", peer_hooks=peer_hooks,
-                             overrides=overrides)
+        ClickReview.__init__(self, fn, "framework", overrides=overrides)
 
         self.frameworks_file = dict()
         self.frameworks = dict()
@@ -62,70 +56,34 @@ class ClickReviewFramework(ClickReview):
 
         return (fn, data)
 
-    def check_single_framework(self):
-        '''Check only have one framework in the click'''
+    def _has_framework_in_metadir(self):
+        '''Check if snap has meta/<name>.framework'''
+        if not self.is_snap:
+            return False
+
+        return os.path.exists(os.path.join(self.unpack_dir, 'meta',
+                                           '%s.framework' %
+                                           self.pkg_yaml['name']))
+
+    def check_framework_hook_obsolete(self):
+        '''Check manifest doesn't specify 'framework' hook'''
         t = 'info'
-        n = 'single_framework'
+        n = "obsolete_declaration"
         s = "OK"
-        if len(self.frameworks.keys()) > 1:
+        if len(self.frameworks) > 0:
             t = 'error'
-            s = 'framework hook specified multiple times'
+            s = "framework hook found for '%s'" % \
+                ",".join(sorted(self.frameworks))
         self._add_result(t, n, s)
 
-    def check_framework_base_name(self):
-        '''Check framework Base-Name'''
-        for app in sorted(self.frameworks):
-            t = 'info'
-            n = "base_name_present '%s'" % app
-            s = "OK"
-            if 'Base-Name' not in self.frameworks[app]:
-                t = 'error'
-                s = "Could not find 'Base-Name' in '%s'" % \
-                    (self.frameworks_file[app])
-                self._add_result(t, n, s)
-                continue
-            self._add_result(t, n, s)
-
-            t = 'info'
-            n = "base_name_namespacing '%s'" % app
-            s = "OK"
-            if self.frameworks[app]['Base-Name'] != self.manifest['name']:
-                t = 'error'
-                s = "'%s' != '%s'" % (self.frameworks[app]['Base-Name'],
-                                      self.manifest['name'])
-            self._add_result(t, n, s)
-
-    def check_framework_base_version(self):
-        '''Check framework Base-Version'''
-        for app in sorted(self.frameworks):
-            t = 'info'
-            n = "base_version_present '%s'" % app
-            s = "OK"
-            if 'Base-Version' not in self.frameworks[app]:
-                t = 'error'
-                s = "Could not find 'Base-Version' in '%s'" % \
-                    (self.frameworks_file[app])
-                self._add_result(t, n, s)
-                continue
-            self._add_result(t, n, s)
-
-            v = self.frameworks[app]['Base-Version']
-            t = 'info'
-            n = "base_version_number '%s'" % app
-            s = "OK"
-            try:
-                float(v)
-            except ValueError:
-                t = 'error'
-                s = "'Base-Version' malformed: '%s' is not a number" % v
-                self._add_result(t, n, s)
-                continue
-            self._add_result(t, n, s)
-
-            t = 'info'
-            n = "base_version_positive '%s'" % app
-            s = "OK"
-            if float(v) < 0:
-                t = 'error'
-                s = "'Base-Version' malformed: '%s' is negative" % v
-            self._add_result(t, n, s)
+    def check_snappy_framework_file_obsolete(self):
+        '''Check snap doesn't ship .framework file'''
+        if not self.is_snap:
+            return
+        t = 'info'
+        n = "obsolete_framework_file"
+        s = "OK"
+        if self._has_framework_in_metadir():
+            t = 'warn'
+            s = "found '%s.framework' (safe to remove)" % self.pkg_yaml['name']
+        self._add_result(t, n, s)

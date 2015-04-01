@@ -93,15 +93,13 @@ class ClickReviewLint(ClickReview):
                             'bin-path',
                             'content-hub',
                             'desktop',
-                            'framework',
                             'pay-ui',
                             'push-helper',
                             'scope',
                             'snappy-systemd',
                             'urls']
 
-        self.redflagged_hooks = ['framework',
-                                 'pay-ui',
+        self.redflagged_hooks = ['pay-ui',
                                  'apparmor-profile',
                                  ]
 
