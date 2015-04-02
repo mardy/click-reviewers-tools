@@ -192,8 +192,7 @@ class ClickReviewFramework(ClickReview):
                             if l.startswith(term):
                                 found = True
                         if not found:
-                            msgs.append("'%s' in '%s/%s/%s'" % (term,
-                                                                    i, j, k))
+                            msgs.append("'%s' in '%s/%s/%s'" % (term, i, j, k))
         if len(msgs) > 0:
             t = 'error'
             s = "Could not find meta data: %s" % ",".join(msgs)
