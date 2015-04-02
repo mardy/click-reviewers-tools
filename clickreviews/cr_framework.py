@@ -17,7 +17,9 @@
 from __future__ import print_function
 
 from clickreviews.cr_common import ClickReview, error, open_file_read
+import glob
 import os
+import re
 
 
 class ClickReviewFramework(ClickReview):
@@ -38,6 +40,12 @@ class ClickReviewFramework(ClickReview):
             self.frameworks_file[app] = full_fn
             self.frameworks[app] = data
 
+        self.framework_policy_dirs = ['apparmor', 'seccomp']
+        self.framework_policy_subdirs = ['templates', 'policygroups']
+        self.framework_policy_unknown = []
+        self.framework_policy = dict()
+        self._extract_framework_policy()
+
     def _extract_framework(self, app):
         '''Get framework for app'''
         rel = self.manifest['hooks'][app]['framework']
@@ -55,6 +63,37 @@ class ClickReviewFramework(ClickReview):
         fh.close()
 
         return (fn, data)
+
+    def _extract_framework_policy(self):
+        '''Get framework policy files'''
+        fpdir = os.path.join(self.unpack_dir, "meta", "framework-policy")
+        for i in glob.glob("%s/*" % fpdir):
+            rel_i = os.path.basename(i)
+            if not os.path.isdir(i) or rel_i not in self.framework_policy_dirs:
+                self.framework_policy_unknown.append(os.path.relpath(i,
+                                                     self.unpack_dir))
+                continue
+
+            self.framework_policy[rel_i] = dict()
+            for j in glob.glob("%s/*" % i):
+                rel_j = os.path.basename(j)
+                if not os.path.isdir(j) or \
+                   rel_j not in self.framework_policy_subdirs:
+                    self.framework_policy_unknown.append(os.path.relpath(j,
+                                                         self.unpack_dir))
+                    continue
+
+                self.framework_policy[rel_i][rel_j] = dict()
+                for k in glob.glob("%s/*" % j):
+                    rel_k = os.path.basename(k)
+                    if not os.path.isfile(k):
+                        self.framework_policy_unknown.append(os.path.relpath(k,
+                                                             self.unpack_dir))
+                        continue
+
+                    fh = open_file_read(k)
+                    self.framework_policy[rel_i][rel_j][rel_k] = fh.read()
+                    fh.close()
 
     def _has_framework_in_metadir(self):
         '''Check if snap has meta/<name>.framework'''
@@ -89,6 +128,7 @@ class ClickReviewFramework(ClickReview):
         self._add_result(t, n, s)
 
     def check_snappy_framework_depends(self):
+        '''Check framework doesn't depend on other frameworks'''
         if not self.is_snap or self.pkg_yaml['type'] != 'framework':
             return
         t = 'info'
@@ -98,3 +138,112 @@ class ClickReviewFramework(ClickReview):
             t = 'error'
             s = "'type: framework' may not specify 'frameworks'"
         self._add_result(t, n, s)
+
+    def check_snappy_framework_policy(self):
+        '''Check framework ships at least some policy'''
+        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+            return
+
+        t = 'info'
+        n = "framework_policies"
+        s = "OK"
+        found = False
+        for i in self.framework_policy_dirs:
+            if i not in self.framework_policy:
+                continue
+            for j in self.framework_policy_subdirs:
+                if j not in self.framework_policy[i]:
+                    continue
+                if len(self.framework_policy[i][j].keys()) > 0:
+                    found = True
+        if not found:
+            t = 'warn'
+            s = "security policy not found"
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = "framework_policy_unknown"
+        s = "OK"
+        if len(self.framework_policy_unknown) > 0:
+            t = 'warn'
+            s = "framework policy has unexpected entries: '%s'" % \
+                ",".join(self.framework_policy_unknown)
+        self._add_result(t, n, s)
+
+    def check_snappy_framework_policy_metadata(self):
+        '''Check framework policy has expected meta data'''
+        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+            return
+
+        t = 'info'
+        n = "framework_policy_metadata"
+        s = "OK"
+        msgs = []
+        for term in ["# Description: ", "# Usage: "]:
+            for i in self.framework_policy_dirs:
+                if i not in self.framework_policy:
+                    continue
+                for j in self.framework_policy_subdirs:
+                    if j not in self.framework_policy[i]:
+                        continue
+                    for k in self.framework_policy[i][j].keys():
+                        found = False
+                        for l in self.framework_policy[i][j][k].splitlines():
+                            if l.startswith(term):
+                                found = True
+                        if not found:
+                            msgs.append("'%s' in '%s/%s/%s'" % (term,
+                                                                    i, j, k))
+        if len(msgs) > 0:
+            t = 'error'
+            s = "Could not find meta data: %s" % ",".join(msgs)
+        self._add_result(t, n, s)
+
+    def check_snappy_framework_policy_matching(self):
+        '''Check framework policy ships apparmor and seccomp for each'''
+        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+            return
+
+        t = 'info'
+        n = "framework_has_all_policy"
+        s = "OK"
+        if len(self.framework_policy.keys()) == 0:
+            s = "OK (skipped missing policy)"
+            self._add_result(t, n, s)
+            return
+
+        for i in self.framework_policy:
+            for j in self.framework_policy[i]:
+                for k in self.framework_policy[i][j]:
+                    for other in self.framework_policy_dirs:
+                        if t == i:
+                            continue
+                        t = 'info'
+                        n = "framework_policy_%s/%s/%s" % (i, j, k)
+                        s = "OK"
+                        if j not in self.framework_policy[other] or \
+                           k not in self.framework_policy[other][j]:
+                            t = 'error'
+                            s = "Could not find mathcing '%s/%s/%s'" % (other,
+                                                                        j, k)
+                        self._add_result(t, n, s)
+
+    def check_snappy_framework_policy_filenames(self):
+        '''Check framework policy file names'''
+        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+            return
+
+        for i in self.framework_policy:
+            for j in self.framework_policy[i]:
+                for k in self.framework_policy[i][j]:
+                    f = "%s/%s/%s" % (i, j, k)
+                    t = 'info'
+                    n = "framework_policy_valid_name_%s" % f
+                    s = "OK"
+                    if not re.search(r'^[a-z0-9][a-z0-9+\.-]+$', k):
+                        t = 'error'
+                        s = "'%s' should match '^[a-z0-9][a-z0-9+\.-]+$'" % f
+                    elif k.startswith(self.pkg_yaml['name']):
+                        t = 'warn'
+                        s = "'%s' should not begin with package name" % f
+                    self._add_result(t, n, s)

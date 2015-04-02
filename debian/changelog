@@ -15,6 +15,8 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
   * don't allow 'type: framework' to specify 'frameworks'
   * fix click-show-files with native snaps
   * click-show-files should show package.yaml
+  * add framework policy checks
+  * TODO: framework policy check tests
 
   [ Fabian Ezequiel Gallina ]
   * fix missing import on clickreviews/cr_framework.py
