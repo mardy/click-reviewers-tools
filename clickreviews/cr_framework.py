@@ -74,7 +74,7 @@ class ClickReviewFramework(ClickReview):
                 unknown_dict.append(os.path.relpath(i, self.unpack_dir))
                 continue
 
-            self.framework_policy[rel_i] = dict()
+            policy_dict[rel_i] = dict()
             for j in glob.glob("%s/*" % i):
                 rel_j = os.path.basename(j)
                 if not os.path.isdir(j) or \
@@ -82,7 +82,7 @@ class ClickReviewFramework(ClickReview):
                     unknown_dict.append(os.path.relpath(j, self.unpack_dir))
                     continue
 
-                self.framework_policy[rel_i][rel_j] = dict()
+                policy_dict[rel_i][rel_j] = dict()
                 for k in glob.glob("%s/*" % j):
                     rel_k = os.path.basename(k)
                     if not os.path.isfile(k):
