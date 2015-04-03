@@ -459,7 +459,11 @@ class ClickReviewSecurity(ClickReview):
                         frameworks = self.pkg_yaml['frameworks']
                     for f in frameworks:
                         if m['template'].startswith("%s_" % f):
-                            s = "OK (matches '%s' framework)" % f
+                            t = 'warn'
+                            # s = "OK (matches '%s' framework)" % f
+                            s = "(STORE CHECK) need to verify " + \
+                                "'%s' is in framwork " % m['template'] + \
+                                "'%s'" % f
                             break
                 else:
                     t = 'error'
@@ -686,6 +690,7 @@ class ClickReviewSecurity(ClickReview):
                             l = 'http://askubuntu.com/a/562123/94326'
                         manual_review = True
                     elif aa_type == 'framework':
+                        # s = "OK (matches '%s' framework)" % i.split('_')[0]
                         t = 'warn'
                         s = "(STORE CHECK) need to verify '%s' is " % i + \
                             "in framework '%s'" % i.split('_')[0]
