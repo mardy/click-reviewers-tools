@@ -46,6 +46,8 @@ TEST_ACCOUNTS_SERVICE = dict()
 TEST_PUSH_HELPER = dict()
 TEST_BIN_PATH = dict()
 TEST_FRAMEWORK = dict()
+TEST_FRAMEWORK_POLICY = dict()
+TEST_FRAMEWORK_POLICY_UNKNOWN = []
 TEST_SNAPPY_SYSTEMD = dict()
 
 
@@ -198,6 +200,11 @@ def _extract_framework(self, app):
     return ("%s.framework" % app, TEST_FRAMEWORK[app])
 
 
+def _extract_framework_policy(self):
+    '''Pretend we found the framework policy files'''
+    return (TEST_FRAMEWORK_POLICY, TEST_FRAMEWORK_POLICY_UNKNOWN)
+
+
 def _has_framework_in_metadir(self):
     '''Pretend we found the framework file'''
     return True
@@ -318,6 +325,9 @@ patches.append(patch(
     'clickreviews.cr_framework.ClickReviewFramework._extract_framework',
     _extract_framework))
 patches.append(patch(
+    'clickreviews.cr_framework.ClickReviewFramework._extract_framework_policy',
+    _extract_framework_policy))
+patches.append(patch(
     'clickreviews.cr_framework.ClickReviewFramework._has_framework_in_metadir',
     _has_framework_in_metadir))
 
@@ -407,6 +417,8 @@ class TestClickReview(TestCase):
         self.test_push_helper = dict()
         self.test_bin_path = dict()
         self.test_framework = dict()
+        self.test_framework_policy = dict()
+        self.test_framework_policy_unknown = []
         self.test_systemd = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
@@ -452,6 +464,10 @@ class TestClickReview(TestCase):
             # Reset to no framework entries in manifest
             self.set_test_framework(app, None, None)
 
+            # Reset to no framework entries in manifest
+            self.set_test_framework_policy(None)
+            self.set_test_framework_policy_unknown([])
+
             # Reset to no systemd entries in manifest
             self.set_test_systemd(app, None, None)
 
@@ -471,6 +487,8 @@ class TestClickReview(TestCase):
         self._update_test_push_helper()
         self._update_test_bin_path()
         self._update_test_framework()
+        self._update_test_framework_policy()
+        self._update_test_framework_policy_unknown()
         self._update_test_systemd()
 
         # webapps manifests (leave empty for now)
@@ -624,6 +642,14 @@ class TestClickReview(TestCase):
             self.test_manifest["hooks"][app]["framework"] = \
                 "%s.framework" % TEST_FRAMEWORK[app]
         self._update_test_manifest()
+
+    def _update_test_framework_policy(self):
+        global TEST_FRAMEWORK_POLICY
+        TEST_FRAMEWORK_POLICY = self.test_framework_policy
+
+    def _update_test_framework_policy_unknown(self):
+        global TEST_FRAMEWORK_POLICY_UNKNOWN
+        TEST_FRAMEWORK_POLICY_UNKNOWN = self.test_framework_policy_unknown
 
     def _update_test_systemd(self):
         global TEST_SNAPPY_SYSTEMD
@@ -923,6 +949,29 @@ class TestClickReview(TestCase):
             self.test_framework[app][key] = value
         self._update_test_framework()
 
+    def set_test_framework_policy(self, policy_dict=None):
+        '''Set framework policy'''
+        if policy_dict is None:  # Reset
+            self.test_framework_policy = dict()
+            for i in ['apparmor', 'seccomp']:
+                self.test_framework_policy[i] = dict()
+                for j in ['templates', 'policygroups']:
+                    self.test_framework_policy[i][j] = dict()
+                    for k in ['-common', '-reserved']:
+                        n = "%s%s" % (j.rstrip('s'), k)
+                        self.test_framework_policy[i][j][n] = \
+                            '''# Description: %s
+# Usage: %s
+''' % (n, k.lstrip('-'))
+        else:
+            self.test_framework_policy = policy_dict
+        self._update_test_framework_policy()
+
+    def set_test_framework_policy_unknown(self, unknown=[]):
+        '''Set framework policy unknown'''
+        self.test_framework_policy_unknown = unknown
+        self._update_test_framework_policy_unknown()
+
     def set_test_systemd(self, app, key, value):
         '''Set systemd entries. If key is None, remove hook, if value is None,
            remove key'''
@@ -982,6 +1031,10 @@ class TestClickReview(TestCase):
         TEST_BIN_PATH = dict()
         global TEST_FRAMEWORK
         TEST_FRAMEWORK = dict()
+        global TEST_FRAMEWORK_POLICY
+        TEST_FRAMEWORK_POLICY = dict()
+        global TEST_FRAMEWORK_POLICY_UNKNOWN
+        TEST_FRAMEWORK_POLICY_UNKNOWN = []
         global TEST_SNAPPY_SYSTEMD
         TEST_SNAPPY_SYSTEMD = dict()
 
