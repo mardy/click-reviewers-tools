@@ -45,22 +45,37 @@ class ClickReviewSystemd(ClickReview):
 
         self.systemd_files = dict()  # click-show-files and tests
         self.systemd = dict()
+
+        if self.is_snap and 'services' in self.pkg_yaml:
+            for service in self.pkg_yaml['services']:
+                if 'name' not in service:
+                    error("package.yaml malformed: required 'name' not found "
+                          "for entry in %s" % self.pkg_yaml['services'])
+                elif not isinstance(service['name'], str):
+                    error("package.yaml malformed: required 'name' is not str"
+                          "for entry in %s" % self.pkg_yaml['services'])
+
+                app = service['name']
+                (full_fn, yd) = self._extract_systemd(app)
+                self.systemd_files[app] = full_fn
+                self.systemd[app] = yd
+
+        # Now verify click manifest
         for app in self.manifest['hooks']:
-            if 'snappy-systemd' not in self.manifest['hooks'][app]:
+            if not self.is_snap and \
+               'snappy-systemd' not in self.manifest['hooks'][app]:
+                #  non-snappy clicks don't need snappy-systemd hook
                 # msg("Skipped missing systemd hook for '%s'" % app)
                 continue
-            if not isinstance(self.manifest['hooks'][app]['snappy-systemd'],
-               str):
+            elif 'snappy-systemd' in self.manifest['hooks'][app] and \
+                 not isinstance(self.manifest['hooks'][app]['snappy-systemd'],
+                                str):
                 error("manifest malformed: hooks/%s/snappy-systemd is not str"
                       % app)
-            (full_fn, yd) = self._extract_systemd(app)
-            self.systemd_files[app] = full_fn
-            self.systemd[app] = yd
 
     def _extract_systemd(self, app):
         '''Get systemd yaml'''
-        u = self.manifest['hooks'][app]['snappy-systemd']
-        fn = os.path.join(self.unpack_dir, u)
+        fn = os.path.join(self.unpack_dir, "meta", "%s.snappy-systemd" % app)
 
         bn = os.path.basename(fn)
         if not os.path.exists(fn):

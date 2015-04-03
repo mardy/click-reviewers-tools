@@ -26,14 +26,16 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
-    def _set_service(self, key, value, name=None):
+    def _set_service(self, entries, name=None):
         d = dict()
         if name is None:
-            d['name'] = 'foo'
+            d['name'] = self.default_appname
         else:
             d['name'] = name
-        d[key] = value
+        for (key, value) in entries:
+            d[key] = value
         self.set_test_pkg_yaml("services", [d])
+        self.set_test_systemd(d['name'], 'name', d['name'])
 
     def test_check_required(self):
         '''Test check_required() - has start and description'''
@@ -582,7 +584,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_description(self):
         '''Test check_snappy_service_description()'''
-        self._set_service("description", "some description")
+        self._set_service([("description", "some description")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_description()
@@ -592,7 +594,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_description_unspecified(self):
         '''Test check_snappy_service_description() - unspecified'''
-        # self._set_service("description", None)
+        # self._set_service([("description", None)])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_description()
@@ -603,7 +605,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_description_empty(self):
         '''Test check_snappy_service_description() - empty'''
-        self._set_service("description", "")
+        self._set_service([("description", "")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_description()
@@ -613,7 +615,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_start(self):
         '''Test check_snappy_service_start()'''
-        self._set_service("start", "some/start")
+        self._set_service([("start", "some/start")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_start()
@@ -623,7 +625,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_start_unspecified(self):
         '''Test check_snappy_service_start() - unspecified'''
-        # self._set_service("start", None)
+        # self._set_service([("start", None)])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_start()
@@ -633,7 +635,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_start_empty(self):
         '''Test check_snappy_service_start() - empty'''
-        self._set_service("start", "")
+        self._set_service([("start", "")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_start()
@@ -643,7 +645,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_start_absolute_path(self):
         '''Test check_snappy_service_start() - absolute path'''
-        self._set_service("start", "/foo/bar/some/start")
+        self._set_service([("start", "/foo/bar/some/start")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_start()
@@ -653,7 +655,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop(self):
         '''Test check_snappy_service_stop()'''
-        self._set_service("stop", "some/stop")
+        self._set_service([("stop", "some/stop")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop()
@@ -663,7 +665,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop_unspecified(self):
         '''Test check_snappy_service_stop() - unspecified'''
-        # self._set_service("stop", None)
+        # self._set_service([("stop", None)])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop()
@@ -673,7 +675,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop_empty(self):
         '''Test check_snappy_service_stop() - empty'''
-        self._set_service("stop", "")
+        self._set_service([("stop", "")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop()
@@ -683,7 +685,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop_absolute_path(self):
         '''Test check_snappy_service_stop() - absolute path'''
-        self._set_service("stop", "/foo/bar/some/stop")
+        self._set_service([("stop", "/foo/bar/some/stop")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop()
@@ -693,7 +695,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_poststop(self):
         '''Test check_snappy_service_poststop()'''
-        self._set_service("poststop", "some/poststop")
+        self._set_service([("poststop", "some/poststop")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_poststop()
@@ -703,7 +705,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_poststop_unspecified(self):
         '''Test check_snappy_service_poststop() - unspecified'''
-        # self._set_service("poststop", None)
+        # self._set_service([("poststop", None)])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_poststop()
@@ -713,7 +715,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_poststop_empty(self):
         '''Test check_snappy_service_poststop() - empty'''
-        self._set_service("poststop", "")
+        self._set_service([("poststop", "")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_poststop()
@@ -723,7 +725,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_poststop_absolute_path(self):
         '''Test check_snappy_service_poststop() - absolute path'''
-        self._set_service("poststop", "/foo/bar/some/poststop")
+        self._set_service([("poststop", "/foo/bar/some/poststop")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_poststop()
@@ -733,9 +735,9 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop_timeout(self):
         '''Test check_snappy_service_stop_timeout()'''
-        self._set_service(key="start", value="bin/foo")
-        self._set_service(key="description", value="something")
-        self._set_service(key="stop-timeout", value=30)
+        self._set_service([("start", "bin/foo"),
+                           ("description", "something"),
+                           ("stop-timeout", 30)])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop_timeout()
@@ -745,9 +747,9 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop_timeout_empty(self):
         '''Test check_snappy_service_stop_timeout() - empty'''
-        self._set_service(key="start", value="bin/foo")
-        self._set_service(key="description", value="something")
-        self._set_service(key="stop-timeout", value="")
+        self._set_service([("start", "bin/foo"),
+                           ("description", "something"),
+                           ("stop-timeout", "")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop_timeout()
@@ -757,9 +759,9 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop_timeout_bad(self):
         '''Test check_snappy_service_stop_timeout() - bad'''
-        self._set_service(key="start", value="bin/foo")
-        self._set_service(key="description", value="something")
-        self._set_service(key="stop-timeout", value="a")
+        self._set_service([("start", "bin/foo"),
+                           ("description", "something"),
+                           ("stop-timeout", "a")])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop_timeout()
@@ -769,9 +771,9 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop_timeout_range_low(self):
         '''Test check_snappy_service_stop_timeout() - out of range (low)'''
-        self._set_service(key="start", value="bin/foo")
-        self._set_service(key="description", value="something")
-        self._set_service(key="stop-timeout", value=-1)
+        self._set_service([("start", "bin/foo"),
+                           ("description", "something"),
+                           ("stop-timeout", -1)])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop_timeout()
@@ -781,9 +783,9 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
 
     def test_check_snappy_service_stop_timeout_range_high(self):
         '''Test check_snappy_service_stop_timeout() - out of range (high)'''
-        self._set_service(key="start", value="bin/foo")
-        self._set_service(key="description", value="something")
-        self._set_service(key="stop-timeout", value=61)
+        self._set_service([("start", "bin/foo"),
+                           ("description", "something"),
+                           ("stop-timeout", 61)])
         c = ClickReviewSystemd(self.test_name)
         c.systemd_files['foo'] = "meta/foo.snappy-systemd"
         c.check_snappy_service_stop_timeout()

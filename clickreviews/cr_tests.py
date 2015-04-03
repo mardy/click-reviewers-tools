@@ -973,8 +973,44 @@ class TestClickReview(TestCase):
         self._update_test_framework_policy_unknown()
 
     def set_test_systemd(self, app, key, value):
-        '''Set systemd entries. If key is None, remove hook, if value is None,
-           remove key'''
+        '''Set systemd entries. If key is None, snappy-systemd from manifest
+           and yaml.
+
+           Note the click manifest and the package.yaml use different
+           storage types. pkg_yaml['services'] is a list of dictionaries where
+           manifest['hooks'] is a dictionary of dictionaries. This function
+           sets the manifest entry and then a yaml entry with 'name' field.
+
+           manifest['hooks'][app]['snappy-systemd'] = <path to yaml>
+           pkg_yaml['services'][*]['name'] = app
+           pkg_yaml['services'][*][key] = value
+        '''
+
+        # Update the package.yaml
+        if key is None:
+            if 'services' in self.test_pkg_yaml:
+                for s in self.test_pkg_yaml['services']:
+                    if 'name' in s and s['name'] == app:
+                        self.test_pkg_yaml['services'].remove(s)
+                        break
+        else:
+            found = False
+            if 'services' in self.test_pkg_yaml:
+                for s in self.test_pkg_yaml['services']:
+                    if 'name' in s and s['name'] == app:
+                        # Found the entry, so update key/value
+                        s[key] = value
+                        found = True
+                        break
+            # Did not find the entry, so create one
+            if not found:
+                if 'services' not in self.test_pkg_yaml:
+                    self.test_pkg_yaml['services'] = []
+                self.test_pkg_yaml['services'].append({'name': app,
+                                                       key: value})
+        self._update_test_pkg_yaml()
+
+        #  Update the click manifest (we still support click format)
         if key is None:
             if app in self.test_systemd:
                 self.test_systemd.pop(app)
@@ -987,6 +1023,8 @@ class TestClickReview(TestCase):
                     del(self.test_systemd[app][key])
             else:
                 self.test_systemd[app][key] = value
+
+        # Now update TEST_SNAPPY_SYSTEMD
         self._update_test_systemd()
 
     def setUp(self):
