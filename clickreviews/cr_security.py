@@ -68,8 +68,7 @@ class ClickReviewSecurity(ClickReview):
                                'comment',
                                'copyright',
                                'name']
-        self.required_fields = ['policy_groups',
-                                'policy_version']
+        self.required_fields = ['policy_version']
         self.redflag_fields = ['abstractions',
                                'binary',
                                'policy_vendor',
@@ -142,6 +141,9 @@ class ClickReviewSecurity(ClickReview):
             self.security_profiles[rel_fn] = \
                 self._extract_security_profile(app)
             self.security_apps_profiles.append(app)
+
+        # snappy
+        self.sec_skipped_types = ['oem']  # these don't need security items
 
     def _override_framework_policies(self, overrides):
         # override major framework policies
@@ -449,8 +451,19 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             if m['template'] not in self._get_templates(vendor, version):
-                t = 'error'
-                s = "specified unsupported template '%s'" % m['template']
+                if self.is_snap:
+                    frameworks = []
+                    if 'framework' in self.pkg_yaml:
+                        frameworks = [x.strip() for x in framework.split(',')]
+                    elif 'frameworks' in self.pkg_yaml:
+                        frameworks = self.pkg_yaml['frameworks']
+                    for f in frameworks:
+                        if m['template'].startswith("%s_" % f):
+                            s = "OK (matches '%s' framework)" % f
+                            break
+                else:
+                    t = 'error'
+                    s = "specified unsupported template '%s'" % m['template']
 
             self._add_result(t, n, s)
 
@@ -624,10 +637,26 @@ class ClickReviewSecurity(ClickReview):
                     continue
 
                 found = False
+                framework_found = False
+                frameworks = []
+                if self.is_snap:
+                    if 'framework' in self.pkg_yaml:
+                        frameworks = [x.strip() for x in framework.split(',')]
+                    elif 'frameworks' in self.pkg_yaml:
+                        frameworks = self.pkg_yaml['frameworks']
                 for j in policy_groups:
                     if i == os.path.basename(j):
                         found = True
                         break
+                    else:
+                        for f in frameworks:
+                            if i.startswith("%s_" % f):
+                                framework_found = True
+                                break
+                        if framework_found:
+                            found = True
+                            break
+
                 if not found:
                     t = 'error'
                     s = "unsupported policy_group '%s'" % i
@@ -640,7 +669,11 @@ class ClickReviewSecurity(ClickReview):
                     l = None
                     manual_review = False
 
-                    aa_type = self._get_policy_group_type(vendor, version, i)
+                    if framework_found:
+                        aa_type = 'framework'
+                    else:
+                        aa_type = self._get_policy_group_type(vendor, version,
+                                                              i)
                     if i == "debug":
                         t = 'error'
                         s = "(REJECT) %s policy group " % aa_type + \
@@ -652,9 +685,13 @@ class ClickReviewSecurity(ClickReview):
                         if i == "debug":
                             l = 'http://askubuntu.com/a/562123/94326'
                         manual_review = True
+                    elif aa_type == 'framework':
+                        t = 'warn'
+                        s = "(STORE CHECK) need to verify '%s' is " % i + \
+                            "in framework '%s'" % i.split('_')[0]
                     elif aa_type != "common":
                         t = 'error'
-                        s = "policy group '%s' has" % i + \
+                        s = "policy group '%s' has " % i + \
                             "unknown type '%s'" % (aa_type)
                     self._add_result(t, n, s, l, manual_review=manual_review)
 
@@ -704,7 +741,7 @@ class ClickReviewSecurity(ClickReview):
             (f, m) = self._get_security_manifest(app)
 
             t = 'info'
-            n = 'ignored_fields (%s)' % f
+            n = 'required_fields (%s)' % f
             s = "OK"
             not_found = []
             for i in self.required_fields:
@@ -735,3 +772,34 @@ class ClickReviewSecurity(ClickReview):
                                      "could not find '%s' in profile" % v)
                     continue
                 self._add_result(t, n, s)
+
+    def check_security_template(self):
+        '''Check snap security-template'''
+        # NOTE: cursory checks since check_template() does most of the work
+        if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
+            return
+
+        for exe_t in ['services', 'binaries']:
+            if exe_t not in self.pkg_yaml:
+                continue
+            for a in self.pkg_yaml[exe_t]:
+                if 'security-template' not in a:
+                    continue
+                if 'name' not in a:
+                    t = 'error'
+                    n = 'yaml_security-template_name'
+                    s = "package.yaml malformed. Could not find 'name' " + \
+                        "for entry in '%s'" % a
+                    self._add_result(t, n, s)
+                    continue
+
+                t = 'info'
+                n = 'yaml_security-template_%s' % a['name']
+                s = "OK"
+                if not isinstance(a['security-template'], str):
+                    t = 'error'
+                    s = "'%s/%s' malformed: '%s' is not str" % (exe_t,
+                        a['name'], a['security-template'])
+                self._add_result(t, n, s)
+
+
