@@ -1014,7 +1014,7 @@ class TestClickReview(TestCase):
 
     def set_test_systemd(self, app, key, value):
         '''Set systemd entries. If key is None, remove snappy-systemd from
-           manifest and yaml, if value is None, remove key.
+           manifest and yaml.
 
            Note the click manifest and the package.yaml use different
            storage types. pkg_yaml['services'] is a list of dictionaries where
@@ -1033,13 +1033,6 @@ class TestClickReview(TestCase):
                     if 'name' in s and s['name'] == app:
                         self.test_pkg_yaml['services'].remove(s)
                         break
-#         elif value is None:
-#             if 'services' in self.test_pkg_yaml:
-#                 for s in self.test_pkg_yaml['services']:
-#                     if 'name' in s and s['name'] == app:
-#                         if key in s:
-#                             s.remove(key)
-#                             break
         else:
             found = False
             if 'services' in self.test_pkg_yaml:
