@@ -596,7 +596,7 @@ class ClickReviewSecurity(ClickReview):
             n = 'policy_groups_exists_%s (%s)' % (app, f)
             if 'policy_groups' not in m:
                 # If template not specified, we just use the default
-                self._add_result('warn', n, 'no policy groups specified')
+                self._add_result('info', n, 'no policy groups specified')
                 continue
             elif 'policy_version' not in m:
                 self._add_result('error', n,
@@ -884,8 +884,6 @@ class ClickReviewSecurity(ClickReview):
             if 'policy_groups' in m:
                 tmp['caps'] = set(m['policy_groups'])
 
-            # TODO: empty caps
-
             converted[key].append(copy.deepcopy(tmp))
 
         # TODO: apparmor-profile to security-policy
@@ -927,9 +925,38 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_yaml_combinations(self):
         '''Verify security yaml uses valid combinations'''
-        # TODO: security-template and caps together
-        #       security-override alone
-        #       security-policy alone
+        if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
+            return
+
+        for exe_t in ['services', 'binaries']:
+            if exe_t not in self.pkg_yaml:
+                continue
+            for a in self.pkg_yaml[exe_t]:
+                if 'name' not in a:
+                    t = 'error'
+                    n = 'yaml_combinations_name'
+                    s = "package.yaml malformed. Could not find 'name' " + \
+                        "for entry in '%s'" % a
+                    self._add_result(t, n, s)
+                    continue
+
+                app = a['name']
+
+                t = 'info'
+                n = 'yaml_combinations_%s' % app
+                s = "OK"
+                if "security-policy" in app:
+                    for i in ['security-override', 'security-template',
+                              'caps']:
+                        t = 'error'
+                        s = "Found '%s' with 'security-policy'" % (i)
+                        break
+                elif "security-override" in app:
+                    for i in ['security-policy', 'security-template', 'caps']:
+                        t = 'error'
+                        s = "Found '%s' with 'security-override'" % (i)
+                        break
+                self._add_result(t, n, s)
 
     def check_security_template(self):
         '''Check snap security-template'''
