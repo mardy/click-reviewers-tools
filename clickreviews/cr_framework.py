@@ -86,8 +86,7 @@ class ClickReviewFramework(ClickReview):
                 for k in glob.glob("%s/*" % j):
                     rel_k = os.path.basename(k)
                     if not os.path.isfile(k):
-                        unknown.append(os.path.relpath(k,
-                                            self.unpack_dir))
+                        unknown.append(os.path.relpath(k, self.unpack_dir))
                         continue
 
                     fh = open_file_read(k)

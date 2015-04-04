@@ -850,8 +850,8 @@ class ClickReviewSecurity(ClickReview):
                         if not find_match(fapp['name'], key, fapp[key], sapp):
                             t = 'error'
                             s = "%s missing '%s' for '%s'" % \
-                                    (m, key, fapp['name']) + \
-                                    "\n:%s\nvs\n%s" % (fapp, sapp)
+                                (m, key, fapp['name']) + \
+                                "\n:%s\nvs\n%s" % (fapp, sapp)
                         self._add_result(t, n, s)
 
     def _convert_click_security_to_yaml(self):
@@ -886,6 +886,8 @@ class ClickReviewSecurity(ClickReview):
             converted[key].append(copy.deepcopy(tmp))
 
         # TODO: apparmor-profile to security-policy
+        for app in sorted(self.security_apps_profiles):
+            pass
 
         return converted
 
@@ -909,7 +911,7 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
-        # TODO: 
+        # TODO: implement
 
     def check_security_yaml_override(self):
         '''Verify security yaml override'''
