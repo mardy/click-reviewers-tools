@@ -810,3 +810,11 @@ class ClickReviewSecurity(ClickReview):
                     s = "'%s/%s' malformed: '%s' is not str" % \
                         (exe_t, a['name'], a['security-template'])
                 self._add_result(t, n, s)
+
+                t = 'info'
+                n = 'yaml_security-template_in_json_%s' % a['name']
+                s = "OK"
+                if a['name'] not in self.manifest['hooks']:
+                    t = 'error'
+                    s = "'%s' not found in click manifest" % a['name']
+                self._add_result(t, n, s)
