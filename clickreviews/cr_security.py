@@ -19,6 +19,7 @@ from __future__ import print_function
 from clickreviews.cr_common import ClickReview, error, open_file_read
 import clickreviews.cr_common as cr_common
 import clickreviews.apparmor_policy as apparmor_policy
+import copy
 import json
 import os
 
@@ -782,6 +783,148 @@ class ClickReviewSecurity(ClickReview):
                     continue
                 self._add_result(t, n, s)
 
+    def _compare_security_yamls(self, yaml, click_m):
+        '''Compare two security yamls'''
+        def find_match(name, key, value, my_dict):
+            if 'name' in my_dict and my_dict['name'] == name and \
+               key in my_dict and my_dict[key] == value:
+                return True
+            return False
+
+        for first in [yaml, click_m]:
+            if first == yaml:
+                second = click_m
+                m = "click manifest"
+            else:
+                second = yaml
+                m = "package.yaml"
+            for exe_t in ['binaries', 'services']:
+                t = 'info'
+                n = 'security_yaml_%s' % exe_t
+                s = 'OK'
+                if exe_t in first and exe_t not in second:
+                    t = 'error'
+                    s = "%s missing '%s'" % (m, exe_t)
+                elif exe_t not in first and exe_t in second:
+                    t = 'error'
+                    s = "%s has extra '%s'" % (m, exe_t)
+                self._add_result(t, n, s)
+
+                if t == 'error':
+                    continue
+                elif exe_t not in first and exe_t not in second:
+                    continue
+
+                t = 'info'
+                n = 'security_yaml_%s_entries' % exe_t
+                s = 'OK'
+                if len(first[exe_t]) < len(second[exe_t]):
+                    t = 'error'
+                    s = "%s has extra '%s' entries" % (m, exe_t)
+                self._add_result(t, n, s)
+
+                for fapp in first[exe_t]:
+                    t = 'info'
+                    n = 'security_yaml_%s_%s' % (exe_t, fapp['name'])
+                    s = 'OK'
+                    sapp = None
+                    for tmp in second[exe_t]:
+                        if tmp['name'] == fapp['name']:
+                            sapp = tmp
+                    if sapp is None:
+                        t = 'error'
+                        s = "%s missing '%s'" % (m, fapp['name'])
+                        self._add_result(t, n, s)
+                        continue
+                    self._add_result(t, n, s)
+
+                    for key in ['security-template', 'caps']:
+                        if key not in fapp:
+                            if key == 'security-template':
+                                fapp['security-template'] = 'default'
+                            elif key == 'caps':
+                                fapp['caps'] = ['networking']
+                        t = 'info'
+                        n = 'security_yaml_%s_%s' % (exe_t, fapp['name'])
+                        s = 'OK'
+                        if not find_match(fapp['name'], key, fapp[key], sapp):
+                            t = 'error'
+                            s = "%s missing '%s' for '%s'" % \
+                                    (m, key, fapp['name']) + \
+                                    "\n:%s\nvs\n%s" % (fapp, sapp)
+                        self._add_result(t, n, s)
+
+    def _convert_click_security_to_yaml(self):
+        '''Convert click manifest to yaml'''
+        converted = dict()
+        for app in sorted(self.security_apps):
+            if 'snappy-systemd' in self.manifest['hooks'][app]:
+                key = 'services'
+            elif 'bin-path' in self.manifest['hooks'][app]:
+                key = 'binaries'
+            else:
+                t = 'error'
+                n = 'yaml_click_%s' % app
+                s = "click manifest missing 'snappy-systemd/bin-path' for " + \
+                    "'%s'" % app
+                self._add_result(t, n, s)
+                continue
+
+            if key not in converted:
+                converted[key] = []
+            tmp = dict()
+            tmp['name'] = app
+
+            (f, m) = self._get_security_manifest(app)
+            if 'template' in m:
+                tmp['security-template'] = m['template']
+
+            if 'policy_groups' in m:
+                tmp['caps'] = m['policy_groups']
+            # TODO: empty caps
+
+            converted[key].append(copy.deepcopy(tmp))
+
+        # TODO: apparmor-profile to security-policy
+
+        return converted
+
+    def check_security_yaml_and_click(self):
+        '''Verify click and security yaml are in sync'''
+        if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
+            return
+
+        converted = self._convert_click_security_to_yaml()
+
+        y = dict()
+        if 'binaries' in self.pkg_yaml:
+            y['binaries'] = self.pkg_yaml['binaries']
+        if 'services' in self.pkg_yaml:
+            y['services'] = self.pkg_yaml['services']
+
+        self._compare_security_yamls(y, converted)
+
+    def check_security_yaml_override_and_click(self):
+        '''Verify click and security yaml override are in sync'''
+        if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
+            return
+
+        # TODO: 
+
+    def check_security_yaml_override(self):
+        '''Verify security yaml override'''
+        # TODO: verify have both seccomp and apparmor
+
+    def check_security_yaml_policy(self):
+        '''Verify security yaml policy'''
+        # TODO: verify have both seccomp and apparmor
+
+    def check_security_yaml_combinations(self):
+        '''Verify security yaml uses valid combinations'''
+        # TODO: security-template and caps together
+        #       security-override alone
+        #       security-policy alone
+
     def check_security_template(self):
         '''Check snap security-template'''
         if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
@@ -830,20 +973,3 @@ class ClickReviewSecurity(ClickReview):
                     s = "'apparmor' not found in click manifest for '%s'" % app
                     self._add_result(t, n, s)
                     continue
-
-                (f, m) = self._get_security_manifest(app)
-                if tmpl == "" and 'template' in m:
-                    t = 'error'
-                    s = "'security-template' not found in yaml " + \
-                        "for '%s' but found in click security " % app + \
-                        "manifest:\n%s" % m
-                elif tmpl != "" and 'template' not in m:
-                    t = 'error'
-                    s = "'%s' template not found in click security " % tmpl + \
-                        "manifest for '%s':\n%s" % (app, m)
-                elif tmpl != "" and 'template' in m and m['template'] != tmpl:
-                    t = 'error'
-                    s = "'%s' != '%s' template in " % (tmpl, m['template']) + \
-                        "click security manifest for '%s':\n%s" % (app, m)
-
-                self._add_result(t, n, s)
