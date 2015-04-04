@@ -794,20 +794,22 @@ class ClickReviewSecurity(ClickReview):
         for first in [yaml, click_m]:
             if first == yaml:
                 second = click_m
-                m = "click manifest"
+                second_m = "click-manifest"
+                first_m = "package.yaml"
             else:
                 second = yaml
-                m = "package.yaml"
+                first_m = "click-manifest"
+                second_m = "package.yaml"
             for exe_t in ['binaries', 'services']:
                 t = 'info'
                 n = 'security_yaml_%s' % exe_t
                 s = 'OK'
                 if exe_t in first and exe_t not in second:
                     t = 'error'
-                    s = "%s missing '%s'" % (m, exe_t)
+                    s = "%s missing '%s'" % (second_m, exe_t)
                 elif exe_t not in first and exe_t in second:
                     t = 'error'
-                    s = "%s has extra '%s'" % (m, exe_t)
+                    s = "%s has extra '%s'" % (second_m, exe_t)
                 self._add_result(t, n, s)
 
                 if t == 'error':
@@ -820,7 +822,7 @@ class ClickReviewSecurity(ClickReview):
                 s = 'OK'
                 if len(first[exe_t]) < len(second[exe_t]):
                     t = 'error'
-                    s = "%s has extra '%s' entries" % (m, exe_t)
+                    s = "%s has extra '%s' entries" % (second_m, exe_t)
                 self._add_result(t, n, s)
 
                 for fapp in first[exe_t]:
@@ -833,25 +835,23 @@ class ClickReviewSecurity(ClickReview):
                             sapp = tmp
                     if sapp is None:
                         t = 'error'
-                        s = "%s missing '%s'" % (m, fapp['name'])
+                        s = "%s missing '%s'" % (second_m, fapp['name'])
                         self._add_result(t, n, s)
                         continue
                     self._add_result(t, n, s)
 
                     for key in ['security-template', 'caps']:
                         if key not in fapp:
-                            if key == 'security-template':
-                                fapp['security-template'] = 'default'
-                            elif key == 'caps':
-                                fapp['caps'] = ['networking']
+                            continue
                         t = 'info'
-                        n = 'security_yaml_%s_%s' % (exe_t, fapp['name'])
+                        n = 'security_yaml_%s_%s' % (exe_t, second_m)
                         s = 'OK'
                         if not find_match(fapp['name'], key, fapp[key], sapp):
                             t = 'error'
-                            s = "%s missing '%s' for '%s'" % \
-                                (m, key, fapp['name']) + \
-                                "\n:%s\nvs\n%s" % (fapp, sapp)
+                            s = "%s has different '%s' for '%s'" % \
+                                (second_m, key, fapp['name']) + \
+                                " - '%s:%s' vs '%s:%s'" % (first_m, fapp,
+                                                           second_m, sapp)
                         self._add_result(t, n, s)
 
     def _convert_click_security_to_yaml(self):
@@ -881,6 +881,7 @@ class ClickReviewSecurity(ClickReview):
 
             if 'policy_groups' in m:
                 tmp['caps'] = m['policy_groups']
+
             # TODO: empty caps
 
             converted[key].append(copy.deepcopy(tmp))
@@ -889,7 +890,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps_profiles):
             pass
 
-        return converted
+        return copy.deepcopy(converted)
 
     def check_security_yaml_and_click(self):
         '''Verify click and security yaml are in sync'''
@@ -898,6 +899,7 @@ class ClickReviewSecurity(ClickReview):
 
         converted = self._convert_click_security_to_yaml()
 
+        # setup a small dict that is a subset of self.pkg_yaml
         y = dict()
         if 'binaries' in self.pkg_yaml:
             y['binaries'] = self.pkg_yaml['binaries']

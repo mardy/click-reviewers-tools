@@ -767,11 +767,16 @@ class TestClickReview(TestCase):
                             break
         else:
             found = False
+            k = key
+            if key == 'template':
+                k = 'security-template'
+            elif key == 'policy_groups':
+                k = 'caps'
             if 'binaries' in self.test_pkg_yaml:
                 for b in self.test_pkg_yaml['binaries']:
                     if 'name' in b and b['name'] == app:
                         # Found the entry, so update key/value
-                        b[key] = value
+                        b[k] = value
                         found = True
                         break
             # Did not find the entry, so create one
@@ -779,7 +784,7 @@ class TestClickReview(TestCase):
                 if 'binaries' not in self.test_pkg_yaml:
                     self.test_pkg_yaml['binaries'] = []
                 self.test_pkg_yaml['binaries'].append({'name': app,
-                                                       key: value})
+                                                       k: value})
         self._update_test_pkg_yaml()
 
         # click manifest
