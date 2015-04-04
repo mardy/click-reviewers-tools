@@ -843,6 +843,8 @@ class ClickReviewSecurity(ClickReview):
                     for key in ['security-template', 'caps']:
                         if key not in fapp:
                             continue
+                        if key == 'caps':
+                            fapp['caps'] = set(fapp['caps'])
                         t = 'info'
                         n = 'security_yaml_%s_%s' % (exe_t, second_m)
                         s = 'OK'
@@ -880,7 +882,7 @@ class ClickReviewSecurity(ClickReview):
                 tmp['security-template'] = m['template']
 
             if 'policy_groups' in m:
-                tmp['caps'] = m['policy_groups']
+                tmp['caps'] = set(m['policy_groups'])
 
             # TODO: empty caps
 
@@ -902,9 +904,9 @@ class ClickReviewSecurity(ClickReview):
         # setup a small dict that is a subset of self.pkg_yaml
         y = dict()
         if 'binaries' in self.pkg_yaml:
-            y['binaries'] = self.pkg_yaml['binaries']
+            y['binaries'] = copy.deepcopy(self.pkg_yaml['binaries'])
         if 'services' in self.pkg_yaml:
-            y['services'] = self.pkg_yaml['services']
+            y['services'] = copy.deepcopy(self.pkg_yaml['services'])
 
         self._compare_security_yamls(y, converted)
 

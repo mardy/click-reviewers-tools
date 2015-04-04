@@ -1254,10 +1254,62 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "template", "other")
         self._set_yaml_binary([("security-template", "nondefault"),
                                ('caps', ['networking'])],
-                               name=self.default_appname)
+                              name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
         c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
         c.check_security_yaml_and_click()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_mismatch6(self):
+        '''Test check_security_yaml_and_click() - missing caps'''
+        self._set_yaml_binary([('caps', [])])
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["1", "2"])
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        del c.pkg_yaml['binaries'][0]['caps']
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_mismatch7(self):
+        '''Test check_security_yaml_and_click() - missing policy_groups'''
+        self._set_yaml_binary([('caps', ['networking'])],
+                              name=self.default_appname)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", None)
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_mismatch8(self):
+        '''Test check_security_template() - different caps/policy_groups'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["1", "2"])
+        self._set_yaml_binary([('caps', ["3"])],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_mismatch9(self):
+        '''Test check_security_template() - unordered caps/policy_groups'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["1", "2"])
+        self._set_yaml_binary([('caps', ["2", "1"])],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
