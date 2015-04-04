@@ -450,24 +450,28 @@ class ClickReviewSecurity(ClickReview):
                 continue
             self._add_result(t, n, s)
 
-            if m['template'] not in self._get_templates(vendor, version):
-                if self.is_snap:
-                    frameworks = []
-                    if 'framework' in self.pkg_yaml:
-                        frameworks = [x.strip() for x in framework.split(',')]
-                    elif 'frameworks' in self.pkg_yaml:
-                        frameworks = self.pkg_yaml['frameworks']
-                    for f in frameworks:
-                        if m['template'].startswith("%s_" % f):
-                            t = 'warn'
-                            # s = "OK (matches '%s' framework)" % f
-                            s = "(STORE CHECK) need to verify " + \
-                                "'%s' is in framwork " % m['template'] + \
-                                "'%s'" % f
-                            break
-                else:
-                    t = 'error'
-                    s = "specified unsupported template '%s'" % m['template']
+            found = False
+            if m['template'] in self._get_templates(vendor, version):
+                found = True
+            elif self.is_snap:
+                frameworks = []
+                if 'framework' in self.pkg_yaml:
+                    frameworks = [x.strip() for x in framework.split(',')]
+                elif 'frameworks' in self.pkg_yaml:
+                    frameworks = self.pkg_yaml['frameworks']
+                for f in frameworks:
+                    if m['template'].startswith("%s_" % f):
+                        t = 'warn'
+                        # s = "OK (matches '%s' framework)" % f
+                        s = "(STORE CHECK) need to verify " + \
+                            "'%s' is in framwork " % m['template'] + \
+                            "'%s'" % f
+                        found = True
+                        break
+
+            if not found:
+                t = 'error'
+                s = "specified unsupported template '%s'" % m['template']
 
             self._add_result(t, n, s)
 
