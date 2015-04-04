@@ -745,12 +745,52 @@ class TestClickReview(TestCase):
         self._update_test_readme_md()
 
     def set_test_security_manifest(self, app, key, value):
-        '''Set key in security manifest to value. If value is None, remove
-           key'''
+        '''Set key in security manifest and package.yaml to value. If value is
+           None, remove key, if key is None, remove app.
+        '''
+        # package.yaml - we don't know if it is a service or a binary with
+        # these values, so just use 'binaries'
+        if key is None:
+            if 'binaries' in self.test_pkg_yaml:
+                for b in self.test_pkg_yaml['binaries']:
+                    if 'name' in b and b['name'] == app:
+                        self.test_pkg_yaml['binaries'].remove(b)
+                        break
+        elif value is None:
+            if 'binaries' in self.test_pkg_yaml:
+                found = False
+                for b in self.test_pkg_yaml['binaries']:
+                    if 'name' in b and b['name'] == app:
+                        if key in b:
+                            b.remove(key)
+                            found = True
+                            break
+        else:
+            found = False
+            if 'binaries' in self.test_pkg_yaml:
+                for b in self.test_pkg_yaml['binaries']:
+                    if 'name' in b and b['name'] == app:
+                        # Found the entry, so update key/value
+                        b[key] = value
+                        found = True
+                        break
+            # Did not find the entry, so create one
+            if not found:
+                if 'binaries' not in self.test_pkg_yaml:
+                    self.test_pkg_yaml['binaries'] = []
+                self.test_pkg_yaml['binaries'].append({'name': app,
+                                                       key: value})
+        self._update_test_pkg_yaml()
+
+        # click manifest
         if app not in self.test_security_manifests:
             self.test_security_manifests[app] = dict()
 
-        if value is None:
+        if key is None:
+            if app in self.test_security_manifests:
+                del self.test_security_manifests[app]
+                del self.test_manifest["hooks"][app]
+        elif value is None:
             if key in self.test_security_manifests[app]:
                 self.test_security_manifests[app].pop(key, None)
         else:
@@ -973,8 +1013,8 @@ class TestClickReview(TestCase):
         self._update_test_framework_policy_unknown()
 
     def set_test_systemd(self, app, key, value):
-        '''Set systemd entries. If key is None, snappy-systemd from manifest
-           and yaml.
+        '''Set systemd entries. If key is None, remove snappy-systemd from
+           manifest and yaml, if value is None, remove key.
 
            Note the click manifest and the package.yaml use different
            storage types. pkg_yaml['services'] is a list of dictionaries where
@@ -993,6 +1033,13 @@ class TestClickReview(TestCase):
                     if 'name' in s and s['name'] == app:
                         self.test_pkg_yaml['services'].remove(s)
                         break
+#         elif value is None:
+#             if 'services' in self.test_pkg_yaml:
+#                 for s in self.test_pkg_yaml['services']:
+#                     if 'name' in s and s['name'] == app:
+#                         if key in s:
+#                             s.remove(key)
+#                             break
         else:
             found = False
             if 'services' in self.test_pkg_yaml:

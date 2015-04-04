@@ -45,7 +45,7 @@ class ClickReviewSystemd(ClickReview):
         # - security-policy (checked in in cr_security.py)
         self.required_keys = ['start', 'description']
         self.optional_keys = ['stop', 'poststop', 'stop-timeout'] + \
-                             self.snappy_exe_security
+            self.snappy_exe_security
 
         self.systemd_files = dict()  # click-show-files and tests
         self.systemd = dict()

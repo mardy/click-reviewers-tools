@@ -32,6 +32,16 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.default_security_json = "%s.apparmor" % \
             self.default_appname
 
+    def _set_yaml_binary(self, entries, name=None):
+        d = dict()
+        if name is None:
+            d['name'] = self.default_appname
+        else:
+            d['name'] = name
+        for (key, value) in entries:
+            d[key] = value
+        self.set_test_pkg_yaml("binaries", [d])
+
     def test_check_policy_version_vendor(self):
         '''Test check_policy_version() - valid'''
         for v in [1.0]:  # update when have more vendor policy
@@ -1136,4 +1146,93 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_apparmor_profile()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_default(self):
+        '''Test check_security_template() - default'''
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_nondefault(self):
+        '''Test check_security_template() - nondefault'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "nondefault")
+        self._set_yaml_binary([('security-template', 'nondefault')])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_bad(self):
+        '''Test check_security_template() - {}'''
+        self._set_yaml_binary([('security-template', {})])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_mismatch1(self):
+        '''Test check_security_template() - missing app in hooks'''
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+
+        # update the manifest and test_manifest
+        del c.manifest["hooks"][self.default_appname]
+        self._update_test_manifest()
+
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_mismatch2(self):
+        '''Test check_security_template() - missing apparmor in hooks'''
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+
+        # update the manifest and test_manifest
+        del c.manifest["hooks"][self.default_appname]['apparmor']
+        self._update_test_manifest()
+
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_mismatch3(self):
+        '''Test check_security_template() - missing security-template'''
+        self._set_yaml_binary([])
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "nondefault")
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_mismatch4(self):
+        '''Test check_security_template() - missing click template'''
+        self._set_yaml_binary([("security-template", "nondefault")])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_mismatch4(self):
+        '''Test check_security_template() - missing click template'''
+        self._set_yaml_binary([("security-template", "nondefault")])
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "other")
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)

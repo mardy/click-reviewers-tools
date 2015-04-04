@@ -461,11 +461,11 @@ class ClickReviewSecurity(ClickReview):
                     frameworks = self.pkg_yaml['frameworks']
                 for f in frameworks:
                     if m['template'].startswith("%s_" % f):
-                        t = 'warn'
                         # s = "OK (matches '%s' framework)" % f
-                        s = "(STORE CHECK) need to verify " + \
-                            "'%s' is in framwork " % m['template'] + \
-                            "'%s'" % f
+                        # t = 'warn'
+                        # s = "(STORE CHECK) need to verify " + \
+                        #     "'%s' is in framwork " % m['template'] + \
+                        #     "'%s'" % f
                         found = True
                         break
 
@@ -694,10 +694,10 @@ class ClickReviewSecurity(ClickReview):
                             l = 'http://askubuntu.com/a/562123/94326'
                         manual_review = True
                     elif aa_type == 'framework':
-                        # s = "OK (matches '%s' framework)" % i.split('_')[0]
-                        t = 'warn'
-                        s = "(STORE CHECK) need to verify '%s' is " % i + \
-                            "in framework '%s'" % i.split('_')[0]
+                        s = "OK (matches '%s' framework)" % i.split('_')[0]
+                        # t = 'warn'
+                        # s = "(STORE CHECK) need to verify '%s' is " % i + \
+                        #     "in framework '%s'" % i.split('_')[0]
                     elif aa_type != "common":
                         t = 'error'
                         s = "policy group '%s' has " % i + \
@@ -784,7 +784,6 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_template(self):
         '''Check snap security-template'''
-        # NOTE: cursory checks since check_template() does most of the work
         if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
@@ -793,7 +792,10 @@ class ClickReviewSecurity(ClickReview):
                 continue
             for a in self.pkg_yaml[exe_t]:
                 if 'security-template' not in a:
-                    continue
+                    tmpl = ""
+                else:
+                    tmpl = a['security-template']
+
                 if 'name' not in a:
                     t = 'error'
                     n = 'yaml_security-template_name'
@@ -802,19 +804,46 @@ class ClickReviewSecurity(ClickReview):
                     self._add_result(t, n, s)
                     continue
 
+                app = a['name']
+
                 t = 'info'
-                n = 'yaml_security-template_%s' % a['name']
+                n = 'yaml_security-template_%s' % app
                 s = "OK"
-                if not isinstance(a['security-template'], str):
+                if not isinstance(tmpl, str):
                     t = 'error'
-                    s = "'%s/%s' malformed: '%s' is not str" % \
-                        (exe_t, a['name'], a['security-template'])
+                    s = "'%s/%s' malformed: '%s' is not str" % (exe_t, app,
+                                                                tmpl)
+                    self._add_result(t, n, s)
+                    continue
                 self._add_result(t, n, s)
 
                 t = 'info'
-                n = 'yaml_security-template_in_json_%s' % a['name']
+                n = 'yaml_security-template_in_manifest_%s' % app
                 s = "OK"
-                if a['name'] not in self.manifest['hooks']:
+                if app not in self.manifest['hooks']:
                     t = 'error'
-                    s = "'%s' not found in click manifest" % a['name']
+                    s = "'%s' not found in click manifest" % app
+                    self._add_result(t, n, s)
+                    continue
+                elif 'apparmor' not in self.manifest['hooks'][app]:
+                    t = 'error'
+                    s = "'apparmor' not found in click manifest for '%s'" % app
+                    self._add_result(t, n, s)
+                    continue
+
+                (f, m) = self._get_security_manifest(app)
+                if tmpl == "" and 'template' in m:
+                    t = 'error'
+                    s = "'security-template' not found in yaml " + \
+                        "for '%s' but found in click security " % app + \
+                        "manifest:\n%s" % m
+                elif tmpl != "" and 'template' not in m:
+                    t = 'error'
+                    s = "'%s' template not found in click security " % tmpl + \
+                        "manifest for '%s':\n%s" % (app, m)
+                elif tmpl != "" and 'template' in m and m['template'] != tmpl:
+                    t = 'error'
+                    s = "'%s' != '%s' template in " % (tmpl, m['template']) + \
+                        "click security manifest for '%s':\n%s" % (app, m)
+
                 self._add_result(t, n, s)
