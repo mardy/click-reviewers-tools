@@ -807,8 +807,6 @@ class ClickReviewSecurity(ClickReview):
                 s = "OK"
                 if not isinstance(a['security-template'], str):
                     t = 'error'
-                    s = "'%s/%s' malformed: '%s' is not str" % (exe_t,
-                        a['name'], a['security-template'])
+                    s = "'%s/%s' malformed: '%s' is not str" % \
+                        (exe_t, a['name'], a['security-template'])
                 self._add_result(t, n, s)
-
-
