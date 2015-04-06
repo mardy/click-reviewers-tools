@@ -802,7 +802,7 @@ class ClickReviewSecurity(ClickReview):
                 second_m = "package.yaml"
             for exe_t in ['binaries', 'services']:
                 t = 'info'
-                n = 'security_yaml_%s' % exe_t
+                n = 'yaml_%s' % exe_t
                 s = 'OK'
                 if exe_t in first and exe_t not in second:
                     t = 'error'
@@ -818,7 +818,7 @@ class ClickReviewSecurity(ClickReview):
                     continue
 
                 t = 'info'
-                n = 'security_yaml_%s_entries' % exe_t
+                n = 'yaml_%s_entries' % exe_t
                 s = 'OK'
                 if len(first[exe_t]) < len(second[exe_t]):
                     t = 'error'
@@ -827,7 +827,7 @@ class ClickReviewSecurity(ClickReview):
 
                 for fapp in first[exe_t]:
                     t = 'info'
-                    n = 'security_yaml_%s_%s' % (exe_t, fapp['name'])
+                    n = 'yaml_%s_%s' % (exe_t, fapp['name'])
                     s = 'OK'
                     sapp = None
                     for tmp in second[exe_t]:
@@ -846,7 +846,7 @@ class ClickReviewSecurity(ClickReview):
                         if key == 'caps':
                             fapp['caps'] = set(fapp['caps'])
                         t = 'info'
-                        n = 'security_yaml_%s_%s' % (exe_t, second_m)
+                        n = 'yaml_%s_%s' % (exe_t, second_m)
                         s = 'OK'
                         if not find_match(fapp['name'], key, fapp[key], sapp):
                             t = 'error'
@@ -886,9 +886,28 @@ class ClickReviewSecurity(ClickReview):
 
             converted[key].append(copy.deepcopy(tmp))
 
-        # TODO: apparmor-profile to security-policy
         for app in sorted(self.security_apps_profiles):
-            pass
+            if 'snappy-systemd' in self.manifest['hooks'][app]:
+                key = 'services'
+            elif 'bin-path' in self.manifest['hooks'][app]:
+                key = 'binaries'
+            else:
+                t = 'error'
+                n = 'yaml_click_%s' % app
+                s = "click manifest missing 'snappy-systemd/bin-path' for " + \
+                    "'%s'" % app
+                self._add_result(t, n, s)
+                continue
+
+            if key not in converted:
+                converted[key] = []
+            tmp = dict()
+            tmp['name'] = app
+
+            (f, p) = self._get_security_profile(app)
+            tmp['security-policy'] = {'apparmor': f}
+
+            converted[key].append(copy.deepcopy(tmp))
 
         return copy.deepcopy(converted)
 
@@ -915,7 +934,6 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
-        # if same file, ok, if not, error
         for exe_t in ['services', 'binaries']:
             if exe_t not in self.pkg_yaml:
                 continue
@@ -937,22 +955,78 @@ class ClickReviewSecurity(ClickReview):
                     s = "OK (skipping unspecified override)"
                 elif 'apparmor' not in a['security-override']:
                     t = 'error'
-                    s = "apparmor not specified 'security-override' for " + \
-                        "'%s'" % app
+                    s = "'apparmor' not specified in 'security-override' " + \
+                        "for '%s'" % app
                 elif a['security-override']['apparmor'] not in \
                         self.security_manifests:
                     t = 'error'
                     s = "'%s' not found in click manifest for '%s'" % \
                         (a['security-override']['apparmor'], app)
+                # NOTE: we skip 'seccomp' because there isn't currently a
+                # click hook for it
                 self._add_result(t, n, s)
 
     def check_security_yaml_override(self):
         '''Verify security yaml override'''
-        # TODO: verify have both seccomp and apparmor, file, etc
+        for exe_t in ['services', 'binaries']:
+            if exe_t not in self.pkg_yaml:
+                continue
+
+            for a in self.pkg_yaml[exe_t]:
+                if 'name' not in a:
+                    t = 'error'
+                    n = 'yaml_override_name'
+                    s = "package.yaml malformed. Could not find 'name' " + \
+                        "for entry in '%s'" % a
+                    self._add_result(t, n, s)
+                    continue
+
+                app = a['name']
+                t = 'info'
+                n = 'yaml_override_format_%s' % app
+                s = "OK"
+                if 'security-override' not in a:
+                    s = "OK (skipping unspecified override)"
+                elif 'apparmor' not in a['security-override']:
+                    t = 'error'
+                    s = "'apparmor' not specified in 'security-override' " + \
+                        "for '%s'" % app
+                elif 'seccomp' not in a['security-override']:
+                    t = 'error'
+                    s = "'seccomp' not specified in 'security-override' " + \
+                        "for '%s'" % app
+                self._add_result(t, n, s)
 
     def check_security_yaml_policy(self):
         '''Verify security yaml policy'''
-        # TODO: verify have both seccomp and apparmor, file, etc
+        for exe_t in ['services', 'binaries']:
+            if exe_t not in self.pkg_yaml:
+                continue
+
+            for a in self.pkg_yaml[exe_t]:
+                if 'name' not in a:
+                    t = 'error'
+                    n = 'yaml_policy_name'
+                    s = "package.yaml malformed. Could not find 'name' " + \
+                        "for entry in '%s'" % a
+                    self._add_result(t, n, s)
+                    continue
+
+                app = a['name']
+                t = 'info'
+                n = 'yaml_policy_format_%s' % app
+                s = "OK"
+                if 'security-policy' not in a:
+                    s = "OK (skipping unspecified policy)"
+                elif 'apparmor' not in a['security-policy']:
+                    t = 'error'
+                    s = "'apparmor' not specified in 'security-policy' " + \
+                        "for '%s'" % app
+                elif 'seccomp' not in a['security-policy']:
+                    t = 'error'
+                    s = "'seccomp' not specified in 'security-policy' for " + \
+                        "'%s'" % app
+                self._add_result(t, n, s)
 
     def check_security_yaml_combinations(self):
         '''Verify security yaml uses valid combinations'''
@@ -982,7 +1056,6 @@ class ClickReviewSecurity(ClickReview):
                         if i in a:
                             t = 'error'
                             s = "Found '%s' with 'security-policy'" % (i)
-                            print("JAMIE1")
                             break
                 elif "security-override" in a:
                     for i in ['security-policy', 'security-template', 'caps']:
@@ -1035,7 +1108,8 @@ class ClickReviewSecurity(ClickReview):
                     s = "'%s' not found in click manifest" % app
                     self._add_result(t, n, s)
                     continue
-                elif 'apparmor' not in self.manifest['hooks'][app]:
+                elif 'apparmor' not in self.manifest['hooks'][app] and \
+                     'apparmor-profile' not in self.manifest['hooks'][app]:
                     t = 'error'
                     s = "'apparmor' not found in click manifest for '%s'" % app
                     self._add_result(t, n, s)
