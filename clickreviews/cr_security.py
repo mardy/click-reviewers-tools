@@ -893,7 +893,9 @@ class ClickReviewSecurity(ClickReview):
         return copy.deepcopy(converted)
 
     def check_security_yaml_and_click(self):
-        '''Verify click and security yaml are in sync'''
+        '''Verify click and security yaml are in sync (not including
+           override)
+        '''
         if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
@@ -913,7 +915,36 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
-        # TODO: implement
+        # if same file, ok, if not, error
+        for exe_t in ['services', 'binaries']:
+            if exe_t not in self.pkg_yaml:
+                continue
+
+            for a in self.pkg_yaml[exe_t]:
+                if 'name' not in a:
+                    t = 'error'
+                    n = 'yaml_override_click_name'
+                    s = "package.yaml malformed. Could not find 'name' " + \
+                        "for entry in '%s'" % a
+                    self._add_result(t, n, s)
+                    continue
+
+                app = a['name']
+                t = 'info'
+                n = 'yaml_override_click_%s' % app
+                s = "OK"
+                if 'security-override' not in a:
+                    s = "OK (skipping unspecified override)"
+                elif 'apparmor' not in a['security-override']:
+                    t = 'error'
+                    s = "apparmor not specified 'security-override' for " + \
+                        "'%s'" % app
+                elif a['security-override']['apparmor'] not in \
+                        self.security_manifests:
+                    t = 'error'
+                    s = "'%s' not found in click manifest for '%s'" % \
+                        (a['security-override']['apparmor'], app)
+                self._add_result(t, n, s)
 
     def check_security_yaml_override(self):
         '''Verify security yaml override'''

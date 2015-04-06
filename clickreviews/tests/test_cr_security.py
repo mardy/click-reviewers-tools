@@ -1468,3 +1468,25 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override_and_click(self):
+        '''Test check_security_yaml_override_and_click()'''
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override_and_click()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override_and_click_bad(self):
+        '''Test check_security_yaml_override_and_click() - bad'''
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([('security-override', {'apparmor':
+                                                      'something.else'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override_and_click()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
