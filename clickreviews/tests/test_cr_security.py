@@ -1531,3 +1531,44 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_policy(self):
+        '''Test check_security_yaml_policy()'''
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_policy()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_policy2(self):
+        '''Test check_security_yaml_policy() - seccomp/apparmor specified'''
+        self._set_yaml_binary([('security-policy', {'apparmor': 'aa',
+                                                      'seccomp': 'sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_policy()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_policy_missing1(self):
+        '''Test check_security_yaml_policy() - missing apparmor'''
+        self._set_yaml_binary([('security-policy', {'seccomp': 'sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_policy_missing2(self):
+        '''Test check_security_yaml_policy() - missing seccomp'''
+        self._set_yaml_binary([('security-policy', {'apparmor': 'aa'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
