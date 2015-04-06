@@ -917,11 +917,11 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_yaml_override(self):
         '''Verify security yaml override'''
-        # TODO: verify have both seccomp and apparmor
+        # TODO: verify have both seccomp and apparmor, file, etc
 
     def check_security_yaml_policy(self):
         '''Verify security yaml policy'''
-        # TODO: verify have both seccomp and apparmor
+        # TODO: verify have both seccomp and apparmor, file, etc
 
     def check_security_yaml_combinations(self):
         '''Verify security yaml uses valid combinations'''
@@ -945,17 +945,20 @@ class ClickReviewSecurity(ClickReview):
                 t = 'info'
                 n = 'yaml_combinations_%s' % app
                 s = "OK"
-                if "security-policy" in app:
+                if "security-policy" in a:
                     for i in ['security-override', 'security-template',
                               'caps']:
-                        t = 'error'
-                        s = "Found '%s' with 'security-policy'" % (i)
-                        break
-                elif "security-override" in app:
+                        if i in a:
+                            t = 'error'
+                            s = "Found '%s' with 'security-policy'" % (i)
+                            print("JAMIE1")
+                            break
+                elif "security-override" in a:
                     for i in ['security-policy', 'security-template', 'caps']:
-                        t = 'error'
-                        s = "Found '%s' with 'security-override'" % (i)
-                        break
+                        if i in a:
+                            t = 'error'
+                            s = "Found '%s' with 'security-override'" % (i)
+                            break
                 self._add_result(t, n, s)
 
     def check_security_template(self):

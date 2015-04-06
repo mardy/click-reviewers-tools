@@ -745,7 +745,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups()
         report = c.click_report
-        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_groups_bad_policy_version(self):
@@ -1312,4 +1312,159 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_security_yaml_and_click()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations(self):
+        '''Test check_security_yaml_combinations()'''
+        self._set_yaml_binary([], name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations1(self):
+        '''Test check_security_yaml_combinations() - template'''
+        self._set_yaml_binary([('security-template', 'foo')],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations2(self):
+        '''Test check_security_yaml_combinations() - caps'''
+        self._set_yaml_binary([('caps', ['networking'])],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations3(self):
+        '''Test check_security_yaml_combinations() - template,caps'''
+        self._set_yaml_binary([('security-template', 'foo'),
+                               ('caps', ['networking'])],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations4(self):
+        '''Test check_security_yaml_combinations() - override'''
+        self._set_yaml_binary([('security-override', {'apparmor': 'foo.aa',
+                                                      'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations5(self):
+        '''Test check_security_yaml_combinations() - override, template'''
+        self._set_yaml_binary([('security-template', 'foo'),
+                               ('security-override', {'apparmor': 'foo.aa',
+                                                      'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations6(self):
+        '''Test check_security_yaml_combinations() - override, caps'''
+        self._set_yaml_binary([('caps', ['networking']),
+                               ('security-override', {'apparmor': 'foo.aa',
+                                                      'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations7(self):
+        '''Test check_security_yaml_combinations() - override, caps, template
+        '''
+        self._set_yaml_binary([('security-template', 'foo'),
+                               ('caps', ['networking']),
+                               ('security-override', {'apparmor': 'foo.aa',
+                                                      'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations8(self):
+        '''Test check_security_yaml_combinations() - override, caps, template,
+           policy
+        '''
+        self._set_yaml_binary([('security-template', 'foo'),
+                               ('caps', ['networking']),
+                               ('security-policy', {'apparmor': 'foo.aa',
+                                                    'seccomp': 'foo.sc'}),
+                               ('security-override', {'apparmor': 'foo.aa',
+                                                      'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations9(self):
+        '''Test check_security_yaml_combinations() - policy'''
+        self._set_yaml_binary([('security-policy', {'apparmor': 'foo.aa',
+                                                    'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations10(self):
+        '''Test check_security_yaml_combinations() - policy, template'''
+        self._set_yaml_binary([('security-template', 'foo'),
+                               ('security-policy', {'apparmor': 'foo.aa',
+                                                    'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations11(self):
+        '''Test check_security_yaml_combinations() - policy, caps'''
+        self._set_yaml_binary([('caps', ['networking']),
+                               ('security-policy', {'apparmor': 'foo.aa',
+                                                    'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_combinations12(self):
+        '''Test check_security_yaml_combinations() - policy, caps, template
+        '''
+        self._set_yaml_binary([('security-template', 'foo'),
+                               ('caps', ['networking']),
+                               ('security-policy', {'apparmor': 'foo.aa',
+                                                    'seccomp': 'foo.sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
