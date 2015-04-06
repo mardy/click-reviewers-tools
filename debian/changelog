@@ -17,6 +17,7 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
   * click-show-files should show package.yaml
   * add framework policy checks
   * update systemd tests to check package.yaml
+  * add security yaml checks
 
   [ Fabian Ezequiel Gallina ]
   * fix missing import on clickreviews/cr_framework.py
