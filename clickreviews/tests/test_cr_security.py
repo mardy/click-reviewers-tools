@@ -1158,6 +1158,16 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_template_default_with_exec(self):
+        '''Test check_security_template() - default with exec'''
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([('exec', 'bin/%s' % self.default_appname)])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_template_nondefault(self):
         '''Test check_security_template() - nondefault'''
         self.set_test_security_manifest(self.default_appname,
@@ -1176,6 +1186,37 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_security_template()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_name_relative(self):
+        '''Test check_security_yaml_and_click() - relative path'''
+        self._set_yaml_binary([('caps', ['networking'])],
+                              name="bin/%s" % self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+
+        print(c.pkg_yaml)
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': -5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_name_exec(self):
+        '''Test check_security_yaml_and_click() - uses exec'''
+        self._set_yaml_binary([('caps', ['networking']),
+                               ('exec', "bin/%s" % self.default_appname)],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+
+        print(c.pkg_yaml)
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': -5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_security_yaml_and_click_mismatch0(self):

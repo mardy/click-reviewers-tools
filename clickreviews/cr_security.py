@@ -924,6 +924,10 @@ class ClickReviewSecurity(ClickReview):
         y = dict()
         if 'binaries' in self.pkg_yaml:
             y['binaries'] = copy.deepcopy(self.pkg_yaml['binaries'])
+            # account for binaries doing different things with 'name/exec'
+            for a in y['binaries']:
+                if 'exec' not in a and '/' in a['name']:
+                    a['name'] = os.path.basename(a['name'])
         if 'services' in self.pkg_yaml:
             y['services'] = copy.deepcopy(self.pkg_yaml['services'])
 
@@ -1087,7 +1091,8 @@ class ClickReviewSecurity(ClickReview):
                     self._add_result(t, n, s)
                     continue
 
-                app = a['name']
+                # Handle bin/exec concept with bianries
+                app = os.path.basename(a['name'])
 
                 t = 'info'
                 n = 'yaml_security-template_%s' % app
@@ -1114,3 +1119,7 @@ class ClickReviewSecurity(ClickReview):
                     s = "'apparmor' not found in click manifest for '%s'" % app
                     self._add_result(t, n, s)
                     continue
+
+    def check_security_caps(self):
+        '''Check snap caps'''
+        # TODO
