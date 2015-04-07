@@ -457,9 +457,15 @@ class ClickReviewSecurity(ClickReview):
             elif self.is_snap:
                 frameworks = []
                 if 'framework' in self.pkg_yaml:
-                    frameworks = [x.strip() for x in framework.split(',')]
+                    frameworks = [x.strip() for x in \
+                                  self.pkg_yaml['framework'].split(',')]
                 elif 'frameworks' in self.pkg_yaml:
                     frameworks = self.pkg_yaml['frameworks']
+                elif 'type' in self.pkg_yaml and \
+                     self.pkg_yaml['type'] == 'framework':
+                    # frameworks may reference their own policy groups
+                    frameworks.append(self.pkg_yaml['name'])
+
                 for f in frameworks:
                     if m['template'].startswith("%s_" % f):
                         # s = "OK (matches '%s' framework)" % f
@@ -631,6 +637,18 @@ class ClickReviewSecurity(ClickReview):
                     s = 'duplicate policy groups found: %s' % ", ".join(tmp)
             self._add_result(t, n, s)
 
+            frameworks = []
+            if self.is_snap:
+                if 'framework' in self.pkg_yaml:
+                    frameworks = [x.strip() for x in \
+                                  self.pkg_yaml['framework'].split(',')]
+                elif 'frameworks' in self.pkg_yaml:
+                    frameworks = self.pkg_yaml['frameworks']
+                elif 'type' in self.pkg_yaml and \
+                     self.pkg_yaml['type'] == 'framework':
+                    # frameworks may reference their own policy groups
+                    frameworks.append(self.pkg_yaml['name'])
+
             # If we got here, we can see if valid policy groups were specified
             for i in m['policy_groups']:
                 t = 'info'
@@ -647,12 +665,6 @@ class ClickReviewSecurity(ClickReview):
 
                 found = False
                 framework_found = False
-                frameworks = []
-                if self.is_snap:
-                    if 'framework' in self.pkg_yaml:
-                        frameworks = [x.strip() for x in framework.split(',')]
-                    elif 'frameworks' in self.pkg_yaml:
-                        frameworks = self.pkg_yaml['frameworks']
                 for j in policy_groups:
                     if i == os.path.basename(j):
                         found = True
@@ -1032,6 +1044,8 @@ class ClickReviewSecurity(ClickReview):
                         "'%s'" % app
                 self._add_result(t, n, s)
 
+        # TODO: error if specified
+
     def check_security_yaml_combinations(self):
         '''Verify security yaml uses valid combinations'''
         if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
@@ -1119,6 +1133,8 @@ class ClickReviewSecurity(ClickReview):
                     s = "'apparmor' not found in click manifest for '%s'" % app
                     self._add_result(t, n, s)
                     continue
+
+        # TODO: error if not 'common' or is 'unconfined'
 
     def check_security_caps(self):
         '''Check snap caps'''

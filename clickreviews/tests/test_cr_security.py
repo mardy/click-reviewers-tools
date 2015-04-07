@@ -465,6 +465,52 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_template_snappy_framework_deprecated(self):
+        '''Test check_template() - in deprecated framework declaration'''
+        self.set_test_pkg_yaml("framework", "fwk")
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "fwk_foo")
+        c.check_template()
+        report = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_snappy_framework_deprecated2(self):
+        '''Test check_template() - in deprecated framework declaration list'''
+        self.set_test_pkg_yaml("framework", "fwk, somethingelse")
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "fwk_foo")
+        c.check_template()
+        report = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_snappy_frameworks(self):
+        '''Test check_template() - in frameworks declaration'''
+        self.set_test_pkg_yaml("frameworks", ["fwk"])
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "fwk_foo")
+        c.check_template()
+        report = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_snappy_framework_type(self):
+        '''Test check_template() - type framework'''
+        self.set_test_pkg_yaml("type", "framework")
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template",
+                                        "%s_foo" % \
+                                        self.test_name.split('_')[0])
+        c.check_template()
+        report = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_template_webapp(self):
         '''Test check_template() - webapp'''
         c = ClickReviewSecurity(self.test_name)
@@ -814,6 +860,54 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_policy_groups()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_snappy_framework_deprecated(self):
+        '''Test check_policy_groups() - in deprecated framework declaration'''
+        self.set_test_pkg_yaml("framework", "fwk")
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["fwk_foo"])
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_snappy_framework_deprecated2(self):
+        '''Test check_policy_groups() - in deprecated framework declaration
+           list
+        '''
+        self.set_test_pkg_yaml("framework", "fwk, somethingelse")
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["fwk_foo"])
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_snappy_frameworks(self):
+        '''Test check_policy_groups() - in frameworks declaration'''
+        self.set_test_pkg_yaml("frameworks", ["fwk"])
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["fwk_foo"])
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_snappy_framework_type(self):
+        '''Test check_policy_groups() - type framework'''
+        self.set_test_pkg_yaml("type", "framework")
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["%s_foo" % \
+                                        self.test_name.split('_')[0]])
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_groups_pushhelper_no_hook(self):
