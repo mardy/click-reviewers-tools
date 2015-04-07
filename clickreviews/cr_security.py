@@ -457,7 +457,7 @@ class ClickReviewSecurity(ClickReview):
             elif self.is_snap:
                 frameworks = []
                 if 'framework' in self.pkg_yaml:
-                    frameworks = [x.strip() for x in \
+                    frameworks = [x.strip() for x in
                                   self.pkg_yaml['framework'].split(',')]
                 elif 'frameworks' in self.pkg_yaml:
                     frameworks = self.pkg_yaml['frameworks']
@@ -640,7 +640,7 @@ class ClickReviewSecurity(ClickReview):
             frameworks = []
             if self.is_snap:
                 if 'framework' in self.pkg_yaml:
-                    frameworks = [x.strip() for x in \
+                    frameworks = [x.strip() for x in
                                   self.pkg_yaml['framework'].split(',')]
                 elif 'frameworks' in self.pkg_yaml:
                     frameworks = self.pkg_yaml['frameworks']
