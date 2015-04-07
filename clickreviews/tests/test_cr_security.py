@@ -504,7 +504,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
                                         "template",
-                                        "%s_foo" % \
+                                        "%s_foo" %
                                         self.test_name.split('_')[0])
         c.check_template()
         report = c.click_report
@@ -903,8 +903,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups",
-                                        ["%s_foo" % \
-                                        self.test_name.split('_')[0]])
+                                        ["%s_foo" %
+                                         self.test_name.split('_')[0]])
         c.check_policy_groups()
         report = c.click_report
         expected_counts = {'info': 4, 'warn': 0, 'error': 0}
@@ -1680,7 +1680,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
     def test_check_security_yaml_policy2(self):
         '''Test check_security_yaml_policy() - seccomp/apparmor specified'''
         self._set_yaml_binary([('security-policy', {'apparmor': 'aa',
-                                                      'seccomp': 'sc'})],
+                                                    'seccomp': 'sc'})],
                               name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
         c.check_security_yaml_policy()
