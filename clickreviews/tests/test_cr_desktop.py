@@ -726,6 +726,42 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_desktop_exec_webbrowser_no_homepage(self):
+        '''Test check_desktop_exec_webbrowser_no_homepage() not local app'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "name", "foo")
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "includes",
+                                      ['https?://mobile.twitter.net/*'])
+        ex = "webapp-container --webapp='Zm9v' " + \
+             "--enable-back-forward --webappModelSearchPath=."
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webapp_args()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webbrowser_field_code(self):
+        '''Test check_desktop_exec_webbrowser_field_code() with field code'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "name", "foo")
+        self.set_test_webapp_manifest("unity-webapps-foo/manifest.json",
+                                      "includes",
+                                      ['https?://mobile.twitter.net/*'])
+        ex = "webapp-container --webapp='Zm9v' " + \
+             "--enable-back-forward --webappModelSearchPath=. %u"
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webapp_args()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_desktop_exec_webbrowser_local_pattern(self):
         '''Test test_check_desktop_exec_webbrowser_local_pattern() invalid pattern'''
         c = ClickReviewDesktop(self.test_name)
@@ -751,7 +787,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
                               ex)
         c.check_desktop_exec_webapp_args()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_local_model(self):
