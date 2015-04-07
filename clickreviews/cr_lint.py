@@ -1074,7 +1074,7 @@ exit 1
         '''Services and binaries should not overlap'''
         if not self.is_snap:
             return
-        for exe_t  in ['binaries', 'services']:
+        for exe_t in ['binaries', 'services']:
             if exe_t not in self.pkg_yaml:
                 break
             if exe_t == 'binaries':

@@ -18,6 +18,7 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
   * add framework policy checks
   * update systemd tests to check package.yaml
   * add security yaml checks
+  * cr_lint.py: don't allow same key in 'binaries' and 'services'
 
   [ Fabian Ezequiel Gallina ]
   * fix missing import on clickreviews/cr_framework.py
