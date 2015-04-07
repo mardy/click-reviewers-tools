@@ -222,7 +222,7 @@ class ClickReviewFramework(ClickReview):
                         if j not in self.framework_policy[other] or \
                            k not in self.framework_policy[other][j]:
                             t = 'error'
-                            s = "Could not find mathcing '%s/%s/%s'" % (other,
+                            s = "Could not find matching '%s/%s/%s'" % (other,
                                                                         j, k)
                         self._add_result(t, n, s)
 
