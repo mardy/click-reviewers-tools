@@ -319,15 +319,20 @@ class ClickReviewDesktop(ClickReview):
             found_named_webapp = False
             urls = []
             for i in de.getExec().split():
+                if i == "webbrowser-app" or i == "webapp-container":
+                    continue
                 if i.startswith('--webappUrlPatterns'):
                     found_url_patterns = True
                 if i.startswith('--webappModelSearchPath'):
                     found_model_search_path = True
                 if i.startswith('--webapp='):
                     found_model_search_path = True
-                if not i.startswith('--'):
+                # consider potential Exec field codes as 'non urls'
+                if not i.startswith('--') and not i.startswith('%'):
                     urls.append(i)
             is_launching_local_app = True
+            if len(urls) == 0:
+                is_launching_local_app = False
             for url in urls:
                 parts = urlsplit(url)
                 if parts.scheme in ['http', 'https']:

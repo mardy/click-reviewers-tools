@@ -22,6 +22,10 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
   * fix missing import on clickreviews/cr_framework.py
   * add test for non-string framework
 
+  [ Alex Abreu ]
+  * fix webapp exec with no homepage url or with exec field code (LP:
+    #1441185)
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 01 Apr 2015 18:20:21 -0500
 
 click-reviewers-tools (0.24) vivid; urgency=medium
