@@ -37,7 +37,7 @@ class ClickReviewBinPath(ClickReview):
         # - description (optional)
         # - TODO: caps (optional)
         self.required_keys = []
-        self.optional_keys = ['description', 'exec']
+        self.optional_keys = ['description', 'exec'] + self.snappy_exe_security
 
         self.bin_paths_files = dict()
         self.bin_paths = dict()
@@ -142,6 +142,8 @@ class ClickReviewBinPath(ClickReview):
     def _verify_optional(self, my_dict, test_str):
         for app in sorted(my_dict):
             for o in self.optional_keys:
+                if o in self.snappy_exe_security:
+                    continue  # checked in cr_security.py
                 found = False
                 t = 'info'
                 n = '%s_optional_key_%s_%s' % (test_str, o, app)

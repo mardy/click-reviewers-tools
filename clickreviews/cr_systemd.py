@@ -39,9 +39,13 @@ class ClickReviewSystemd(ClickReview):
         # - stop
         # - poststop
         # - stop-timeout
-        # - TODO: caps
+        # - caps (checked in in cr_security.py)
+        # - security-template (checked in in cr_security.py)
+        # - security-override (checked in in cr_security.py)
+        # - security-policy (checked in in cr_security.py)
         self.required_keys = ['start', 'description']
-        self.optional_keys = ['stop', 'poststop', 'stop-timeout']
+        self.optional_keys = ['stop', 'poststop', 'stop-timeout'] + \
+            self.snappy_exe_security
 
         self.systemd_files = dict()  # click-show-files and tests
         self.systemd = dict()
@@ -135,6 +139,8 @@ class ClickReviewSystemd(ClickReview):
         for app in sorted(my_dict):
             f = os.path.basename(self.systemd_files[app])
             for o in self.optional_keys:
+                if o in self.snappy_exe_security:
+                    continue  # checked in cr_security.py
                 found = False
                 t = 'info'
                 n = '%s_optional_key_%s_%s' % (test_str, o, f)
