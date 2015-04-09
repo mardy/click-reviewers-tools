@@ -258,7 +258,8 @@ class ClickReviewLint(ClickReview):
         n = 'control_description_match'
         s = 'OK'
         if 'title' in self.manifest:
-            if control['Description'] != self.manifest['title']:
+            if control['Description'].strip() != \
+               self.manifest['title'].strip():
                 t = 'error'
                 s = "Description=%s does not match manifest title=%s" % \
                     (control['Description'], self.manifest['title'])
