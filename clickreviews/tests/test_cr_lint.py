@@ -1125,7 +1125,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_icon_empty(self):
+    def test_check_snappy_icon_empty(self):
         '''Test check_snappy_icon() - empty'''
         self.set_test_pkg_yaml("icon", "")
         c = ClickReviewLint(self.test_name)

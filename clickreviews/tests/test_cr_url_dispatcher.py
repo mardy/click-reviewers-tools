@@ -74,7 +74,7 @@ class TestClickReviewUrlDispatcher(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_required_multiple(self):
+    def test_check_required_multiple_with_nonexiting(self):
         '''Test check_required() - multiple with nonexistent'''
         self.set_test_url_dispatcher(self.default_appname,
                                      key="protocol",
