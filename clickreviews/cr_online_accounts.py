@@ -102,7 +102,7 @@ class ClickReviewAccounts(ClickReview):
                 xml = tree.getroot()
             except Exception as e:
                 error("accounts xml unparseable: %s (%s):\n%s" % (bn, str(e),
-                      contents))
+                      open(fn).read()))
             return (fn, xml)
 
     def check_application(self):
