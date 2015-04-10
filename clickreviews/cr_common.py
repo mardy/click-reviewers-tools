@@ -145,7 +145,7 @@ class ClickReview(object):
         if pkg_yaml is not None:
             try:
                 self.pkg_yaml = yaml.safe_load(pkg_yaml)
-            except Exception as e:
+            except Exception:
                 error("Could not load package.yaml. Is it properly formatted?")
             self._verify_package_yaml_structure()
             self.is_snap = True
