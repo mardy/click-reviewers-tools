@@ -1,5 +1,8 @@
 click-reviewers-tools (0.25) UNRELEASED; urgency=medium
 
+  [ Michael Vogt ]
+  * Fixed a number of issues raised by pyflakes.
+
   [ Ricardo Kirkner ]
   * support overrides in all click-check scripts
   * refactored click checks to avoid duplication
