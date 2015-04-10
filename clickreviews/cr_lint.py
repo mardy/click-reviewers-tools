@@ -1082,6 +1082,9 @@ exit 1
             else:
                 other_exe_t = 'binaries'
 
+            if other_exe_t not in self.pkg_yaml:
+                break
+
             for a in self.pkg_yaml[exe_t]:
                 if 'name' not in a:
                     continue
