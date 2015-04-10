@@ -794,9 +794,13 @@ exit 1
             else:
                 arch = tmp[2].partition('.click')[0]
             if arch != self.click_arch:
-                t = 'error'
-                s = "'%s' != '%s' from DEBIAN/control" % (arch,
-                                                          self.click_arch)
+                if arch == 'all' and self.click_arch == 'multi':
+                    # The store creates filenames for fat packages with _all
+                    pass
+                else:
+                    t = 'error'
+                    s = "'%s' != '%s' from DEBIAN/control" % (arch,
+                                                              self.click_arch)
         else:
             t = 'warn'
             s = "could not determine architecture from '%s'" % \
