@@ -175,8 +175,25 @@
     "1.3": {
       "templates": {
         "common": [
-          "default",
-          "service"
+          "default"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "networking"
+        ],
+        "reserved": []
+      }
+    }
+  },
+  "ubuntu-core": {
+    "15.04": {
+      "templates": {
+        "common": [
+          "default"
         ],
         "reserved": [
           "unconfined"
