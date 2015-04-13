@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error, msg
+from clickreviews.cr_common import ClickReview, error
 import codecs
 import configparser
 import os
