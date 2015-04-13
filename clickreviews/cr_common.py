@@ -323,7 +323,7 @@ class ClickReview(object):
                     (isinstance(self.pkg_yaml[f], str) or
                      isinstance(self.pkg_yaml[f], list)):
                     error("yaml malformed: '%s' is not str or list:\n%s" %
-                          (f, mp))
+                          (f, yp))
                 elif f in ["binaries", "services"] and not \
                         isinstance(self.pkg_yaml[f], list):
                     error("yaml malformed: '%s' is not list:\n%s" % (f, yp))
