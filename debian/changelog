@@ -32,6 +32,12 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
   * fix webapp exec with no homepage url or with exec field code (LP:
     #1441185)
 
+  [ James Westby ]
+  * Drop the checks on the package name in the filename.
+    The filename doesn't matter, and the store generates it anyway,
+    so checking it is a waste, and keeps breaking as we change the
+    rules.
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 10 Apr 2015 11:20:59 -0500
 
 click-reviewers-tools (0.24) vivid; urgency=medium
