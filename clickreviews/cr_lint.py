@@ -707,39 +707,6 @@ exit 1
                 click_package_bn
         self._add_result(t, n, s)
 
-        #  handle $pkgname.click or $pkgname.snap
-        if self.click_package.endswith('.snap'):
-            pkgname = tmp[0].partition('.snap')[0]
-        else:
-            pkgname = tmp[0].partition('.click')[0]
-        t = 'info'
-        n = 'package_filename_pkgname_match'
-        s = 'OK'
-        l = None
-        if pkgname != self.click_pkgname:
-            if pkgname.startswith('com.ubuntu.snappy.') or \
-               click_package_bn.startswith('com.ubuntu.snappy.'):
-                s = "OK (store snappy workaround)"
-            else:
-                t = 'error'
-                s = "'%s' != '%s' from DEBIAN/control" % (pkgname,
-                                                          self.click_pkgname)
-                l = 'http://askubuntu.com/questions/417361/what-does-lint-package-filename-pkgname-match-mean'
-        self._add_result(t, n, s, l)
-
-        # check if namespaces matches with filename
-        t = 'info'
-        n = 'package_filename_matches_namespace'
-        s = 'OK'
-        namespace_bits = self.click_pkgname.split('.')[:-1]
-        len_namespace = len(namespace_bits)
-        pkgname_bits = pkgname.split('.')[:len_namespace]
-        if namespace_bits != pkgname_bits:
-            t = 'error'
-            s = "Package name '%s' does not match namespace '%s'." % \
-                ('.'.join(namespace_bits), '.'.join(pkgname_bits))
-        self._add_result(t, n, s)
-
         t = 'info'
         n = 'package_filename_version_match'
         s = 'OK'
