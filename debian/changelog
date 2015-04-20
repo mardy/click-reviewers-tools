@@ -25,6 +25,7 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
     _multi. Account for that. We may want to remove this check entirely.
   * cr_security.py: adjust for ubuntu-core/15.04 policy changes
   * cr_security.py: policy_vendor is no longer redflagged
+  * cr_lint.py: don't strip 'all' from compat architecture list on snappy
 
   [ Fabian Ezequiel Gallina ]
   * fix missing import on clickreviews/cr_framework.py

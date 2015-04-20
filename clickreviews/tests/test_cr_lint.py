@@ -384,6 +384,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
                                         self.test_control['Version'],
                                         arch)
         c = ClickReviewLint(test_name)
+        c.is_snap = False
         c.check_manifest_architecture()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
@@ -1237,9 +1238,10 @@ class TestClickReviewLint(cr_tests.TestClickReview):
                                        self.test_control['Version'],
                                        arch)
         c = ClickReviewLint(test_name)
+        c.is_snap = True
         c.check_snappy_architecture()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_invalid_arch_multi_multi(self):

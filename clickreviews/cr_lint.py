@@ -845,7 +845,8 @@ exit 1
             t = 'error'
             s = "not a valid architecture: %s" % my_dict['architecture']
         elif isinstance(my_dict['architecture'], list):
-            archs_list.remove("all")
+            if not self.is_snap:
+                archs_list.remove("all")
             bad_archs = []
             for a in my_dict['architecture']:
                 if a not in archs_list:
