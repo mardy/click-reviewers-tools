@@ -1,4 +1,4 @@
-click-reviewers-tools (0.25) UNRELEASED; urgency=medium
+click-reviewers-tools (0.25) vivid; urgency=medium
 
   [ Michael Vogt ]
   * Fixed a number of issues raised by pyflakes.
@@ -42,7 +42,7 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
     so checking it is a waste, and keeps breaking as we change the
     rules.
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 20 Apr 2015 09:21:13 -0500
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 20 Apr 2015 17:26:18 +0200
 
 click-reviewers-tools (0.24) vivid; urgency=medium
 
