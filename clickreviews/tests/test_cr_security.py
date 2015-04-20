@@ -1045,16 +1045,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_redflag_policy_vendor_notubuntu(self):
-        '''Test check_redflag() - policy_vendor - notubuntu'''
-        c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_vendor", "notubuntu")
-        c.check_redflag()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
     def test_check_redflag_abstractions(self):
         '''Test check_redflag() - abstractions'''
         c = ClickReviewSecurity(self.test_name)

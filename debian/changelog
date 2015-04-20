@@ -24,6 +24,7 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
   * check_package_filename() store downloads packages with _all instead of
     _multi. Account for that. We may want to remove this check entirely.
   * cr_security.py: adjust for ubuntu-core/15.04 policy changes
+  * cr_security.py: policy_vendor is no longer redflagged
 
   [ Fabian Ezequiel Gallina ]
   * fix missing import on clickreviews/cr_framework.py

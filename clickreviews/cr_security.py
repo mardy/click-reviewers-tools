@@ -72,7 +72,6 @@ class ClickReviewSecurity(ClickReview):
                                 'policy_version']
         self.redflag_fields = ['abstractions',
                                'binary',
-                               'policy_vendor',
                                'read_path',
                                'template_variables',
                                'write_path']
