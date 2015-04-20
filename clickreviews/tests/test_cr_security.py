@@ -258,13 +258,13 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.check_results(report, expected_counts)
 
     def test_check_policy_vendor_ubuntu_snappy(self):
-        '''Test check_policy_vendor() - ubuntu-snappy'''
+        '''Test check_policy_vendor() - ubuntu-core'''
         self.set_test_manifest("framework", "ubuntu-core-15.04")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
-                                        "policy_vendor", "ubuntu-snappy")
+                                        "policy_vendor", "ubuntu-core")
         self.set_test_security_manifest(self.default_appname,
-                                        "policy_version", 1.3)
+                                        "policy_version", 15.04)
         c.check_policy_vendor()
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}

@@ -23,6 +23,7 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
   * .strip() whitespace in control_description_match
   * check_package_filename() store downloads packages with _all instead of
     _multi. Account for that. We may want to remove this check entirely.
+  * cr_security.py: adjust for ubuntu-core/15.04 policy changes
 
   [ Fabian Ezequiel Gallina ]
   * fix missing import on clickreviews/cr_framework.py
@@ -38,7 +39,7 @@ click-reviewers-tools (0.25) UNRELEASED; urgency=medium
     so checking it is a waste, and keeps breaking as we change the
     rules.
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 10 Apr 2015 11:20:59 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 20 Apr 2015 09:21:13 -0500
 
 click-reviewers-tools (0.24) vivid; urgency=medium
 
