@@ -229,7 +229,8 @@ class ClickReviewLint(ClickReview):
                     t = 'error'
                     s = 'If arch=multi, manifest architecture needs to ' + \
                         'comprise of only compiled architectures.'
-            elif control['Architecture'] != self.manifest['architecture']:
+            elif control['Architecture'] != self.manifest['architecture'] and \
+                    not self.is_snap:  # snappy doesn't use this field; ignore
                 t = 'error'
                 s = "Architecture=%s " % control['Architecture'] + \
                     "does not match manifest architecture=%s" % \

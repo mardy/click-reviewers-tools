@@ -143,9 +143,21 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.set_test_control("Architecture", "armhf")
         self.set_test_manifest("architecture", "amd64")
         c = ClickReviewLint(self.test_name)
+        c.is_snap = False
         c.check_control()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_control_mismatches_manifest_architecture_snappy(self):
+        '''Test check_control() (architecture mismatches manifest (snappy))'''
+        self.set_test_control("Architecture", ["all"])
+        self.set_test_manifest("architecture", "all")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_control()
+        r = c.click_report
+        expected_counts = {'info': 15, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control_manifest_architecture_missing(self):
