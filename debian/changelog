@@ -1,8 +1,9 @@
 click-reviewers-tools (0.26) UNRELEASED; urgency=medium
 
-  * 
+  [ Jamie Strandboge ]
+  * adjust tests for new format for systemd stop-timeout
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 20 Apr 2015 17:29:25 +0200
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 27 Apr 2015 16:44:16 -0500
 
 click-reviewers-tools (0.25) vivid; urgency=medium
 

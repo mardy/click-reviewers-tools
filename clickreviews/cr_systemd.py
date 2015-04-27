@@ -19,6 +19,7 @@ from __future__ import print_function
 from clickreviews.cr_common import ClickReview, error, open_file_read
 import yaml
 import os
+import re
 
 
 class ClickReviewSystemd(ClickReview):
@@ -141,9 +142,14 @@ class ClickReviewSystemd(ClickReview):
                 s = "OK"
                 if o in my_dict[app]:
                     if o == 'stop-timeout' and \
-                       not isinstance(my_dict[app][o], int):
-                        t = 'error'
-                        s = "'%s' is not an integer" % o
+                            not isinstance(my_dict[app][o], int):
+                        if not isinstance(my_dict[app][o], str):
+                            t = 'error'
+                            s = "'%s' is not a string or integer" % o
+                        elif not re.search(r'[0-9]+[ms]?$', my_dict[app][o]):
+                            t = 'error'
+                            s = "'%s' is not of form NN[ms] (%s)" % \
+                                (my_dict[app][o], o)
                     elif not isinstance(my_dict[app][o], str):
                         t = 'error'
                         s = "'%s' is not a string" % o
@@ -298,11 +304,27 @@ class ClickReviewSystemd(ClickReview):
 
             if 'stop-timeout' not in my_dict[app]:
                 s = "OK (skip missing)"
-            elif not isinstance(my_dict[app]['stop-timeout'], int):
+                self._add_result(t, n, s)
+                return
+
+            st = my_dict[app]['stop-timeout']
+
+            if not isinstance(st, int) and not isinstance(st, str):
                 t = 'error'
-                s = 'stop-timeout is not an integer'
-            elif my_dict[app]['stop-timeout'] < 0 or \
-                    my_dict[app]['stop-timeout'] > 60:
+                s = 'stop-timeout is not a string or integer'
+                self._add_result(t, n, s)
+                return
+
+            if isinstance(st, str):
+                if re.search(r'[0-9]+[ms]?$', st):
+                    st = int(st.rstrip(r'[ms]'))
+                else:
+                    t = 'error'
+                    s = "'%s' is not of form NN[ms] (%s)" % (my_dict[app], st)
+                self._add_result(t, n, s)
+                return
+
+            if st < 0 or st > 60:
                 t = 'error'
                 s = "stop-timeout '%d' out of range (0-60)" % \
                     my_dict[app]['stop-timeout']

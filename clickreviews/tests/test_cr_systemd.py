@@ -514,6 +514,23 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_service_stop_timeout2(self):
+        '''Test check_service_stop_timeout() - with granularity'''
+        self.set_test_systemd(self.default_appname,
+                              key="start",
+                              value="bin/foo")
+        self.set_test_systemd(self.default_appname,
+                              key="description",
+                              value="something")
+        self.set_test_systemd(self.default_appname,
+                              key="stop-timeout",
+                              value="30s")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_service_stop_timeout_empty(self):
         '''Test check_service_stop_timeout() - empty'''
         self.set_test_systemd(self.default_appname,
@@ -542,6 +559,23 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self.set_test_systemd(self.default_appname,
                               key="stop-timeout",
                               value="a")
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_stop_timeout_bad2(self):
+        '''Test check_service_stop_timeout() - bad with granularity'''
+        self.set_test_systemd(self.default_appname,
+                              key="start",
+                              value="bin/foo")
+        self.set_test_systemd(self.default_appname,
+                              key="description",
+                              value="something")
+        self.set_test_systemd(self.default_appname,
+                              key="stop-timeout",
+                              value="30a")
         c = ClickReviewSystemd(self.test_name)
         c.check_service_stop_timeout()
         r = c.click_report
