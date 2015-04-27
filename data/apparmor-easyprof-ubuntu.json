@@ -183,7 +183,9 @@
       },
       "policy_groups": {
         "common": [
-          "networking"
+          "networking",
+          "network-service",
+          "network-client"
         ],
         "reserved": []
       }
