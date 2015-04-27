@@ -36,6 +36,8 @@ class ClickReviewLint(ClickReview):
         ClickReview.__init__(self, fn, "lint", overrides=overrides)
         if not self.is_snap and "md5sums" not in CONTROL_FILE_NAMES:
             CONTROL_FILE_NAMES.append("md5sums")
+        elif self.is_snap:
+            CONTROL_FILE_NAMES.append("hashes.yaml")
         self.control_files = dict()
         self._list_control_files()
         # Valid values for Architecture in DEBIAN/control. Note:
