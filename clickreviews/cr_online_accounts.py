@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error, open_file_read, msg
+from clickreviews.cr_common import ClickReview, error
 import os
 # http://lxml.de/tutorial.html
 import lxml.etree as etree
@@ -126,7 +126,6 @@ class ClickReviewAccounts(ClickReview):
             t = 'info'
             n = '%s_%s_id' % (app, account_type)
             s = "OK"
-            expected_id = "%s_%s" % (self.manifest["name"], app)
             if "id" in self.accounts[app][account_type].keys():
                 t = 'warn'
                 s = "Found 'id' in application tag"
@@ -174,7 +173,6 @@ class ClickReviewAccounts(ClickReview):
             t = 'info'
             n = '%s_%s_id' % (app, account_type)
             s = "OK"
-            expected_id = "%s_%s" % (self.manifest["name"], app)
             if "id" in self.accounts[app][account_type].keys():
                 t = 'warn'
                 s = "Found 'id' in service tag"
@@ -223,7 +221,6 @@ class ClickReviewAccounts(ClickReview):
             t = 'info'
             n = '%s_%s_id' % (app, account_type)
             s = "OK"
-            expected_id = "%s_%s" % (self.manifest["name"], app)
             if "id" in self.accounts[app][account_type].keys():
                 t = 'warn'
                 s = "Found 'id' in provider tag"

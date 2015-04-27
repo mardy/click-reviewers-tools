@@ -72,7 +72,6 @@ class ClickReviewSecurity(ClickReview):
         self.required_fields = ['policy_version']
         self.redflag_fields = ['abstractions',
                                'binary',
-                               'policy_vendor',
                                'read_path',
                                'template_variables',
                                'write_path']
@@ -108,8 +107,8 @@ class ClickReviewSecurity(ClickReview):
                 'policy_version': 1.2,
             },
             'ubuntu-core-15.04': {
-                'policy_vendor': 'ubuntu-snappy',
-                'policy_version': 1.3,
+                'policy_vendor': 'ubuntu-core',
+                'policy_version': 15.04,
             },
         }
         framework_overrides = self.overrides.get('framework', {})

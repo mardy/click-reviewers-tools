@@ -229,7 +229,8 @@ class ClickReviewLint(ClickReview):
                     t = 'error'
                     s = 'If arch=multi, manifest architecture needs to ' + \
                         'comprise of only compiled architectures.'
-            elif control['Architecture'] != self.manifest['architecture']:
+            elif control['Architecture'] != self.manifest['architecture'] and \
+                    not self.is_snap:  # snappy doesn't use this field; ignore
                 t = 'error'
                 s = "Architecture=%s " % control['Architecture'] + \
                     "does not match manifest architecture=%s" % \
@@ -707,39 +708,6 @@ exit 1
                 click_package_bn
         self._add_result(t, n, s)
 
-        #  handle $pkgname.click or $pkgname.snap
-        if self.click_package.endswith('.snap'):
-            pkgname = tmp[0].partition('.snap')[0]
-        else:
-            pkgname = tmp[0].partition('.click')[0]
-        t = 'info'
-        n = 'package_filename_pkgname_match'
-        s = 'OK'
-        l = None
-        if pkgname != self.click_pkgname:
-            if pkgname.startswith('com.ubuntu.snappy.') or \
-               click_package_bn.startswith('com.ubuntu.snappy.'):
-                s = "OK (store snappy workaround)"
-            else:
-                t = 'error'
-                s = "'%s' != '%s' from DEBIAN/control" % (pkgname,
-                                                          self.click_pkgname)
-                l = 'http://askubuntu.com/questions/417361/what-does-lint-package-filename-pkgname-match-mean'
-        self._add_result(t, n, s, l)
-
-        # check if namespaces matches with filename
-        t = 'info'
-        n = 'package_filename_matches_namespace'
-        s = 'OK'
-        namespace_bits = self.click_pkgname.split('.')[:-1]
-        len_namespace = len(namespace_bits)
-        pkgname_bits = pkgname.split('.')[:len_namespace]
-        if namespace_bits != pkgname_bits:
-            t = 'error'
-            s = "Package name '%s' does not match namespace '%s'." % \
-                ('.'.join(namespace_bits), '.'.join(pkgname_bits))
-        self._add_result(t, n, s)
-
         t = 'info'
         n = 'package_filename_version_match'
         s = 'OK'
@@ -878,7 +846,8 @@ exit 1
             t = 'error'
             s = "not a valid architecture: %s" % my_dict['architecture']
         elif isinstance(my_dict['architecture'], list):
-            archs_list.remove("all")
+            if not self.is_snap:
+                archs_list.remove("all")
             bad_archs = []
             for a in my_dict['architecture']:
                 if a not in archs_list:

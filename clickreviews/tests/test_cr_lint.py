@@ -143,9 +143,21 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.set_test_control("Architecture", "armhf")
         self.set_test_manifest("architecture", "amd64")
         c = ClickReviewLint(self.test_name)
+        c.is_snap = False
         c.check_control()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_control_mismatches_manifest_architecture_snappy(self):
+        '''Test check_control() (architecture mismatches manifest (snappy))'''
+        self.set_test_control("Architecture", ["all"])
+        self.set_test_manifest("architecture", "all")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_control()
+        r = c.click_report
+        expected_counts = {'info': 15, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control_manifest_architecture_missing(self):
@@ -221,7 +233,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 3, 'error': 3}
+        expected_counts = {'info': None, 'warn': 3, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_extra_underscore(self):
@@ -232,27 +244,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(test_name)
         c.check_package_filename()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 2, 'error': 4}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_control_mismatches(self):
-        '''Test check_package_filename() (control mismatches filename)'''
-        self.set_test_control("Package", "test-match")
-        c = ClickReviewLint(self.test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_namespace_mismatches(self):
-        '''Test check_package_filename() (control mismatches filename)'''
-        test_name = "%s_%s_%s.click" % ("com.example.someuser",
-                                        self.test_control['Version'],
-                                        self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        expected_counts = {'info': None, 'warn': 2, 'error': 2}
         self.check_results(r, expected_counts)
 
     def test_check_package_filename_version_mismatches(self):
@@ -404,6 +396,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
                                         self.test_control['Version'],
                                         arch)
         c = ClickReviewLint(test_name)
+        c.is_snap = False
         c.check_manifest_architecture()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
@@ -1257,9 +1250,10 @@ class TestClickReviewLint(cr_tests.TestClickReview):
                                        self.test_control['Version'],
                                        arch)
         c = ClickReviewLint(test_name)
+        c.is_snap = True
         c.check_snappy_architecture()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_invalid_arch_multi_multi(self):
