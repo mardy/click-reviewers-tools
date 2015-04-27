@@ -2,6 +2,7 @@ click-reviewers-tools (0.26) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * adjust tests for new format for systemd stop-timeout
+  * add network-service and network-client policygroups for 15.04 policy
   * add security yaml checks
   * cr_lint.py: don't allow same key in 'binaries' and 'services'
 
