@@ -33,11 +33,13 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     def patch_frameworks(self):
         def _mock_frameworks(self, overrides=None):
             self.FRAMEWORKS = {
+                'ubuntu-core-15.04': 'available',
                 'ubuntu-sdk-14.10-qml-dev2': 'available',
                 'ubuntu-sdk-13.10': 'deprecated',
                 'ubuntu-sdk-14.10-qml-dev1': 'obsolete',
             }
-            self.AVAILABLE_FRAMEWORKS = ['ubuntu-sdk-14.10-qml-dev2']
+            self.AVAILABLE_FRAMEWORKS = ['ubuntu-core-15.04',
+                                         'ubuntu-sdk-14.10-qml-dev2']
             self.OBSOLETE_FRAMEWORKS = ['ubuntu-sdk-14.10-qml-dev1']
             self.DEPRECATED_FRAMEWORKS = ['ubuntu-sdk-13.10']
         p = patch('clickreviews.frameworks.Frameworks.__init__',
@@ -609,6 +611,30 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.patch_frameworks()
         self.set_test_manifest("framework", "ubuntu-sdk-14.10-qml-dev2")
         c = ClickReviewLint(self.test_name)
+        c.check_framework()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_framework_multiple_click(self):
+        '''Test check_framework() - click'''
+        self.patch_frameworks()
+        self.set_test_manifest("framework",
+                               "ubuntu-sdk-14.10-qml-dev2,ubuntu-core-15.04")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = False
+        c.check_framework()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_framework_multiple_snappy(self):
+        '''Test check_framework() - snappy'''
+        self.patch_frameworks()
+        self.set_test_manifest("framework",
+                               "ubuntu-sdk-14.10-qml-dev2,ubuntu-core-15.04")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
         c.check_framework()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}

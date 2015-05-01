@@ -332,8 +332,14 @@ class ClickReviewSecurity(ClickReview):
             if 'policy_vendor' in m:  # policy_vendor is optional
                 found_major = False
                 for name, data in self.major_framework_policy.items():
-                    # TODO: use libclick when it is available
-                    if not self.manifest['framework'].startswith(name):
+                    framework = self.manifest['framework']
+                    # snappy compat manifest supports comma-separated list
+                    # for framework
+                    if self.is_snap and ',' in framework:
+                        # For now, we know the release framework is appended.
+                        # TODO: fix for multiple frameworks
+                        framework = framework.split(',')[-1]
+                    if not framework.startswith(name):
                         continue
                     elif 'policy_vendor' not in data:
                         # when not specified, default to 'ubuntu'
@@ -343,10 +349,10 @@ class ClickReviewSecurity(ClickReview):
                         t = 'error'
                         s = '%s != %s (%s)' % (str(m['policy_vendor']),
                                                data['policy_vendor'],
-                                               self.manifest['framework'])
+                                               framework)
                 if not found_major:
                     t = 'error'
-                    s = "Invalid framework '%s'" % self.manifest['framework']
+                    s = "Invalid framework '%s'" % framework
             self._add_result(t, n, s)
 
     def check_policy_version(self):
@@ -388,18 +394,24 @@ class ClickReviewSecurity(ClickReview):
             s = "OK"
             found_major = False
             for name, data in self.major_framework_policy.items():
-                # TODO: use libclick when it is available
-                if not self.manifest['framework'].startswith(name):
+                framework = self.manifest['framework']
+                # snappy compat manifest supports comma-separated list
+                # for framework
+                if self.is_snap and ',' in framework:
+                    # For now, we know the release framework is appended.
+                    # TODO: fix for multiple frameworks
+                    framework = framework.split(',')[-1]
+                if not framework.startswith(name):
                     continue
                 found_major = True
                 if m['policy_version'] != data['policy_version']:
                     t = 'error'
                     s = '%s != %s (%s)' % (str(m['policy_version']),
                                            data['policy_version'],
-                                           self.manifest['framework'])
+                                           framework)
             if not found_major:
                 t = 'error'
-                s = "Invalid framework '%s'" % self.manifest['framework']
+                s = "Invalid framework '%s'" % framework
             self._add_result(t, n, s)
 
     def check_template(self):

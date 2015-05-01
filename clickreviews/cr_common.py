@@ -84,6 +84,7 @@ class ClickReview(object):
     # optional snappy fields here (may be required by appstore)
     snappy_optional = ["architecture",
                        "binaries",
+                       "caps",
                        "config",
                        "frameworks",
                        "icon",

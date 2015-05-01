@@ -147,15 +147,18 @@ class ClickReviewSystemd(ClickReview):
                 n = '%s_optional_key_%s_%s' % (test_str, o, f)
                 s = "OK"
                 if o in my_dict[app]:
-                    if o == 'stop-timeout' and \
-                            not isinstance(my_dict[app][o], int):
-                        if not isinstance(my_dict[app][o], str):
+                    if o == 'stop-timeout':
+                        if isinstance(my_dict[app][o], int):
+                            found = True
+                        elif not isinstance(my_dict[app][o], str):
                             t = 'error'
                             s = "'%s' is not a string or integer" % o
                         elif not re.search(r'[0-9]+[ms]?$', my_dict[app][o]):
                             t = 'error'
                             s = "'%s' is not of form NN[ms] (%s)" % \
                                 (my_dict[app][o], o)
+                        else:
+                            found = True
                     elif not isinstance(my_dict[app][o], str):
                         t = 'error'
                         s = "'%s' is not a string" % o
