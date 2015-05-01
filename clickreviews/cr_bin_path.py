@@ -35,9 +35,8 @@ class ClickReviewBinPath(ClickReview):
         # snappy yaml currently only allows specifying:
         # - exec (optional)
         # - description (optional)
-        # - TODO: caps (optional)
         self.required_keys = []
-        self.optional_keys = ['description', 'exec']
+        self.optional_keys = ['description', 'exec'] + self.snappy_exe_security
 
         self.bin_paths_files = dict()
         self.bin_paths = dict()
@@ -142,16 +141,14 @@ class ClickReviewBinPath(ClickReview):
     def _verify_optional(self, my_dict, test_str):
         for app in sorted(my_dict):
             for o in self.optional_keys:
+                if o in self.snappy_exe_security:
+                    continue  # checked in cr_security.py
                 found = False
                 t = 'info'
                 n = '%s_optional_key_%s_%s' % (test_str, o, app)
                 s = "OK"
                 if o in my_dict[app]:
-                    if o == 'stop-timeout' and \
-                       not isinstance(my_dict[app][o], int):
-                        t = 'error'
-                        s = "'%s' is not an integer" % o
-                    elif not isinstance(my_dict[app][o], str):
+                    if not isinstance(my_dict[app][o], str):
                         t = 'error'
                         s = "'%s' is not a string" % o
                     elif my_dict[app][o] == "":

@@ -42,7 +42,8 @@ class ClickReviewSystemd(ClickReview):
         # - stop-timeout
         # - TODO: caps
         self.required_keys = ['start', 'description']
-        self.optional_keys = ['stop', 'poststop', 'stop-timeout']
+        self.optional_keys = ['stop', 'poststop', 'stop-timeout'] + \
+            self.snappy_exe_security
 
         self.systemd_files = dict()  # click-show-files and tests
         self.systemd = dict()
@@ -136,20 +137,25 @@ class ClickReviewSystemd(ClickReview):
         for app in sorted(my_dict):
             f = os.path.basename(self.systemd_files[app])
             for o in self.optional_keys:
+                if o in self.snappy_exe_security:
+                    continue  # checked in cr_security.py
                 found = False
                 t = 'info'
                 n = '%s_optional_key_%s_%s' % (test_str, o, f)
                 s = "OK"
                 if o in my_dict[app]:
-                    if o == 'stop-timeout' and \
-                            not isinstance(my_dict[app][o], int):
-                        if not isinstance(my_dict[app][o], str):
+                    if o == 'stop-timeout':
+                        if isinstance(my_dict[app][o], int):
+                            found = True
+                        elif not isinstance(my_dict[app][o], str):
                             t = 'error'
                             s = "'%s' is not a string or integer" % o
                         elif not re.search(r'[0-9]+[ms]?$', my_dict[app][o]):
                             t = 'error'
                             s = "'%s' is not of form NN[ms] (%s)" % \
                                 (my_dict[app][o], o)
+                        else:
+                            found = True
                     elif not isinstance(my_dict[app][o], str):
                         t = 'error'
                         s = "'%s' is not a string" % o

@@ -84,6 +84,7 @@ class ClickReview(object):
     # optional snappy fields here (may be required by appstore)
     snappy_optional = ["architecture",
                        "binaries",
+                       "caps",
                        "config",
                        "frameworks",
                        "icon",
@@ -95,6 +96,10 @@ class ClickReview(object):
                        "type",
                        "vendor",  # replaces maintainer
                        ]
+    snappy_exe_security = ["caps",
+                           "security-template",
+                           "security-override",
+                           "security-policy"]
 
     def __init__(self, fn, review_type, peer_hooks=None, overrides=None):
         self.click_package = fn
