@@ -146,6 +146,20 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
             expected_counts = {'info': 3, 'warn': 0, 'error': 0}
             self.check_results(report, expected_counts)
 
+    def test_check_policy_version_framework_match_snappy_multiple(self):
+        '''Test check_policy_version() - matching framework - multiple'''
+        self.set_test_manifest("framework", "foo,ubuntu-core-15.04")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu-core")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", 15.04)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_version()
+        report = c.click_report
+
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_policy_version_framework_unmatch(self):
         '''Test check_policy_version() - unmatching framework (lower)'''
         self.set_test_manifest("framework", "ubuntu-sdk-14.04")
@@ -303,6 +317,19 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
             report = c.click_report
             expected_counts = {'info': 2, 'warn': 0, 'error': 0}
             self.check_results(report, expected_counts)
+
+    def test_check_policy_vendor_framwork_match_snappy_multiple(self):
+        '''Test check_policy_vendor() - matching framework - multiple'''
+        self.set_test_manifest("framework", "foo,ubuntu-core-15.04")
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_vendor", "ubuntu-core")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", 15.04)
+        c.check_policy_vendor()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
 
     def test_check_policy_vendor_framework_unmatch1(self):
         '''Test check_policy_vendor() - unmatching framework'''
