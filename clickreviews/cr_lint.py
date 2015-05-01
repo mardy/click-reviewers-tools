@@ -648,30 +648,40 @@ exit 1
         l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
         framework_overrides = self.overrides.get('framework', {})
         frameworks = Frameworks(overrides=framework_overrides)
-        if self.manifest['framework'] in frameworks.AVAILABLE_FRAMEWORKS:
-            t = 'info'
-            s = 'OK'
+
+        if not self.is_snap and ',' in self.manifest['framework']:
+            # click doesn't support multiple frameworks yet
+            t = 'error'
+            s = 'ERROR: multiple frameworks found in click manifest'
             self._add_result(t, n, s)
-            # If it's an available framework, we're done checking
             return
-        elif self.manifest['framework'] in frameworks.DEPRECATED_FRAMEWORKS:
-            t = 'warn'
-            s = "'%s' is deprecated. Please use a newer framework" % \
-                self.manifest['framework']
-            self._add_result(t, n, s, l)
-            return
-        elif self.manifest['framework'] in frameworks.OBSOLETE_FRAMEWORKS:
-            t = 'error'
-            s = "'%s' is obsolete. Please use a newer framework" % \
-                self.manifest['framework']
-            self._add_result(t, n, s, l)
-            return
-        else:
-            # None of the above checks triggered, this is an unknown framework
-            t = 'error'
-            s = "'%s' is not a supported framework" % \
-                self.manifest['framework']
-            self._add_result(t, n, s, l)
+
+        for framework in self.manifest['framework'].split(','):
+            framework = framework.strip()
+            if framework in frameworks.AVAILABLE_FRAMEWORKS:
+                t = 'info'
+                s = 'OK'
+                self._add_result(t, n, s)
+                # If it's an available framework, we're done checking
+                return
+            elif framework in frameworks.DEPRECATED_FRAMEWORKS:
+                t = 'warn'
+                s = "'%s' is deprecated. Please use a newer framework" % \
+                    framework
+                self._add_result(t, n, s, l)
+                return
+            elif framework in frameworks.OBSOLETE_FRAMEWORKS:
+                t = 'error'
+                s = "'%s' is obsolete. Please use a newer framework" % \
+                    framework
+                self._add_result(t, n, s, l)
+                return
+            else:
+                # None of the above checks triggered, this is an unknown framework
+                t = 'error'
+                s = "'%s' is not a supported framework" % \
+                    framework
+                self._add_result(t, n, s, l)
 
     def check_click_local_extensions(self):
         '''Report any click local extensions'''
