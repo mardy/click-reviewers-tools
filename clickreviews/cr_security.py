@@ -96,6 +96,8 @@ class ClickReviewSecurity(ClickReview):
         # framework policy is based on major framework version. In 13.10, there
         # was only 'ubuntu-sdk-13.10', but in 14.04, there will be several,
         # like 'ubuntu-sdk-14.04-html5', 'ubuntu-sdk-14.04-platform', etc
+        # TODO: in 15.10 we will be using the policy version will match the
+        # release framework, so we can simplify these checks
         self.major_framework_policy = {
             'ubuntu-sdk-13.10': {
                 'policy_version': 1.0,
