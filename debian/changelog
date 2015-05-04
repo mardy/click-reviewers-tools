@@ -1,5 +1,7 @@
 click-reviewers-tools (0.27) UNRELEASED; urgency=medium
 
+  * cr_security.py: add ubuntu-sdk-15.04 framework and policy version
+    (LP: #1449368)
   * add security yaml checks
   * cr_lint.py: don't allow same key in 'binaries' and 'services'
 
