@@ -106,6 +106,9 @@ class ClickReviewSecurity(ClickReview):
             'ubuntu-sdk-14.10': {
                 'policy_version': 1.2,
             },
+            'ubuntu-sdk-15.04': {
+                'policy_version': 1.3,
+            },
             'ubuntu-core-15.04': {
                 'policy_vendor': 'ubuntu-core',
                 'policy_version': 15.04,
