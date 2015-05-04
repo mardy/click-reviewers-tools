@@ -811,6 +811,8 @@ class ClickReviewSecurity(ClickReview):
                     continue
                 self._add_result(t, n, s)
 
+    # This will be really nice to get rid of when the click compat manifest
+    # is gone
     def _compare_security_yamls(self, yaml, click_m):
         '''Compare two security yamls'''
         def find_match(name, key, value, my_dict):
@@ -869,16 +871,32 @@ class ClickReviewSecurity(ClickReview):
                     self._add_result(t, n, s)
 
                     for key in ['security-template', 'caps']:
-                        if key not in fapp:
-                            continue
-                        if key == 'caps':
-                            fapp['caps'] = set(fapp['caps'])
-                            if 'caps' in sapp:
-                                sapp['caps'] = set(sapp['caps'])
                         t = 'info'
                         n = 'yaml_%s_%s' % (exe_t, second_m)
                         s = 'OK'
+
+                        if key not in fapp:
+                            continue
+
+                        if key == 'caps':
+                            if 'caps' in fapp:
+                                fapp['caps'] = set(fapp['caps'])
+                            if 'caps' in sapp:
+                                sapp['caps'] = set(sapp['caps'])
+
                         if not find_match(fapp['name'], key, fapp[key], sapp):
+                            # handle snappy defaults for security-template
+                            # and caps
+                            if key == 'security-template' and \
+                               second == yaml and key not in sapp and \
+                               key in fapp and fapp[key] == 'default':
+                                self._add_result(t, n, s)
+                                continue
+                            elif key == 'caps' and second == yaml and \
+                                    key not in sapp and key in fapp and \
+                                    fapp[key] == set(['networking']):
+                                self._add_result(t, n, s)
+                                continue
                             t = 'error'
                             s = "%s has different '%s' for '%s'" % \
                                 (second_m, key, fapp['name']) + \
@@ -948,8 +966,6 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
-        converted = self._convert_click_security_to_yaml()
-
         # setup a small dict that is a subset of self.pkg_yaml
         y = dict()
         for exe_t in ['binaries', 'services']:
@@ -962,16 +978,7 @@ class ClickReviewSecurity(ClickReview):
                    '/' in a['name']:
                     a['name'] = os.path.basename(a['name'])
 
-                # snappy gives you 'networking' by default if 'caps' is not
-                # specified
-                if 'caps' not in a:
-                    a['caps'] = ['networking']
-
-                # snappy give you 'default' by default if 'security-template'
-                # is not specified
-                if 'security-template' not in a:
-                    a['security-template'] = 'default'
-
+        converted = self._convert_click_security_to_yaml()
         self._compare_security_yamls(y, converted)
 
     def check_security_yaml_override_and_click(self):

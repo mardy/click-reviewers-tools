@@ -1308,10 +1308,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         # update the manifest and test_manifest
         c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
 
-        print(c.pkg_yaml)
         c.check_security_yaml_and_click()
         report = c.click_report
-        expected_counts = {'info': -5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_security_yaml_and_click_name_exec(self):
@@ -1324,10 +1323,35 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         # update the manifest and test_manifest
         c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
 
-        print(c.pkg_yaml)
         c.check_security_yaml_and_click()
         report = c.click_report
-        expected_counts = {'info': -5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_matching_template(self):
+        '''Test check_security_yaml_and_click() - matching default template'''
+        self._set_yaml_binary([('caps', ['networking'])])
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "default")
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        del c.pkg_yaml['binaries'][0]['security-template']
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_matching_caps(self):
+        '''Test check_security_yaml_and_click() - matching default caps'''
+        self._set_yaml_binary([('caps', [])])
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ['networking'])
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        del c.pkg_yaml['binaries'][0]['caps']
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_security_yaml_and_click_mismatch0(self):
@@ -1337,7 +1361,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "template", None)
         c = ClickReviewSecurity(self.test_name)
 
-        # update the manifest and test_manifest
         del c.manifest["hooks"][self.default_appname]
         self._update_test_manifest()
         c.security_apps.remove(self.default_appname)
@@ -1362,7 +1385,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self._set_yaml_binary([])
         c = ClickReviewSecurity(self.test_name)
 
-        # update the manifest and test_manifest
         c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
         del c.manifest["hooks"][self.default_appname]['apparmor']
         c.security_apps.remove(self.default_appname)
@@ -1381,8 +1403,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
         del c.pkg_yaml['binaries'][0]['security-template']
-        print(c.pkg_yaml)
-        print(self.test_security_manifests)
         c.check_security_yaml_and_click()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
@@ -1465,7 +1485,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
         c.check_security_yaml_and_click()
         report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_security_yaml_combinations(self):
