@@ -900,12 +900,14 @@ class ClickReviewSecurity(ClickReview):
                             if key == 'security-template' and \
                                second == yaml and key not in sapp and \
                                key in fapp and fapp[key] == 'default':
+                                # if yaml missing security-template, click may
+                                # specify 'default'
                                 self._add_result(t, n, s)
                                 continue
                             elif key == 'caps' and second == yaml and \
                                     'security-template' in sapp and \
                                     key not in sapp and \
-                                    (key not in fapp or key in fapp and \
+                                    (key not in fapp or key in fapp and
                                      fapp[key] == set([])):
                                 # when security-template is specified, then
                                 # caps won't default to 'networking' when
@@ -917,7 +919,8 @@ class ClickReviewSecurity(ClickReview):
                                     key not in sapp and key in fapp and \
                                     fapp[key] == set(['networking']):
                                 # no caps in yaml, policy_groups is networking
-                                # in click manifest
+                                # in click manifest wen security-template not
+                                # specified in yaml
                                 self._add_result(t, n, s)
                                 continue
                             elif key == 'caps' and second == click_m and \
