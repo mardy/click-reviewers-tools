@@ -1,4 +1,4 @@
-click-reviewers-tools (0.27) UNRELEASED; urgency=medium
+click-reviewers-tools (0.27) wily; urgency=medium
 
   * cr_security.py: add ubuntu-sdk-15.04 framework and policy version
     (LP: #1449368)
