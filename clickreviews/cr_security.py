@@ -821,6 +821,8 @@ class ClickReviewSecurity(ClickReview):
                 return True
             return False
 
+#         print("\nDEBUG:\nyaml=%s\nclick_m=%s" % (yaml, click_m))
+
         for first in [yaml, click_m]:
             if first == yaml:
                 second = click_m
@@ -868,6 +870,12 @@ class ClickReviewSecurity(ClickReview):
                         s = "%s missing '%s'" % (second_m, fapp['name'])
                         self._add_result(t, n, s)
                         continue
+                    elif 'caps' not in fapp and 'caps' not in sapp:
+                        t = 'error'
+                        s = "'policy_groups' not found in click manifest " + \
+                            "(should default to ['networking'])"
+                        self._add_result(t, n, s)
+                        continue
                     self._add_result(t, n, s)
 
                     for key in ['security-template', 'caps']:
@@ -879,8 +887,7 @@ class ClickReviewSecurity(ClickReview):
                             continue
 
                         if key == 'caps':
-                            if 'caps' in fapp:
-                                fapp['caps'] = set(fapp['caps'])
+                            fapp['caps'] = set(fapp['caps'])
                             if 'caps' in sapp:
                                 sapp['caps'] = set(sapp['caps'])
 
@@ -900,11 +907,14 @@ class ClickReviewSecurity(ClickReview):
                             elif key == 'caps' and second == yaml and \
                                     key not in sapp and key in fapp and \
                                     fapp[key] == set(['networking']):
+                                # no caps in yaml, policy_groups is networking
+                                # in click manifest
                                 self._add_result(t, n, s)
                                 continue
                             elif key == 'caps' and second == click_m and \
                                     key not in sapp and key in fapp and \
                                     fapp[key] == set([]):
+                                # no caps in click manifest, caps is [] in yaml
                                 self._add_result(t, n, s)
                                 continue
                             t = 'error'
