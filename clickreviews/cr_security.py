@@ -821,8 +821,6 @@ class ClickReviewSecurity(ClickReview):
                 return True
             return False
 
-#         print("\nDEBUG:\nyaml=%s\nclick_m=%s" % (yaml, click_m))
-
         for first in [yaml, click_m]:
             if first == yaml:
                 second = click_m
@@ -869,6 +867,16 @@ class ClickReviewSecurity(ClickReview):
                         t = 'error'
                         s = "%s missing '%s'" % (second_m, fapp['name'])
                         self._add_result(t, n, s)
+                        continue
+                    elif first == yaml and "security-override" in fapp or \
+                            second == yaml and "security-override" in sapp:
+                        # no reason to check security-override since apparmor
+                        # hook entry will point to this file
+                        continue
+                    elif first == yaml and "security-policy" in fapp or \
+                            second == yaml and "security-policy" in sapp:
+                        # no reason to check security-policy since apparmor
+                        # profile hook is used instead
                         continue
                     elif 'caps' not in fapp and 'caps' not in sapp and \
                             second == yaml and 'security-template' not in sapp:
