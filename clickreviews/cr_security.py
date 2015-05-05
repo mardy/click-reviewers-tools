@@ -892,9 +892,19 @@ class ClickReviewSecurity(ClickReview):
                                key in fapp and fapp[key] == 'default':
                                 self._add_result(t, n, s)
                                 continue
+#                             elif key == 'caps' and second == yaml and \
+#                                     key not in sapp and 'security-template' in sapp and (key not in fapp or key in fapp and \
+#                                     fapp[key] == set([])):
+#                                 self._add_result(t, n, s)
+#                                 continue
                             elif key == 'caps' and second == yaml and \
                                     key not in sapp and key in fapp and \
                                     fapp[key] == set(['networking']):
+                                self._add_result(t, n, s)
+                                continue
+                            elif key == 'caps' and second == click_m and \
+                                    key not in sapp and key in fapp and \
+                                    fapp[key] == set([]):
                                 self._add_result(t, n, s)
                                 continue
                             t = 'error'

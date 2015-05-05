@@ -1354,6 +1354,19 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_yaml_and_click_matching_no_caps(self):
+        '''Test check_security_yaml_and_click() - matching no caps'''
+        self._set_yaml_binary([('caps', [])])
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", None)
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        # del c.pkg_yaml['binaries'][0]['caps']
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': -5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_yaml_and_click_mismatch0(self):
         '''Test check_security_yaml_and_click() - missing app in hooks'''
         self._set_yaml_binary([])
