@@ -1366,6 +1366,22 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_yaml_and_click_matching_no_caps_template(self):
+        '''Test check_security_yaml_and_click() - matching no caps with
+           template
+        '''
+        self._set_yaml_binary([('security-template', 'nondefault')])
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", None)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "nondefault")
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_yaml_and_click_mismatch0(self):
         '''Test check_security_yaml_and_click() - missing app in hooks'''
         self._set_yaml_binary([])
@@ -1505,6 +1521,21 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self._set_yaml_binary([('caps', [])])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", None)
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        del c.pkg_yaml['binaries'][0]['caps']
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_mismatch11(self):
+        '''Test check_security_yaml_and_click() - default caps with template'''
+        self._set_yaml_binary([('security-template', 'nondefault')])
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ['networking'])
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "nondefault")
         c = ClickReviewSecurity(self.test_name)
         c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
         del c.pkg_yaml['binaries'][0]['caps']

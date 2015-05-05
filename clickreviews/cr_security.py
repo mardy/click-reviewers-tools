@@ -870,7 +870,10 @@ class ClickReviewSecurity(ClickReview):
                         s = "%s missing '%s'" % (second_m, fapp['name'])
                         self._add_result(t, n, s)
                         continue
-                    elif 'caps' not in fapp and 'caps' not in sapp:
+                    elif 'caps' not in fapp and 'caps' not in sapp and \
+                            second == yaml and 'security-template' not in sapp:
+                        # no caps in yaml, policy_groups is empty in click
+                        # manifest, unless security-template is in yaml
                         t = 'error'
                         s = "'policy_groups' not found in click manifest " + \
                             "(should default to ['networking'])"
@@ -899,12 +902,18 @@ class ClickReviewSecurity(ClickReview):
                                key in fapp and fapp[key] == 'default':
                                 self._add_result(t, n, s)
                                 continue
-#                             elif key == 'caps' and second == yaml and \
-#                                     key not in sapp and 'security-template' in sapp and (key not in fapp or key in fapp and \
-#                                     fapp[key] == set([])):
-#                                 self._add_result(t, n, s)
-#                                 continue
                             elif key == 'caps' and second == yaml and \
+                                    'security-template' in sapp and \
+                                    key not in sapp and \
+                                    (key not in fapp or key in fapp and \
+                                     fapp[key] == set([])):
+                                # when security-template is specified, then
+                                # caps won't default to 'networking' when
+                                # missing, so click manifest can omit or be []
+                                self._add_result(t, n, s)
+                                continue
+                            elif key == 'caps' and second == yaml and \
+                                    'security-template' not in sapp and \
                                     key not in sapp and key in fapp and \
                                     fapp[key] == set(['networking']):
                                 # no caps in yaml, policy_groups is networking
