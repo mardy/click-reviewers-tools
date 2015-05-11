@@ -8,6 +8,7 @@ test:
 	./run-tests
 
 syntax-check: clean
+	./run-pyflakes
 	./run-pep8
 
 check: test syntax-check

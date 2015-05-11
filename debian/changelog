@@ -1,9 +1,16 @@
-click-reviewers-tools (0.27) UNRELEASED; urgency=medium
+click-reviewers-tools (0.28) UNRELEASED; urgency=medium
+
+  * Makefile: perform run-pyflakes in check target
+  * cr_systemd.py: add bus-name checks and update testsuite
+  * add security yaml checks
+  * cr_lint.py: don't allow same key in 'binaries' and 'services'
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 11 May 2015 10:21:55 -0500
+
+click-reviewers-tools (0.27) wily; urgency=medium
 
   * cr_security.py: add ubuntu-sdk-15.04 framework and policy version
     (LP: #1449368)
-  * add security yaml checks
-  * cr_lint.py: don't allow same key in 'binaries' and 'services'
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 01 May 2015 10:46:57 -0500
 
