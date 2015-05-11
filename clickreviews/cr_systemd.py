@@ -40,10 +40,16 @@ class ClickReviewSystemd(ClickReview):
         # - stop
         # - poststop
         # - stop-timeout
-        # - TODO: caps
+        # - caps (checked in in cr_security.py)
+        # - security-template (checked in in cr_security.py)
+        # - security-override (checked in in cr_security.py)
+        # - security-policy (checked in in cr_security.py)
         self.required_keys = ['start', 'description']
-        self.optional_keys = ['stop', 'poststop', 'stop-timeout'] + \
-            self.snappy_exe_security
+        self.optional_keys = ['stop',
+                              'poststop',
+                              'stop-timeout',
+                              'bus-name'
+                              ] + self.snappy_exe_security
 
         self.systemd_files = dict()  # click-show-files and tests
         self.systemd = dict()
@@ -338,13 +344,81 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
     def check_service_stop_timeout(self):
-        '''Check snappy-systemd'''
+        '''Check snappy-systemd stop-timeout'''
         self._verify_service_stop_timeout(self.systemd, 'hook')
 
     def check_snappy_service_stop_timeout(self):
-        '''Check snappy package.yaml top-timeout'''
+        '''Check snappy package.yaml stop-timeout'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
         self._verify_service_stop_timeout(self._create_dict(
                                           self.pkg_yaml['services']),
                                           'package_yaml')
+
+    def _verify_service_bus_name(self, pkgname, my_dict, test_str):
+        for app in sorted(my_dict):
+            if 'bus-name' not in my_dict[app]:
+                continue
+            f = os.path.basename(self.systemd_files[app])
+
+            t = 'info'
+            n = '%s_bus-name_empty_%s' % (test_str, f)
+            s = 'OK'
+            if len(my_dict[app]['bus-name']) == 0:
+                t = 'error'
+                s = "'bus-name' is empty"
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = '%s_bus-name_format_%s' % (test_str, f)
+            l = None
+            s = 'OK'
+            if not re.search(r'^[A-Za-z0-9][A-Za-z0-9_-]*(\.[A-Za-z0-9][A-Za-z0-9_-]*)+$',
+                             my_dict[app]['bus-name']):
+                t = 'error'
+                l = 'http://dbus.freedesktop.org/doc/dbus-specification.html'
+                s = "'%s' is not of form '^[A-Za-z0-9][A-Za-z0-9_-]*(\\.[A-Za-z0-9][A-Za-z0-9_-]*)+$'" % \
+                    (my_dict[app]['bus-name'])
+            self._add_result(t, n, s, l)
+
+            t = 'info'
+            n = '%s_bus-name_matches_name_%s' % (test_str, f)
+            s = 'OK'
+            suggested = [pkgname,
+                         "%s.%s" % (pkgname, app)
+                         ]
+            if self.is_snap and 'vendor' in self.pkg_yaml:
+                tmp = self.pkg_yaml['vendor'].split('@')
+                if len(tmp) > 1:
+                    rev = tmp[1].rstrip('>').split('.')
+                    rev.reverse()
+                    suggested.append("%s.%s" % (".".join(rev),
+                                                pkgname))
+                    suggested.append("%s.%s.%s" % (".".join(rev),
+                                                   pkgname,
+                                                   app))
+            found = False
+            for name in suggested:
+                if my_dict[app]['bus-name'].endswith(name):
+                    found = True
+                    break
+            if not found:
+                t = 'error'
+                s = "'%s' doesn't end with one of: %s" % \
+                    (my_dict[app]['bus-name'], ", ".join(suggested))
+            self._add_result(t, n, s)
+
+    def check_service_bus_name(self):
+        '''Check snappy-systemd bus-name'''
+        self._verify_service_bus_name(self.click_pkgname, self.systemd, 'hook')
+
+    def check_snappy_service_bus_name(self):
+        '''Check snappy package.yaml bus-name'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_service_bus_name(self.pkg_yaml['name'],
+                                      self._create_dict(
+                                      self.pkg_yaml['services']),
+                                      'package_yaml')

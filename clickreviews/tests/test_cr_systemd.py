@@ -121,7 +121,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_empty(self):
@@ -166,7 +166,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_without_start(self):
@@ -177,7 +177,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_without_start2(self):
@@ -191,7 +191,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_unknown(self):
@@ -825,4 +825,151 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c.check_snappy_service_stop_timeout()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_pkgname(self):
+        '''Test check_snappy_service_bus_name() - pkgname'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_appname(self):
+        '''Test check_snappy_service_bus_name() - appname'''
+        name = self.test_name.split('_')[0]
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "%s.%s" % (name, "test-app"))])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_pkgname_vendor(self):
+        '''Test check_snappy_service_bus_name() - pkgname with vendor'''
+        name = "foo"
+        self.set_test_pkg_yaml("name", name)
+        self.set_test_pkg_yaml("vendor", "f <f@isp.com>")
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "com.isp.%s" % name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.is_snap = True
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_appname_vendor(self):
+        '''Test check_snappy_service_bus_name() - appname with vendor'''
+        name = "foo"
+        self.set_test_pkg_yaml("name", name)
+        self.set_test_pkg_yaml("vendor", "f <f@isp.com>")
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "com.isp.%s.%s" % (name, "test-app"))])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.is_snap = True
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_pkgname_bad(self):
+        '''Test check_snappy_service_bus_name() - bad pkgname'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", name + "-bad")])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_appname_bad(self):
+        '''Test check_snappy_service_bus_name() - bad appname'''
+        name = self.test_name.split('_')[0]
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "%s.%s-bad" % (name, "test-app"))])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_pkgname_vendor_bad(self):
+        '''Test check_snappy_service_bus_name() - bad pkgname with vendor'''
+        name = "foo"
+        self.set_test_pkg_yaml("name", name)
+        self.set_test_pkg_yaml("vendor", "f <f@isp.com>")
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "com.isp.%s-bad" % name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.is_snap = True
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_appname_vendor_bad(self):
+        '''Test check_snappy_service_bus_name() - bad appname with vendor'''
+        name = "foo"
+        self.set_test_pkg_yaml("name", name)
+        self.set_test_pkg_yaml("vendor", "f <f@isp.com>")
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "com.isp.%s.%s-bad" % (name,
+                                                               "test-app"))])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.is_snap = True
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_empty(self):
+        '''Test check_snappy_service_bus_name() - bad (empty)'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "")])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_bad_regex(self):
+        '''Test check_snappy_service_bus_name() - bad (regex)'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "name$")])
+        c = ClickReviewSystemd(self.test_name)
+        c.systemd_files['test-app'] = "meta/test-app.snappy-systemd"
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
