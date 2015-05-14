@@ -1,7 +1,11 @@
 click-reviewers-tools (0.28) UNRELEASED; urgency=medium
 
+  [ Jamie Strandboge ]
   * Makefile: perform run-pyflakes in check target
   * cr_systemd.py: add bus-name checks and update testsuite
+
+  [ Marcus Tomlinson ]
+  * cr_scope.py: add "keywords" to the list of optional scope .ini keys
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 11 May 2015 10:21:55 -0500
 
