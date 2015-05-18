@@ -484,11 +484,6 @@ class ClickReviewSecurity(ClickReview):
 
                 for f in frameworks:
                     if m['template'].startswith("%s_" % f):
-                        # s = "OK (matches '%s' framework)" % f
-                        # t = 'warn'
-                        # s = "(STORE CHECK) need to verify " + \
-                        #     "'%s' is in framwork " % m['template'] + \
-                        #     "'%s'" % f
                         found = True
                         break
 
@@ -724,9 +719,6 @@ class ClickReviewSecurity(ClickReview):
                         manual_review = True
                     elif aa_type == 'framework':
                         s = "OK (matches '%s' framework)" % i.split('_')[0]
-                        # t = 'warn'
-                        # s = "(STORE CHECK) need to verify '%s' is " % i + \
-                        #     "in framework '%s'" % i.split('_')[0]
                     elif aa_type != "common":
                         t = 'error'
                         s = "policy group '%s' has " % i + \
@@ -1007,19 +999,19 @@ class ClickReviewSecurity(ClickReview):
             return
 
         # setup a small dict that is a subset of self.pkg_yaml
-        y = dict()
+        yml = dict()
         for exe_t in ['binaries', 'services']:
             if exe_t not in self.pkg_yaml:
                 continue
-            y[exe_t] = copy.deepcopy(self.pkg_yaml[exe_t])
-            for a in y[exe_t]:
+            yml[exe_t] = copy.deepcopy(self.pkg_yaml[exe_t])
+            for item in yml[exe_t]:
                 # account for binaries doing different things with 'name/exec'
-                if exe_t == 'binaries' and 'exec' not in a and \
-                   '/' in a['name']:
-                    a['name'] = os.path.basename(a['name'])
+                if exe_t == 'binaries' and 'exec' not in item and \
+                   '/' in item['name']:
+                    item['name'] = os.path.basename(item['name'])
 
         converted = self._convert_click_security_to_yaml()
-        self._compare_security_yamls(y, converted)
+        self._compare_security_yamls(yml, converted)
 
     def check_security_yaml_override_and_click(self):
         '''Verify click and security yaml override are in sync'''
@@ -1030,30 +1022,30 @@ class ClickReviewSecurity(ClickReview):
             if exe_t not in self.pkg_yaml:
                 continue
 
-            for a in self.pkg_yaml[exe_t]:
-                if 'name' not in a:
+            for item in self.pkg_yaml[exe_t]:
+                if 'name' not in item:
                     t = 'error'
                     n = 'yaml_override_click_name'
                     s = "package.yaml malformed. Could not find 'name' " + \
-                        "for entry in '%s'" % a
+                        "for entry in '%s'" % item
                     self._add_result(t, n, s)
                     continue
 
-                app = a['name']
+                app = item['name']
                 t = 'info'
                 n = 'yaml_override_click_%s' % app
                 s = "OK"
-                if 'security-override' not in a:
+                if 'security-override' not in item:
                     s = "OK (skipping unspecified override)"
-                elif 'apparmor' not in a['security-override']:
+                elif 'apparmor' not in item['security-override']:
                     t = 'error'
                     s = "'apparmor' not specified in 'security-override' " + \
                         "for '%s'" % app
-                elif a['security-override']['apparmor'] not in \
+                elif item['security-override']['apparmor'] not in \
                         self.security_manifests:
                     t = 'error'
                     s = "'%s' not found in click manifest for '%s'" % \
-                        (a['security-override']['apparmor'], app)
+                        (item['security-override']['apparmor'], app)
                 # NOTE: we skip 'seccomp' because there isn't currently a
                 # click hook for it
                 self._add_result(t, n, s)
@@ -1064,26 +1056,26 @@ class ClickReviewSecurity(ClickReview):
             if exe_t not in self.pkg_yaml:
                 continue
 
-            for a in self.pkg_yaml[exe_t]:
-                if 'name' not in a:
+            for item in self.pkg_yaml[exe_t]:
+                if 'name' not in item:
                     t = 'error'
                     n = 'yaml_override_name'
                     s = "package.yaml malformed. Could not find 'name' " + \
-                        "for entry in '%s'" % a
+                        "for entry in '%s'" % item
                     self._add_result(t, n, s)
                     continue
 
-                app = a['name']
+                app = item['name']
                 t = 'info'
                 n = 'yaml_override_format_%s' % app
                 s = "OK"
-                if 'security-override' not in a:
+                if 'security-override' not in item:
                     s = "OK (skipping unspecified override)"
-                elif 'apparmor' not in a['security-override']:
+                elif 'apparmor' not in item['security-override']:
                     t = 'error'
                     s = "'apparmor' not specified in 'security-override' " + \
                         "for '%s'" % app
-                elif 'seccomp' not in a['security-override']:
+                elif 'seccomp' not in item['security-override']:
                     t = 'error'
                     s = "'seccomp' not specified in 'security-override' " + \
                         "for '%s'" % app
@@ -1095,26 +1087,26 @@ class ClickReviewSecurity(ClickReview):
             if exe_t not in self.pkg_yaml:
                 continue
 
-            for a in self.pkg_yaml[exe_t]:
-                if 'name' not in a:
+            for item in self.pkg_yaml[exe_t]:
+                if 'name' not in item:
                     t = 'error'
                     n = 'yaml_policy_name'
                     s = "package.yaml malformed. Could not find 'name' " + \
-                        "for entry in '%s'" % a
+                        "for entry in '%s'" % item
                     self._add_result(t, n, s)
                     continue
 
-                app = a['name']
+                app = item['name']
                 t = 'info'
                 n = 'yaml_policy_format_%s' % app
                 s = "OK"
-                if 'security-policy' not in a:
+                if 'security-policy' not in item:
                     s = "OK (skipping unspecified policy)"
-                elif 'apparmor' not in a['security-policy']:
+                elif 'apparmor' not in item['security-policy']:
                     t = 'error'
                     s = "'apparmor' not specified in 'security-policy' " + \
                         "for '%s'" % app
-                elif 'seccomp' not in a['security-policy']:
+                elif 'seccomp' not in item['security-policy']:
                     t = 'error'
                     s = "'seccomp' not specified in 'security-policy' for " + \
                         "'%s'" % app
@@ -1130,30 +1122,30 @@ class ClickReviewSecurity(ClickReview):
         for exe_t in ['services', 'binaries']:
             if exe_t not in self.pkg_yaml:
                 continue
-            for a in self.pkg_yaml[exe_t]:
-                if 'name' not in a:
+            for item in self.pkg_yaml[exe_t]:
+                if 'name' not in item:
                     t = 'error'
                     n = 'yaml_combinations_name'
                     s = "package.yaml malformed. Could not find 'name' " + \
-                        "for entry in '%s'" % a
+                        "for entry in '%s'" % item
                     self._add_result(t, n, s)
                     continue
 
-                app = a['name']
+                app = item['name']
 
                 t = 'info'
                 n = 'yaml_combinations_%s' % app
                 s = "OK"
-                if "security-policy" in a:
+                if "security-policy" in item:
                     for i in ['security-override', 'security-template',
                               'caps']:
-                        if i in a:
+                        if i in item:
                             t = 'error'
                             s = "Found '%s' with 'security-policy'" % (i)
                             break
-                elif "security-override" in a:
+                elif "security-override" in item:
                     for i in ['security-policy', 'security-template', 'caps']:
-                        if i in a:
+                        if i in item:
                             t = 'error'
                             s = "Found '%s' with 'security-override'" % (i)
                             break
@@ -1167,22 +1159,22 @@ class ClickReviewSecurity(ClickReview):
         for exe_t in ['services', 'binaries']:
             if exe_t not in self.pkg_yaml:
                 continue
-            for a in self.pkg_yaml[exe_t]:
-                if 'security-template' not in a:
+            for item in self.pkg_yaml[exe_t]:
+                if 'security-template' not in item:
                     tmpl = ""
                 else:
-                    tmpl = a['security-template']
+                    tmpl = item['security-template']
 
-                if 'name' not in a:
+                if 'name' not in item:
                     t = 'error'
                     n = 'yaml_security-template_name'
                     s = "package.yaml malformed. Could not find 'name' " + \
-                        "for entry in '%s'" % a
+                        "for entry in '%s'" % item
                     self._add_result(t, n, s)
                     continue
 
                 # Handle bin/exec concept with bianries
-                app = os.path.basename(a['name'])
+                app = os.path.basename(item['name'])
 
                 t = 'info'
                 n = 'yaml_security-template_%s' % app
