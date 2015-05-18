@@ -1395,6 +1395,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
+        m = r['error']['lint_snappy_foo_in_services']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+
     def test_check_snappy_services_and_binaries4(self):
         '''Test check_snappy_services_and_binaries() - same (subdir)'''
         self.set_test_pkg_yaml("name", self.test_name.split('_')[0])
@@ -1406,6 +1411,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
+
+        m = r['error']['lint_snappy_foo_in_services']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
     def test_check_snappy_services_and_binaries5(self):
         '''Test check_snappy_services_and_binaries() - same (exec, subdir)'''
@@ -1419,3 +1429,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
+
+        m = r['error']['lint_snappy_foo_in_services']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
