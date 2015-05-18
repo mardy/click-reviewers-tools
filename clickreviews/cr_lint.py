@@ -20,9 +20,10 @@ from debian.deb822 import Deb822
 import glob
 import os
 import re
+import yaml
 
 from clickreviews.frameworks import Frameworks
-from clickreviews.cr_common import ClickReview, open_file_read, cmd
+from clickreviews.cr_common import ClickReview, open_file_read, cmd, error
 
 CONTROL_FILE_NAMES = ["control", "manifest", "preinst"]
 MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
@@ -1031,7 +1032,7 @@ exit 1
         return contents
 
     def check_snappy_readme_md(self):
-        '''Check package architecture in package.yaml is valid'''
+        '''Check snappy readme.md'''
         if not self.is_snap:
             return
 
@@ -1087,3 +1088,92 @@ exit 1
                         s = "'%s' in both 'services' and 'binaries'" % app
                         break
                 self._add_result(t, n, s)
+
+    def check_snappy_hashes(self):
+        '''Check snappy_hashes()'''
+        if not self.is_snap:
+            return
+
+        curdir = os.getcwd()
+        try:
+            hashes_yaml = yaml.safe_load(self._extract_hashes_yaml())
+        except Exception:
+            error("Could not load hashes.yaml. Is it properly formatted?")
+
+        if 'archive-sha512' not in hashes_yaml:
+            t = 'error'
+            n = 'hashes_archive-sha512_present'
+            s = "'archive-sha512' not found in hashes.yaml"
+            self._add_result(t, n, s)
+            return
+
+        # verify the ar file
+        t = 'info'
+        n = 'hashes_archive-sha512_valid'
+        s = 'OK'
+        fn = os.path.join(self.raw_unpack_dir, 'data.tar.gz')
+        (rc, out) = cmd(['sha512sum', fn])
+        if hashes_yaml['archive-sha512'] != out.split()[0]:
+            t = 'error'
+            s = "hash mismatch: '%s' != '%s'" % (hashes_yaml['archive-sha512'],
+                                                 out.split()[0])
+            self._add_result(t, n, s)
+            return
+        self._add_result(t, n, s)
+
+        if 'files' not in hashes_yaml:
+            t = 'error'
+            n = 'hashes_file_present'
+            s = "'files' not found in hashes.yaml"
+            self._add_result(t, n, s)
+            return
+
+        # verify the individual files
+        errors = []
+        badsums = []
+        os.chdir(self.unpack_dir)
+        for entry in hashes_yaml['files']:
+            if 'name' not in entry:
+                errors.append("'name' not found for entry: %s" % entry)
+                continue
+            elif 'mode' not in entry:
+                errors.append("'mode' not found for entry: %s" % entry['name'])
+                continue
+            elif entry['mode'].startswith('d'):
+                # directory, no more to be done
+                continue
+            elif entry['mode'].startswith('l'):
+                # symlink, no more to be done
+                continue
+            elif not entry['mode'].startswith('f'):
+                # files and symlinks are ok, everything else is not
+                errors.append("illegal file mode: '%s' for '%s'" %
+                              (entry['mode'], entry['name']))
+                continue
+            elif 'size' not in entry:
+                errors.append("'size' not found for entry: %s" % entry['name'])
+                continue
+            elif 'sha512' not in entry:
+                errors.append("'sha512' not found for entry: %s" %
+                              entry['name'])
+                continue
+
+            # ok, now we can check if we have a valid sha512sum
+            fn = os.path.join(self.unpack_dir, entry['name'])
+            (rc, out) = cmd(['sha512sum', fn])
+            if entry['sha512'] != out.split()[0]:
+                badsums.append("'%s' != '%s' for '%s'" % (entry['sha512'],
+                                                          out.split()[0],
+                                                          entry['name']))
+        os.chdir(curdir)
+
+        t = 'info'
+        n = 'sha512sums'
+        s = 'OK'
+        if len(errors) > 0:
+            t = 'error'
+            s = 'found errors in hashes.yaml: %s' % ", ".join(errors)
+        elif len(badsums) > 0:
+            t = 'error'
+            s = 'found bad checksums: %s' % ", ".join(badsums)
+        self._add_result(t, n, s)

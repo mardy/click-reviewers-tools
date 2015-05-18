@@ -33,6 +33,7 @@ import yaml
 
 DEBUGGING = False
 UNPACK_DIR = None
+RAW_UNPACK_DIR = None
 
 # cleanup
 import atexit
@@ -42,6 +43,9 @@ def cleanup_unpack():
     global UNPACK_DIR
     if UNPACK_DIR is not None and os.path.isdir(UNPACK_DIR):
         recursive_rm(UNPACK_DIR)
+    global RAW_UNPACK_DIR
+    if RAW_UNPACK_DIR is not None and os.path.isdir(RAW_UNPACK_DIR):
+        recursive_rm(RAW_UNPACK_DIR)
 atexit.register(cleanup_unpack)
 
 
@@ -126,6 +130,11 @@ class ClickReview(object):
             UNPACK_DIR = unpack_click(fn)
         self.unpack_dir = UNPACK_DIR
 
+        global RAW_UNPACK_DIR
+        if RAW_UNPACK_DIR is None:
+            RAW_UNPACK_DIR = raw_unpack_pkg(fn)
+        self.raw_unpack_dir = RAW_UNPACK_DIR
+
         # Get some basic information from the control file
         control_file = self._extract_control_file()
         tmp = list(Deb822.iter_paragraphs(control_file))
@@ -207,6 +216,11 @@ class ClickReview(object):
         y = os.path.join(self.unpack_dir, "meta/package.yaml")
         if not os.path.isfile(y):
             return None  # snappy packaging is still optional
+        return open_file_read(y)
+
+    def _extract_hashes_yaml(self):
+        '''Extract and read the snappy hashes.yaml'''
+        y = os.path.join(self.unpack_dir, "DEBIAN/hashes.yaml")
         return open_file_read(y)
 
     def _check_path_exists(self):
@@ -603,6 +617,37 @@ def unpack_click(fn, dest=None):
         if os.path.isdir(d):
             recursive_rm(d)
         error("dpkg-deb -R failed with '%d':\n%s" % (rc, out))
+
+    if dest is None:
+        dest = d
+    else:
+        shutil.move(d, dest)
+
+    return dest
+
+
+def raw_unpack_pkg(fn, dest=None):
+    '''Unpack raw package'''
+    if not os.path.isfile(fn):
+        error("Could not find '%s'" % fn)
+    pkg = fn
+    if not pkg.startswith('/'):
+        pkg = os.path.abspath(pkg)
+
+    if dest is not None and os.path.exists(dest):
+        error("'%s' exists. Aborting." % dest)
+
+    d = tempfile.mkdtemp(prefix='review-')
+
+    curdir = os.getcwd()
+    os.chdir(d)
+    (rc, out) = cmd(['ar', 'x', pkg])
+    os.chdir(curdir)
+
+    if rc != 0:
+        if os.path.isdir(d):
+            recursive_rm(d)
+        error("'ar x' failed with '%d':\n%s" % (rc, out))
 
     if dest is None:
         dest = d
