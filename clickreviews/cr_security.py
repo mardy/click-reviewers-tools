@@ -1206,4 +1206,5 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_caps(self):
         '''Check snap caps'''
-        # TODO
+        # TODO - check caps on their own instead of just via compat click
+        # manifest
