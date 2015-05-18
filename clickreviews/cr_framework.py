@@ -66,12 +66,12 @@ class ClickReviewFramework(ClickReview):
     def _extract_framework_policy(self):
         '''Get framework policy files'''
         policy_dict = dict()
-        unknown_dict = dict()
+        unknown = []
         fpdir = os.path.join(self.unpack_dir, "meta", "framework-policy")
         for i in glob.glob("%s/*" % fpdir):
             rel_i = os.path.basename(i)
             if not os.path.isdir(i) or rel_i not in self.framework_policy_dirs:
-                unknown_dict.append(os.path.relpath(i, self.unpack_dir))
+                unknown.append(os.path.relpath(i, self.unpack_dir))
                 continue
 
             policy_dict[rel_i] = dict()
@@ -79,21 +79,20 @@ class ClickReviewFramework(ClickReview):
                 rel_j = os.path.basename(j)
                 if not os.path.isdir(j) or \
                    rel_j not in self.framework_policy_subdirs:
-                    unknown_dict.append(os.path.relpath(j, self.unpack_dir))
+                    unknown.append(os.path.relpath(j, self.unpack_dir))
                     continue
 
                 policy_dict[rel_i][rel_j] = dict()
                 for k in glob.glob("%s/*" % j):
                     rel_k = os.path.basename(k)
                     if not os.path.isfile(k):
-                        unknown_dict.append(os.path.relpath(k,
-                                            self.unpack_dir))
+                        unknown.append(os.path.relpath(k, self.unpack_dir))
                         continue
 
                     fh = open_file_read(k)
                     policy_dict[rel_i][rel_j][rel_k] = fh.read()
                     fh.close()
-        return (policy_dict, unknown_dict)
+        return (policy_dict, unknown)
 
     def _has_framework_in_metadir(self):
         '''Check if snap has meta/<name>.framework'''
@@ -223,7 +222,7 @@ class ClickReviewFramework(ClickReview):
                         if j not in self.framework_policy[other] or \
                            k not in self.framework_policy[other][j]:
                             t = 'error'
-                            s = "Could not find mathcing '%s/%s/%s'" % (other,
+                            s = "Could not find matching '%s/%s/%s'" % (other,
                                                                         j, k)
                         self._add_result(t, n, s)
 

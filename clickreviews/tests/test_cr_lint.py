@@ -1357,3 +1357,80 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_snappy_services_and_binaries1(self):
+        '''Test check_snappy_services_and_binaries() - different'''
+        self.set_test_pkg_yaml("name", self.test_name.split('_')[0])
+        self.set_test_pkg_yaml("services", [{"name": "foo",
+                                             "start": "bin/foo"}])
+        self.set_test_pkg_yaml("binaries", [{"name": "bar"}])
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_services_and_binaries()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_services_and_binaries2(self):
+        '''Test check_snappy_services_and_binaries() - different (exec)'''
+        self.set_test_pkg_yaml("name", self.test_name.split('_')[0])
+        self.set_test_pkg_yaml("services", [{"name": "foo",
+                                             "start": "bin/foo"}])
+        self.set_test_pkg_yaml("binaries", [{"name": "bar",
+                                             "exec": "bin/foo"}])
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_services_and_binaries()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_services_and_binaries3(self):
+        '''Test check_snappy_services_and_binaries() - same'''
+        self.set_test_pkg_yaml("name", self.test_name.split('_')[0])
+        self.set_test_pkg_yaml("services", [{"name": "foo",
+                                             "start": "bin/foo"}])
+        self.set_test_pkg_yaml("binaries", [{"name": "foo"}])
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_services_and_binaries()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+        m = r['error']['lint_snappy_foo_in_services']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+
+    def test_check_snappy_services_and_binaries4(self):
+        '''Test check_snappy_services_and_binaries() - same (subdir)'''
+        self.set_test_pkg_yaml("name", self.test_name.split('_')[0])
+        self.set_test_pkg_yaml("services", [{"name": "foo",
+                                             "start": "bin/foo"}])
+        self.set_test_pkg_yaml("binaries", [{"name": "bin/foo"}])
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_services_and_binaries()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+        m = r['error']['lint_snappy_foo_in_services']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+
+    def test_check_snappy_services_and_binaries5(self):
+        '''Test check_snappy_services_and_binaries() - same (exec, subdir)'''
+        self.set_test_pkg_yaml("name", self.test_name.split('_')[0])
+        self.set_test_pkg_yaml("services", [{"name": "foo",
+                                             "start": "bin/foo"}])
+        self.set_test_pkg_yaml("binaries", [{"name": "foo",
+                                             "exec": "bin/foo"}])
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_services_and_binaries()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+        m = r['error']['lint_snappy_foo_in_services']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)
+        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        self.assertIn("'foo' in both 'services' and 'binaries'", m)

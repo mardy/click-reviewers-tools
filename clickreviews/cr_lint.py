@@ -1055,3 +1055,35 @@ exit 1
             t = 'warn'
             s = "meta/readme.md is too short"
         self._add_result(t, n, s)
+
+    def check_snappy_services_and_binaries(self):
+        '''Services and binaries should not overlap'''
+        if not self.is_snap:
+            return
+        for exe_t in ['binaries', 'services']:
+            if exe_t not in self.pkg_yaml:
+                break
+            if exe_t == 'binaries':
+                other_exe_t = 'services'
+            else:
+                other_exe_t = 'binaries'
+
+            if other_exe_t not in self.pkg_yaml:
+                break
+
+            for a in self.pkg_yaml[exe_t]:
+                if 'name' not in a:
+                    continue
+                # handle 'exec' in binaries
+                app = os.path.basename(a['name'])
+
+                t = 'info'
+                n = 'snappy_%s_in_%s' % (app, other_exe_t)
+                s = 'OK'
+                for other_a in self.pkg_yaml[other_exe_t]:
+                    other_app = os.path.basename(other_a['name'])
+                    if app == other_app:
+                        t = 'error'
+                        s = "'%s' in both 'services' and 'binaries'" % app
+                        break
+                self._add_result(t, n, s)
