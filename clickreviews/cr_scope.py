@@ -112,6 +112,7 @@ class ClickReviewScope(ClickReview):
                         'icon',
                         'idletimeout',
                         'invisible',
+                        'keywords',
                         'locationdataneeded',
                         'resultsttltype',
                         'scoperunner',
