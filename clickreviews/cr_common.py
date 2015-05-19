@@ -231,6 +231,9 @@ class ClickReview(object):
             return None
         return st
 
+    def _path_join(self, dirname, rest):
+        return os.path.join(dirname, rest)
+
     def _get_sha512sum(self, fn):
         '''Get sha512sum of file'''
         (rc, out) = cmd(['sha512sum', fn])

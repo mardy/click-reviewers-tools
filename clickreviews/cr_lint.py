@@ -1102,7 +1102,6 @@ exit 1
                     return False
             return True
 
-        curdir = os.getcwd()
         try:
             hashes_yaml = yaml.safe_load(self._extract_hashes_yaml())
         except Exception:
@@ -1119,19 +1118,19 @@ exit 1
         t = 'info'
         n = 'hashes_archive-sha512_valid'
         s = 'OK'
-        fn = os.path.join(self.raw_unpack_dir, 'data.tar.gz')
-        (rc, out) = cmd(['sha512sum', fn])
-        if hashes_yaml['archive-sha512'] != out.split()[0]:
+        fn = self._path_join(self.raw_unpack_dir, 'data.tar.gz')
+        sum = self._get_sha512sum(fn)
+        if hashes_yaml['archive-sha512'] != sum:
             t = 'error'
             s = "hash mismatch: '%s' != '%s'" % (hashes_yaml['archive-sha512'],
-                                                 out.split()[0])
+                                                 sum)
             self._add_result(t, n, s)
             return
         self._add_result(t, n, s)
 
         if 'files' not in hashes_yaml:
             t = 'error'
-            n = 'hashes_file_present'
+            n = 'hashes_files_present'
             s = "'files' not found in hashes.yaml"
             self._add_result(t, n, s)
             return
@@ -1139,7 +1138,6 @@ exit 1
         # verify the individual files
         errors = []
         badsums = []
-        os.chdir(self.unpack_dir)
         for entry in hashes_yaml['files']:
             if 'name' not in entry:
                 errors.append("'name' not found for entry '%s'" % entry)
@@ -1148,7 +1146,7 @@ exit 1
                 errors.append("'mode' not found for entry '%s'" %
                               entry['name'])
                 continue
-            elif len(entry['mode']) < 10:
+            elif len(entry['mode']) != 10:
                 errors.append("malformed mode '%s' for entry '%s'" %
                               (entry['mode'], entry['name']))
                 continue
@@ -1168,8 +1166,8 @@ exit 1
                 continue
             elif not entry['mode'].startswith('f'):
                 # files and symlinks are ok, everything else is not
-                errors.append("illegal file mode: '%s' for '%s'" %
-                              (entry['mode'], entry['name']))
+                errors.append("illegal file mode '%s': '%s' for '%s'" %
+                              (entry['mode'][0], entry['mode'], entry['name']))
                 continue
             elif 'size' not in entry:
                 errors.append("'size' not found for entry: %s" % entry['name'])
@@ -1179,7 +1177,7 @@ exit 1
                               entry['name'])
                 continue
 
-            fn = os.path.join(self.unpack_dir, entry['name'])
+            fn = self._path_join(self.unpack_dir, entry['name'])
 
             # quick verify the size, if it is wrong, we don't have to do the
             # sha512sum
@@ -1216,15 +1214,19 @@ exit 1
             if entry['sha512'] != sum:
                 badsums.append("'%s' != '%s' for '%s'" % (entry['sha512'], sum,
                                                           entry['name']))
-        os.chdir(curdir)
 
         t = 'info'
         n = 'sha512sums'
         s = 'OK'
+        if len(badsums) > 0:
+            t = 'error'
+            s = 'found bad checksums: %s' % ", ".join(badsums)
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'file_mode'
+        s = 'OK'
         if len(errors) > 0:
             t = 'error'
             s = 'found errors in hashes.yaml: %s' % ", ".join(errors)
-        elif len(badsums) > 0:
-            t = 'error'
-            s = 'found bad checksums: %s' % ", ".join(badsums)
         self._add_result(t, n, s)
