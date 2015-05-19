@@ -243,6 +243,7 @@ patches.append(patch(
     'clickreviews.cr_common.ClickReview._extract_click_frameworks',
     _extract_click_frameworks))
 patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
+patches.append(patch('clickreviews.cr_common.raw_unpack_pkg', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
                _mock_func))
 patches.append(patch(
