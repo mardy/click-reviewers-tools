@@ -20,6 +20,7 @@ from debian.deb822 import Deb822
 import glob
 import os
 import re
+import stat
 import yaml
 
 from clickreviews.frameworks import Frameworks
@@ -1094,6 +1095,13 @@ exit 1
         if not self.is_snap:
             return
 
+        def _check_allowed_perms(mode, allowed):
+            '''Check that mode only uses allowed perms'''
+            for p in mode[1:]:
+                if p not in allowed:
+                    return False
+            return True
+
         curdir = os.getcwd()
         try:
             hashes_yaml = yaml.safe_load(self._extract_hashes_yaml())
@@ -1134,16 +1142,29 @@ exit 1
         os.chdir(self.unpack_dir)
         for entry in hashes_yaml['files']:
             if 'name' not in entry:
-                errors.append("'name' not found for entry: %s" % entry)
+                errors.append("'name' not found for entry '%s'" % entry)
                 continue
             elif 'mode' not in entry:
-                errors.append("'mode' not found for entry: %s" % entry['name'])
+                errors.append("'mode' not found for entry '%s'" %
+                              entry['name'])
+                continue
+            elif len(entry['mode']) < 10:
+                errors.append("malformed mode '%s' for entry '%s'" %
+                              (entry['mode'], entry['name']))
                 continue
             elif entry['mode'].startswith('d'):
-                # directory, no more to be done
+                if not _check_allowed_perms(entry['mode'],
+                                            ['r', 'w', 'x', '-']):
+                    errors.append("unusual mode '%s' for entry '%s'" %
+                                  (entry['mode'], entry['name']))
+                # world write shouldn't be allowed
+                if entry['mode'][-2] != '-':
+                    errors.append("'%s' is world-writable" % entry['name'])
                 continue
             elif entry['mode'].startswith('l'):
-                # symlink, no more to be done
+                if entry['mode'] != "lrwxrwxrwx":
+                    errors.append("unusual mode '%s' for entry '%s'" %
+                                  (entry['mode'], entry['name']))
                 continue
             elif not entry['mode'].startswith('f'):
                 # files and symlinks are ok, everything else is not
@@ -1159,24 +1180,41 @@ exit 1
                 continue
 
             fn = os.path.join(self.unpack_dir, entry['name'])
-            if not os.path.isfile(fn):
-                errors.append("'%s' is not a file" % entry['name'])
-                continue
 
             # quick verify the size, if it is wrong, we don't have to do the
             # sha512sum
-            statinfo = os.stat(fn)
+            statinfo = self._extract_statinfo(fn)
+            if statinfo is None:
+                errors.append("'%s' does not exist" % entry['name'])
+                continue
             if entry['size'] != statinfo.st_size:
                 errors.append("size %d != %d for '%s'" % (entry['size'],
                                                           statinfo.st_size,
                                                           entry['name']))
                 continue
 
-            # ok, now we can check if we have a valid sha512sum
-            (rc, out) = cmd(['sha512sum', fn])
-            if entry['sha512'] != out.split()[0]:
-                badsums.append("'%s' != '%s' for '%s'" % (entry['sha512'],
-                                                          out.split()[0],
+            # check for weird perms
+            if not _check_allowed_perms(entry['mode'], ['r', 'w', 'x', '-']):
+                errors.append("unusual mode '%s' for entry '%s'" %
+                              (entry['mode'], entry['name']))
+                continue
+            # world write shouldn't be allowed
+            if entry['mode'][-2] != '-':
+                errors.append("mode '%s' for '%s' is world-writable" %
+                              (entry['mode'], entry['name']))
+                continue
+            # verify perms match what is in hashes.yaml
+            filemode = stat.filemode(statinfo.st_mode)[1:]
+            if entry['mode'][1:] != filemode:
+                errors.append("mode '%s' != '%s' for '%s'" %
+                              (entry['mode'][1:], filemode, entry['name']))
+                continue
+
+            # ok, now all the cheap tests are done so we can check if we have a
+            # valid sha512sum
+            sum = self._get_sha512sum(fn)
+            if entry['sha512'] != sum:
+                badsums.append("'%s' != '%s' for '%s'" % (entry['sha512'], sum,
                                                           entry['name']))
         os.chdir(curdir)
 

@@ -223,6 +223,21 @@ class ClickReview(object):
         y = os.path.join(self.unpack_dir, "DEBIAN/hashes.yaml")
         return open_file_read(y)
 
+    def _extract_statinfo(self, fn):
+        '''Extract statinfo from file'''
+        try:
+            st = os.stat(fn)
+        except Exception:
+            return None
+        return st
+
+    def _get_sha512sum(self, fn):
+        '''Get sha512sum of file'''
+        (rc, out) = cmd(['sha512sum', fn])
+        if rc != 0:
+            return None
+        return out.split()[0]
+
     def _check_path_exists(self):
         '''Check that the provided path exists'''
         if not os.path.exists(self.click_package):
