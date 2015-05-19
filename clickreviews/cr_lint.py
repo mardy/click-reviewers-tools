@@ -1158,8 +1158,21 @@ exit 1
                               entry['name'])
                 continue
 
-            # ok, now we can check if we have a valid sha512sum
             fn = os.path.join(self.unpack_dir, entry['name'])
+            if not os.path.isfile(fn):
+                errors.append("'%s' is not a file" % entry['name'])
+                continue
+
+            # quick verify the size, if it is wrong, we don't have to do the
+            # sha512sum
+            statinfo = os.stat(fn)
+            if entry['size'] != statinfo.st_size:
+                errors.append("size %d != %d for '%s'" % (entry['size'],
+                                                          statinfo.st_size,
+                                                          entry['name']))
+                continue
+
+            # ok, now we can check if we have a valid sha512sum
             (rc, out) = cmd(['sha512sum', fn])
             if entry['sha512'] != out.split()[0]:
                 badsums.append("'%s' != '%s' for '%s'" % (entry['sha512'],
