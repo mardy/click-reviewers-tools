@@ -31,6 +31,7 @@ import clickreviews.cr_common as cr_common
 TEST_CONTROL = ""
 TEST_MANIFEST = ""
 TEST_PKG_YAML = ""
+TEST_HASHES_YAML = ""
 TEST_README_MD = ""
 TEST_SECURITY = dict()
 TEST_SECURITY_PROFILES = dict()
@@ -72,6 +73,29 @@ def _extract_manifest_file(self):
 def _extract_package_yaml(self):
     '''Pretend we read the package.yaml file'''
     return io.StringIO(TEST_PKG_YAML)
+
+
+def _extract_hashes_yaml(self):
+    '''Pretend we read the hashes.yaml file'''
+    return io.StringIO(TEST_HASHES_YAML)
+
+
+def _path_join(self, d, fn):
+    '''Pretend we have a tempdir'''
+    return os.path.join("/fake", fn)
+
+
+def _get_sha512sum(self, fn):
+    '''Pretend we found performed a sha512'''
+    (rc, out) = cr_common.cmd(['sha512sum', os.path.realpath(__file__)])
+    if rc != 0:
+        return None
+    return out.split()[0]
+
+
+def _extract_statinfo(self, fn):
+    '''Pretend we found performed an os.stat()'''
+    return os.stat(os.path.realpath(__file__))
 
 
 def _extract_readme_md(self):
@@ -240,9 +264,22 @@ patches.append(patch(
     'clickreviews.cr_common.ClickReview._extract_package_yaml',
     _extract_package_yaml))
 patches.append(patch(
+    'clickreviews.cr_common.ClickReview._extract_hashes_yaml',
+    _extract_hashes_yaml))
+patches.append(patch(
+    'clickreviews.cr_common.ClickReview._path_join',
+    _path_join))
+patches.append(patch(
+    'clickreviews.cr_common.ClickReview._get_sha512sum',
+    _get_sha512sum))
+patches.append(patch(
+    'clickreviews.cr_common.ClickReview._extract_statinfo',
+    _extract_statinfo))
+patches.append(patch(
     'clickreviews.cr_common.ClickReview._extract_click_frameworks',
     _extract_click_frameworks))
 patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
+patches.append(patch('clickreviews.cr_common.raw_unpack_pkg', _mock_func))
 patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
                _mock_func))
 patches.append(patch(
@@ -400,6 +437,9 @@ class TestClickReview(TestCase):
                                self.test_control['Architecture'])
         self._update_test_pkg_yaml()
 
+        self.test_hashes_yaml = dict()
+        self._update_test_hashes_yaml()
+
         self.test_readme_md = self.test_control['Description']
         self._update_test_readme_md()
 
@@ -513,6 +553,12 @@ class TestClickReview(TestCase):
         TEST_PKG_YAML = yaml.dump(self.test_pkg_yaml,
                                   default_flow_style=False,
                                   indent=4)
+
+    def _update_test_hashes_yaml(self):
+        global TEST_HASHES_YAML
+        TEST_HASHES_YAML = yaml.dump(self.test_hashes_yaml,
+                                     default_flow_style=False,
+                                     indent=4)
 
     def _update_test_readme_md(self):
         global TEST_README_MD
@@ -735,6 +781,11 @@ class TestClickReview(TestCase):
         else:
             self.test_pkg_yaml[key] = value
         self._update_test_pkg_yaml()
+
+    def set_test_hashes_yaml(self, yaml):
+        '''Set hashes.yaml to yaml'''
+        self.test_hashes_yaml = yaml
+        self._update_test_hashes_yaml()
 
     def set_test_readme_md(self, contents):
         '''Set contents of meta/readme.md'''
@@ -1086,6 +1137,8 @@ class TestClickReview(TestCase):
         TEST_MANIFEST = ""
         global TEST_PKG_YAML
         TEST_PKG_YAML = ""
+        global TEST_HASHES_YAML
+        TEST_HASHES_YAML = ""
         global TEST_README_MD
         TEST_README_MD = ""
         global TEST_SECURITY

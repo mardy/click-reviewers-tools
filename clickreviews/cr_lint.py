@@ -20,9 +20,11 @@ from debian.deb822 import Deb822
 import glob
 import os
 import re
+import stat
+import yaml
 
 from clickreviews.frameworks import Frameworks
-from clickreviews.cr_common import ClickReview, open_file_read, cmd
+from clickreviews.cr_common import ClickReview, open_file_read, cmd, error
 
 CONTROL_FILE_NAMES = ["control", "manifest", "preinst"]
 MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
@@ -1031,7 +1033,7 @@ exit 1
         return contents
 
     def check_snappy_readme_md(self):
-        '''Check package architecture in package.yaml is valid'''
+        '''Check snappy readme.md'''
         if not self.is_snap:
             return
 
@@ -1087,3 +1089,144 @@ exit 1
                         s = "'%s' in both 'services' and 'binaries'" % app
                         break
                 self._add_result(t, n, s)
+
+    def check_snappy_hashes(self):
+        '''Check snappy hashes.yaml'''
+        if not self.is_snap:
+            return
+
+        def _check_allowed_perms(mode, allowed):
+            '''Check that mode only uses allowed perms'''
+            for p in mode[1:]:
+                if p not in allowed:
+                    return False
+            return True
+
+        try:
+            hashes_yaml = yaml.safe_load(self._extract_hashes_yaml())
+        except Exception:
+            error("Could not load hashes.yaml. Is it properly formatted?")
+
+        if 'archive-sha512' not in hashes_yaml:
+            t = 'error'
+            n = 'hashes_archive-sha512_present'
+            s = "'archive-sha512' not found in hashes.yaml"
+            self._add_result(t, n, s)
+            return
+
+        # verify the ar file
+        t = 'info'
+        n = 'hashes_archive-sha512_valid'
+        s = 'OK'
+        fn = self._path_join(self.raw_unpack_dir, 'data.tar.gz')
+        sum = self._get_sha512sum(fn)
+        if hashes_yaml['archive-sha512'] != sum:
+            t = 'error'
+            s = "hash mismatch: '%s' != '%s'" % (hashes_yaml['archive-sha512'],
+                                                 sum)
+            self._add_result(t, n, s)
+            return
+        self._add_result(t, n, s)
+
+        if 'files' not in hashes_yaml:
+            t = 'error'
+            n = 'hashes_files_present'
+            s = "'files' not found in hashes.yaml"
+            self._add_result(t, n, s)
+            return
+
+        # verify the individual files
+        errors = []
+        badsums = []
+        for entry in hashes_yaml['files']:
+            if 'name' not in entry:
+                errors.append("'name' not found for entry '%s'" % entry)
+                continue
+            elif 'mode' not in entry:
+                errors.append("'mode' not found for entry '%s'" %
+                              entry['name'])
+                continue
+            elif len(entry['mode']) != 10:
+                errors.append("malformed mode '%s' for entry '%s'" %
+                              (entry['mode'], entry['name']))
+                continue
+            elif entry['mode'].startswith('d'):
+                if not _check_allowed_perms(entry['mode'],
+                                            ['r', 'w', 'x', '-']):
+                    errors.append("unusual mode '%s' for entry '%s'" %
+                                  (entry['mode'], entry['name']))
+                # world write shouldn't be allowed
+                if entry['mode'][-2] != '-':
+                    errors.append("'%s' is world-writable" % entry['name'])
+                continue
+            elif entry['mode'].startswith('l'):
+                if entry['mode'] != "lrwxrwxrwx":
+                    errors.append("unusual mode '%s' for entry '%s'" %
+                                  (entry['mode'], entry['name']))
+                continue
+            elif not entry['mode'].startswith('f'):
+                # files and symlinks are ok, everything else is not
+                errors.append("illegal file mode '%s': '%s' for '%s'" %
+                              (entry['mode'][0], entry['mode'], entry['name']))
+                continue
+            elif 'size' not in entry:
+                errors.append("'size' not found for entry: %s" % entry['name'])
+                continue
+            elif 'sha512' not in entry:
+                errors.append("'sha512' not found for entry: %s" %
+                              entry['name'])
+                continue
+
+            fn = self._path_join(self.unpack_dir, entry['name'])
+
+            # quick verify the size, if it is wrong, we don't have to do the
+            # sha512sum
+            statinfo = self._extract_statinfo(fn)
+            if statinfo is None:
+                errors.append("'%s' does not exist" % entry['name'])
+                continue
+            if entry['size'] != statinfo.st_size:
+                errors.append("size %d != %d for '%s'" % (entry['size'],
+                                                          statinfo.st_size,
+                                                          entry['name']))
+                continue
+
+            # check for weird perms
+            if not _check_allowed_perms(entry['mode'], ['r', 'w', 'x', '-']):
+                errors.append("unusual mode '%s' for entry '%s'" %
+                              (entry['mode'], entry['name']))
+                continue
+            # world write shouldn't be allowed
+            if entry['mode'][-2] != '-':
+                errors.append("mode '%s' for '%s' is world-writable" %
+                              (entry['mode'], entry['name']))
+                continue
+            # verify perms match what is in hashes.yaml
+            filemode = stat.filemode(statinfo.st_mode)[1:]
+            if entry['mode'][1:] != filemode:
+                errors.append("mode '%s' != '%s' for '%s'" %
+                              (entry['mode'][1:], filemode, entry['name']))
+                continue
+
+            # ok, now all the cheap tests are done so we can check if we have a
+            # valid sha512sum
+            sum = self._get_sha512sum(fn)
+            if entry['sha512'] != sum:
+                badsums.append("'%s' != '%s' for '%s'" % (entry['sha512'], sum,
+                                                          entry['name']))
+
+        t = 'info'
+        n = 'sha512sums'
+        s = 'OK'
+        if len(badsums) > 0:
+            t = 'error'
+            s = 'found bad checksums: %s' % ", ".join(badsums)
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = 'file_mode'
+        s = 'OK'
+        if len(errors) > 0:
+            t = 'error'
+            s = 'found errors in hashes.yaml: %s' % ", ".join(errors)
+        self._add_result(t, n, s)

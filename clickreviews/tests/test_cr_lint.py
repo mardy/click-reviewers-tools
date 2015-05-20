@@ -21,6 +21,9 @@ from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
 from clickreviews.frameworks import FRAMEWORKS_DATA_URL, USER_DATA_FILE
 import clickreviews.cr_tests as cr_tests
 
+import os
+import stat
+
 
 class TestClickReviewLint(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
@@ -29,6 +32,25 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         # addCleanup in super()
         cr_tests.mock_patch()
         super()
+
+    def _create_hashes_yaml(self):
+        # find cr_tests.py since that is what _get_statinfo() is mocked to
+        # look at.
+        f = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                         "../cr_tests.py")
+        statinfo = os.stat(f)
+        self.sha512 = cr_tests._get_sha512sum(self, f)
+        return {'archive-sha512': self.sha512,
+                'files': [{'name': 'bin',
+                           'mode': 'drwxrwxr-x'},
+                          {'name': 'bin/foo',
+                           'size': statinfo.st_size,
+                           'mode': 'f%s' % stat.filemode(statinfo.st_mode)[1:],
+                           'sha512': self.sha512},
+                          {'name': 'barlink',
+                           'mode': 'lrwxrwxrwx'},
+                          ]
+                }
 
     def patch_frameworks(self):
         def _mock_frameworks(self, overrides=None):
@@ -1434,3 +1456,238 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
         m = r['error']['lint_snappy_foo_in_binaries']['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
+
+    def test_check_snappy_hashes_click(self):
+        '''Test check_snappy_hashes() - click'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = False
+        c.check_snappy_hashes()
+        r = c.click_report
+        # clicks don't have hashes.yaml, so should have no output
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_archive_sha512_missing(self):
+        '''Test check_snappy_hashes() - archive-sha512 missing'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_archive_sha512_invalid(self):
+        '''Test check_snappy_hashes() - archive-sha512 invalid'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        yaml['archive-sha512'] = 'deadbeef'
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_hashes_archive-sha512_valid']['text']
+        self.assertIn("hash mismatch: 'deadbeef' != '%s'" % self.sha512, m)
+
+    def test_check_snappy_hashes_archive_files_missing(self):
+        '''Test check_snappy_hashes() - files missing'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        del yaml['files']
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_hashes_files_present']['text']
+        self.assertIn("'files' not found in hashes.yaml", m)
+
+    def test_check_snappy_hashes_archive_files_ok(self):
+        '''Test check_snappy_hashes() - ok'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_archive_files_missing_name(self):
+        '''Test check_snappy_hashes() - missing name'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        del yaml['files'][0]['name']
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_archive_files_missing_mode(self):
+        '''Test check_snappy_hashes() - missing mode'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        del yaml['files'][0]['mode']
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_archive_files_malformed_mode(self):
+        '''Test check_snappy_hashes() - malformed mode'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        yaml['files'][0]['mode'] += 'extra'
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_archive_files_bad_mode_entry(self):
+        '''Test check_snappy_hashes() - bad mode entry'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        count = 0
+        for e in yaml['files']:
+            s = list(yaml['files'][count]['mode'])
+            s[3] = 'S'
+            yaml['files'][count]['mode'] = "".join(s)
+            count += 1
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_file_mode']['text']
+        self.assertIn("found errors in hashes.yaml: unusual mode 'drwSrwxr-x' for entry 'bin', unusual mode 'frwSrw-r--' for entry 'bin/foo'", m)
+
+    def test_check_snappy_hashes_archive_files_mode_world_write(self):
+        '''Test check_snappy_hashes() - mode world write'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        count = 0
+        for e in yaml['files']:
+            s = list(e['mode'])
+            s[-2] = 's'
+            yaml['files'][count]['mode'] = "".join(s)
+            count += 1
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_file_mode']['text']
+        self.assertIn("found errors in hashes.yaml: unusual mode 'drwxrwxrsx' for entry 'bin', 'bin' is world-writable, unusual mode 'frw-rw-rs-' for entry 'bin/foo'", m)
+
+    def test_check_snappy_hashes_archive_files_mode_mismatch(self):
+        '''Test check_snappy_hashes() - mode mismatch'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        count = 0
+        for e in yaml['files']:
+            if e['mode'].startswith('f'):
+                yaml['files'][count]['mode'] = "f---------"
+                break
+            count += 1
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_file_mode']['text']
+        self.assertIn("found errors in hashes.yaml: mode '---------' != 'rw-rw-r--' for 'bin/foo'", m)
+
+    def test_check_snappy_hashes_archive_files_mode_bad_symlink(self):
+        '''Test check_snappy_hashes() - mode bad symlink'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        yaml['files'].append({'name': 'badlink', 'mode': 'lrwxrwxr-x'})
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_file_mode']['text']
+        self.assertIn("found errors in hashes.yaml: unusual mode 'lrwxrwxr-x' for entry 'badlink'", m)
+
+    def test_check_snappy_hashes_archive_files_mode_devices(self):
+        '''Test check_snappy_hashes() - mode devices'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        yaml['files'].append({'name': 'badblock', 'mode': 'brw-rw-r--'})
+        yaml['files'].append({'name': 'badchar', 'mode': 'crw-rw-r--'})
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_file_mode']['text']
+        self.assertIn("found errors in hashes.yaml: illegal file mode 'b': 'brw-rw-r--' for 'badblock', illegal file mode 'c': 'crw-rw-r--' for 'badchar'", m)
+
+    def test_check_snappy_hashes_archive_files_missing_size(self):
+        '''Test check_snappy_hashes() - missing size'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        count = 0
+        for e in yaml['files']:
+            if e['mode'].startswith('f'):
+                del yaml['files'][count]['size']
+                break
+            count += 1
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_archive_files_invalid_size(self):
+        '''Test check_snappy_hashes() - invalid size'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        count = 0
+        for e in yaml['files']:
+            if e['mode'].startswith('f'):
+                orig_size = e['size']
+                new_size = orig_size + 1
+                yaml['files'][count]['size'] = new_size
+                break
+            count += 1
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_file_mode']['text']
+        self.assertIn("found errors in hashes.yaml: size %d != %d for 'bin/foo'" % (new_size, orig_size), m)
+
+    def test_check_snappy_hashes_archive_files_missing_sha512(self):
+        '''Test check_snappy_hashes() - missing sha512'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        count = 0
+        for e in yaml['files']:
+            if e['mode'].startswith('f'):
+                del yaml['files'][count]['sha512']
+                break
+            count += 1
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)

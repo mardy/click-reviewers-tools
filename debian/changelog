@@ -5,6 +5,8 @@ click-reviewers-tools (0.28) UNRELEASED; urgency=medium
   * cr_systemd.py: add bus-name checks and update testsuite
   * add security yaml checks
   * cr_lint.py: don't allow same key in 'binaries' and 'services'
+  * cr_lint.py: implement hashes.yaml checks
+  * update README
 
   [ Marcus Tomlinson ]
   * cr_scope.py: add "keywords" to the list of optional scope .ini keys
