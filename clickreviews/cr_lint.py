@@ -1091,7 +1091,7 @@ exit 1
                 self._add_result(t, n, s)
 
     def check_snappy_hashes(self):
-        '''Check snappy_hashes()'''
+        '''Check snappy hashes.yaml'''
         if not self.is_snap:
             return
 
