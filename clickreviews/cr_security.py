@@ -1052,6 +1052,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_yaml_override(self):
         '''Verify security yaml override'''
+        if not self.is_snap:
+            return
+
         for exe_t in ['services', 'binaries']:
             if exe_t not in self.pkg_yaml:
                 continue
@@ -1083,6 +1086,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_yaml_policy(self):
         '''Verify security yaml policy'''
+        if not self.is_snap:
+            return
+
         for exe_t in ['services', 'binaries']:
             if exe_t not in self.pkg_yaml:
                 continue
