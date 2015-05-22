@@ -7,6 +7,8 @@ click-reviewers-tools (0.28) UNRELEASED; urgency=medium
   * cr_lint.py: don't allow same key in 'binaries' and 'services'
   * cr_lint.py: implement hashes.yaml checks
   * update README
+  * cr_desktop.py: add check to help transition away from obsoleted
+    ubuntu-html5-app-launcher
 
   [ Marcus Tomlinson ]
   * cr_scope.py: add "keywords" to the list of optional scope .ini keys

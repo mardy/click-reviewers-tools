@@ -315,6 +315,32 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_desktop_exec_webapp_container_html5_launcher_1410(self):
+        '''Test check_desktop_exec_webapp_container - html5 launcher 14.10'''
+        self.set_test_manifest("framework", "ubuntu-sdk-14.10")
+        ex = "ubuntu-html5-app-launcher $@ --www=www"
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webapp_container()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_exec_webapp_container_html5_launcher_1510(self):
+        '''Test check_desktop_exec_webapp_container - html5 launcher 15.10'''
+        self.set_test_manifest("framework", "ubuntu-sdk-15.10")
+        ex = "ubuntu-html5-app-launcher $@ --www=www"
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Exec",
+                              ex)
+        c.check_desktop_exec_webapp_container()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_desktop_exec_webapp_container_missing_exec(self):
         '''Test check_desktop_exec_webapp_container - missing exec'''
         c = ClickReviewDesktop(self.test_name)

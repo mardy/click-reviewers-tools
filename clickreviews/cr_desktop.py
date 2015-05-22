@@ -214,6 +214,8 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_exec_webapp_container(self):
         '''Check Exec=webapp-container entry'''
+        fwk = self.manifest['framework']
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -222,6 +224,19 @@ class ClickReviewDesktop(ClickReview):
             if not de.hasKey('Exec'):
                 t = 'error'
                 s = "missing key 'Exec'"
+                self._add_result(t, n, s)
+                continue
+            elif de.getExec().split()[0] == "ubuntu-html5-app-launcher" and \
+                    fwk.startswith('ubuntu-sdk') and not \
+                    (fwk.startswith('ubuntu-sdk-13') or
+                     fwk.startswith('ubuntu-sdk-14')):
+                # ubuntu-html5-app-launcher only available in ubuntu-sdk-14.10
+                # and lower
+                t = 'error'
+                s = "ubuntu-html5-app-launcher is obsoleted in 15.04 " + \
+                    "frameworks and higher. Please use 'webapp-container' " + \
+                    "instead and ensure your security policy uses the " + \
+                    "'ubuntu-webapp' template"
                 self._add_result(t, n, s)
                 continue
             elif de.getExec().split()[0] != "webapp-container":
