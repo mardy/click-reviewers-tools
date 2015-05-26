@@ -1138,11 +1138,15 @@ exit 1
         # verify the individual files
         errors = []
         badsums = []
+        hash_files = set([]) # used to check with extra files
         for entry in hashes_yaml['files']:
             if 'name' not in entry:
                 errors.append("'name' not found for entry '%s'" % entry)
                 continue
-            elif 'mode' not in entry:
+            else:
+                hash_files.add(entry['name'])
+
+            if 'mode' not in entry:
                 errors.append("'mode' not found for entry '%s'" %
                               entry['name'])
                 continue
@@ -1182,6 +1186,7 @@ exit 1
             # quick verify the size, if it is wrong, we don't have to do the
             # sha512sum
             statinfo = self._extract_statinfo(fn)
+            # file is missing
             if statinfo is None:
                 errors.append("'%s' does not exist" % entry['name'])
                 continue
@@ -1229,4 +1234,26 @@ exit 1
         if len(errors) > 0:
             t = 'error'
             s = 'found errors in hashes.yaml: %s' % ", ".join(errors)
+        self._add_result(t, n, s)
+
+        # Now check for extra files
+        t = 'info'
+        n = 'hashes_extra_files'
+        s = 'OK'
+        self._add_result(t, n, s)
+        extra = []
+        click_compat_files = set(["DEBIAN/hashes.yaml",
+                                  "DEBIAN/control",
+                                  "DEBIAN/preinst",
+                                  "DEBIAN/manifest"
+                                  ])
+        for f in self.pkg_files:
+            fn = os.path.relpath(f, self.unpack_dir)
+            if fn not in hash_files and fn not in click_compat_files:
+                extra.append(fn)
+
+        if len(extra) > 0:
+            t = 'error'
+            s = 'found extra files not listed in hashes.yaml: %s' % \
+                ", ".join(extra)
         self._add_result(t, n, s)
