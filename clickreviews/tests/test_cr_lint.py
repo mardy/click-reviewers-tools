@@ -40,17 +40,22 @@ class TestClickReviewLint(cr_tests.TestClickReview):
                          "../cr_tests.py")
         statinfo = os.stat(f)
         self.sha512 = cr_tests._get_sha512sum(self, f)
-        return {'archive-sha512': self.sha512,
-                'files': [{'name': 'bin',
-                           'mode': 'drwxrwxr-x'},
-                          {'name': 'bin/foo',
-                           'size': statinfo.st_size,
-                           'mode': 'f%s' % stat.filemode(statinfo.st_mode)[1:],
-                           'sha512': self.sha512},
-                          {'name': 'barlink',
-                           'mode': 'lrwxrwxrwx'},
-                          ]
-                }
+        hashes = {'archive-sha512': self.sha512,
+                  'files': [{'name': 'bin',
+                             'mode': 'drwxrwxr-x'},
+                            {'name': 'bin/foo',
+                             'size': statinfo.st_size,
+                             'mode': 'f%s' %
+                                     stat.filemode(statinfo.st_mode)[1:],
+                             'sha512': self.sha512},
+                            {'name': 'barlink',
+                             'mode': 'lrwxrwxrwx'},
+                            ]
+                  }
+        self._test_pkg_files = []
+        for i in hashes['files']:
+            self._test_pkg_files.append(i['name'])
+        return hashes
 
     def patch_frameworks(self):
         def _mock_frameworks(self, overrides=None):
@@ -1509,10 +1514,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
         yaml = self._create_hashes_yaml()
+        c.pkg_files = self._test_pkg_files
         self.set_test_hashes_yaml(yaml)
         c.check_snappy_hashes()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_hashes_archive_files_missing_name(self):
@@ -1673,7 +1679,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         m = r['error']['lint_file_mode']['text']
-        self.assertIn("found errors in hashes.yaml: size %d != %d for 'bin/foo'" % (new_size, orig_size), m)
+        self.assertIn("found errors in hashes.yaml: size " +
+                      "%d != %d for 'bin/foo'" % (new_size, orig_size), m)
 
     def test_check_snappy_hashes_archive_files_missing_sha512(self):
         '''Test check_snappy_hashes() - missing sha512'''
@@ -1691,3 +1698,19 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_extra(self):
+        '''Test check_snappy_hashes() - extra'''
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        self.set_test_hashes_yaml(yaml)
+        c.pkg_files = self._test_pkg_files
+        c.pkg_files.append("extrafile")
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        m = r['error']['lint_hashes_extra_files']['text']
+        self.assertIn("found extra files not listed in hashes.yaml: extrafile",
+                      m)
