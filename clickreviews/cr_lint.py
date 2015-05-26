@@ -1138,7 +1138,7 @@ exit 1
         # verify the individual files
         errors = []
         badsums = []
-        hash_files = set([]) # used to check with extra files
+        hash_files = set([])  # used to check with extra files
         for entry in hashes_yaml['files']:
             if 'name' not in entry:
                 errors.append("'name' not found for entry '%s'" % entry)
