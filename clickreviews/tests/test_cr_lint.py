@@ -1679,8 +1679,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         m = r['error']['lint_file_mode']['text']
-        self.assertIn("found errors in hashes.yaml: size %d != %d for " +
-                      "'bin/foo'" % (new_size, orig_size), m)
+        self.assertIn("found errors in hashes.yaml: size " + \
+                      "%d != %d for 'bin/foo'" % (new_size, orig_size), m)
 
     def test_check_snappy_hashes_archive_files_missing_sha512(self):
         '''Test check_snappy_hashes() - missing sha512'''
