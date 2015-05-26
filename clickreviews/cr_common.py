@@ -93,7 +93,6 @@ class ClickReview(object):
                        "frameworks",
                        "icon",
                        "immutable-config",
-                       "integration",
                        "oem",
                        "services",
                        "source",
@@ -360,9 +359,6 @@ class ClickReview(object):
                 elif f in ["binaries", "services"] and not \
                         isinstance(self.pkg_yaml[f], list):
                     error("yaml malformed: '%s' is not list:\n%s" % (f, yp))
-                elif f == "integration" and not isinstance(self.pkg_yaml[f],
-                                                           dict):
-                    error("yaml malformed: '%s' is not dict:\n%s" % (f, yp))
                 elif f in ["icon", "source", "type", "vendor"] and not \
                         isinstance(self.pkg_yaml[f], str):
                     error("yaml malformed: '%s' is not str:\n%s" % (f, yp))
