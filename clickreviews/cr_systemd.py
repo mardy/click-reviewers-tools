@@ -477,11 +477,11 @@ class ClickReviewSystemd(ClickReview):
                     # 'Negotiable' instead of 'port' and 'negotiable' from the
                     # yaml
                     if (test_str == 'package_yaml' and
-                        'negotiable' not in entry and
-                        'port' not in entry) or \
+                            'negotiable' not in entry and
+                            'port' not in entry) or \
                        (test_str == 'hook' and
-                        'Negotiable' not in entry and
-                        'Port' not in entry):
+                            'Negotiable' not in entry and
+                            'Port' not in entry):
                         t = 'error'
                         n = '%s_ports_%s_invalid_%s' % (test_str, key, f)
                         s = "Must specify specify at least 'port' or " + \
