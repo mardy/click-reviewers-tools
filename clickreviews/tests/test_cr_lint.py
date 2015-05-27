@@ -910,31 +910,64 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
         self.check_manual_review(r, 'lint_hooks_redflag_test-app')
 
-    def test_snappy_name1(self):
+    def test_pkgname_toplevel(self):
+        '''Test check_pkgname - toplevel'''
+        self.set_test_manifest("name", "foo")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = False
+        c.check_pkgname()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_pkgname_flat(self):
+        '''Test check_pkgname - flat'''
+        self.set_test_manifest("name", "foo.bar")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = False
+        c.check_pkgname()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_pkgname_reverse_domain(self):
+        '''Test check_pkgname - reverse domain'''
+        self.set_test_manifest("name", "com.ubuntu.develeper.baz.foo")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = False
+        c.check_pkgname()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name_toplevel(self):
         '''Test check_snappy_name - toplevel'''
         self.set_test_pkg_yaml("name", "foo")
         c = ClickReviewLint(self.test_name)
+        c.is_snap = True
         c.check_snappy_name()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_snappy_name2(self):
-        '''Test check_snappy_name - flat'''
+    def test_snappy_name_flat(self):
+        '''Test check_snappy_name - obsoleted flat'''
         self.set_test_pkg_yaml("name", "foo.bar")
         c = ClickReviewLint(self.test_name)
+        c.is_snap = True
         c.check_snappy_name()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_snappy_name3(self):
-        '''Test check_snappy_name - reverse domain'''
+    def test_snappy_name_reverse_domain(self):
+        '''Test check_snappy_name - obsoleted reverse domain'''
         self.set_test_pkg_yaml("name", "com.ubuntu.develeper.baz.foo")
         c = ClickReviewLint(self.test_name)
+        c.is_snap = True
         c.check_snappy_name()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_snappy_name_bad(self):

@@ -407,7 +407,12 @@ class ClickReview(object):
 
     def _verify_pkgname(self, n):
         '''Verify package name'''
-        if re.search(r'^[a-z0-9][a-z0-9+.-]+$', n):
+        if self.is_snap:
+            # snaps can't have '.' in the name
+            pat = re.compile(r'^[a-z0-9][a-z0-9+-]+$')
+        else:
+            pat = re.compile(r'^[a-z0-9][a-z0-9+.-]+$')
+        if pat.search(n):
             return True
         return False
 

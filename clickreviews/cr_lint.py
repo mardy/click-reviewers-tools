@@ -497,7 +497,9 @@ exit 1
         self._add_result(t, n, s)
 
     def check_pkgname(self):
-        '''Check package name valid'''
+        '''Check click package name valid'''
+        if self.is_snap:
+            return
         p = self.manifest['name']
         # http://www.debian.org/doc/debian-policy/ch-controlfields.html
         t = 'info'
