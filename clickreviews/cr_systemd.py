@@ -458,6 +458,9 @@ class ClickReviewSystemd(ClickReview):
 
             port_pat = re.compile(r'^[0-9]+/[a-z0-9\-]+$')
             for key in ['internal', 'external']:
+                if key not in my_dict[app]['ports']:
+                    continue
+
                 if len(my_dict[app]['ports'][key].keys()) < 1:
                     t = 'error'
                     n = '%s_ports_%s_%s' % (test_str, key, f)
