@@ -121,7 +121,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_empty(self):
@@ -166,7 +166,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_without_start(self):
@@ -177,7 +177,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_without_start2(self):
@@ -191,7 +191,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_unknown(self):
