@@ -10,6 +10,7 @@ click-reviewers-tools (0.28) UNRELEASED; urgency=medium
   * cr_desktop.py: add check to help transition away from obsoleted
     ubuntu-html5-app-launcher
   * cr_common.py: remove snappy 'integration' checks
+  * cr_systemd.py: implement ports checks
 
   [ Marcus Tomlinson ]
   * cr_scope.py: add "keywords" to the list of optional scope .ini keys

@@ -26,6 +26,19 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         cr_tests.mock_patch()
         super()
 
+    def _create_ports(self, hook=False):
+        port = "port"
+        negotiable = "negotiable"
+        if hook:  # handle weird formatting in .snappy-systemd
+            port = "Port"
+            negotiable = "Negotiable"
+        ports = {'internal': {'int1': {port: '8081/tcp', negotiable: True}},
+                 'external': {'ext1': {port: '80/tcp', negotiable: False},
+                              'ext2': {port: '88/udp'}
+                              }
+                 }
+        return ports
+
     def _set_service(self, entries, name=None):
         d = dict()
         if name is None:
@@ -121,7 +134,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_empty(self):
@@ -166,7 +179,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_without_start(self):
@@ -177,7 +190,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_optional_stop_without_start2(self):
@@ -191,7 +204,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_optional()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_unknown(self):
@@ -972,4 +985,170 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c.check_snappy_service_bus_name()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+    def test_check_service_ports(self):
+        '''Test check_service_ports()'''
+        ports = self._create_ports(hook=True)
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_service_ports()
+        r = c.click_report
+        expected_counts = {'info': 8, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports(self):
+        '''Test check_snappy_service_ports()'''
+        ports = self._create_ports()
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': 8, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_internal(self):
+        '''Test check_snappy_service_ports() - internal'''
+        ports = self._create_ports()
+        del ports['internal']
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_external(self):
+        '''Test check_snappy_service_ports() - external'''
+        ports = self._create_ports()
+        del ports['external']
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_empty(self):
+        '''Test check_snappy_service_ports() - empty'''
+        ports = self._create_ports()
+        del ports['internal']
+        del ports['external']
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_bad_key(self):
+        '''Test check_snappy_service_ports() - bad key'''
+        ports = self._create_ports()
+        ports['xternal'] = ports['external']
+        del ports['external']
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_missing_internal(self):
+        '''Test check_snappy_service_ports() - missing internal'''
+        ports = self._create_ports()
+        del ports['internal']['int1']
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_missing_external(self):
+        '''Test check_snappy_service_ports() - missing external'''
+        ports = self._create_ports()
+        del ports['external']['ext1']
+        del ports['external']['ext2']
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_missing_external_subkey(self):
+        '''Test check_snappy_service_ports() - missing external subkey'''
+        ports = self._create_ports()
+        del ports['external']['ext2']['port']
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_invalid_internal_subkey(self):
+        '''Test check_snappy_service_ports() - invalid internal subkey'''
+        ports = self._create_ports()
+        ports['internal']['int1']['prt'] = ports['internal']['int1']['port']
+        del ports['internal']['int1']['port']
+        del ports['internal']['int1']['negotiable']
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_invalid_internal_port(self):
+        '''Test check_snappy_service_ports() - invalid internal port'''
+        ports = self._create_ports()
+        ports['internal']['int1']['port'] = "bad/8080"
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_invalid_internal_low_port(self):
+        '''Test check_snappy_service_ports() - invalid internal low port'''
+        ports = self._create_ports()
+        ports['internal']['int1']['port'] = "0/tcp"
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_invalid_internal_high_port(self):
+        '''Test check_snappy_service_ports() - invalid internal high port'''
+        ports = self._create_ports()
+        ports['internal']['int1']['port'] = "65536/tcp"
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_ports_invalid_internal_negotiable(self):
+        '''Test check_snappy_service_ports() - invalid internal negotiable'''
+        ports = self._create_ports()
+        ports['internal']['int1']['negotiable'] = -99999999
+
+        self.set_test_systemd(self.default_appname, "ports", ports)
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)

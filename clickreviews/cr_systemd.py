@@ -48,7 +48,8 @@ class ClickReviewSystemd(ClickReview):
         self.optional_keys = ['stop',
                               'poststop',
                               'stop-timeout',
-                              'bus-name'
+                              'bus-name',
+                              'ports'
                               ] + self.snappy_exe_security
 
         self.systemd_files = dict()  # click-show-files and tests
@@ -162,6 +163,10 @@ class ClickReviewSystemd(ClickReview):
                                 (my_dict[app][o], o)
                         else:
                             found = True
+                    elif o == 'ports':
+                        if not isinstance(my_dict[app][o], dict):
+                            t = 'error'
+                            s = "'%s' is not dictionary" % o
                     elif not isinstance(my_dict[app][o], str):
                         t = 'error'
                         s = "'%s' is not a string" % o
@@ -422,3 +427,115 @@ class ClickReviewSystemd(ClickReview):
                                       self._create_dict(
                                       self.pkg_yaml['services']),
                                       'package_yaml')
+
+    def _verify_service_ports(self, pkgname, my_dict, test_str):
+        for app in sorted(my_dict):
+            if 'ports' not in my_dict[app]:
+                continue
+            f = os.path.basename(self.systemd_files[app])
+
+            t = 'info'
+            n = '%s_ports_empty_%s' % (test_str, f)
+            s = 'OK'
+            if len(my_dict[app]['ports'].keys()) == 0:
+                t = 'error'
+                s = "'ports' must contain 'internal' and/or 'external'"
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = '%s_ports_bad_key_%s' % (test_str, f)
+            s = 'OK'
+            badkeys = []
+            for i in my_dict[app]['ports'].keys():
+                if i not in ['internal', 'external']:
+                    badkeys.append(i)
+            if len(badkeys) > 0:
+                t = 'error'
+                s = "Unknown '%s' found in 'ports'" % ",".join(badkeys)
+            self._add_result(t, n, s)
+
+            port_pat = re.compile(r'^[0-9]+/[a-z0-9\-]+$')
+            for key in ['internal', 'external']:
+                if key not in my_dict[app]['ports']:
+                    continue
+
+                if len(my_dict[app]['ports'][key].keys()) < 1:
+                    t = 'error'
+                    n = '%s_ports_%s_%s' % (test_str, key, f)
+                    s = 'Could not find any %s ports' % key
+                    self._add_result(t, n, s)
+                    continue
+
+                for tagname in my_dict[app]['ports'][key]:
+                    entry = my_dict[app]['ports'][key][tagname]
+                    if len(entry.keys()) < 1:
+                        t = 'error'
+                        n = '%s_ports_%s_%s' % (test_str, key, f)
+                        s = 'Could not find any subkeys for %s' % tagname
+                        self._add_result(t, n, s)
+                        continue
+                    # Annoyingly, the snappy-systemd file uses 'Port' and
+                    # 'Negotiable' instead of 'port' and 'negotiable' from the
+                    # yaml
+                    if (test_str == 'package_yaml' and
+                            'negotiable' not in entry and
+                            'port' not in entry) or \
+                       (test_str == 'hook' and
+                            'Negotiable' not in entry and
+                            'Port' not in entry):
+                        t = 'error'
+                        n = '%s_ports_%s_invalid_%s' % (test_str, key, f)
+                        s = "Must specify specify at least 'port' or " + \
+                            "'negotiable'"
+                        self._add_result(t, n, s)
+                        continue
+
+                    # port
+                    subkey = 'port'
+                    if test_str == 'hook':
+                        subkey = 'Port'
+                    t = 'info'
+                    n = '%s_ports_%s_%s_format' % (test_str, tagname, subkey)
+                    s = 'OK'
+                    if subkey not in entry:
+                        s = 'OK (skipped, not found)'
+                    else:
+                        tmp = entry[subkey].split('/')
+                        if not port_pat.search(entry[subkey]) or \
+                           int(tmp[0]) < 1 or int(tmp[0]) > 65535:
+                            t = 'error'
+                            s = "'%s' should be of form " % entry[subkey] + \
+                                "'port/protocol' where port is an integer " + \
+                                "(1-65535) and protocol is found in " + \
+                                "/etc/protocols"
+                    self._add_result(t, n, s)
+
+                    # negotiable
+                    subkey = 'negotiable'
+                    if test_str == 'hook':
+                        subkey = 'Negotiable'
+                    t = 'info'
+                    n = '%s_ports_%s_%s_format' % (test_str, tagname, subkey)
+                    s = 'OK'
+                    if subkey not in entry:
+                        s = 'OK (skipped, not found)'
+                    elif entry[subkey] not in [True, False]:
+                        t = 'error'
+                        s = "'%s: %s' should be either 'yes' or 'no'" % \
+                            (subkey, entry[subkey])
+                    self._add_result(t, n, s)
+
+    def check_service_ports(self):
+        '''Check snappy-systemd ports'''
+        self._verify_service_ports(self.click_pkgname, self.systemd, 'hook')
+
+    def check_snappy_service_ports(self):
+        '''Check snappy package.yaml ports'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+        self._verify_service_ports(self.pkg_yaml['name'],
+                                   self._create_dict(
+                                   self.pkg_yaml['services']),
+                                   'package_yaml')
