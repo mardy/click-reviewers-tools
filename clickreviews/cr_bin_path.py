@@ -42,6 +42,8 @@ class ClickReviewBinPath(ClickReview):
         self.bin_paths = dict()
 
         if self.is_snap and 'binaries' in self.pkg_yaml:
+            if len(self.pkg_yaml['binaries']) == 0:
+                error("package.yaml malformed: 'binaries' is empty")
             for binary in self.pkg_yaml['binaries']:
                 if 'name' not in binary:
                     error("package.yaml malformed: required 'name' not found "

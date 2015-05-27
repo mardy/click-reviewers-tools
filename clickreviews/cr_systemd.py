@@ -56,6 +56,8 @@ class ClickReviewSystemd(ClickReview):
         self.systemd = dict()
 
         if self.is_snap and 'services' in self.pkg_yaml:
+            if len(self.pkg_yaml['services']) == 0:
+                error("package.yaml malformed: 'services' is empty")
             for service in self.pkg_yaml['services']:
                 if 'name' not in service:
                     error("package.yaml malformed: required 'name' not found "
