@@ -1060,6 +1060,27 @@ exit 1
             s = "meta/readme.md is too short"
         self._add_result(t, n, s)
 
+    def _check_innerpath_executable(self, fn):
+        '''Check that the provided path exists and is executable'''
+        return os.access(fn, os.X_OK)
+
+    def check_snappy_config(self):
+        '''Check snappy config'''
+        if not self.is_snap:
+            return
+
+        fn = os.path.join(self.unpack_dir, 'meta/hooks/config')
+        if fn not in self.pkg_files:
+            return
+
+        t = 'info'
+        n = 'snappy_config_hook_executable'
+        s = 'OK'
+        if not self._check_innerpath_executable(fn):
+            t = 'error'
+            s = 'meta/hooks/config is not executable'
+        self._add_result(t, n, s)
+
     def check_snappy_services_and_binaries(self):
         '''Services and binaries should not overlap'''
         if not self.is_snap:

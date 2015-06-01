@@ -103,6 +103,13 @@ def _extract_readme_md(self):
     return TEST_README_MD
 
 
+def _check_innerpath_executable(self, fn):
+    '''Pretend we a file'''
+    if '.nonexec' in fn:
+        return False
+    return True
+
+
 def _extract_click_frameworks(self):
     '''Pretend we enumerated the click frameworks'''
     return ["ubuntu-sdk-13.10",
@@ -298,6 +305,9 @@ patches.append(patch(
 patches.append(patch(
     'clickreviews.cr_lint.ClickReviewLint._extract_readme_md',
     _extract_readme_md))
+patches.append(patch(
+    'clickreviews.cr_lint.ClickReviewLint._check_innerpath_executable',
+    _check_innerpath_executable))
 
 # security overrides
 patches.append(patch(

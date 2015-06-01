@@ -15,6 +15,7 @@ click-reviewers-tools (0.28) UNRELEASED; urgency=medium
     repectively
   * cr_lint.py: update pkgname checks for snaps-- shouldn't have '.' in the
     name
+  * cr_lint.py: add snappy-config checks
 
   [ Marcus Tomlinson ]
   * cr_scope.py: add "keywords" to the list of optional scope .ini keys

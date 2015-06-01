@@ -1747,3 +1747,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         m = r['error']['lint_hashes_extra_files']['text']
         self.assertIn("found extra files not listed in hashes.yaml: extrafile",
                       m)
+
+    def test_snappy_config(self):
+        '''Test check_snappy_config()'''
+        c = ClickReviewLint(self.test_name)
+        c.unpack_dir = "/nonexistent"
+        c.pkg_files.append(os.path.join(c.unpack_dir, 'meta/hooks/config'))
+        c.is_snap = True
+        c.check_snappy_config()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_config_nonexecutable(self):
+        '''Test check_snappy_config() - not executable'''
+        c = ClickReviewLint(self.test_name)
+        c.unpack_dir = "/nonexistent.nonexec"
+        c.pkg_files.append(os.path.join(c.unpack_dir,
+                                        'meta/hooks/config'))
+        c.is_snap = True
+        c.check_snappy_config()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
