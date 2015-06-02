@@ -1596,9 +1596,14 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.is_snap = True
         yaml = self._create_hashes_yaml()
         count = 0
+        orig_mode = None
         for e in yaml['files']:
             s = list(yaml['files'][count]['mode'])
-            s[3] = 'S'
+            if e['name'] == 'bin/foo':
+                # keep track of the other parts of the on disk mode
+                orig_mode = s
+                orig_mode[3] = 'S'
+                s[3] = 'S'
             yaml['files'][count]['mode'] = "".join(s)
             count += 1
         self.set_test_hashes_yaml(yaml)
@@ -1607,7 +1612,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         m = r['error']['lint_file_mode']['text']
-        self.assertIn("found errors in hashes.yaml: unusual mode 'drwSrwxr-x' for entry 'bin', unusual mode 'frwSrw-r--' for entry 'bin/foo'", m)
+        self.assertIn("found errors in hashes.yaml: unusual mode '%s' for entry 'bin/foo'" % "".join(orig_mode), m)
 
     def test_check_snappy_hashes_archive_files_mode_world_write(self):
         '''Test check_snappy_hashes() - mode world write'''
@@ -1617,7 +1622,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         count = 0
         for e in yaml['files']:
             s = list(e['mode'])
-            s[-2] = 's'
+            if e['name'] == 'bin/foo' or e['name'] == 'bin':
+                s[-2] = 'w'
+                s[-5] = 'w'
             yaml['files'][count]['mode'] = "".join(s)
             count += 1
         self.set_test_hashes_yaml(yaml)
@@ -1626,7 +1633,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         m = r['error']['lint_file_mode']['text']
-        self.assertIn("found errors in hashes.yaml: unusual mode 'drwxrwxrsx' for entry 'bin', 'bin' is world-writable, unusual mode 'frw-rw-rs-' for entry 'bin/foo'", m)
+        self.assertIn("found errors in hashes.yaml: 'bin' is world-writable, mode 'frw-rw-rw-' for 'bin/foo' is world-writable", m)
 
     def test_check_snappy_hashes_archive_files_mode_mismatch(self):
         '''Test check_snappy_hashes() - mode mismatch'''
@@ -1634,8 +1641,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.is_snap = True
         yaml = self._create_hashes_yaml()
         count = 0
+        orig_mode = None
         for e in yaml['files']:
             if e['mode'].startswith('f'):
+                # keep track of the other parts of the on disk mode
+                orig_mode = e['mode'][1:]
                 yaml['files'][count]['mode'] = "f---------"
                 break
             count += 1
@@ -1645,7 +1655,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         m = r['error']['lint_file_mode']['text']
-        self.assertIn("found errors in hashes.yaml: mode '---------' != 'rw-rw-r--' for 'bin/foo'", m)
+        self.assertIn("found errors in hashes.yaml: mode '---------' != '%s' for 'bin/foo'" % orig_mode, m)
 
     def test_check_snappy_hashes_archive_files_mode_bad_symlink(self):
         '''Test check_snappy_hashes() - mode bad symlink'''
