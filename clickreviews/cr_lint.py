@@ -253,7 +253,6 @@ class ClickReviewLint(ClickReview):
                 s = "Maintainer=%s does not match manifest maintainer=%s" % \
                     (control['Maintainer'], self.manifest['maintainer'])
         else:
-            t = 'warn'
             s = 'Skipped: maintainer not in manifest'
         self._add_result(t, n, s)
 
@@ -576,8 +575,13 @@ exit 1
         n = 'maintainer_present'
         s = 'OK'
         if 'maintainer' not in self.manifest:
-            s = 'required maintainer field not specified in manifest'
-            self._add_result('error', n, s)
+            if self.is_snap:
+                s = 'Skipped optional maintainer field not specified in ' + \
+                    'manifest'
+            else:
+                t = 'error'
+                s = 'required maintainer field not specified in manifest'
+            self._add_result(t, n, s)
             return
         self._add_result(t, n, s)
 

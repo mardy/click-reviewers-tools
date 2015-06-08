@@ -508,12 +508,23 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_maintainer_missing(self):
-        '''Test check_maintainer() - missing'''
+        '''Test check_maintainer() - missing (click)'''
         self.set_test_manifest("maintainer", None)
         c = ClickReviewLint(self.test_name)
+        self.is_snap = False
         c.check_maintainer()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_missing_snap(self):
+        '''Test check_maintainer() - missing (snap)'''
+        self.set_test_manifest("maintainer", None)
+        c = ClickReviewLint(self.test_name)
+        self.is_snap = True
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_maintainer_badformat(self):
