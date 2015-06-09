@@ -22,7 +22,8 @@ X-Python3-Version: >= 3.2
 
 Package: click-reviewers-tools
 Architecture: all
-Depends: python3-apt,
+Depends: binutils,
+         python3-apt,
          python3-debian,
          python3-lxml,
          python3-magic,

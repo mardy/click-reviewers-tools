@@ -18,6 +18,7 @@ click-reviewers-tools (0.28) UNRELEASED; urgency=medium
   * cr_lint.py: add snappy-config checks
   * cr_lint.py: maintainer isn't needed in compat click manifest for snaps
     that don't specify vendor
+  * debian/control: Depends on binutils (for 'ar')
 
   [ Marcus Tomlinson ]
   * cr_scope.py: add "keywords" to the list of optional scope .ini keys
