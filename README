@@ -69,3 +69,15 @@ hook to run the testsuite before committing. Eg, add something like this to
   Branch.hooks.install_named_hook('pre_commit',
                                   run_tests_crt,
                                   'click-reviewers-tools tests')
+
+
+Keeping projects in sync
+------------------------
+In addition to archive uploads and SRUs, the following should also be updated:
+- https://launchpad.net/~snappy-dev/+archive/ubuntu/tools-proposed
+  then keep an eye on them and when ok, ask someone to push to:
+  https://launchpad.net/~snappy-dev/+archive/ubuntu/tools
+- https://launchpad.net/~ubuntu-sdk-team/+archive/ubuntu/staging
+  then keep an eye on them and when ok, ask someone to push to:
+  https://launchpad.net/~ubuntu-sdk-team/+archive/ubuntu/ppa
+- the Ubuntu Store (ping beuno or pindonga to pull the changes from trunk)
