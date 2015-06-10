@@ -1236,5 +1236,53 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_caps(self):
         '''Check snap caps'''
-        # TODO - check caps on their own instead of just via compat click
-        # manifest
+        if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
+            return
+
+        for exe_t in ['services', 'binaries']:
+            if exe_t not in self.pkg_yaml:
+                continue
+            for item in self.pkg_yaml[exe_t]:
+                if 'caps' not in item:
+                    tmpl = []
+                else:
+                    tmpl = item['caps']
+
+                if 'name' not in item:
+                    t = 'error'
+                    n = 'yaml_caps_name'
+                    s = "package.yaml malformed. Could not find 'name' " + \
+                        "for entry in '%s'" % item
+                    self._add_result(t, n, s)
+                    continue
+
+                # Handle bin/exec concept with bianries
+                app = os.path.basename(item['name'])
+
+                t = 'info'
+                n = 'yaml_caps_%s' % app
+                s = "OK"
+                if not isinstance(tmpl, list):
+                    t = 'error'
+                    s = "'%s/%s' malformed: '%s' is not list" % (exe_t, app,
+                                                                 tmpl)
+                    self._add_result(t, n, s)
+                    continue
+                self._add_result(t, n, s)
+
+                t = 'info'
+                n = 'yaml_caps_in_manifest_%s' % app
+                s = "OK"
+                if app not in self.manifest['hooks']:
+                    t = 'error'
+                    s = "'%s' not found in click manifest" % app
+                    self._add_result(t, n, s)
+                    continue
+                elif 'apparmor' not in self.manifest['hooks'][app] and \
+                     'apparmor-profile' not in self.manifest['hooks'][app]:
+                    t = 'error'
+                    s = "'apparmor' not found in click manifest for '%s'" % app
+                    self._add_result(t, n, s)
+                    continue
+
+        # TODO: error if not 'common'
