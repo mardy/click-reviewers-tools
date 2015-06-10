@@ -1,4 +1,4 @@
-click-reviewers-tools (0.28) UNRELEASED; urgency=medium
+click-reviewers-tools (0.28) wily; urgency=medium
 
   [ Jamie Strandboge ]
   * Makefile: perform run-pyflakes in check target
@@ -23,7 +23,7 @@ click-reviewers-tools (0.28) UNRELEASED; urgency=medium
   [ Marcus Tomlinson ]
   * cr_scope.py: add "keywords" to the list of optional scope .ini keys
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 27 May 2015 17:27:00 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 10 Jun 2015 16:07:33 -0500
 
 click-reviewers-tools (0.27) wily; urgency=medium
 
