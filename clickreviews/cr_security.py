@@ -1015,6 +1015,26 @@ class ClickReviewSecurity(ClickReview):
                     item['name'] = os.path.basename(item['name'])
 
         converted = self._convert_click_security_to_yaml()
+
+        # don't compare the security yaml and the click if the yaml isn't
+        # formatted right. This avoids confusing errors for the user
+        error = False
+        for exe_t in yml.keys():
+            for item in yml[exe_t]:
+                if 'security-template' in item and \
+                        not isinstance(item['security-template'], str):
+                    error = True
+                    continue
+                elif 'caps' in item and not isinstance(item['caps'], list):
+                    error = True
+                    continue
+        if error:
+            t = 'info'
+            n = 'yaml_and_click'
+            s = "SKIPPED (yaml errors)"
+            self._add_result(t, n, s)
+            return
+
         self._compare_security_yamls(yml, converted)
 
     def check_security_yaml_override_and_click(self):

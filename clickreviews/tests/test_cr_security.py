@@ -1570,6 +1570,34 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_security_yaml_and_click_invalid_template(self):
+        '''Test check_security_yaml_and_click() - invalid template'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "other")
+        self._set_yaml_binary([("security-template", None),
+                               ('caps', ['networking'])],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_invalid_caps(self):
+        '''Test check_security_yaml_and_click() - invalid caps'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "other")
+        self._set_yaml_binary([("security-template", "nondefault"),
+                               ('caps', None)],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_yaml_combinations(self):
         '''Test check_security_yaml_combinations()'''
         self._set_yaml_binary([], name=self.default_appname)
