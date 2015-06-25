@@ -1,6 +1,9 @@
 click-reviewers-tools (0.29) UNRELEASED; urgency=medium
 
   * README: add notes on where to upload review tools to keep projects in sync
+  * cr_online_accounts.py: account-provider and account-qml-plugin can now be
+    allowed if used with apparmor (LP: #1219644)
+  * cr_security.py: TODO
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 10 Jun 2015 16:44:27 -0500
 

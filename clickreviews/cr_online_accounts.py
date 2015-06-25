@@ -42,14 +42,14 @@ class ClickReviewAccounts(ClickReview):
 
         peer_hooks['account-provider'] = dict()
         peer_hooks['account-provider']['required'] = ['account-qml-plugin',
-                                                      # 'apparmor'
+                                                      'apparmor'
                                                       ]
         peer_hooks['account-provider']['allowed'] = \
             peer_hooks['account-provider']['required']
 
         peer_hooks['account-qml-plugin'] = dict()
         peer_hooks['account-qml-plugin']['required'] = ['account-provider',
-                                                        # 'apparmor'
+                                                        'apparmor'
                                                         ]
         peer_hooks['account-qml-plugin']['allowed'] = \
             peer_hooks['account-qml-plugin']['required']
@@ -203,10 +203,6 @@ class ClickReviewAccounts(ClickReview):
                 s = "OK (missing)"
                 self._add_result(t, n, s)
                 continue
-            else:
-                t = 'error'
-                s = "(MANUAL REVIEW) '%s' not allowed" % account_type
-                manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
 
             t = 'info'
@@ -239,8 +235,4 @@ class ClickReviewAccounts(ClickReview):
                 s = "OK (missing)"
                 self._add_result(t, n, s)
                 continue
-            else:
-                t = 'error'
-                s = "(MANUAL REVIEW) '%s' not allowed" % account_type
-                manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
