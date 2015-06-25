@@ -259,11 +259,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_provider()
         r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 1
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
 
     def test_check_provider_has_id(self):
         '''Test check_provider() - has id'''
@@ -274,11 +271,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_provider()
         r = c.click_report
-        # provider prompts manual review, so for now, need to have error as +1
-        expected_counts = {'info': None, 'warn': 1, 'error': 1}
+        expected_counts = {'info': 2, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-provider" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
 
     def test_check_qml_plugin(self):
         '''Test check_qml_plugin()'''
@@ -288,11 +282,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_qml_plugin()
         r = c.click_report
-        # provider prompts manual review, so for now, need to have error as 1
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-        check_name = "%s_%s_account-qml-plugin" % (c.review_type, self.default_appname)
-        self.check_manual_review(r, check_name)
 
     def test_check_peer_hooks_application(self):
         '''Test check_peer_hooks() - application'''
@@ -448,6 +439,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
 
         # add any required peer hooks
         tmp["account-qml-plugin"] = "foo.qml_plugin"
+        tmp["apparmor"] = "foo.apparmor"
 
         # update the manifest and test_manifest
         c.manifest["hooks"][self.default_appname] = tmp
@@ -472,6 +464,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
 
         # add any required peer hooks
         tmp["account-qml-plugin"] = "foo.qml_plugin"
+        tmp["apparmor"] = "foo.apparmor"
 
         # add something not allowed
         tmp["nonexistent"] = "nonexistent-hook"

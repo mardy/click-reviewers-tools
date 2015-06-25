@@ -86,6 +86,7 @@
       "templates": {
         "common": [
           "default",
+          "ubuntu-account-plugin",
           "ubuntu-push-helper",
           "ubuntu-scope-network",
           "ubuntu-sdk",
@@ -130,6 +131,7 @@
       "templates": {
         "common": [
           "default",
+          "ubuntu-account-plugin",
           "ubuntu-push-helper",
           "ubuntu-scope-network",
           "ubuntu-sdk",

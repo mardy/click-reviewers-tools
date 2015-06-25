@@ -1286,3 +1286,31 @@ class ClickReviewSecurity(ClickReview):
                     continue
 
         # TODO: error if not 'common'
+
+    def check_template_online_accounts_provider(self):
+        '''Check template for online accounts account-provider'''
+        for app in sorted(self.security_apps):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = 'template_account_provider(%s)' % f
+            s = "OK"
+            if 'account-provider' not in self.manifest['hooks'][app]:
+                continue
+            if 'template' not in m or m['template'] != "ubuntu-account-plugin":
+                t = 'error'
+                s = "template is not 'ubuntu-account-plugin'"
+            self._add_result(t, n, s)
+
+    def check_template_online_accounts_qml_plugin(self):
+        '''Check template for online accounts account-qml-plugin'''
+        for app in sorted(self.security_apps):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = 'template_account_qml_plugin(%s)' % f
+            s = "OK"
+            if 'account-qml-plugin' not in self.manifest['hooks'][app]:
+                continue
+            if 'template' not in m or m['template'] != "ubuntu-account-plugin":
+                t = 'error'
+                s = "template is not 'ubuntu-account-plugin'"
+            self._add_result(t, n, s)
