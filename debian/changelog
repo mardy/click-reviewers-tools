@@ -1,4 +1,4 @@
-click-reviewers-tools (0.29) UNRELEASED; urgency=medium
+click-reviewers-tools (0.29) wily; urgency=medium
 
   * README: add notes on where to upload review tools to keep projects in sync
   * cr_online_accounts.py: account-provider and account-qml-plugin can now be
@@ -9,7 +9,7 @@ click-reviewers-tools (0.29) UNRELEASED; urgency=medium
     - correctly update the cached json if needed
   * apparmor_policy.py: fix bug that prevented get_policy_file() from working
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 10 Jun 2015 16:44:27 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 25 Jun 2015 17:54:21 -0500
 
 click-reviewers-tools (0.28) wily; urgency=medium
 
