@@ -27,8 +27,7 @@ AA_POLICY_DATA_URL = \
 def get_policy_file(fn):
     if fn is None:
         fn = USER_DATA_FILE
-    file_url = clickreviews.remote.get_remote_file_url(AA_POLICY_DATA_URL)
-    clickreviews.remote.get_remote_file(fn, file_url)
+    clickreviews.remote.get_remote_file(fn, AA_POLICY_DATA_URL)
 
 
 class ApparmorPolicy(object):
