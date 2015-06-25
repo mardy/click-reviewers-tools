@@ -47,8 +47,14 @@ class ClickReviewSecurity(ClickReview):
         ClickReview.__init__(self, fn, "security", peer_hooks=peer_hooks,
                              overrides=overrides)
 
-        local_copy = os.path.join(os.path.dirname(__file__),
-                                  '../data/apparmor-easyprof-ubuntu.json')
+        # If local_copy is None, then this will check the server to see if
+        # we are up to date. However, if we are working within the development
+        # tree, use it unconditionally.
+        local_copy = None
+        branch_fn = os.path.join(os.path.dirname(__file__),
+                                 '../data/apparmor-easyprof-ubuntu.json')
+        if os.path.exists(branch_fn):
+            local_copy = branch_fn
         p = apparmor_policy.ApparmorPolicy(local_copy)
         self.aa_policy = p.policy
 

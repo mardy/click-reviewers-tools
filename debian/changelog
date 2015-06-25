@@ -3,8 +3,11 @@ click-reviewers-tools (0.29) UNRELEASED; urgency=medium
   * README: add notes on where to upload review tools to keep projects in sync
   * cr_online_accounts.py: account-provider and account-qml-plugin can now be
     allowed if used with apparmor (LP: #1219644)
-  * cr_security.py: verify when account-provider and account-qml-plugin are
-    used that the security manifest uses the "ubuntu-account-plugin" template
+  * cr_security.py:
+    - verify when account-provider and account-qml-plugin are used that the
+      security manifest uses the "ubuntu-account-plugin" template
+    - correctly update the cached json if needed
+  * apparmor_policy.py: fix bug that prevented get_policy_file() from working
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 10 Jun 2015 16:44:27 -0500
 
