@@ -427,7 +427,7 @@ class ClickReviewSystemd(ClickReview):
             return
         self._verify_service_bus_name(self.pkg_yaml['name'],
                                       self._create_dict(
-                                      self.pkg_yaml['services']),
+                                          self.pkg_yaml['services']),
                                       'package_yaml')
 
     def _verify_service_ports(self, pkgname, my_dict, test_str):
@@ -539,5 +539,5 @@ class ClickReviewSystemd(ClickReview):
             return
         self._verify_service_ports(self.pkg_yaml['name'],
                                    self._create_dict(
-                                   self.pkg_yaml['services']),
+                                       self.pkg_yaml['services']),
                                    'package_yaml')
