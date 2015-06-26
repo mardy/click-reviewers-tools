@@ -97,7 +97,7 @@ class ClickReviewSecurity(ClickReview):
                                                              'networking',
                                                              'webview']
         self.allowed_ubuntu_account_plugin_policy_groups = \
-                self.required_ubuntu_account_plugin_policy_groups
+            self.required_ubuntu_account_plugin_policy_groups
 
         self.redflag_templates = ['unconfined']
         # TODO: how to deal with other vendors
