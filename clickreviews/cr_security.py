@@ -93,6 +93,11 @@ class ClickReviewSecurity(ClickReview):
 
         self.allowed_push_helper_policy_groups = ['push-notification-client']
         self.allowed_network_scope_policy_groups = ['accounts', 'networking']
+        self.required_ubuntu_account_plugin_policy_groups = ['accounts',
+                                                             'networking',
+                                                             'webview']
+        self.allowed_ubuntu_account_plugin_policy_groups = \
+                self.required_ubuntu_account_plugin_policy_groups
 
         self.redflag_templates = ['unconfined']
         # TODO: how to deal with other vendors
@@ -608,6 +613,42 @@ class ClickReviewSecurity(ClickReview):
             if len(bad) > 0:
                 t = 'error'
                 s = "found inappropriate policy groups: %s" % ", ".join(bad)
+            self._add_result(t, n, s)
+
+    def check_policy_groups_ubuntu_account_plugin(self):
+        '''Check policy_groups for ubuntu-account-plugin template'''
+        for app in sorted(self.security_apps):
+            (f, m) = self._get_security_manifest(app)
+            if 'account-qml-plugin' not in self.manifest['hooks'][app]:
+                continue
+
+            t = 'info'
+            n = 'required_policy_groups_ubuntu_account_plugin(%s)' % f
+            s = "OK"
+            if 'policy_groups' not in m:
+                self._add_result('error', n,
+                                 "required policy groups not found")
+                continue
+
+            missing = []
+            for p in self.required_ubuntu_account_plugin_policy_groups:
+                if p not in m['policy_groups']:
+                    missing.append(p)
+            if len(missing) > 0:
+                t = 'error'
+                s = "missing required policy groups: %s" % ", ".join(missing)
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = 'policy_groups_ubuntu_account_plugin(%s)' % f
+            s = "OK"
+            bad = []
+            for p in m['policy_groups']:
+                if p not in self.allowed_ubuntu_account_plugin_policy_groups:
+                    bad.append(p)
+            if len(bad) > 0:
+                t = 'error'
+                s = "found unusual policy groups: %s" % ", ".join(bad)
             self._add_result(t, n, s)
 
     def check_policy_groups(self):

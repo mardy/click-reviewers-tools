@@ -1951,7 +1951,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_online_account_qml_plugin(self):
         '''Test check_template_online_account_qml_plugin'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", "foo")
+        self.set_test_account(self.default_appname,
+                              "account-qml-plugin", "foo")
         self.set_test_security_manifest(self.default_appname,
                                         "template", "ubuntu-account-plugin")
         self.set_test_security_manifest(self.default_appname,
@@ -1974,7 +1975,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_online_account_qml_plugin_wrong_template(self):
         '''Test check_template_online_account_qml_plugin - wrong template'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", "foo")
+        self.set_test_account(self.default_appname,
+                              "account-qml-plugin", "foo")
         self.set_test_security_manifest(self.default_appname,
                                         "template", "ubuntu-webapp")
         self.set_test_security_manifest(self.default_appname,
@@ -1987,13 +1989,74 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_online_account_qml_plugin_wrong_template2(self):
         '''Test check_template_online_account_qml_plugin - default template'''
-        self.set_test_account(self.default_appname, "account-qml-plugin", "foo")
+        self.set_test_account(self.default_appname,
+                              "account-qml-plugin", "foo")
         self.set_test_security_manifest(self.default_appname,
                                         "template", None)
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ["accounts"])
         c = ClickReviewSecurity(self.test_name)
         c.check_template_online_accounts_qml_plugin()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_ubuntu_account_plugin_no_hook(self):
+        '''Test check_policy_groups_ubuntu_account_plugin() - no hook'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-account-plugin")
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_ubuntu_account_plugin()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_ubuntu_account_plugin(self):
+        '''Test check_policy_groups_ubuntu_account_plugin()'''
+        self.set_test_account(self.default_appname,
+                              "account-qml-plugin", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-account-plugin")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["accounts",
+                                         "networking",
+                                         "webview"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_ubuntu_account_plugin()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_ubuntu_account_plugin_missing(self):
+        '''Test check_policy_groups_ubuntu_account_plugin - missing'''
+        self.set_test_account(self.default_appname,
+                              "account-qml-plugin", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-account-plugin")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["accounts", "webview"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_ubuntu_account_plugin()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_ubuntu_account_plugin_bad(self):
+        '''Test check_policy_groups_ubuntu_account_plugin - bad'''
+        self.set_test_account(self.default_appname,
+                              "account-qml-plugin", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-account-plugin")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["accounts",
+                                         "networking",
+                                         "webview",
+                                         "push-notification-client"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_ubuntu_account_plugin()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
