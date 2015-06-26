@@ -1,6 +1,6 @@
 click-reviewers-tools (0.31) UNRELEASED; urgency=medium
 
-  * 
+  * cr_security.py: webview is not required with ubuntu-account-plugin
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 26 Jun 2015 10:07:18 -0500
 

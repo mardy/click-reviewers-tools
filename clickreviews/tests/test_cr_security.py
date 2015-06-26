@@ -2053,7 +2053,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "policy_groups",
                                         ["accounts",
                                          "networking",
-                                         "webview",
                                          "push-notification-client"])
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_ubuntu_account_plugin()

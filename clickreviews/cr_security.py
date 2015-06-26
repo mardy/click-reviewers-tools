@@ -94,10 +94,9 @@ class ClickReviewSecurity(ClickReview):
         self.allowed_push_helper_policy_groups = ['push-notification-client']
         self.allowed_network_scope_policy_groups = ['accounts', 'networking']
         self.required_ubuntu_account_plugin_policy_groups = ['accounts',
-                                                             'networking',
-                                                             'webview']
+                                                             'networking']
         self.allowed_ubuntu_account_plugin_policy_groups = \
-            self.required_ubuntu_account_plugin_policy_groups
+            self.required_ubuntu_account_plugin_policy_groups + ['webview']
 
         self.redflag_templates = ['unconfined']
         # TODO: how to deal with other vendors
