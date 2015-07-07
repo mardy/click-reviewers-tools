@@ -1467,16 +1467,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
-    def test_check_security_yaml_and_click_mismatch1(self):
-        '''Test check_security_yaml_and_click() - missing bin-path in hooks'''
-        self._set_yaml_binary([])
-        c = ClickReviewSecurity(self.test_name)
-
-        c.check_security_yaml_and_click()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(report, expected_counts)
-
     def test_check_security_yaml_and_click_mismatch2(self):
         '''Test check_security_yaml_and_click() - missing apparmor in hooks'''
         self._set_yaml_binary([])
