@@ -16,23 +16,16 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error, open_file_read
-import yaml
-import os
+from clickreviews.cr_common import ClickReview, error
+import copy
 import re
 
 
 class ClickReviewSystemd(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn, overrides=None):
-        peer_hooks = dict()
-        my_hook = 'snappy-systemd'
-        peer_hooks[my_hook] = dict()
-        peer_hooks[my_hook]['required'] = ["apparmor"]
-        peer_hooks[my_hook]['allowed'] = peer_hooks[my_hook]['required']
-
-        ClickReview.__init__(self, fn, "snappy-systemd", peer_hooks=peer_hooks,
-                             overrides=overrides)
+        # systemd isn't implemented as a hook any more so don't setup peerhooks
+        ClickReview.__init__(self, fn, "snappy-systemd", overrides=overrides)
 
         # snappy-systemd currently only allows specifying:
         # - start (required)
@@ -67,55 +60,15 @@ class ClickReviewSystemd(ClickReview):
                           "for entry in %s" % self.pkg_yaml['services'])
 
                 app = service['name']
-                (full_fn, yd) = self._extract_systemd(app)
-                self.systemd_files[app] = full_fn
-                self.systemd[app] = yd
-
-        # Now verify click manifest
-        for app in self.manifest['hooks']:
-            if not self.is_snap and \
-               'snappy-systemd' not in self.manifest['hooks'][app]:
-                #  non-snappy clicks don't need snappy-systemd hook
-                # msg("Skipped missing systemd hook for '%s'" % app)
-                continue
-            elif 'snappy-systemd' in self.manifest['hooks'][app] and \
-                 not isinstance(self.manifest['hooks'][app]['snappy-systemd'],
-                                str):
-                error("manifest malformed: hooks/%s/snappy-systemd is not str"
-                      % app)
-
-    def _extract_systemd(self, app):
-        '''Get systemd yaml'''
-        fn = os.path.join(self.unpack_dir, "meta", "%s.snappy-systemd" % app)
-
-        bn = os.path.basename(fn)
-        if not os.path.exists(fn):
-            error("Could not find '%s'" % bn)
-
-        fh = open_file_read(fn)
-        contents = ""
-        for line in fh.readlines():
-            contents += line
-        fh.close()
-
-        try:
-            yd = yaml.safe_load(contents)
-        except Exception as e:
-            error("snappy-systemd yaml unparseable: %s (%s):\n%s" % (bn,
-                  str(e), contents))
-
-        if not isinstance(yd, dict):
-            error("snappy-systemd yaml is malformed: %s:\n%s" % (bn, contents))
-
-        return (fn, yd)
+                self.systemd[app] = copy.deepcopy(service)
+                del self.systemd[app]['name']
 
     def _verify_required(self, my_dict, test_str):
         for app in sorted(my_dict):
-            f = os.path.basename(self.systemd_files[app])
             for r in self.required_keys:
                 found = False
                 t = 'info'
-                n = '%s_required_key_%s_%s' % (test_str, r, f)
+                n = '%s_required_key_%s_%s' % (test_str, r, app)
                 s = "OK"
                 if r in my_dict[app]:
                     if not isinstance(my_dict[app][r], str):
@@ -131,10 +84,6 @@ class ClickReviewSystemd(ClickReview):
                     s = "Missing required field '%s'" % r
                 self._add_result(t, n, s)
 
-    def check_required(self):
-        '''Check snappy-systemd required fields'''
-        self._verify_required(self.systemd, 'hook')
-
     def check_snappy_required(self):
         '''Check for package.yaml required fields'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
@@ -144,13 +93,12 @@ class ClickReviewSystemd(ClickReview):
 
     def _verify_optional(self, my_dict, test_str):
         for app in sorted(my_dict):
-            f = os.path.basename(self.systemd_files[app])
             for o in self.optional_keys:
                 if o in self.snappy_exe_security:
                     continue  # checked in cr_security.py
                 found = False
                 t = 'info'
-                n = '%s_optional_key_%s_%s' % (test_str, o, f)
+                n = '%s_optional_key_%s_%s' % (test_str, o, app)
                 s = "OK"
                 if o in my_dict[app]:
                     if o == 'stop-timeout':
@@ -181,10 +129,6 @@ class ClickReviewSystemd(ClickReview):
                     s = "OK (skip missing)"
                 self._add_result(t, n, s)
 
-    def check_optional(self):
-        '''Check snappy-systemd optional fields'''
-        self._verify_optional(self.systemd, 'hook')
-
     def check_snappy_optional(self):
         '''Check snappy packate.yaml optional fields'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
@@ -194,10 +138,9 @@ class ClickReviewSystemd(ClickReview):
 
     def _verify_unknown(self, my_dict, test_str):
         for app in sorted(my_dict):
-            f = os.path.basename(self.systemd_files[app])
             unknown = []
             t = 'info'
-            n = '%s_unknown_key_%s' % (test_str, f)
+            n = '%s_unknown_key_%s' % (test_str, app)
             s = "OK"
 
             for f in my_dict[app].keys():
@@ -213,10 +156,6 @@ class ClickReviewSystemd(ClickReview):
                 s = "Unknown fields '%s'" % ", ".join(unknown)
             self._add_result(t, n, s)
 
-    def check_unknown(self):
-        '''Check snappy-systemd unknown fields'''
-        self._verify_unknown(self.systemd, 'hook')
-
     def check_snappy_unknown(self):
         '''Check snappy package.yaml unknown fields'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
@@ -225,11 +164,10 @@ class ClickReviewSystemd(ClickReview):
                              'package_yaml')
 
     def _verify_service_description(self, my_dict, test_str):
-        '''Check snappy-systemd description'''
+        '''Check snappy systemd description'''
         for app in sorted(my_dict):
-            f = os.path.basename(self.systemd_files[app])
             t = 'info'
-            n = '%s_description_present_%s' % (test_str, f)
+            n = '%s_description_present_%s' % (test_str, app)
             s = 'OK'
             if 'description' not in my_dict[app]:
                 s = 'required description field not specified'
@@ -238,16 +176,12 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_description_empty_%s' % (test_str, f)
+            n = '%s_description_empty_%s' % (test_str, app)
             s = 'OK'
             if len(my_dict[app]['description']) == 0:
                 t = 'error'
                 s = "description is empty"
             self._add_result(t, n, s)
-
-    def check_service_description(self):
-        '''Check snappy-systemd description'''
-        self._verify_service_description(self.systemd, 'hook')
 
     def check_snappy_service_description(self):
         '''Check snappy package.yaml description'''
@@ -261,10 +195,9 @@ class ClickReviewSystemd(ClickReview):
         for app in sorted(my_dict):
             if d not in my_dict[app]:
                 continue
-            f = os.path.basename(self.systemd_files[app])
 
             t = 'info'
-            n = '%s_%s_empty_%s' % (test_str, d, f)
+            n = '%s_%s_empty_%s' % (test_str, d, app)
             s = 'OK'
             if len(my_dict[app][d]) == 0:
                 t = 'error'
@@ -274,16 +207,12 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_%s_absolute_path_%s' % (test_str, d, f)
+            n = '%s_%s_absolute_path_%s' % (test_str, d, app)
             s = 'OK'
             if my_dict[app][d].startswith('/'):
                 t = 'error'
                 s = "'%s' should not specify absolute path" % my_dict[app][d]
             self._add_result(t, n, s)
-
-    def check_service_start(self):
-        '''Check snappy-systemd start'''
-        self._verify_entry(self.systemd, 'start', 'hook')
 
     def check_snappy_service_start(self):
         '''Check snappy package.yaml start'''
@@ -292,20 +221,12 @@ class ClickReviewSystemd(ClickReview):
         self._verify_entry(self._create_dict(self.pkg_yaml['services']),
                            'start', 'package_yaml')
 
-    def check_service_stop(self):
-        '''Check snappy-systemd stop'''
-        self._verify_entry(self.systemd, 'stop', 'hook')
-
     def check_snappy_service_stop(self):
         '''Check snappy package.yaml stop'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
         self._verify_entry(self._create_dict(self.pkg_yaml['services']),
                            'stop', 'package_yaml')
-
-    def check_service_poststop(self):
-        '''Check snappy-systemd poststop'''
-        self._verify_entry(self.systemd, 'poststop', 'hook')
 
     def check_snappy_service_poststop(self):
         '''Check snappy package.yaml poststop'''
@@ -316,9 +237,8 @@ class ClickReviewSystemd(ClickReview):
 
     def _verify_service_stop_timeout(self, my_dict, test_str):
         for app in sorted(my_dict):
-            f = os.path.basename(self.systemd_files[app])
             t = 'info'
-            n = '%s_stop_timeout_%s' % (test_str, f)
+            n = '%s_stop_timeout_%s' % (test_str, app)
             s = "OK"
 
             if 'stop-timeout' not in my_dict[app]:
@@ -350,10 +270,6 @@ class ClickReviewSystemd(ClickReview):
 
             self._add_result(t, n, s)
 
-    def check_service_stop_timeout(self):
-        '''Check snappy-systemd stop-timeout'''
-        self._verify_service_stop_timeout(self.systemd, 'hook')
-
     def check_snappy_service_stop_timeout(self):
         '''Check snappy package.yaml stop-timeout'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
@@ -366,10 +282,9 @@ class ClickReviewSystemd(ClickReview):
         for app in sorted(my_dict):
             if 'bus-name' not in my_dict[app]:
                 continue
-            f = os.path.basename(self.systemd_files[app])
 
             t = 'info'
-            n = '%s_bus-name_empty_%s' % (test_str, f)
+            n = '%s_bus-name_empty_%s' % (test_str, app)
             s = 'OK'
             if len(my_dict[app]['bus-name']) == 0:
                 t = 'error'
@@ -379,7 +294,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_bus-name_format_%s' % (test_str, f)
+            n = '%s_bus-name_format_%s' % (test_str, app)
             l = None
             s = 'OK'
             if not re.search(r'^[A-Za-z0-9][A-Za-z0-9_-]*(\.[A-Za-z0-9][A-Za-z0-9_-]*)+$',
@@ -391,7 +306,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s, l)
 
             t = 'info'
-            n = '%s_bus-name_matches_name_%s' % (test_str, f)
+            n = '%s_bus-name_matches_name_%s' % (test_str, app)
             s = 'OK'
             suggested = [pkgname,
                          "%s.%s" % (pkgname, app)
@@ -417,10 +332,6 @@ class ClickReviewSystemd(ClickReview):
                     (my_dict[app]['bus-name'], ", ".join(suggested))
             self._add_result(t, n, s)
 
-    def check_service_bus_name(self):
-        '''Check snappy-systemd bus-name'''
-        self._verify_service_bus_name(self.click_pkgname, self.systemd, 'hook')
-
     def check_snappy_service_bus_name(self):
         '''Check snappy package.yaml bus-name'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
@@ -434,10 +345,9 @@ class ClickReviewSystemd(ClickReview):
         for app in sorted(my_dict):
             if 'ports' not in my_dict[app]:
                 continue
-            f = os.path.basename(self.systemd_files[app])
 
             t = 'info'
-            n = '%s_ports_empty_%s' % (test_str, f)
+            n = '%s_ports_empty_%s' % (test_str, app)
             s = 'OK'
             if len(my_dict[app]['ports'].keys()) == 0:
                 t = 'error'
@@ -447,7 +357,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_ports_bad_key_%s' % (test_str, f)
+            n = '%s_ports_bad_key_%s' % (test_str, app)
             s = 'OK'
             badkeys = []
             for i in my_dict[app]['ports'].keys():
@@ -465,7 +375,7 @@ class ClickReviewSystemd(ClickReview):
 
                 if len(my_dict[app]['ports'][key].keys()) < 1:
                     t = 'error'
-                    n = '%s_ports_%s_%s' % (test_str, key, f)
+                    n = '%s_ports_%s_%s' % (test_str, key, app)
                     s = 'Could not find any %s ports' % key
                     self._add_result(t, n, s)
                     continue
@@ -474,7 +384,7 @@ class ClickReviewSystemd(ClickReview):
                     entry = my_dict[app]['ports'][key][tagname]
                     if len(entry.keys()) < 1:
                         t = 'error'
-                        n = '%s_ports_%s_%s' % (test_str, key, f)
+                        n = '%s_ports_%s_%s' % (test_str, key, app)
                         s = 'Could not find any subkeys for %s' % tagname
                         self._add_result(t, n, s)
                         continue
@@ -488,7 +398,7 @@ class ClickReviewSystemd(ClickReview):
                             'Negotiable' not in entry and
                             'Port' not in entry):
                         t = 'error'
-                        n = '%s_ports_%s_invalid_%s' % (test_str, key, f)
+                        n = '%s_ports_%s_invalid_%s' % (test_str, key, app)
                         s = "Must specify specify at least 'port' or " + \
                             "'negotiable'"
                         self._add_result(t, n, s)
@@ -528,10 +438,6 @@ class ClickReviewSystemd(ClickReview):
                         s = "'%s: %s' should be either 'yes' or 'no'" % \
                             (subkey, entry[subkey])
                     self._add_result(t, n, s)
-
-    def check_service_ports(self):
-        '''Check snappy-systemd ports'''
-        self._verify_service_ports(self.click_pkgname, self.systemd, 'hook')
 
     def check_snappy_service_ports(self):
         '''Check snappy package.yaml ports'''

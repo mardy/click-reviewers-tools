@@ -82,8 +82,8 @@ class ClickReview(object):
                                 ]
     # FIXME: when apparmor-policy is implemented, use this
     service_allowed_peer_hooks = ["apparmor",
-                                  "bin-path",
-                                  "snappy-systemd",
+                                  "bin-path",  # obsoleted, ignored
+                                  "snappy-systemd",  # obsoleted, ignored
                                   ]
 
     snappy_required = ["name", "version"]

@@ -49,7 +49,6 @@ TEST_BIN_PATH = dict()
 TEST_FRAMEWORK = dict()
 TEST_FRAMEWORK_POLICY = dict()
 TEST_FRAMEWORK_POLICY_UNKNOWN = []
-TEST_SNAPPY_SYSTEMD = dict()
 
 
 #
@@ -241,11 +240,6 @@ def _has_framework_in_metadir(self):
     return True
 
 
-def _extract_systemd(self, app):
-    '''Pretend we found the systemd file'''
-    return ("%s.snappy-systemd" % app, TEST_SNAPPY_SYSTEMD[app])
-
-
 # http://docs.python.org/3.4/library/unittest.mock-examples.html
 # Mock patching. Don't use decorators but instead patch in setUp() of the
 # child. Set up a list of patches, but don't start them. Create the helper
@@ -378,11 +372,6 @@ patches.append(patch(
     'clickreviews.cr_framework.ClickReviewFramework._has_framework_in_metadir',
     _has_framework_in_metadir))
 
-# systemd overrides
-patches.append(patch(
-    'clickreviews.cr_systemd.ClickReviewSystemd._extract_systemd',
-    _extract_systemd))
-
 
 def mock_patch():
     '''Call in setup of child'''
@@ -469,7 +458,6 @@ class TestClickReview(TestCase):
         self.test_framework = dict()
         self.test_framework_policy = dict()
         self.test_framework_policy_unknown = []
-        self.test_systemd = dict()
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -518,9 +506,6 @@ class TestClickReview(TestCase):
             self.set_test_framework_policy(None)
             self.set_test_framework_policy_unknown([])
 
-            # Reset to no systemd entries in manifest
-            self.set_test_systemd(app, None, None)
-
             # Reset to no security profiles
             self.set_test_security_profile(app, None)
 
@@ -539,7 +524,6 @@ class TestClickReview(TestCase):
         self._update_test_framework()
         self._update_test_framework_policy()
         self._update_test_framework_policy_unknown()
-        self._update_test_systemd()
 
         # webapps manifests (leave empty for now)
         self.test_webapp_manifests = dict()
@@ -706,15 +690,6 @@ class TestClickReview(TestCase):
     def _update_test_framework_policy_unknown(self):
         global TEST_FRAMEWORK_POLICY_UNKNOWN
         TEST_FRAMEWORK_POLICY_UNKNOWN = self.test_framework_policy_unknown
-
-    def _update_test_systemd(self):
-        global TEST_SNAPPY_SYSTEMD
-        TEST_SNAPPY_SYSTEMD = dict()
-        for app in self.test_systemd.keys():
-            TEST_SNAPPY_SYSTEMD[app] = self.test_systemd[app]
-            self.test_manifest["hooks"][app]["snappy-systemd"] = \
-                "%s.snappy-systemd" % app
-        self._update_test_manifest()
 
     def _update_test_name(self):
         self.test_name = "%s_%s_%s.click" % (self.test_control['Package'],
@@ -1080,14 +1055,8 @@ class TestClickReview(TestCase):
 
     def set_test_systemd(self, app, key, value):
         '''Set systemd entries. If key is None, remove snappy-systemd from
-           manifest and yaml.
+           yaml.
 
-           Note the click manifest and the package.yaml use different
-           storage types. pkg_yaml['services'] is a list of dictionaries where
-           manifest['hooks'] is a dictionary of dictionaries. This function
-           sets the manifest entry and then a yaml entry with 'name' field.
-
-           manifest['hooks'][app]['snappy-systemd'] = <path to yaml>
            pkg_yaml['services'][*]['name'] = app
            pkg_yaml['services'][*][key] = value
         '''
@@ -1115,23 +1084,6 @@ class TestClickReview(TestCase):
                 self.test_pkg_yaml['services'].append({'name': app,
                                                        key: value})
         self._update_test_pkg_yaml()
-
-        #  Update the click manifest (we still support click format)
-        if key is None:
-            if app in self.test_systemd:
-                self.test_systemd.pop(app)
-        else:
-            if app not in self.test_systemd:
-                self.test_systemd[app] = {}
-
-            if value is None:
-                if key in self.test_systemd[app]:
-                    del(self.test_systemd[app][key])
-            else:
-                self.test_systemd[app][key] = value
-
-        # Now update TEST_SNAPPY_SYSTEMD
-        self._update_test_systemd()
 
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
@@ -1181,8 +1133,6 @@ class TestClickReview(TestCase):
         TEST_FRAMEWORK_POLICY = dict()
         global TEST_FRAMEWORK_POLICY_UNKNOWN
         TEST_FRAMEWORK_POLICY_UNKNOWN = []
-        global TEST_SNAPPY_SYSTEMD
-        TEST_SNAPPY_SYSTEMD = dict()
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)

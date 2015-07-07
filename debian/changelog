@@ -5,6 +5,13 @@ click-reviewers-tools (0.31) UNRELEASED; urgency=medium
     - bin-path and systemd hooks shouldn't be used any more to ascertain if an
       app is a service or binary since snappy build is no longer adding them
       and snappy install ignores them (LP: #1472296)
+  * cr_common.py: comment that snappy-systemd hook is deprecated
+  * cr_lint.py: comment that snappy-systemd hook is deprecated
+  * cr_systemd.py:
+    - directly parse package.yaml instead of parsing deprecated snappy-systemd
+      hook
+    - remove snappy-systemd hook checks now that it is ignored by snappy
+      install in stable releases
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Jul 2015 13:19:01 -0500
 

@@ -96,13 +96,13 @@ class ClickReviewLint(ClickReview):
                             'account-service',
                             'apparmor',
                             'apparmor-profile',
-                            'bin-path',
+                            'bin-path',  # obsoleted, ignored
                             'content-hub',
                             'desktop',
                             'pay-ui',
                             'push-helper',
                             'scope',
-                            'snappy-systemd',
+                            'snappy-systemd',  # obsoleted, ignored
                             'urls']
 
         self.redflagged_hooks = ['pay-ui',
