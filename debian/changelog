@@ -1,4 +1,4 @@
-click-reviewers-tools (0.31) UNRELEASED; urgency=medium
+click-reviewers-tools (0.31) wily; urgency=medium
 
   * cr_security.py:
     - webview is not required with ubuntu-account-plugin
@@ -15,7 +15,7 @@ click-reviewers-tools (0.31) UNRELEASED; urgency=medium
   * cr_bin_path.py: remove bin-path hook checks now that it is ignored by
     snappy install in stable releases
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Jul 2015 14:47:39 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Jul 2015 15:11:15 -0500
 
 click-reviewers-tools (0.30) wily; urgency=medium
 
