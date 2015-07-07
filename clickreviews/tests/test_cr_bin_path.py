@@ -60,79 +60,6 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_peer_hooks(self):
-        '''Test check_peer_hooks()'''
-        self.set_test_bin_path(self.default_appname, self.default_appname)
-        c = ClickReviewBinPath(self.test_name)
-
-        # create a new hooks database for our peer hooks tests
-        tmp = dict()
-
-        # add our hook
-        tmp["bin-path"] = "usr/bin/foo"
-
-        # add any required peer hooks
-        tmp["apparmor"] = "foo.apparmor"
-
-        c.manifest["hooks"][self.default_appname] = tmp
-        self._update_test_manifest()
-
-        #  do the test
-        c.check_peer_hooks()
-        r = c.click_report
-        # We should end up with 2 info
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_peer_hooks_disallowed(self):
-        '''Test check_peer_hooks() - disallowed'''
-        self.set_test_bin_path(self.default_appname, self.default_appname)
-        c = ClickReviewBinPath(self.test_name)
-
-        # create a new hooks database for our peer hooks tests
-        tmp = dict()
-
-        # add our hook
-        tmp["bin-path"] = "usr/bin/foo"
-
-        # add any required peer hooks
-        tmp["snappy-systemd"] = "foo.systemd"
-        tmp["apparmor"] = "foo.apparmor"
-
-        # add something not allowed
-        tmp["nonexistent"] = "nonexistent-hook"
-
-        c.manifest["hooks"][self.default_appname] = tmp
-        self._update_test_manifest()
-
-        # do the test
-        c.check_peer_hooks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_peer_hooks_required(self):
-        '''Test check_peer_hooks() - required'''
-        self.set_test_bin_path(self.default_appname, self.default_appname)
-        c = ClickReviewBinPath(self.test_name)
-
-        # create a new hooks database for our peer hooks tests
-        tmp = dict()
-
-        # add our hook
-        tmp["bin-path"] = "usr/bin/foo"
-
-        # skip adding required hooks
-
-        c.manifest["hooks"][self.default_appname] = tmp
-        self._update_test_manifest()
-
-        # do the test
-        c.check_peer_hooks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
     def test_check_required(self):
         '''Test check_snappy_required()'''
         self._set_binary([("exec", "bin/foo")])
@@ -243,37 +170,6 @@ class TestClickReviewBinPath(cr_tests.TestClickReview):
         self._set_binary([("description", "")])
         c = ClickReviewBinPath(self.test_name)
         c.check_binary_description()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_click_hooks(self):
-        '''Test check_click_hooks()'''
-        self._set_binary([("description", "some description")])
-        c = ClickReviewBinPath(self.test_name)
-        c.check_click_hooks()
-        r = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_click_hooks_missing_hook(self):
-        '''Test check_click_hooks() - missing'''
-        self._set_binary([("description", "some description")])
-        c = ClickReviewBinPath(self.test_name)
-        del c.manifest['hooks'][self.default_appname]['bin-path']
-        c.check_click_hooks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_click_hooks_added_hook(self):
-        '''Test check_click_hooks() - added'''
-        self._set_binary([("description", "some description")])
-        c = ClickReviewBinPath(self.test_name)
-        tmp = c.manifest['hooks']
-        tmp['extra-app'] = c.manifest['hooks'][self.default_appname]
-        c.manifest['hooks'] = tmp
-        c.check_click_hooks()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)

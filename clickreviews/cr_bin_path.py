@@ -23,14 +23,8 @@ import os
 class ClickReviewBinPath(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn, overrides=None):
-        peer_hooks = dict()
-        my_hook = 'bin-path'
-        peer_hooks[my_hook] = dict()
-        peer_hooks[my_hook]['required'] = ["apparmor"]
-        peer_hooks[my_hook]['allowed'] = peer_hooks[my_hook]['required']
-
-        ClickReview.__init__(self, fn, "bin-path", peer_hooks=peer_hooks,
-                             overrides=overrides)
+        # bin-path is ignored by snappy install so don't bother with peerhooks
+        ClickReview.__init__(self, fn, "bin-path", overrides=overrides)
 
         # snappy yaml currently only allows specifying:
         # - exec (optional)
@@ -60,17 +54,6 @@ class ClickReviewBinPath(ClickReview):
                 self.bin_paths[app] = rel
                 self.bin_paths_files[app] = self._extract_bin_path(app)
 
-        # Now verify click manifest
-        for app in self.manifest['hooks']:
-            if not self.is_snap and \
-               'bin-path' not in self.manifest['hooks'][app]:
-                # non-snappy clicks don't need bin-path hook
-                #  msg("Skipped missing bin-path hook for '%s'" % app)
-                continue
-            elif 'bin-path' in self.manifest['hooks'][app] and \
-                 not isinstance(self.manifest['hooks'][app]['bin-path'], str):
-                error("manifest malformed: hooks/%s/bin-path is not str" % app)
-
     def _extract_bin_path(self, app):
         '''Get bin-path for app'''
         rel = self.bin_paths[app]
@@ -83,34 +66,6 @@ class ClickReviewBinPath(ClickReview):
         '''Check that the provided path exists'''
         fn = self.bin_paths_files[app]
         return os.access(fn, os.X_OK)
-
-    def check_click_hooks(self):
-        '''Check that the click hooks match the package.yaml'''
-        t = 'info'
-        n = 'manifest_matches_yaml'
-        s = "OK"
-        extra = []
-        for app in self.manifest['hooks']:
-            if 'bin-path' in self.manifest['hooks'][app] and \
-               app not in self.bin_paths:
-                extra.append(app)
-        if len(extra) > 0:
-            t = 'error'
-            s = 'manifest has extra bin-path hooks: %s' % ",".join(extra)
-        self._add_result(t, n, s)
-
-        t = 'info'
-        n = 'yaml_matches_manifest'
-        s = "OK"
-        missing = []
-        for app in self.bin_paths:
-            if app not in self.manifest['hooks'] or \
-               'bin-path' not in self.manifest['hooks'][app]:
-                missing.append(app)
-        if len(missing) > 0:
-            t = 'error'
-            s = 'manifest has missing bin-path hooks: %s' % ",".join(missing)
-        self._add_result(t, n, s)
 
     def _verify_required(self, my_dict, test_str):
         for app in sorted(my_dict):
