@@ -993,8 +993,8 @@ class ClickReviewSecurity(ClickReview):
         # if it is a service or binary
         yaml_services = []
         if 'services' in self.pkg_yaml:
-            yaml_services = [e['name'] for e in self.pkg_yaml['services'] \
-                                if 'name' in e]
+            yaml_services = [e['name'] for e in self.pkg_yaml['services']
+                             if 'name' in e]
         yaml_binaries = []
         if 'binaries' in self.pkg_yaml:
             for e in self.pkg_yaml['binaries']:
