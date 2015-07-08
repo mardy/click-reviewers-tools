@@ -568,6 +568,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "policy_groups",
                                         ["audio",
                                          "content_exchange",
+                                         "keep-display-on",
                                          "location",
                                          "networking",
                                          "video",
@@ -586,6 +587,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "policy_groups",
                                         ["audio",
                                          "content_exchange",
+                                         "keep-display-on",
                                          "location",
                                          "networking",
                                          "video",
@@ -777,6 +779,20 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "policy_groups",
                                         ['networking',
                                          'audio',
+                                         'video'])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_multiple_kepp_display_on(self):
+        '''Test check_policy_groups() - multiple with keep-display-on'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ['networking',
+                                         'audio',
+                                         'keep-display-on',
                                          'video'])
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups()

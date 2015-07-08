@@ -1,6 +1,8 @@
 click-reviewers-tools (0.32) UNRELEASED; urgency=medium
 
-  * 
+  * data/apparmor-easyprof-ubuntu.json: add "keep-display-on" to ubuntu
+    common policy
+  * cr_security.py: webapps may use "keep-display-on"
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Jul 2015 15:19:50 -0500
 

@@ -86,6 +86,7 @@ class ClickReviewSecurity(ClickReview):
                                              # 'camera', non-functional ATM
                                              'content_exchange',
                                              'content_exchange_source',
+                                             'keep-display-on',
                                              'location',
                                              'networking',
                                              'video',
