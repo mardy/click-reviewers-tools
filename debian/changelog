@@ -1,4 +1,4 @@
-click-reviewers-tools (0.32) UNRELEASED; urgency=medium
+click-reviewers-tools (0.32) wily; urgency=medium
 
   * data/apparmor-easyprof-ubuntu.json: add "keep-display-on" to ubuntu
     common policy
@@ -10,7 +10,7 @@ click-reviewers-tools (0.32) UNRELEASED; urgency=medium
     - do not error if apparmor-profile specified with snap (handled by above
       change)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Jul 2015 15:19:50 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 09 Jul 2015 08:57:26 -0500
 
 click-reviewers-tools (0.31) wily; urgency=medium
 
