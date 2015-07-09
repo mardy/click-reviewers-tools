@@ -915,6 +915,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")
         c = ClickReviewLint(self.test_name)
         c.manifest['hooks'][self.default_appname]["apparmor-profile"] = "foo"
+        # snap checks are handled elsewhere
+        c.is_snap = False
         c.check_hooks_redflagged()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}

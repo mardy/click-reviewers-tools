@@ -100,6 +100,8 @@ class ClickReviewSecurity(ClickReview):
             self.required_ubuntu_account_plugin_policy_groups + \
             ['audio', 'webview']
 
+        self.security_yaml_redflagged = ['security-policy']
+
         self.redflag_templates = ['unconfined']
         # TODO: how to deal with other vendors
         self.extraneous_ubuntu_templates = ['ubuntu-sdk',
@@ -1206,7 +1208,13 @@ class ClickReviewSecurity(ClickReview):
                         "'%s'" % app
                 self._add_result(t, n, s)
 
-        # TODO: error if specified
+                if 'security-policy' in item:
+                    t = 'error'
+                    n = 'yaml_policy_present'
+                    s = "(MANUAL REVIEW) 'security-policy' not allowed"
+                    l = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
+                    m = True
+                    self._add_result(t, n, s, link=l, manual_review=m)
 
     def check_security_yaml_combinations(self):
         '''Verify security yaml uses valid combinations'''

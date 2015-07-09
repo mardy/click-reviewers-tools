@@ -473,6 +473,9 @@ exit 1
             manual_review = False
             for hook in self.manifest['hooks'][app]:
                 if hook in self.redflagged_hooks:
+                    # This check is handled elsewhere
+                    if self.is_snap and hook == "apparmor-profile":
+                        continue
                     found.append(hook)
             if len(found) > 0:
                 t = 'error'
@@ -969,6 +972,7 @@ exit 1
         t = 'info'
         n = 'snappy_type_redflag'
         s = "OK"
+        l = None
         manual_review = False
         if 'type' not in self.pkg_yaml:
             s = 'OK (skip missing)'
@@ -976,7 +980,9 @@ exit 1
             t = 'error'
             s = "(MANUAL REVIEW) type '%s' not allowed" % self.pkg_yaml['type']
             manual_review = True
-        self._add_result(t, n, s, manual_review=manual_review)
+            if self.pkg_yaml['type'] == "framework":
+                l = "https://developer.ubuntu.com/en/snappy/guides/frameworks/"
+        self._add_result(t, n, s, link=l, manual_review=manual_review)
 
     def check_snappy_vendor(self):
         '''Check package vendor'''

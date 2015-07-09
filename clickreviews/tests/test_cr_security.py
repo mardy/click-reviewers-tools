@@ -1883,8 +1883,10 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_security_yaml_policy()
         report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+        m = report['error']['security_yaml_policy_present']['text']
+        self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
 
     def test_check_security_yaml_policy_missing1(self):
         '''Test check_security_yaml_policy() - missing apparmor'''
@@ -1893,8 +1895,13 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_security_yaml_policy()
         report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(report, expected_counts)
+        m = report['error']['security_yaml_policy_present']['text']
+        self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
+        m = report['error']['security_yaml_policy_format_test-app']['text']
+        self.assertIn("'apparmor' not specified in 'security-policy' " +
+                      "for 'test-app'", m)
 
     def test_check_security_yaml_policy_missing2(self):
         '''Test check_security_yaml_policy() - missing seccomp'''
@@ -1903,8 +1910,13 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c = ClickReviewSecurity(self.test_name)
         c.check_security_yaml_policy()
         report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(report, expected_counts)
+        m = report['error']['security_yaml_policy_present']['text']
+        self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
+        m = report['error']['security_yaml_policy_format_test-app']['text']
+        self.assertIn("'seccomp' not specified in 'security-policy' " +
+                      "for 'test-app'", m)
 
     def test_check_template_online_account_provider(self):
         '''Test check_template_online_account_provider'''

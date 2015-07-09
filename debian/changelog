@@ -2,7 +2,13 @@ click-reviewers-tools (0.32) UNRELEASED; urgency=medium
 
   * data/apparmor-easyprof-ubuntu.json: add "keep-display-on" to ubuntu
     common policy
-  * cr_security.py: webapps may use "keep-display-on"
+  * cr_security.py:
+    - webapps may use "keep-display-on"
+    - error if security-policy specified in snaps
+  * cr_lint.py:
+    - give link to frameworks guide if framework specified
+    - do not error if apparmor-profile specified with snap (handled by above
+      change)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Jul 2015 15:19:50 -0500
 
