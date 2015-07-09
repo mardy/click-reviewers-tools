@@ -100,8 +100,6 @@ class ClickReviewSecurity(ClickReview):
             self.required_ubuntu_account_plugin_policy_groups + \
             ['audio', 'webview']
 
-        self.security_yaml_redflagged = ['security-policy']
-
         self.redflag_templates = ['unconfined']
         # TODO: how to deal with other vendors
         self.extraneous_ubuntu_templates = ['ubuntu-sdk',
