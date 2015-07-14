@@ -54,8 +54,12 @@ class ClickReviewAccounts(ClickReview):
         peer_hooks['account-qml-plugin']['allowed'] = \
             peer_hooks['account-qml-plugin']['required']
 
-        ClickReview.__init__(self, fn, "online_accounts", peer_hooks=peer_hooks,
-                             overrides=overrides)
+        ClickReview.__init__(self,
+                             fn,
+                             "online_accounts",
+                             peer_hooks=peer_hooks,
+                             overrides=overrides,
+                             peer_hooks_link="https://wiki.ubuntu.com/SecurityTeam/Specifications/OnlineAccountsConfinement")
 
         self.accounts_files = dict()
         self.accounts = dict()

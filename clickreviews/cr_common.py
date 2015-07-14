@@ -106,7 +106,8 @@ class ClickReview(object):
                            "security-override",
                            "security-policy"]
 
-    def __init__(self, fn, review_type, peer_hooks=None, overrides=None):
+    def __init__(self, fn, review_type, peer_hooks=None, overrides=None,
+                 peer_hooks_link=None):
         self.click_package = fn
         self._check_path_exists()
         if not self.click_package.endswith(".click") and \
@@ -190,6 +191,7 @@ class ClickReview(object):
 
         self.peer_hooks = peer_hooks
         self.overrides = overrides if overrides is not None else {}
+        self.peer_hooks_link = peer_hooks_link
 
     def _extract_click_frameworks(self):
         '''Extract installed click frameworks'''
@@ -469,7 +471,8 @@ class ClickReview(object):
                 for app in d['missing']:
                     s = "Missing required hooks for '%s': %s" % (
                         app, ", ".join(d['missing'][app]))
-                    self._add_result(t, n, s, manual_review=True)
+                    self._add_result(t, n, s, manual_review=True,
+                                     link=self.peer_hooks_link)
             else:
                 self._add_result(t, n, s)
 
@@ -482,7 +485,8 @@ class ClickReview(object):
                 for app in d['disallowed']:
                     s = "Disallowed with %s (%s): %s" % (
                         hook, app, ", ".join(d['disallowed'][app]))
-                    self._add_result(t, n, s, manual_review=True)
+                    self._add_result(t, n, s, manual_review=True,
+                                     link=self.peer_hooks_link)
             else:
                 self._add_result(t, n, s)
 
