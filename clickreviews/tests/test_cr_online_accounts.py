@@ -167,7 +167,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_service()
         r = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_service_not_specified(self):
@@ -216,7 +216,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_service()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_service_missing_name(self):
