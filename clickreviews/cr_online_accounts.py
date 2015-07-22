@@ -185,7 +185,7 @@ class ClickReviewAccounts(ClickReview):
             if t == 'error':
                 continue
 
-            for tag in ['type', 'name', 'provider']:
+            for tag in ['name', 'provider']:
                 t = 'info'
                 n = '%s_%s_%s' % (app, account_type, tag)
                 s = "OK"

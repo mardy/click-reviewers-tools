@@ -1,11 +1,18 @@
 click-reviewers-tools (0.33) UNRELEASED; urgency=medium
 
+  [ Alberto Mardegan ]
+  * clickreviews/cr_online_accounts.py: Do not check for "type" element in OA
+    .service files
+
+  [ Jamie Strandboge ]
   * clickreviews/cr_common.py: add peer_hooks_link to __init__ and use it
     as the link for missing and disallowed hooks
   * clickreviews/cr_online_accounts.py: set peer_hooks_link to use
     https://wiki.ubuntu.com/SecurityTeam/Specifications/OnlineAccountsConfinement
+  * clickreviews/tests/test_cr_online_accounts.py: don't stub or check for
+    "type" element in OA .service files
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 14 Jul 2015 16:23:17 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 22 Jul 2015 11:30:07 -0500
 
 click-reviewers-tools (0.32) wily; urgency=medium
 

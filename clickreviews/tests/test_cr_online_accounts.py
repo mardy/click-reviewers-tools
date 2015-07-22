@@ -60,8 +60,6 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         else:
             xml = etree.Element(root, id="%s" % id)
         if do_subtree:
-            service_type = etree.SubElement(xml, "type")
-            service_type.text = "webapps"
             service_name = etree.SubElement(xml, "name")
             service_name.text = "Foo"
             service_provider = etree.SubElement(xml, "provider")
@@ -167,7 +165,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_service()
         r = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_service_not_specified(self):
@@ -203,27 +201,9 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_service_missing_type(self):
-        '''Test check_service() - missing type'''
-        xml = self._stub_service(do_subtree=False)
-        service_name = etree.SubElement(xml, "name")
-        service_name.text = "Foo"
-        service_provider = etree.SubElement(xml, "provider")
-        service_provider.text = "some-provider"
-        self.set_test_account(self.default_appname, "account-service", xml)
-        xml = self._stub_application()
-        self.set_test_account(self.default_appname, "account-application", xml)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_service()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
     def test_check_service_missing_name(self):
         '''Test check_service() - missing name'''
         xml = self._stub_service(do_subtree=False)
-        service_type = etree.SubElement(xml, "type")
-        service_type.text = "webapps"
         service_provider = etree.SubElement(xml, "provider")
         service_provider.text = "some-provider"
         self.set_test_account(self.default_appname, "account-service", xml)
@@ -238,8 +218,6 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
     def test_check_service_missing_provider(self):
         '''Test check_service() - missing provider'''
         xml = self._stub_service(do_subtree=False)
-        service_type = etree.SubElement(xml, "type")
-        service_type.text = "webapps"
         service_name = etree.SubElement(xml, "name")
         service_name.text = "Foo"
         self.set_test_account(self.default_appname, "account-service", xml)
