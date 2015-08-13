@@ -335,7 +335,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
-            n = 'policy_vendor (%s)' % f
+            n = self._get_check_name('policy_vendor', extra=f)
             s = "OK"
             if 'policy_vendor' in m and \
                m['policy_vendor'] not in self.aa_policy:
@@ -344,7 +344,7 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'policy_vendor_matches_framework (%s)' % (f)
+            n = self._get_check_name('policy_vendor_matches_framework', extra=f)
             s = "OK"
             if 'policy_vendor' in m:  # policy_vendor is optional
                 found_major = False
@@ -377,7 +377,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
 
-            n = 'policy_version_exists (%s)' % f
+            n = self._get_check_name('policy_version_exists', extra=f)
             if 'policy_version' not in m:
                 self._add_result('error', n,
                                  'could not find policy_version in manifest')
@@ -397,7 +397,9 @@ class ClickReviewSecurity(ClickReview):
 
             highest = self._get_highest_policy_version(vendor)
             t = 'info'
-            n = 'policy_version_is_highest (%s, %s)' % (str(highest), f)
+            n = self._get_check_name(
+                'policy_version_is_highest',
+                extra='(%s, %s)' % (str(highest), f))
             s = "OK"
             l = None
             if float(m['policy_version']) != highest:
@@ -407,7 +409,7 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s, l)
 
             t = 'info'
-            n = 'policy_version_matches_framework (%s)' % (f)
+            n = self._get_check_name('policy_version_matches_framework', extra=f)
             s = "OK"
             found_major = False
             for name, data in self.major_framework_policy.items():
@@ -437,7 +439,7 @@ class ClickReviewSecurity(ClickReview):
             (f, m) = self._get_security_manifest(app)
 
             t = 'info'
-            n = 'template_with_policy_version (%s)' % f
+            n = self._get_check_name('template_with_policy_version', extra=f)
             s = "OK"
             if 'policy_version' not in m:
                 self._add_result('error', n,
@@ -446,7 +448,7 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'template_valid (%s)' % f
+            n = self._get_check_name('template_valid', extra=f)
             s = "OK"
             manual_review = False
             if 'template' not in m:
@@ -464,7 +466,7 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s, manual_review=manual_review)
 
             t = 'info'
-            n = 'template_exists (%s)' % f
+            n = self._get_check_name('template_exists', extra=f)
             s = "OK"
             vendor = "ubuntu"
             if 'policy_vendor' in m:
@@ -510,7 +512,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
-            n = 'policy_groups_webapp (%s)' % f
+            n = self._get_check_name('policy_groups_webapp', extra=f)
             s = "OK"
             webapp_template = "ubuntu-webapp"
             if 'template' not in m or m['template'] != webapp_template:
@@ -531,7 +533,7 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'policy_groups_webapp_webview (%s)' % f
+            n = self._get_check_name('policy_groups_webapp_webview', extra=f)
             s = "OK"
             if self.manifest['framework'] == "ubuntu-sdk-13.10":
                 s = "SKIPPED (webview not available in 13.10)"
@@ -546,7 +548,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
-            n = 'template_push_helper(%s)' % f
+            n = self._get_check_name('template_push_helper', extra=f)
             s = "OK"
             if 'push-helper' not in self.manifest['hooks'][app]:
                 continue
@@ -560,7 +562,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
-            n = 'policy_groups_push_helper(%s)' % f
+            n = self._get_check_name('policy_groups_push_helper', extra=f)
             s = "OK"
             if 'push-helper' not in self.manifest['hooks'][app]:
                 continue
@@ -588,7 +590,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
-            n = 'policy_groups_scopes (%s)' % f
+            n = self._get_check_name('policy_groups_scopes', extra=f)
             s = "OK"
 # jdstrand, 2014-06-05: ubuntu-scope-local-content is no longer available
 #            scope_templates = ['ubuntu-scope-network',
@@ -624,7 +626,8 @@ class ClickReviewSecurity(ClickReview):
                 continue
 
             t = 'info'
-            n = 'required_policy_groups_ubuntu_account_plugin(%s)' % f
+            n = self._get_check_name(
+                'required_policy_groups_ubuntu_account_plugin', extra=f)
             s = "OK"
             if 'policy_groups' not in m:
                 self._add_result('error', n,
@@ -641,7 +644,8 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'policy_groups_ubuntu_account_plugin(%s)' % f
+            n = self._get_check_name(
+                'policy_groups_ubuntu_account_plugin', extra=f)
             s = "OK"
             bad = []
             for p in m['policy_groups']:
@@ -658,7 +662,7 @@ class ClickReviewSecurity(ClickReview):
             (f, m) = self._get_security_manifest(app)
 
             t = 'info'
-            n = 'policy_groups_exists_%s (%s)' % (app, f)
+            n = self._get_check_name('policy_groups_exists', app=app, extra=f)
             if 'policy_groups' not in m:
                 # If template not specified, we just use the default
                 self._add_result('info', n, 'no policy groups specified')
@@ -684,7 +688,7 @@ class ClickReviewSecurity(ClickReview):
 
             # Check for duplicates
             t = 'info'
-            n = 'policy_groups_duplicates_%s (%s)' % (app, f)
+            n = self._get_check_name('policy_groups_duplicates', app=app, extra=f)
             s = 'OK'
             tmp = []
             for p in m['policy_groups']:
@@ -711,7 +715,7 @@ class ClickReviewSecurity(ClickReview):
             # If we got here, we can see if valid policy groups were specified
             for i in m['policy_groups']:
                 t = 'info'
-                n = 'policy_groups_valid_%s (%s)' % (app, i)
+                n = self._get_check_name('policy_groups_valid', app=app, extra=i)
                 s = 'OK'
 
                 # SDK will leave and empty policy group, report but don't
@@ -744,7 +748,8 @@ class ClickReviewSecurity(ClickReview):
 
                 if found:
                     t = 'info'
-                    n = 'policy_groups_safe_%s (%s)' % (app, i)
+                    n = self._get_check_name(
+                        'policy_groups_safe', app=app, extra=i)
                     s = 'OK'
                     l = None
                     manual_review = False
@@ -779,7 +784,7 @@ class ClickReviewSecurity(ClickReview):
             (f, m) = self._get_security_manifest(app)
 
             t = 'info'
-            n = 'ignored_fields (%s)' % f
+            n = self._get_check_name('ignored_fields', extra=f)
             s = "OK"
             found = []
             for i in self.ignored_fields:
@@ -797,7 +802,7 @@ class ClickReviewSecurity(ClickReview):
             (f, m) = self._get_security_manifest(app)
 
             t = 'info'
-            n = 'redflag_fields (%s)' % f
+            n = self._get_check_name('redflag_fields', extra=f)
             s = "OK"
             found = []
             for i in self.redflag_fields:
@@ -819,7 +824,7 @@ class ClickReviewSecurity(ClickReview):
             (f, m) = self._get_security_manifest(app)
 
             t = 'info'
-            n = 'required_fields (%s)' % f
+            n = self._get_check_name('required_fields', extra=f)
             s = "OK"
             not_found = []
             for i in self.required_fields:
@@ -843,7 +848,8 @@ class ClickReviewSecurity(ClickReview):
                       '@{APP_VERSION}',
                       ]:
                 t = 'info'
-                n = 'apparmor_profile_%s (%s)' % (v, f)
+                n = self._get_check_name(
+                    'apparmor_profile', extra='%s (%s)' % (v, f))
                 s = "OK"
                 if v not in p:
                     self._add_result('warn', n,
@@ -872,7 +878,7 @@ class ClickReviewSecurity(ClickReview):
                 second_m = "package.yaml"
             for exe_t in ['binaries', 'services']:
                 t = 'info'
-                n = 'yaml_%s' % exe_t
+                n = self._get_check_name('yaml_%s' % exe_t)
                 s = 'OK'
                 if exe_t in first and exe_t not in second:
                     t = 'error'
@@ -888,7 +894,7 @@ class ClickReviewSecurity(ClickReview):
                     continue
 
                 t = 'info'
-                n = 'yaml_%s_entries' % exe_t
+                n = self._get_check_name('yaml_%s_entries' % exe_t)
                 s = 'OK'
                 if len(first[exe_t]) < len(second[exe_t]):
                     t = 'error'
@@ -897,7 +903,8 @@ class ClickReviewSecurity(ClickReview):
 
                 for fapp in first[exe_t]:
                     t = 'info'
-                    n = 'yaml_%s_%s' % (exe_t, fapp['name'])
+                    n = self._get_check_name(
+                        'yaml_%s' % exe_t,  app=fapp['name'])
                     s = 'OK'
                     sapp = None
                     for tmp in second[exe_t]:
@@ -931,7 +938,8 @@ class ClickReviewSecurity(ClickReview):
 
                     for key in ['security-template', 'caps']:
                         t = 'info'
-                        n = 'yaml_%s_%s' % (exe_t, second_m)
+                        n = self._get_check_name(
+                            'yaml_%s' % exe_t, extra=second_m)
                         s = 'OK'
 
                         if key not in fapp:
@@ -1016,7 +1024,7 @@ class ClickReviewSecurity(ClickReview):
                 key = 'binaries'
             else:
                 t = 'error'
-                n = 'yaml_and_click_%s' % app
+                n = self._get_check_name('yaml_and_click', app=app)
                 s = "'%s' in click manifest missing from package.yaml" % app
                 self._add_result(t, n, s)
                 continue
@@ -1042,7 +1050,7 @@ class ClickReviewSecurity(ClickReview):
                 key = 'binaries'
             else:
                 t = 'error'
-                n = 'yaml_and_click_%s' % app
+                n = self._get_check_name('yaml_and_click', app=app)
                 s = "'%s' in click manifest missing from package.yaml" % app
                 self._add_result(t, n, s)
                 continue
@@ -1094,7 +1102,7 @@ class ClickReviewSecurity(ClickReview):
                     continue
         if error:
             t = 'info'
-            n = 'yaml_and_click'
+            n = self._get_check_name('yaml_and_click')
             s = "SKIPPED (yaml errors)"
             self._add_result(t, n, s)
             return
@@ -1113,7 +1121,7 @@ class ClickReviewSecurity(ClickReview):
             for item in self.pkg_yaml[exe_t]:
                 if 'name' not in item:
                     t = 'error'
-                    n = 'yaml_override_click_name'
+                    n = self._get_check_name('yaml_override_click_name')
                     s = "package.yaml malformed. Could not find 'name' " + \
                         "for entry in '%s'" % item
                     self._add_result(t, n, s)
@@ -1121,7 +1129,7 @@ class ClickReviewSecurity(ClickReview):
 
                 app = item['name']
                 t = 'info'
-                n = 'yaml_override_click_%s' % app
+                n = self._get_check_name('yaml_override_click', app=app)
                 s = "OK"
                 if 'security-override' not in item:
                     s = "OK (skipping unspecified override)"
@@ -1150,7 +1158,7 @@ class ClickReviewSecurity(ClickReview):
             for item in self.pkg_yaml[exe_t]:
                 if 'name' not in item:
                     t = 'error'
-                    n = 'yaml_override_name'
+                    n = self._get_check_name('yaml_override_name')
                     s = "package.yaml malformed. Could not find 'name' " + \
                         "for entry in '%s'" % item
                     self._add_result(t, n, s)
@@ -1158,7 +1166,7 @@ class ClickReviewSecurity(ClickReview):
 
                 app = item['name']
                 t = 'info'
-                n = 'yaml_override_format_%s' % app
+                n = self._get_check_name('yaml_override_format', app=app)
                 s = "OK"
                 if 'security-override' not in item:
                     s = "OK (skipping unspecified override)"
@@ -1184,7 +1192,7 @@ class ClickReviewSecurity(ClickReview):
             for item in self.pkg_yaml[exe_t]:
                 if 'name' not in item:
                     t = 'error'
-                    n = 'yaml_policy_name'
+                    n = self._get_check_name('yaml_policy_name')
                     s = "package.yaml malformed. Could not find 'name' " + \
                         "for entry in '%s'" % item
                     self._add_result(t, n, s)
@@ -1192,7 +1200,7 @@ class ClickReviewSecurity(ClickReview):
 
                 app = item['name']
                 t = 'info'
-                n = 'yaml_policy_format_%s' % app
+                n = self._get_check_name('yaml_policy_format', app=app)
                 s = "OK"
                 if 'security-policy' not in item:
                     s = "OK (skipping unspecified policy)"
@@ -1208,7 +1216,7 @@ class ClickReviewSecurity(ClickReview):
 
                 if 'security-policy' in item:
                     t = 'error'
-                    n = 'yaml_policy_present'
+                    n = self._get_check_name('yaml_policy_present')
                     s = "(MANUAL REVIEW) 'security-policy' not allowed"
                     l = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
                     m = True
@@ -1225,7 +1233,7 @@ class ClickReviewSecurity(ClickReview):
             for item in self.pkg_yaml[exe_t]:
                 if 'name' not in item:
                     t = 'error'
-                    n = 'yaml_combinations_name'
+                    n = self._get_check_name('yaml_combinations_name')
                     s = "package.yaml malformed. Could not find 'name' " + \
                         "for entry in '%s'" % item
                     self._add_result(t, n, s)
@@ -1234,7 +1242,7 @@ class ClickReviewSecurity(ClickReview):
                 app = item['name']
 
                 t = 'info'
-                n = 'yaml_combinations_%s' % app
+                n = self._get_check_name('yaml_combinations', app=app)
                 s = "OK"
                 if "security-policy" in item:
                     for i in ['security-override', 'security-template',
@@ -1267,7 +1275,7 @@ class ClickReviewSecurity(ClickReview):
 
                 if 'name' not in item:
                     t = 'error'
-                    n = 'yaml_security-template_name'
+                    n = self._get_check_name('yaml_security-template_name')
                     s = "package.yaml malformed. Could not find 'name' " + \
                         "for entry in '%s'" % item
                     self._add_result(t, n, s)
@@ -1277,7 +1285,7 @@ class ClickReviewSecurity(ClickReview):
                 app = os.path.basename(item['name'])
 
                 t = 'info'
-                n = 'yaml_security-template_%s' % app
+                n = self._get_check_name('yaml_security-template', app=app)
                 s = "OK"
                 if not isinstance(tmpl, str):
                     t = 'error'
@@ -1288,7 +1296,7 @@ class ClickReviewSecurity(ClickReview):
                 self._add_result(t, n, s)
 
                 t = 'info'
-                n = 'yaml_security-template_in_manifest_%s' % app
+                n = self._get_check_name('yaml_security-template_in_manifest', app=app)
                 s = "OK"
                 if app not in self.manifest['hooks']:
                     t = 'error'
@@ -1320,7 +1328,7 @@ class ClickReviewSecurity(ClickReview):
 
                 if 'name' not in item:
                     t = 'error'
-                    n = 'yaml_caps_name'
+                    n = self._get_check_name('yaml_caps_name')
                     s = "package.yaml malformed. Could not find 'name' " + \
                         "for entry in '%s'" % item
                     self._add_result(t, n, s)
@@ -1330,7 +1338,7 @@ class ClickReviewSecurity(ClickReview):
                 app = os.path.basename(item['name'])
 
                 t = 'info'
-                n = 'yaml_caps_%s' % app
+                n = self._get_check_name('yaml_caps', app=app)
                 s = "OK"
                 if not isinstance(tmpl, list):
                     t = 'error'
@@ -1341,7 +1349,7 @@ class ClickReviewSecurity(ClickReview):
                 self._add_result(t, n, s)
 
                 t = 'info'
-                n = 'yaml_caps_in_manifest_%s' % app
+                n = self._get_check_name('yaml_caps_in_manifest', app=app)
                 s = "OK"
                 if app not in self.manifest['hooks']:
                     t = 'error'
@@ -1362,7 +1370,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
-            n = 'template_account_provider(%s)' % f
+            n = self._get_check_name('template_account_provider', extra=f)
             s = "OK"
             if 'account-provider' not in self.manifest['hooks'][app]:
                 continue
@@ -1376,7 +1384,7 @@ class ClickReviewSecurity(ClickReview):
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
-            n = 'template_account_qml_plugin(%s)' % f
+            n = self._get_check_name('template_account_qml_plugin', extra=f)
             s = "OK"
             if 'account-qml-plugin' not in self.manifest['hooks'][app]:
                 continue

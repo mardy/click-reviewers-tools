@@ -80,7 +80,7 @@ class ClickReviewPushHelper(ClickReview):
         for app in sorted(self.push_helper):
             for k in self.push_helper[app].keys():
                 t = "info"
-                n = "valid_%s_%s" % (app, k)
+                n = self._get_check_name("valid", app=app, extra=k)
                 s = "OK"
 
                 if not isinstance(self.push_helper[app][k], str):
@@ -93,7 +93,7 @@ class ClickReviewPushHelper(ClickReview):
 
             for k in self.required_keys:
                 t = "info"
-                n = "valid_%s_required_%s" % (app, k)
+                n = self._get_check_name("valid_required", app=app, extra=k)
                 s = "OK"
                 if k not in self.push_helper[app]:
                     t = "error"
@@ -105,7 +105,7 @@ class ClickReviewPushHelper(ClickReview):
         for app in sorted(self.push_helper):
             unknown = []
             t = "info"
-            n = "unknown_%s" % app
+            n = self._get_check_name("unknown", app=app)
             s = "OK"
             for key in self.push_helper[app].keys():
                 if key not in self.required_keys and \
@@ -126,7 +126,7 @@ class ClickReviewPushHelper(ClickReview):
                 continue
 
             t = "info"
-            n = "other_hooks_%s" % app
+            n = self._get_check_name("other_hooks", app=app)
             s = "OK"
 
             bad = []

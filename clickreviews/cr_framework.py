@@ -106,7 +106,7 @@ class ClickReviewFramework(ClickReview):
     def check_framework_hook_obsolete(self):
         '''Check manifest doesn't specify 'framework' hook'''
         t = 'info'
-        n = "obsolete_declaration"
+        n = self._get_check_name("obsolete_declaration")
         s = "OK"
         if len(self.frameworks) > 0:
             t = 'error'
@@ -119,7 +119,7 @@ class ClickReviewFramework(ClickReview):
         if not self.is_snap or self.pkg_yaml['type'] != 'framework':
             return
         t = 'info'
-        n = "obsolete_framework_file"
+        n = self._get_check_name("obsolete_framework_file")
         s = "OK"
         if self._has_framework_in_metadir():
             t = 'warn'
@@ -131,7 +131,7 @@ class ClickReviewFramework(ClickReview):
         if not self.is_snap or self.pkg_yaml['type'] != 'framework':
             return
         t = 'info'
-        n = "framework_dependency"
+        n = self._get_check_name("framework_dependency")
         s = "OK"
         if "frameworks" in self.pkg_yaml:
             t = 'error'
@@ -144,7 +144,7 @@ class ClickReviewFramework(ClickReview):
             return
 
         t = 'info'
-        n = "framework_policies"
+        n = self._get_check_name("framework_policies")
         s = "OK"
         found = False
         for i in self.framework_policy_dirs:
@@ -161,7 +161,7 @@ class ClickReviewFramework(ClickReview):
         self._add_result(t, n, s)
 
         t = 'info'
-        n = "framework_policy_unknown"
+        n = self._get_check_name("framework_policy_unknown")
         s = "OK"
         if len(self.framework_policy_unknown) > 0:
             t = 'warn'
@@ -175,7 +175,7 @@ class ClickReviewFramework(ClickReview):
             return
 
         t = 'info'
-        n = "framework_policy_metadata"
+        n = self._get_check_name("framework_policy_metadata")
         s = "OK"
         msgs = []
         for term in ["# Description: ", "# Usage: "]:
@@ -203,7 +203,7 @@ class ClickReviewFramework(ClickReview):
             return
 
         t = 'info'
-        n = "framework_has_all_policy"
+        n = self._get_check_name("framework_has_all_policy")
         s = "OK"
         if len(self.framework_policy.keys()) == 0:
             s = "OK (skipped missing policy)"
@@ -217,7 +217,8 @@ class ClickReviewFramework(ClickReview):
                         if t == i:
                             continue
                         t = 'info'
-                        n = "framework_policy_%s/%s/%s" % (i, j, k)
+                        n = self._get_check_name(
+                            "framework_policy", extra="%s/%s/%s" % (i, j, k))
                         s = "OK"
                         if j not in self.framework_policy[other] or \
                            k not in self.framework_policy[other][j]:
@@ -236,7 +237,8 @@ class ClickReviewFramework(ClickReview):
                 for k in self.framework_policy[i][j]:
                     f = "%s/%s/%s" % (i, j, k)
                     t = 'info'
-                    n = "framework_policy_valid_name_%s" % f
+                    n = self._get_check_name(
+                        "framework_policy_valid_name", extra=f)
                     s = "OK"
                     if not re.search(r'^[a-z0-9][a-z0-9+\.-]+$', k):
                         t = 'error'

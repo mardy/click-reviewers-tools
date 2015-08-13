@@ -494,6 +494,14 @@ class ClickReview(object):
         '''Set review name'''
         self.review_type = name
 
+    def _get_check_name(self, prefix, app='', extra=''):
+        name = prefix
+        if app:
+            name += '_' + app
+        if extra:
+            name += '_' + extra
+        return name
+
     # click_report[<result_type>][<review_name>] = <result>
     #   result_type: info, warn, error
     #   review_name: name of the check (prefixed with self.review_type)

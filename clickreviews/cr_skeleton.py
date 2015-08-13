@@ -40,7 +40,7 @@ class ClickReviewSkeleton(ClickReview):
     def check_foo(self):
         '''Check foo'''
         t = 'info'
-        n = 'foo'
+        n = self._get_check_name('foo')
         s = "OK"
         if False:
             t = 'error'
@@ -50,7 +50,7 @@ class ClickReviewSkeleton(ClickReview):
     def check_bar(self):
         '''Check bar'''
         t = 'info'
-        n = 'bar'
+        n = self._get_check_name('bar')
         s = "OK"
         if True:
             t = 'error'

@@ -72,7 +72,8 @@ class ClickReviewBinPath(ClickReview):
             for r in self.required_keys:
                 found = False
                 t = 'info'
-                n = '%s_required_key_%s_%s' % (test_str, r, app)
+                n = self._get_check_name(
+                    '%s_required_key' % test_str, app=app, extra=r)
                 s = "OK"
                 if r in my_dict[app]:
                     if not isinstance(my_dict[app][r], str):
@@ -102,7 +103,8 @@ class ClickReviewBinPath(ClickReview):
                     continue  # checked in cr_security.py
                 found = False
                 t = 'info'
-                n = '%s_optional_key_%s_%s' % (test_str, o, app)
+                n = self._get_check_name(
+                    '%s_optional_key' % test_str, app=app, extra=o)
                 s = "OK"
                 if o in my_dict[app]:
                     if not isinstance(my_dict[app][o], str):
@@ -128,7 +130,8 @@ class ClickReviewBinPath(ClickReview):
         for app in sorted(my_dict):
             unknown = []
             t = 'info'
-            n = '%s_unknown_key_%s' % (test_str, app)
+            n = self._get_check_name(
+                '%s_unknown_key' % test_str, app=app)
             s = "OK"
 
             for f in my_dict[app].keys():
@@ -159,7 +162,7 @@ class ClickReviewBinPath(ClickReview):
 
         for app in sorted(self.bin_paths_files):
             t = 'info'
-            n = 'path executable'
+            n = self._get_check_name('path executable')
             s = "OK"
             if not self._check_bin_path_executable(app):
                 t = 'error'
@@ -176,7 +179,8 @@ class ClickReviewBinPath(ClickReview):
 
         for app in sorted(my_dict):
             t = 'info'
-            n = 'package_yaml_description_present_%s' % (app)
+            n = self._get_check_name(
+                'package_yaml_description_present', app=app)
             s = 'OK'
             if 'description' not in my_dict[app]:
                 s = 'OK (skip missing)'
@@ -185,7 +189,8 @@ class ClickReviewBinPath(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'package_yaml_description_empty_%s' % (app)
+            n = self._get_check_name(
+                'package_yaml_description_empty', app=app)
             s = 'OK'
             if len(my_dict[app]['description']) == 0:
                 t = 'error'

@@ -40,7 +40,7 @@ class ClickReviewFunctional(ClickReview):
     def check_applicationName(self):
         '''Check applicationName matches click manifest'''
         t = 'info'
-        n = 'qml_applicationName_matches_manifest'
+        n = self._get_check_name('qml_applicationName_matches_manifest')
         s = "OK"
         l = None
 
@@ -123,7 +123,7 @@ class ClickReviewFunctional(ClickReview):
     def check_qtwebkit(self):
         '''Check that QML applications don't use QtWebKit'''
         t = 'info'
-        n = 'qml_application_uses_QtWebKit'
+        n = self._get_check_name('qml_application_uses_QtWebKit')
         s = "OK"
         l = None
 
@@ -144,7 +144,7 @@ class ClickReviewFunctional(ClickReview):
         self._add_result(t, n, s, l)
 
         t = 'info'
-        n = 'qml_application_uses_UbuntuWebView_0.2'
+        n = self._get_check_name('qml_application_uses_UbuntuWebView_0.2')
         s = "OK"
         l = None
 
@@ -171,7 +171,7 @@ class ClickReviewFunctional(ClickReview):
     def check_friends(self):
         '''Check that QML applications don't use deprecated Friends API'''
         t = 'info'
-        n = 'qml_application_uses_friends'
+        n = self._get_check_name('qml_application_uses_friends')
         s = "OK"
         l = None
 
