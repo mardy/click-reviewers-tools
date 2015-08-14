@@ -175,6 +175,100 @@
           "video_files_read"
         ]
       }
+    },
+    "15.10": {
+      "templates": {
+        "common": [
+          "default",
+          "ubuntu-account-plugin",
+          "ubuntu-push-helper",
+          "ubuntu-scope-network",
+          "ubuntu-sdk",
+          "ubuntu-webapp"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "accounts",
+          "audio",
+          "camera",
+          "connectivity",
+          "content_exchange",
+          "content_exchange_source",
+          "keep-display-on",
+          "location",
+          "microphone",
+          "networking",
+          "push-notification-client",
+          "sensors",
+          "usermetrics",
+          "video",
+          "webview"
+        ],
+        "reserved": [
+          "calendar",
+          "contacts",
+          "debug",
+          "history",
+          "music_files",
+          "music_files_read",
+          "picture_files",
+          "picture_files_read",
+          "video_files",
+          "video_files_read"
+        ]
+      }
+    }
+  },
+  "ubuntu-personal": {
+    "15.10": {
+      "templates": {
+        "common": [
+          "default",
+          "ubuntu-account-plugin",
+          "ubuntu-push-helper",
+          "ubuntu-scope-network",
+          "ubuntu-sdk",
+          "ubuntu-webapp"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "accounts",
+          "audio",
+          "camera",
+          "connectivity",
+          "content_exchange",
+          "content_exchange_source",
+          "keep-display-on",
+          "location",
+          "microphone",
+          "networking",
+          "push-notification-client",
+          "sensors",
+          "usermetrics",
+          "video",
+          "webview"
+        ],
+        "reserved": [
+          "calendar",
+          "contacts",
+          "debug",
+          "history",
+          "music_files",
+          "music_files_read",
+          "picture_files",
+          "picture_files_read",
+          "video_files",
+          "video_files_read"
+        ]
+      }
     }
   },
   "ubuntu-snappy": {
