@@ -47,7 +47,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']['desktop_validates (%s)' % self.default_appname] = \
+        expected['info']['desktop_validates_%s' % self.default_appname] = \
             {"text": "OK"}
         self.check_results(r, expected=expected)
 

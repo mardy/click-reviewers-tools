@@ -82,7 +82,7 @@ class ClickReviewUrlDispatcher(ClickReview):
             for r in self.required_keys:
                 found = False
                 t = 'info'
-                n = 'required_entry_%s_%s' % (app, r)
+                n = self._get_check_name('required_entry', app=app, extra=r)
                 s = "OK"
                 for entry in self.url_dispatcher[app]:
                     if not isinstance(entry, dict):
@@ -110,7 +110,7 @@ class ClickReviewUrlDispatcher(ClickReview):
             for o in self.optional_keys:
                 found = False
                 t = 'info'
-                n = 'optional_entry_%s_%s' % (app, o)
+                n = self._get_check_name('optional_entry', app=app, extra=o)
                 s = "OK"
                 for entry in self.url_dispatcher[app]:
                     if not isinstance(entry, dict):
@@ -137,7 +137,7 @@ class ClickReviewUrlDispatcher(ClickReview):
             unknown = []
             for entry in self.url_dispatcher[app]:
                 t = 'info'
-                n = 'unknown_entry_%s' % app
+                n = self._get_check_name('unknown_entry', app=app)
                 s = "OK"
                 if not isinstance(entry, dict):
                     t = 'error'

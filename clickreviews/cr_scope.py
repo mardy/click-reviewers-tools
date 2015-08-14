@@ -83,7 +83,7 @@ class ClickReviewScope(ClickReview):
         '''Check scope .ini file'''
         for app in sorted(self.scopes.keys()):
             t = 'info'
-            n = 'ini_%s_scope_section' % app
+            n = self._get_check_name('ini_scope_section', app=app)
             s = "OK"
 
             sections = set(self.scopes[app]["scope_config"].sections())
@@ -123,7 +123,7 @@ class ClickReviewScope(ClickReview):
 
             missing = []
             t = 'info'
-            n = 'ini_%s_scope_required_fields' % (app)
+            n = self._get_check_name('ini_scope_required_fields', app=app)
             s = "OK"
             for r in required:
                 if r not in self.scopes[app]["scope_config"]['ScopeConfig']:
@@ -141,7 +141,7 @@ class ClickReviewScope(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'ini_%s_scope_unknown_fields' % (app)
+            n = self._get_check_name('ini_scope_unknown_fields', app=app)
             s = 'OK'
             unknown = []
             for i in self.scopes[app]["scope_config"]['ScopeConfig'].keys():

@@ -131,7 +131,8 @@ class ClickReviewLint(ClickReview):
         '''Check DEBIAN/* files'''
         for f in self.control_files:
             t = 'info'
-            n = 'DEBIAN_has_%s' % os.path.basename(f)
+            n = self._get_check_name(
+                'DEBIAN_has_files', extra=os.path.basename(f))
             s = "OK"
             if not os.path.isfile(self.control_files[os.path.basename(f)]):
                 if self.is_snap and os.path.basename(f) == 'md5sums':
@@ -146,7 +147,7 @@ class ClickReviewLint(ClickReview):
             if os.path.basename(f) not in self.control_files:
                 found.append(os.path.basename(f))
         t = 'info'
-        n = 'DEBIAN_extra_files'
+        n = self.get_check_name('DEBIAN_extra_files')
         s = 'OK'
         if len(found) > 0:
             t = 'warn'
@@ -158,7 +159,7 @@ class ClickReviewLint(ClickReview):
         fh = self._extract_control_file()
         tmp = list(Deb822.iter_paragraphs(fh))
         t = 'info'
-        n = 'control_structure'
+        n = self._get_check_name('control_structure')
         s = 'OK'
         if len(tmp) != 1:
             self._add_result('error', n,
@@ -178,7 +179,7 @@ class ClickReviewLint(ClickReview):
         error = False
         for f in sorted(fields):
             t = 'info'
-            n = 'control_has_%s' % f
+            n = self._get_check_name('control_has_files', extra=f)
             s = 'OK'
             if f not in control:
                 t = 'error'
@@ -189,7 +190,7 @@ class ClickReviewLint(ClickReview):
             return
 
         t = 'info'
-        n = 'control_extra_fields'
+        n = self._get_check_name('control_extra_fields')
         s = 'OK'
         found = []
         for k in sorted(control.keys()):
@@ -200,7 +201,7 @@ class ClickReviewLint(ClickReview):
                              "found extra fields: '%s'" % (", ".join(found)))
 
         t = 'info'
-        n = 'control_package_match'
+        n = self._get_check_name('control_package_match')
         s = "OK"
         if self.manifest['name'] != self.click_pkgname:
             t = 'error'
@@ -209,7 +210,7 @@ class ClickReviewLint(ClickReview):
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'control_version_match'
+        n = self._get_check_name('control_version_match')
         s = "OK"
         if self.manifest['version'] != self.click_version:
             t = 'error'
@@ -218,7 +219,7 @@ class ClickReviewLint(ClickReview):
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'control_architecture_match'
+        n = self._get_check_name('control_architecture_match')
         s = 'OK'
         if 'architecture' in self.manifest:
             if control['Architecture'] == "multi":
@@ -245,7 +246,7 @@ class ClickReviewLint(ClickReview):
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'control_maintainer_match'
+        n = self._get_check_name('control_maintainer_match')
         s = 'OK'
         if 'maintainer' in self.manifest:
             if control['Maintainer'] != self.manifest['maintainer']:
@@ -259,7 +260,7 @@ class ClickReviewLint(ClickReview):
         # TODO: click currently sets the Description to be the manifest title.
         # Is this intended behavior?
         t = 'info'
-        n = 'control_description_match'
+        n = self._get_check_name('control_description_match')
         s = 'OK'
         if 'title' in self.manifest:
             if control['Description'].strip() != \
@@ -273,7 +274,7 @@ class ClickReviewLint(ClickReview):
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'control_click_version_up_to_date'
+        n = self._get_check_name('control_click_version_up_to_date')
         s = 'OK'
         l = None
 
@@ -286,7 +287,7 @@ class ClickReviewLint(ClickReview):
         self._add_result(t, n, s, l)
 
         t = 'info'
-        n = 'control_installed_size'
+        n = self._get_check_name('control_installed_size')
         s = 'OK'
         try:
             int(control['Installed-Size'])
@@ -313,7 +314,7 @@ class ClickReviewLint(ClickReview):
         os.chdir(curdir)
 
         t = 'info'
-        n = 'md5sums'
+        n = self._get_check_name('md5sums')
         s = 'OK'
         if len(badsums) > 0:
             t = 'error'
@@ -334,7 +335,7 @@ exit 1
         fh.close()
 
         t = 'info'
-        n = 'preinst'
+        n = self._get_check_name('preinst')
         s = "OK"
         if contents != expected:
             t = 'error'
@@ -354,7 +355,7 @@ exit 1
         # multiple apps specifying desktop hooks. Eg, it is ok to specify a
         # scope, an app and a push-helper, but it isn't ok to specify two apps
         t = 'info'
-        n = 'hooks_multiple_apps'
+        n = self._get_check_name('hooks_multiple_apps')
         s = 'OK'
         count = 0
         for app in self.manifest['hooks']:
@@ -368,7 +369,7 @@ exit 1
         # Verify keys are well-formatted
         for app in self.manifest['hooks']:
             t = 'info'
-            n = 'hooks_%s_valid' % app
+            n = self._get_check_name('hooks_valid', app=app)
             s = "OK"
             if not re.search(r'^[A-Za-z0-9+-.:~-]+$', app):
                 t = 'error'
@@ -380,7 +381,7 @@ exit 1
         for f in required:
             for app in self.manifest['hooks']:
                 t = 'info'
-                n = 'hooks_%s_%s' % (app, f)
+                n = self._get_check_name('hooks', app=app, extra=f)
                 s = "OK"
                 if f in list(filter(lambda a: a.startswith('account-'),
                    self.known_hooks)):
@@ -416,7 +417,7 @@ exit 1
         mutually_exclusive = ['scope', 'desktop']
         for app in self.manifest['hooks']:
             t = 'info'
-            n = 'exclusive_hooks_%s' % (app)
+            n = self._get_check_name('exclusive_hooks', app=app)
             s = "OK"
             found = []
             for i in mutually_exclusive:
@@ -430,7 +431,7 @@ exit 1
         for app in self.manifest['hooks']:
             if "apparmor" in self.manifest['hooks'][app]:
                 t = 'info'
-                n = 'sdk_security_extension_%s' % (app)
+                n = self._get_check_name('sdk_security_extension', app=app)
                 s = "OK"
                 fn = self.manifest['hooks'][app]['apparmor']
                 if not fn.endswith(".apparmor"):
@@ -445,14 +446,14 @@ exit 1
             return
 
         t = 'info'
-        n = 'unknown hooks'
+        n = self._get_check_name('unknown hooks')
         s = 'OK'
 
         # Verify keys are well-formatted
         for app in self.manifest['hooks']:
             for hook in self.manifest['hooks'][app]:
                 t = 'info'
-                n = 'hooks_%s_%s_known' % (app, hook)
+                n = self._get_check_name('hooks_known', app=app, extra=hook)
                 s = "OK"
                 if hook not in self.known_hooks:
                     t = 'warn'
@@ -462,13 +463,13 @@ exit 1
     def check_hooks_redflagged(self):
         '''Check if have any redflagged hooks'''
         t = 'info'
-        n = 'redflagged hooks'
+        n = self._get_check_name('redflagged hooks')
         s = 'OK'
 
         for app in self.manifest['hooks']:
             found = []
             t = 'info'
-            n = 'hooks_redflag_%s' % (app)
+            n = self._get_check_name('hooks_redflag', app=app)
             s = "OK"
             manual_review = False
             for hook in self.manifest['hooks'][app]:
@@ -486,7 +487,7 @@ exit 1
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''
         t = 'info'
-        n = 'external_symlinks'
+        n = self._get_check_name('external_symlinks')
         s = 'OK'
 
         external_symlinks = list(filter(lambda link: not
@@ -505,7 +506,7 @@ exit 1
         p = self.manifest['name']
         # http://www.debian.org/doc/debian-policy/ch-controlfields.html
         t = 'info'
-        n = 'pkgname_valid'
+        n = self._get_check_name('pkgname_valid')
         s = "OK"
         if not self._verify_pkgname(p):
             t = 'error'
@@ -516,7 +517,7 @@ exit 1
         '''Check package version is valid'''
         # deb-version(5)
         t = 'info'
-        n = 'version_valid'
+        n = self._get_check_name('version_valid')
         s = "OK"
         # From debian_support.py
         re_valid_version = re.compile(r'^((\d+):)?'              # epoch
@@ -530,7 +531,7 @@ exit 1
     def check_architecture(self):
         '''Check package architecture in DEBIAN/control is valid'''
         t = 'info'
-        n = 'control_architecture_valid'
+        n = self._get_check_name('control_architecture_valid')
         s = 'OK'
         if self.click_arch not in self.valid_control_architectures:
             t = 'error'
@@ -540,7 +541,7 @@ exit 1
     def check_architecture_all(self):
         '''Check if actually architecture all'''
         t = 'info'
-        n = 'control_architecture_valid_contents'
+        n = self._get_check_name('control_architecture_valid_contents')
         s = 'OK'
         if self.click_arch != "all":
             self._add_result(t, n, s)
@@ -559,7 +560,7 @@ exit 1
     def check_architecture_specified_needed(self):
         '''Check if the specified architecture is actually needed'''
         t = 'info'
-        n = 'control_architecture_specified_needed'
+        n = self._get_check_name('control_architecture_specified_needed')
         s = 'OK'
         if self.click_arch == "all":
             s = "SKIPPED: architecture is 'all'"
@@ -575,7 +576,7 @@ exit 1
     def check_maintainer(self):
         '''Check maintainer()'''
         t = 'info'
-        n = 'maintainer_present'
+        n = self._get_check_name('maintainer_present')
         s = 'OK'
         if 'maintainer' not in self.manifest:
             if self.is_snap:
@@ -591,7 +592,7 @@ exit 1
         # Simple regex as used by python3-debian. If we wanted to be more
         # thorough we could use email_re from django.core.validators
         t = 'info'
-        n = 'maintainer_format'
+        n = self._get_check_name('maintainer_format')
         s = 'OK'
         if self.manifest['maintainer'] == "":
             self._add_result('error', n, 'invalid maintainer (empty), (should be '
@@ -610,7 +611,7 @@ exit 1
     def check_title(self):
         '''Check title()'''
         t = 'info'
-        n = 'title_present'
+        n = self._get_check_name('title_present')
         s = 'OK'
         if 'title' not in self.manifest:
             s = 'required title field not specified in manifest'
@@ -619,7 +620,7 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'title'
+        n = self._get_check_name('title')
         s = 'OK'
         pkgname_base = self.click_pkgname.split('.')[-1]
         if len(self.manifest['title']) < len(pkgname_base):
@@ -630,7 +631,7 @@ exit 1
     def check_description(self):
         '''Check description()'''
         t = 'info'
-        n = 'description_present'
+        n = self._get_check_name('description_present')
         s = 'OK'
         if 'description' not in self.manifest:
             s = 'required description field not specified in manifest'
@@ -639,7 +640,7 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'description'
+        n = self._get_check_name('description')
         s = 'OK'
         pkgname_base = self.click_pkgname.split('.')[-1]
         if len(self.manifest['description']) < len(pkgname_base):
@@ -655,7 +656,7 @@ exit 1
 
     def check_framework(self):
         '''Check framework()'''
-        n = 'framework'
+        n = self._get_check_name('framework')
         l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
         framework_overrides = self.overrides.get('framework', {})
         frameworks = Frameworks(overrides=framework_overrides)
@@ -697,7 +698,7 @@ exit 1
     def check_click_local_extensions(self):
         '''Report any click local extensions'''
         t = 'info'
-        n = 'click_local_extensions'
+        n = self._get_check_name('click_local_extensions')
         s = 'OK'
         found = []
         for k in sorted(self.manifest):
@@ -723,7 +724,7 @@ exit 1
         tmp = os.path.basename(self.click_package).split('_')
         click_package_bn = os.path.basename(self.click_package)
         t = 'info'
-        n = 'package_filename_format'
+        n = self._get_check_name('package_filename_format')
         s = 'OK'
         if len(tmp) != 3:
             t = 'warn'
@@ -732,7 +733,7 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'package_filename_version_match'
+        n = self._get_check_name('package_filename_version_match')
         s = 'OK'
         l = None
         if len(tmp) >= 2:
@@ -753,7 +754,7 @@ exit 1
         self._add_result(t, n, s, l)
 
         t = 'info'
-        n = 'package_filename_arch_valid'
+        n = self._get_check_name('package_filename_arch_valid')
         s = 'OK'
         if len(tmp) >= 3:
             if self.click_package.endswith('.snap'):
@@ -777,7 +778,7 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'package_filename_arch_match'
+        n = self._get_check_name('package_filename_arch_match')
         s = 'OK'
         if len(tmp) >= 3:
             if self.click_package.endswith('.snap'):
@@ -801,7 +802,7 @@ exit 1
     def check_vcs(self):
         '''Check for VCS files in the click package'''
         t = 'info'
-        n = 'vcs_files'
+        n = self._get_check_name('vcs_files')
         s = 'OK'
         found = []
         for d in self.vcs_dirs:
@@ -817,7 +818,7 @@ exit 1
     def check_click_in_package(self):
         '''Check for *.click files in the toplevel click package'''
         t = 'info'
-        n = 'click_files'
+        n = self._get_check_name('click_files')
         s = 'OK'
         found = []
         entries = glob.glob("%s/*.click" % self.unpack_dir)
@@ -833,7 +834,7 @@ exit 1
         '''Check for known hardcoded paths.'''
         PATH_BLACKLIST = ["/opt/click.ubuntu.com/"]
         t = 'info'
-        n = 'hardcoded_paths'
+        n = self._get_check_name('hardcoded_paths')
         s = 'OK'
         for dirpath, dirnames, filenames in os.walk(self.unpack_dir):
             for filename in filenames:
@@ -854,7 +855,7 @@ exit 1
 
     def _verify_architecture(self, my_dict, test_str):
         t = 'info'
-        n = '%s_architecture_valid' % test_str
+        n = self._get_check_name('%s_architecture_valid' % test_str)
         s = 'OK'
         if 'architecture' not in my_dict:
             s = 'OK (architecture not specified)'
@@ -887,7 +888,7 @@ exit 1
 
     def _verify_icon(self, my_dict, test_str):
         t = 'info'
-        n = '%s_icon_present' % test_str
+        n = self._get_check_name('%s_icon_present' % test_str)
         s = 'OK'
         if 'icon' not in my_dict:
             s = 'Skipped, optional icon not present'
@@ -896,7 +897,7 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = '%s_icon_empty' % test_str
+        n = self._get_check_name('%s_icon_empty' % test_str)
         s = 'OK'
         if len(my_dict['icon']) == 0:
             t = 'error'
@@ -905,7 +906,7 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = '%s_icon_absolute_path' % test_str
+        n = self._get_check_name('%s_icon_absolute_path' % test_str)
         s = 'OK'
         if my_dict['icon'].startswith('/'):
             t = 'error'
@@ -923,7 +924,7 @@ exit 1
             return
 
         t = 'info'
-        n = 'snappy_name_valid'
+        n = self._get_check_name('snappy_name_valid')
         s = 'OK'
         if 'name' not in self.pkg_yaml:
             t = 'error'
@@ -939,7 +940,7 @@ exit 1
             return
 
         t = 'info'
-        n = 'snappy_version_valid'
+        n = self._get_check_name('snappy_version_valid')
         s = 'OK'
         if 'version' not in self.pkg_yaml:
             t = 'error'
@@ -955,7 +956,7 @@ exit 1
             return
 
         t = 'info'
-        n = 'snappy_type_valid'
+        n = self._get_check_name('snappy_type_valid')
         s = 'OK'
         if 'type' not in self.pkg_yaml:
             s = 'OK (skip missing)'
@@ -970,7 +971,7 @@ exit 1
             return
 
         t = 'info'
-        n = 'snappy_type_redflag'
+        n = self._get_check_name('snappy_type_redflag')
         s = "OK"
         l = None
         manual_review = False
@@ -990,7 +991,7 @@ exit 1
             return
 
         t = 'info'
-        n = 'snappy_vendor_valid'
+        n = self._get_check_name('snappy_vendor_valid')
         s = 'OK'
         if 'vendor' not in self.pkg_yaml:
             s = "OK (skip missing)"
@@ -1019,7 +1020,7 @@ exit 1
             return
 
         t = 'info'
-        n = 'snappy_unknown'
+        n = self._get_check_name('snappy_unknown')
         s = 'OK'
         unknown = []
         for f in self.pkg_yaml:
@@ -1052,7 +1053,7 @@ exit 1
         contents = self._extract_readme_md()
 
         t = 'info'
-        n = 'snappy_readme.md'
+        n = self._get_check_name('snappy_readme.md')
         s = 'OK'
         if contents is None:
             t = 'error'
@@ -1062,7 +1063,7 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'snappy_readme.md_length'
+        n = self._get_check_name('snappy_readme.md_length')
         s = 'OK'
         pkgname_base = self.pkg_yaml['name'].split('.')[0]
         if len(contents) < len(pkgname_base):
@@ -1084,7 +1085,7 @@ exit 1
             return
 
         t = 'info'
-        n = 'snappy_config_hook_executable'
+        n = self._get_check_name('snappy_config_hook_executable')
         s = 'OK'
         if not self._check_innerpath_executable(fn):
             t = 'error'
@@ -1113,7 +1114,8 @@ exit 1
                 app = os.path.basename(a['name'])
 
                 t = 'info'
-                n = 'snappy_%s_in_%s' % (app, other_exe_t)
+                n = self._get_check_name(
+                    'snappy_in_%s' % other_exe_t, app=app)
                 s = 'OK'
                 for other_a in self.pkg_yaml[other_exe_t]:
                     other_app = os.path.basename(other_a['name'])
@@ -1142,14 +1144,14 @@ exit 1
 
         if 'archive-sha512' not in hashes_yaml:
             t = 'error'
-            n = 'hashes_archive-sha512_present'
+            n = self._get_check_name('hashes_archive-sha512_present')
             s = "'archive-sha512' not found in hashes.yaml"
             self._add_result(t, n, s)
             return
 
         # verify the ar file
         t = 'info'
-        n = 'hashes_archive-sha512_valid'
+        n = self._get_check_name('hashes_archive-sha512_valid')
         s = 'OK'
         fn = self._path_join(self.raw_unpack_dir, 'data.tar.gz')
         sum = self._get_sha512sum(fn)
@@ -1163,7 +1165,7 @@ exit 1
 
         if 'files' not in hashes_yaml:
             t = 'error'
-            n = 'hashes_files_present'
+            n = self._get_check_name('hashes_files_present')
             s = "'files' not found in hashes.yaml"
             self._add_result(t, n, s)
             return
@@ -1254,7 +1256,7 @@ exit 1
                                                           entry['name']))
 
         t = 'info'
-        n = 'sha512sums'
+        n = self._get_check_name('sha512sums')
         s = 'OK'
         if len(badsums) > 0:
             t = 'error'
@@ -1262,7 +1264,7 @@ exit 1
         self._add_result(t, n, s)
 
         t = 'info'
-        n = 'file_mode'
+        n = self._get_check_name('file_mode')
         s = 'OK'
         if len(errors) > 0:
             t = 'error'
@@ -1271,7 +1273,7 @@ exit 1
 
         # Now check for extra files
         t = 'info'
-        n = 'hashes_extra_files'
+        n = self._get_check_name('hashes_extra_files')
         s = 'OK'
         self._add_result(t, n, s)
         extra = []

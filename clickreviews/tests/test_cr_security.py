@@ -66,7 +66,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']["security_policy_version_is_highest (%s, %s)" %
+        expected['info']["security_policy_version_is_highest_(%s, %s)" %
                          (highest_version, self.default_security_json)] = \
             {"text": "OK"}
         self.check_results(report, expected=expected)
@@ -86,11 +86,11 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']["security_policy_version_is_highest (%s, %s)" % (
+        expected['info']["security_policy_version_is_highest_(%s, %s)" % (
                          highest,
                          self.default_security_json)] = \
             {"text": "0.1 != %s" % highest}
-        expected['error']["security_policy_version_exists (%s)" %
+        expected['error']["security_policy_version_exists_%s" %
                           self.default_security_json] = \
             {"text": "could not find policy for ubuntu/%s" % str(bad_version)}
         self.check_results(report, expected=expected)
@@ -114,7 +114,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']["security_policy_version_is_highest (%s, %s)" % (
+        expected['info']["security_policy_version_is_highest_(%s, %s)" % (
                          highest,
                          self.default_security_json)] = \
             {"text": "%s != %s" % (version, highest)}
@@ -131,7 +131,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['error']["security_policy_version_exists (%s)" %
+        expected['error']["security_policy_version_exists_%s" %
                           self.default_security_json] = \
             {"text": "could not find policy_version in manifest"}
         self.check_results(report, expected=expected)
@@ -186,7 +186,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['error']["security_policy_version_matches_framework (%s)" %
+        expected['error']["security_policy_version_matches_framework_%s" %
                           self.default_security_json] = \
             {"text": "1.0 != 1.1 (ubuntu-sdk-14.04)"}
         self.check_results(report, expected=expected)
@@ -207,7 +207,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['error']["security_policy_version_matches_framework (%s)" %
+        expected['error']["security_policy_version_matches_framework_%s" %
                           self.default_security_json] = \
             {"text": "1.1 != 1.0 (ubuntu-sdk-13.10)"}
         self.check_results(report, expected=expected)
@@ -228,7 +228,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['error']["security_policy_version_matches_framework (%s)" %
+        expected['error']["security_policy_version_matches_framework_%s" %
                           self.default_security_json] = \
             {"text": "Invalid framework 'nonexistent'"}
         self.check_results(report, expected=expected)
@@ -356,7 +356,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['error']["security_policy_vendor_matches_framework (%s)" %
+        expected['error']["security_policy_vendor_matches_framework_%s" %
                           self.default_security_json] = \
             {"text": "ubuntu-snappy != ubuntu (ubuntu-sdk-13.10)"}
         self.check_results(report, expected=expected)
@@ -377,7 +377,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['error']["security_policy_vendor_matches_framework (%s)" %
+        expected['error']["security_policy_vendor_matches_framework_%s" %
                           self.default_security_json] = \
             {"text": "Invalid framework 'nonexistent'"}
         self.check_results(report, expected=expected)
@@ -433,11 +433,11 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']["security_template_with_policy_version (%s)" %
+        expected['info']["security_template_with_policy_version_%s" %
                          self.default_security_json] = {"text": "OK"}
-        expected['info']["security_template_exists (%s)" %
+        expected['info']["security_template_exists_%s" %
                          self.default_security_json] = {"text": "OK"}
-        expected['warn']["security_template_valid (%s)" %
+        expected['warn']["security_template_valid_%s" %
                          self.default_security_json] = \
             {"text": "No need to specify 'ubuntu-sdk' template"}
         self.check_results(report, expected=expected)
@@ -557,7 +557,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
-        check_name = "security_template_valid (%s.apparmor)" % self.default_appname
+        check_name = "security_template_valid_%s.apparmor" % self.default_appname
         self.check_manual_review(report, check_name)
 
     def test_check_policy_groups_webapps(self):
@@ -878,7 +878,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
-        check_name = "security_policy_groups_safe_%s (video_files)" % (
+        check_name = "security_policy_groups_safe_%s_video_files" % (
             self.default_appname,)
         self.check_manual_review(report, check_name)
 

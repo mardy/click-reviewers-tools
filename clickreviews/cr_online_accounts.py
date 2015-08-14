@@ -114,7 +114,7 @@ class ClickReviewAccounts(ClickReview):
             account_type = "account-application"
 
             t = 'info'
-            n = '%s_%s_root' % (app, account_type)
+            n = self._get_check_name('%s_root' % account_type, app=app)
             s = "OK"
             if account_type not in self.accounts[app]:
                 s = "OK (missing)"
@@ -128,7 +128,7 @@ class ClickReviewAccounts(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_%s_id' % (app, account_type)
+            n = self._get_check_name('%s_id' % account_type, app=app)
             s = "OK"
             if "id" in self.accounts[app][account_type].keys():
                 t = 'warn'
@@ -136,7 +136,7 @@ class ClickReviewAccounts(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_%s_services' % (app, account_type)
+            n = self._get_check_name('%s_services' % account_type, app=app)
             s = "OK"
             if self.accounts[app][account_type].find("services") is None:
                 t = 'error'
@@ -147,7 +147,7 @@ class ClickReviewAccounts(ClickReview):
                 continue
 
             t = 'info'
-            n = '%s_%s_service' % (app, account_type)
+            n = self._get_check_name('%s_service' % account_type, app=app)
             s = "OK"
             if self.accounts[app][account_type].find("./services/service") \
                is None:
@@ -161,7 +161,7 @@ class ClickReviewAccounts(ClickReview):
             account_type = "account-service"
 
             t = 'info'
-            n = '%s_%s_root' % (app, account_type)
+            n = self._get_check_name('%s_root' % account_type, app=app)
             s = "OK"
             if account_type not in self.accounts[app]:
                 s = "OK (missing)"
@@ -175,7 +175,7 @@ class ClickReviewAccounts(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_%s_id' % (app, account_type)
+            n = self._get_check_name('%s_id' % account_type, app=app)
             s = "OK"
             if "id" in self.accounts[app][account_type].keys():
                 t = 'warn'
@@ -187,7 +187,8 @@ class ClickReviewAccounts(ClickReview):
 
             for tag in ['name', 'provider']:
                 t = 'info'
-                n = '%s_%s_%s' % (app, account_type, tag)
+                n = self._get_check_name(
+                    '%s_%s' % (account_type, tag), app=app)
                 s = "OK"
                 if self.accounts[app][account_type].find(tag) is None:
                     t = 'error'
@@ -200,7 +201,7 @@ class ClickReviewAccounts(ClickReview):
             account_type = "account-provider"
 
             t = 'info'
-            n = '%s_%s' % (app, account_type)
+            n = self._get_check_name(account_type, app=app)
             s = "OK"
             manual_review = False
             if account_type not in self.accounts[app]:
@@ -210,7 +211,7 @@ class ClickReviewAccounts(ClickReview):
             self._add_result(t, n, s, manual_review=manual_review)
 
             t = 'info'
-            n = '%s_%s_root' % (app, account_type)
+            n = self._get_check_name('%s_root' % account_type, app=app)
             s = "OK"
             root_tag = self.accounts[app][account_type].tag.lower()
             if root_tag != "provider":
@@ -219,7 +220,7 @@ class ClickReviewAccounts(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_%s_id' % (app, account_type)
+            n = self._get_check_name('%s_id' % account_type, app=app)
             s = "OK"
             if "id" in self.accounts[app][account_type].keys():
                 t = 'warn'
@@ -232,7 +233,7 @@ class ClickReviewAccounts(ClickReview):
             account_type = "account-qml-plugin"
 
             t = 'info'
-            n = '%s_%s' % (app, account_type)
+            n = self._get_check_name(account_type, app=app)
             s = "OK"
             manual_review = False
             if account_type not in self.accounts[app]:

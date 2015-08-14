@@ -78,7 +78,7 @@ class ClickReviewContentHub(ClickReview):
         for app in sorted(self.content_hub):
             for k in self.content_hub[app].keys():
                 t = "info"
-                n = "valid_%s_%s" % (app, k)
+                n = self._get_check_name('valid', app=app, extra=k)
                 s = "OK"
 
                 if not isinstance(self.content_hub[app][k], list):
@@ -93,7 +93,7 @@ class ClickReviewContentHub(ClickReview):
 
                 for v in self.content_hub[app][k]:
                     t = "info"
-                    n = "valid_%s_%s_value" % (app, k)
+                    n = self._get_check_name('valid_value', app=app, extra=k)
                     s = "OK"
                     if not isinstance(v, str):
                         t = "error"
@@ -108,7 +108,7 @@ class ClickReviewContentHub(ClickReview):
         for app in sorted(self.content_hub):
             unknown = []
             t = "info"
-            n = "unknown_%s" % app
+            n = self._get_check_name('unknown', app=app)
             s = "OK"
             for key in self.content_hub[app].keys():
                 if key not in self.valid_keys:

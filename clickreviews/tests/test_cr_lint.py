@@ -1468,9 +1468,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        m = r['error']['lint_snappy_foo_in_services']['text']
+        m = r['error']['lint_snappy_in_services_foo']['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        m = r['error']['lint_snappy_in_binaries_foo']['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
     def test_check_snappy_services_and_binaries4(self):
@@ -1485,9 +1485,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        m = r['error']['lint_snappy_foo_in_services']['text']
+        m = r['error']['lint_snappy_in_services_foo']['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        m = r['error']['lint_snappy_in_binaries_foo']['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
     def test_check_snappy_services_and_binaries5(self):
@@ -1503,9 +1503,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        m = r['error']['lint_snappy_foo_in_services']['text']
+        m = r['error']['lint_snappy_in_services_foo']['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        m = r['error']['lint_snappy_foo_in_binaries']['text']
+        m = r['error']['lint_snappy_in_binaries_foo']['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
     def test_check_snappy_hashes_click(self):

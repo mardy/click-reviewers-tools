@@ -110,7 +110,7 @@ class ClickReviewDesktop(ClickReview):
     def check_desktop_file(self):
         '''Check desktop file'''
         t = 'info'
-        n = 'files_usable'
+        n = self._get_check_name('files_usable')
         s = 'OK'
         if len(self._get_desktop_files().keys()) != self.desktop_hook_entries:
             t = 'error'
@@ -124,7 +124,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'validates (%s)' % app
+            n = self._get_check_name('validates', app=app)
             s = 'OK'
             l = None
             try:
@@ -140,7 +140,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'required_keys (%s)' % app
+            n = self._get_check_name('required_keys', app=app)
             s = "OK"
             missing = []
             for f in self.required_keys:
@@ -152,7 +152,7 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'required_fields_not_empty (%s)' % app
+            n = self._get_check_name('required_fields_not_empty', app=app)
             s = "OK"
             empty = []
             for f in self.required_keys:
@@ -168,7 +168,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'blacklisted_keys (%s)' % app
+            n = self._get_check_name('blacklisted_keys', app=app)
             s = "OK"
             found = []
             for f in self.blacklisted_keys:
@@ -184,7 +184,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Exec (%s)' % app
+            n = self._get_check_name('Exec', app=app)
             s = 'OK'
             l = None
             if not de.hasKey('Exec'):
@@ -219,7 +219,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Exec_webapp_container (%s)' % app
+            n = self._get_check_name('Exec_webapp_container', app=app)
             s = 'OK'
             if not de.hasKey('Exec'):
                 t = 'error'
@@ -245,7 +245,7 @@ class ClickReviewDesktop(ClickReview):
                 continue
 
             t = 'info'
-            n = 'Exec_webapp_container_webapp (%s)' % (app)
+            n = self._get_check_name('Exec_webapp_container_webapp', app=app)
             s = 'OK'
             if '--webapp' in de.getExec().split():
                 t = 'error'
@@ -254,7 +254,7 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'Exec_webapp_container_13.10 (%s)' % (app)
+            n = self._get_check_name('Exec_webapp_container_13.10', app=app)
             s = 'OK'
             if self.manifest['framework'] == "ubuntu-sdk-13.10":
                 t = 'info'
@@ -268,7 +268,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Exec_webbrowser (%s)' % app
+            n = self._get_check_name('Exec_webbrowser', app=app)
             s = 'OK'
             if not de.hasKey('Exec'):
                 t = 'error'
@@ -281,7 +281,7 @@ class ClickReviewDesktop(ClickReview):
                 continue
 
             t = 'info'
-            n = 'Exec_webbrowser_webapp (%s)' % (app)
+            n = self._get_check_name('Exec_webbrowser_webapp', app=app)
             s = 'OK'
             if '--webapp' not in de.getExec().split():
                 t = 'error'
@@ -290,7 +290,7 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'Exec_webbrowser_13.10 (%s)' % (app)
+            n = self._get_check_name('Exec_webbrowser_13.10', app=app)
             s = 'OK'
             if self.manifest['framework'] != "ubuntu-sdk-13.10":
                 t = 'error'
@@ -303,7 +303,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Exec_webapp_args (%s)' % app
+            n = self._get_check_name('Exec_webapp_args', app=app)
             s = 'OK'
             if not de.hasKey('Exec'):
                 t = 'error'
@@ -317,7 +317,7 @@ class ClickReviewDesktop(ClickReview):
                 continue
 
             t = 'info'
-            n = 'Exec_webapp_args_minimal_chrome (%s)' % (app)
+            n = self._get_check_name('Exec_webapp_args_minimal_chrome', app=app)
             s = 'OK'
             if '--enable-back-forward' not in de.getExec().split():
                 s = "could not find --enable-back-forward in '%s'" % \
@@ -327,7 +327,7 @@ class ClickReviewDesktop(ClickReview):
             # verify the presence of either webappUrlPatterns or
             # webappModelSearchPath
             t = 'info'
-            n = 'Exec_webapp_args_required (%s)' % (app)
+            n = self._get_check_name('Exec_webapp_args_required', app=app)
             s = 'OK'
             found_url_patterns = False
             found_model_search_path = False
@@ -376,8 +376,9 @@ class ClickReviewDesktop(ClickReview):
             urlp_t = urlsplit(target)
 
             t = 'info'
-            n = 'Exec_webbrowser_webapp_url_patterns_has_https? (%s, %s)' % \
-                (app, pattern)
+            n = self._get_check_name(
+                'Exec_webbrowser_webapp_url_patterns_has_https', app=app,
+                extra=pattern)
             s = 'OK'
             if not pattern.startswith('https?://'):
                 t = 'warn'
@@ -386,8 +387,9 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'Exec_webbrowser_webapp_url_patterns_uses_trailing_glob ' + \
-                '(%s, %s)' % (app, pattern)
+            n = self._get_check_name(
+                'Exec_webbrowser_webapp_url_patterns_uses_trailing_glob',
+                app=app, extra=pattern)
             s = 'OK'
             if not pattern.endswith('*'):
                 t = 'warn'
@@ -396,8 +398,9 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'Exec_webbrowser_webapp_url_patterns_uses_unsafe_glob ' + \
-                '(%s, %s)' % (app, pattern)
+            n = self._get_check_name(
+                'Exec_webbrowser_webapp_url_patterns_uses_unsafe_glob',
+                app=app, extra=pattern)
             s = 'OK'
             if len(urlp_p.path) == 0 and pattern.endswith('*'):
                 t = 'error'
@@ -405,8 +408,9 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'Exec_webbrowser_webapp_url_patterns_uses_safe_glob ' + \
-                '(%s, %s)' % (app, pattern)
+            n = self._get_check_name(
+                'Exec_webbrowser_webapp_url_patterns_uses_safe_glob',
+                app=app, extra=pattern)
             s = 'OK'
             if '*' in pattern[:-1] and \
                (pattern[:-1].count('*') != 1 or
@@ -417,7 +421,7 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'Exec_webbrowser_target_exists (%s)' % (app)
+            n = self._get_check_name('Exec_webbrowser_target_exists', app=app)
             s = 'OK'
             if urlp_t.scheme == "":
                 t = 'error'
@@ -427,8 +431,9 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'Exec_webbrowser_target_scheme_matches_patterns ' + \
-                '(%s, %s)' % (app, pattern)
+            n = self._get_check_name(
+                'Exec_webbrowser_target_scheme_matches_patterns',
+                app=app, extra=pattern)
             s = 'OK'
             if not re.match(r'^%s$' % urlp_scheme_pat, urlp_t.scheme):
                 t = 'error'
@@ -438,8 +443,9 @@ class ClickReviewDesktop(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = 'Exec_webbrowser_target_netloc_matches_patterns ' + \
-                '(%s, %s)' % (app, pattern)
+            n = self._get_check_name(
+                'Exec_webbrowser_target_netloc_matches_patterns',
+                app=app, extra=pattern)
             s = 'OK'
             # TODO: this is admittedly simple, but matches Canonical
             #       webapps currently, so ok for now
@@ -474,7 +480,8 @@ class ClickReviewDesktop(ClickReview):
 
             args = execline[1:]
             t = 'info'
-            n = 'Exec_webbrowser_webappUrlPatterns (%s)' % app
+            n = self._get_check_name(
+                'Exec_webbrowser_webappUrlPatterns', app=app)
             s = 'OK'
             pats = ""
             count = 0
@@ -530,7 +537,8 @@ class ClickReviewDesktop(ClickReview):
 
             args = execline[1:]
             t = 'info'
-            n = 'Exec_webbrowser_webappModelSearchPath present (%s)' % app
+            n = self._get_check_name(
+                'Exec_webbrowser_webappModelSearchPath present', app=app)
             s = 'OK'
             path = ""
             count = 0
@@ -566,7 +574,8 @@ class ClickReviewDesktop(ClickReview):
             # ubuntu-webapps-*/
             manifests = self._extract_webapp_manifests()
             t = 'info'
-            n = 'Exec_webbrowser_webapp_manifest (%s)' % app
+            n = self._get_check_name(
+                'Exec_webbrowser_webapp_manifest', app=app)
             s = 'OK'
             if len(manifests) == 0:
                 t = 'error'
@@ -589,8 +598,9 @@ class ClickReviewDesktop(ClickReview):
                 m = manifests[k]
 
                 t = 'info'
-                n = 'Exec_webbrowser_webapp_manifest_wellformed (%s, %s)' % \
-                    (app, k)
+                n = self._get_check_name(
+                    'Exec_webbrowser_webapp_manifest_wellformed', app=app,
+                    extra=k)
                 s = 'OK'
                 if m is None or m == 'null':  # 'null' is for testsuite
                     t = 'error'
@@ -602,8 +612,9 @@ class ClickReviewDesktop(ClickReview):
 
                 # 'includes' contains the patterns
                 t = 'info'
-                n = 'Exec_webbrowser_webapp_manifest_includes_present ' + \
-                    '(%s, %s)' % (app, k)
+                n = self._get_check_name(
+                    'Exec_webbrowser_webapp_manifest_includes_present',
+                    app=app, extra=k)
                 s = 'OK'
                 if 'includes' not in m:
                     t = 'error'
@@ -622,7 +633,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'groups (%s)' % app
+            n = self._get_check_name('groups', app=app)
             s = "OK"
             if len(de.groups()) != 1:
                 t = 'error'
@@ -637,7 +648,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Type (%s)' % app
+            n = self._get_check_name('Type', app=app)
             s = "OK"
             if not de.hasKey('Type'):
                 t = 'error'
@@ -652,7 +663,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'X-Ubuntu-Touch (%s)' % app
+            n = self._get_check_name('X-Ubuntu-Touch', app=app)
             s = "OK"
             if not de.hasKey('X-Ubuntu-Touch'):
                 t = 'error'
@@ -668,7 +679,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'X-Ubuntu-StageHint (%s)' % app
+            n = self._get_check_name('X-Ubuntu-StageHint', app=app)
             s = "OK"
             if not de.hasKey('X-Ubuntu-StageHint'):
                 t = 'info'
@@ -685,7 +696,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'X-Ubuntu-Gettext-Domain (%s)' % app
+            n = self._get_check_name('X-Ubuntu-Gettext-Domain', app=app)
             s = "OK"
             if not de.hasKey('X-Ubuntu-Gettext-Domain'):
                 t = 'info'
@@ -707,7 +718,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Terminal (%s)' % app
+            n = self._get_check_name('Terminal', app=app)
             s = "OK"
             if not de.hasKey('Terminal'):
                 s = "OK (not specified)"
@@ -721,7 +732,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Version (%s)' % app
+            n = self._get_check_name('Version', app=app)
             s = "OK"
             l = None
             if not de.hasKey('Version'):
@@ -739,7 +750,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Comment_boilerplate (%s)' % app
+            n = self._get_check_name('Comment_boilerplate', app=app)
             s = "OK"
             l = None
             if de.hasKey('Comment') and \
@@ -759,7 +770,7 @@ class ClickReviewDesktop(ClickReview):
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
-            n = 'Icon (%s)' % app
+            n = self._get_check_name('Icon', app=app)
             s = 'OK'
             l = None
             if not de.hasKey('Icon'):
@@ -791,7 +802,7 @@ class ClickReviewDesktop(ClickReview):
             found = []
             dupes = []
             t = 'info'
-            n = 'duplicate_keys (%s)' % app
+            n = self._get_check_name('duplicate_keys', app=app)
             s = 'OK'
             fn = self._get_desktop_filename(app)
             content = open_file_read(fn).readlines()

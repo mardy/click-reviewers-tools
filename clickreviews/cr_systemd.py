@@ -68,7 +68,8 @@ class ClickReviewSystemd(ClickReview):
             for r in self.required_keys:
                 found = False
                 t = 'info'
-                n = '%s_required_key_%s_%s' % (test_str, r, app)
+                n = self._get_check_name(
+                    '%s_required_key' % test_str, extra=r, app=app)
                 s = "OK"
                 if r in my_dict[app]:
                     if not isinstance(my_dict[app][r], str):
@@ -98,7 +99,8 @@ class ClickReviewSystemd(ClickReview):
                     continue  # checked in cr_security.py
                 found = False
                 t = 'info'
-                n = '%s_optional_key_%s_%s' % (test_str, o, app)
+                n = self._get_check_name(
+                    '%s_optional_key' % test_str, extra=o, app=app)
                 s = "OK"
                 if o in my_dict[app]:
                     if o == 'stop-timeout':
@@ -140,7 +142,7 @@ class ClickReviewSystemd(ClickReview):
         for app in sorted(my_dict):
             unknown = []
             t = 'info'
-            n = '%s_unknown_key_%s' % (test_str, app)
+            n = self._get_check_name('%s_unknown_key' % test_str, app=app)
             s = "OK"
 
             for f in my_dict[app].keys():
@@ -167,7 +169,7 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy systemd description'''
         for app in sorted(my_dict):
             t = 'info'
-            n = '%s_description_present_%s' % (test_str, app)
+            n = self._get_check_name('%s_description_present' % test_str, app=app)
             s = 'OK'
             if 'description' not in my_dict[app]:
                 s = 'required description field not specified'
@@ -176,7 +178,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_description_empty_%s' % (test_str, app)
+            n = self._get_check_name('%s_description_empty' % test_str, app=app)
             s = 'OK'
             if len(my_dict[app]['description']) == 0:
                 t = 'error'
@@ -197,7 +199,7 @@ class ClickReviewSystemd(ClickReview):
                 continue
 
             t = 'info'
-            n = '%s_%s_empty_%s' % (test_str, d, app)
+            n = self._get_check_name('%s_empty' % test_str, extra=d, app=app)
             s = 'OK'
             if len(my_dict[app][d]) == 0:
                 t = 'error'
@@ -207,7 +209,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_%s_absolute_path_%s' % (test_str, d, app)
+            n = self._get_check_name('%s_absolute_path' % test_str, extra=d, app=app)
             s = 'OK'
             if my_dict[app][d].startswith('/'):
                 t = 'error'
@@ -238,7 +240,7 @@ class ClickReviewSystemd(ClickReview):
     def _verify_service_stop_timeout(self, my_dict, test_str):
         for app in sorted(my_dict):
             t = 'info'
-            n = '%s_stop_timeout_%s' % (test_str, app)
+            n = self._get_check_name('%s_stop_timeout' % test_str, app=app)
             s = "OK"
 
             if 'stop-timeout' not in my_dict[app]:
@@ -284,7 +286,7 @@ class ClickReviewSystemd(ClickReview):
                 continue
 
             t = 'info'
-            n = '%s_bus-name_empty_%s' % (test_str, app)
+            n = self._get_check_name('%s_bus-name_empty' % test_str, app=app)
             s = 'OK'
             if len(my_dict[app]['bus-name']) == 0:
                 t = 'error'
@@ -294,7 +296,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_bus-name_format_%s' % (test_str, app)
+            n = self._get_check_name('%s_bus-name_format' % test_str, app=app)
             l = None
             s = 'OK'
             if not re.search(r'^[A-Za-z0-9][A-Za-z0-9_-]*(\.[A-Za-z0-9][A-Za-z0-9_-]*)+$',
@@ -306,7 +308,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s, l)
 
             t = 'info'
-            n = '%s_bus-name_matches_name_%s' % (test_str, app)
+            n = self._get_check_name('%s_bus-name_matches_name' % test_str, app=app)
             s = 'OK'
             suggested = [pkgname,
                          "%s.%s" % (pkgname, app)
@@ -347,7 +349,7 @@ class ClickReviewSystemd(ClickReview):
                 continue
 
             t = 'info'
-            n = '%s_ports_empty_%s' % (test_str, app)
+            n = self._get_check_name('%s_ports_empty' % test_str, app=app)
             s = 'OK'
             if len(my_dict[app]['ports'].keys()) == 0:
                 t = 'error'
@@ -357,7 +359,7 @@ class ClickReviewSystemd(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = '%s_ports_bad_key_%s' % (test_str, app)
+            n = self._get_check_name('%s_ports_bad_key' % test_str, app=app)
             s = 'OK'
             badkeys = []
             for i in my_dict[app]['ports'].keys():
@@ -375,7 +377,7 @@ class ClickReviewSystemd(ClickReview):
 
                 if len(my_dict[app]['ports'][key].keys()) < 1:
                     t = 'error'
-                    n = '%s_ports_%s_%s' % (test_str, key, app)
+                    n = self._get_check_name('%s_ports' % test_str, extra=key, app=app)
                     s = 'Could not find any %s ports' % key
                     self._add_result(t, n, s)
                     continue
@@ -384,7 +386,7 @@ class ClickReviewSystemd(ClickReview):
                     entry = my_dict[app]['ports'][key][tagname]
                     if len(entry.keys()) < 1:
                         t = 'error'
-                        n = '%s_ports_%s_%s' % (test_str, key, app)
+                        n = self._get_check_name('%s_ports' % test_str, extra=key, app=app)
                         s = 'Could not find any subkeys for %s' % tagname
                         self._add_result(t, n, s)
                         continue
@@ -398,7 +400,7 @@ class ClickReviewSystemd(ClickReview):
                             'Negotiable' not in entry and
                             'Port' not in entry):
                         t = 'error'
-                        n = '%s_ports_%s_invalid_%s' % (test_str, key, app)
+                        n = self._get_check_name('%s_ports_invalid' % test_str, extra=key, app=app)
                         s = "Must specify specify at least 'port' or " + \
                             "'negotiable'"
                         self._add_result(t, n, s)
@@ -409,7 +411,7 @@ class ClickReviewSystemd(ClickReview):
                     if test_str == 'hook':
                         subkey = 'Port'
                     t = 'info'
-                    n = '%s_ports_%s_%s_format' % (test_str, tagname, subkey)
+                    n = self._get_check_name('%s_ports_%s_format' % (test_str, tagname), extra=subkey)
                     s = 'OK'
                     if subkey not in entry:
                         s = 'OK (skipped, not found)'
@@ -429,7 +431,7 @@ class ClickReviewSystemd(ClickReview):
                     if test_str == 'hook':
                         subkey = 'Negotiable'
                     t = 'info'
-                    n = '%s_ports_%s_%s_format' % (test_str, tagname, subkey)
+                    n = self._get_check_name('%s_ports_%s_format' % (test_str, tagname), extra=subkey)
                     s = 'OK'
                     if subkey not in entry:
                         s = 'OK (skipped, not found)'
