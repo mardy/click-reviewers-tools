@@ -144,7 +144,7 @@ class ClickReviewLint(ClickReview):
             if os.path.basename(f) not in self.control_files:
                 found.append(os.path.basename(f))
         t = 'info'
-        n = self.get_check_name('DEBIAN_extra_files')
+        n = self._get_check_name('DEBIAN_extra_files')
         s = 'OK'
         if len(found) > 0:
             t = 'warn'
@@ -176,7 +176,7 @@ class ClickReviewLint(ClickReview):
         error = False
         for f in sorted(fields):
             t = 'info'
-            n = self._get_check_name('control_has_files', extra=f)
+            n = self._get_check_name('control_has_field', extra=f)
             s = 'OK'
             if f not in control:
                 t = 'error'
