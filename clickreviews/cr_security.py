@@ -904,7 +904,7 @@ class ClickReviewSecurity(ClickReview):
                 for fapp in first[exe_t]:
                     t = 'info'
                     n = self._get_check_name(
-                        'yaml_%s' % exe_t,  app=fapp['name'])
+                        'yaml_%s' % exe_t, app=fapp['name'])
                     s = 'OK'
                     sapp = None
                     for tmp in second[exe_t]:

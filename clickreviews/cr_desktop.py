@@ -354,8 +354,8 @@ class ClickReviewDesktop(ClickReview):
                     is_launching_local_app = False
                     break
             if is_launching_local_app and \
-                    (found_url_patterns or found_model_search_path
-                     or found_named_webapp):
+                    (found_url_patterns or found_model_search_path or
+                     found_named_webapp):
                     t = 'error'
                     s = "should not specify --webappUrlPatterns, " + \
                         "--webappModelSearchPath or --webapp= when " + \

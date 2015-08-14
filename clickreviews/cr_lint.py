@@ -63,25 +63,22 @@ class ClickReviewLint(ClickReview):
         if 'maintainer' in self.manifest:
             maintainer = self.manifest['maintainer']
             self.email = maintainer.partition('<')[2].rstrip('>')
-            self.is_core_app = (self.click_pkgname.startswith('com.ubuntu.')
-                                and not self.click_pkgname.startswith(
-                                    'com.ubuntu.developer.')
-                                and (self.email ==
-                                     'ubuntu-touch-coreapps@lists.launchpad.net' or
-                                     self.email ==
-                                     'ubuntu-devel-discuss@lists.ubuntu.com'))
+            self.is_core_app = \
+                (self.click_pkgname.startswith('com.ubuntu.') and
+                 not self.click_pkgname.startswith('com.ubuntu.developer.') and
+                 (self.email == 'ubuntu-touch-coreapps@lists.launchpad.net' or
+                  self.email == 'ubuntu-devel-discuss@lists.ubuntu.com'))
             # "core scope" is not necessarily a word we use right now, but
             # we want to special case scopes which are written through our
             # vetted development process.
-            self.is_core_scope = (self.click_pkgname.startswith('com.ubuntu.scopes.')
-                                  and self.email ==
-                                  'ubuntu-devel-discuss@lists.ubuntu.com')
+            self.is_core_scope = (self.click_pkgname.startswith('com.ubuntu.scopes.') and
+                                  self.email == 'ubuntu-devel-discuss@lists.ubuntu.com')
             # "core snappy" is not necessarily a word we use right now, but
             # we want to special case scopes which are written through our
             # vetted development process.
-            self.is_core_snappy = (self.click_pkgname.startswith('com.ubuntu.snappy.')
-                                   and self.email ==
-                                   'ubuntu-devel-discuss@lists.ubuntu.com')
+            self.is_core_snappy = \
+                (self.click_pkgname.startswith('com.ubuntu.snappy.') and
+                 self.email == 'ubuntu-devel-discuss@lists.ubuntu.com')
         else:
             self.email = None
             self.is_core_app = False

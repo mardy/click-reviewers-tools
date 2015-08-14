@@ -48,9 +48,11 @@ def find_main_class(module_name):
                                            module_name))
 
     classes = inspect.getmembers(module, inspect.isclass)
-    find_cr_class = lambda a: a[0].startswith('Click') and \
-        not a[0].endswith('Exception') and \
-        a[1].__module__ == module_name
+
+    def find_cr_class(a):
+        return a[0].startswith('Click') and \
+            not a[0].endswith('Exception') and \
+            a[1].__module__ == module_name
     cr_class = list(filter(find_cr_class, classes))
     if not cr_class:
         return None

@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+import atexit
 import codecs
 from debian.deb822 import Deb822
 import glob
@@ -34,9 +35,6 @@ import yaml
 DEBUGGING = False
 UNPACK_DIR = None
 RAW_UNPACK_DIR = None
-
-# cleanup
-import atexit
 
 
 def cleanup_unpack():
