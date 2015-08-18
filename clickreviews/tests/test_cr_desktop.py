@@ -47,8 +47,8 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']['desktop_validates_%s' % self.default_appname] = \
-            {"text": "OK"}
+        name = c._get_check_name('desktop_validates', app=self.default_appname)
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_desktop_file_valid_missing_exec(self):

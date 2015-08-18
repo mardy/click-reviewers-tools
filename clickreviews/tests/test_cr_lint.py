@@ -810,9 +810,10 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']['lint_sdk_security_extension_test-app'] = \
-            {"text": "test-app.json does not end with .apparmor (ok if not "
-                     "using sdk)"}
+        name = c._get_check_name(
+            'lint_sdk_security_extension', app='test-app')
+        expected['info'][name] = {
+            "text": "test-app.json does not end with .apparmor (ok if not using sdk)"}
         self.check_results(r, expected=expected)
 
     def test_check_hooks_bad_appname(self):
@@ -908,7 +909,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        self.check_manual_review(r, 'lint_hooks_redflag_test-app')
+        name = c._get_check_name('lint_hooks_redflag', app='test-app')
+        self.check_manual_review(r, name)
 
     def test_check_hooks_redflagged_apparmor_profile(self):
         '''Test check_hooks_redflagged() - apparmor-profile'''
@@ -921,7 +923,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        self.check_manual_review(r, 'lint_hooks_redflag_test-app')
+        name = c._get_check_name('lint_hooks_redflag', app='test-app')
+        self.check_manual_review(r, name)
 
     def test_pkgname_toplevel(self):
         '''Test check_pkgname - toplevel'''
@@ -1468,9 +1471,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        m = r['error']['lint_snappy_in_services_foo']['text']
+        name = c._get_check_name('lint_snappy_in_services', extra='foo')
+        m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        m = r['error']['lint_snappy_in_binaries_foo']['text']
+        name = c._get_check_name('lint_snappy_in_binaries', extra='foo')
+        m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
     def test_check_snappy_services_and_binaries4(self):
@@ -1485,9 +1490,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        m = r['error']['lint_snappy_in_services_foo']['text']
+        name = c._get_check_name('lint_snappy_in_services', extra='foo')
+        m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        m = r['error']['lint_snappy_in_binaries_foo']['text']
+        name = c._get_check_name('lint_snappy_in_binaries', extra='foo')
+        m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
     def test_check_snappy_services_and_binaries5(self):
@@ -1503,9 +1510,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        m = r['error']['lint_snappy_in_services_foo']['text']
+        name = c._get_check_name('lint_snappy_in_services', extra='foo')
+        m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        m = r['error']['lint_snappy_in_binaries_foo']['text']
+        name = c._get_check_name('lint_snappy_in_binaries', extra='foo')
+        m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
     def test_check_snappy_hashes_click(self):
