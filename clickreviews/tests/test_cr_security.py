@@ -67,7 +67,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'security_policy_version_is_highest',
+            'policy_version_is_highest',
             extra="(%s, %s)" % (highest_version, self.default_security_json))
         expected['info'][name] = {"text": "OK"}
         self.check_results(report, expected=expected)
@@ -88,11 +88,11 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'security_policy_version_is_highest',
+            'policy_version_is_highest',
             extra="(%s, %s)" % (highest, self.default_security_json))
         expected['info'][name] = {"text": "0.1 != %s" % highest}
         name = c._get_check_name(
-            'security_policy_version_exists',
+            'policy_version_exists',
             extra=self.default_security_json)
         expected['error'][name] = {"text": "could not find policy for ubuntu/%s" % str(bad_version)}
         self.check_results(report, expected=expected)
@@ -117,7 +117,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'security_policy_version_is_highest',
+            'policy_version_is_highest',
             extra="(%s, %s)" % (highest, self.default_security_json))
         expected['info'][name] = {"text": "%s != %s" % (version, highest)}
         self.check_results(report, expected=expected)
@@ -133,7 +133,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        name = c._get_check_name('security_policy_version_exists',
+        name = c._get_check_name('policy_version_exists',
                                  extra=self.default_security_json)
         expected['error'][name] = {"text": "could not find policy_version in manifest"}
         self.check_results(report, expected=expected)
@@ -189,7 +189,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'security_policy_version_matches_framework',
+            'policy_version_matches_framework',
             extra=self.default_security_json)
         expected['error'][name] = {"text": "1.0 != 1.1 (ubuntu-sdk-14.04)"}
         self.check_results(report, expected=expected)
@@ -211,7 +211,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'security_policy_version_matches_framework',
+            'policy_version_matches_framework',
             extra=self.default_security_json)
         expected['error'][name] = {"text": "1.1 != 1.0 (ubuntu-sdk-13.10)"}
         self.check_results(report, expected=expected)
@@ -233,7 +233,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'security_policy_version_matches_framework',
+            'policy_version_matches_framework',
             extra=self.default_security_json)
         expected['error'][name] = {"text": "Invalid framework 'nonexistent'"}
         self.check_results(report, expected=expected)
@@ -362,7 +362,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'security_policy_vendor_matches_framework',
+            'policy_vendor_matches_framework',
             extra=self.default_security_json)
         expected['error'][name] = {"text": "ubuntu-snappy != ubuntu (ubuntu-sdk-13.10)"}
         self.check_results(report, expected=expected)
@@ -384,7 +384,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'security_policy_vendor_matches_framework',
+            'policy_vendor_matches_framework',
             extra=self.default_security_json)
         expected['error'][name] = {"text": "Invalid framework 'nonexistent'"}
         self.check_results(report, expected=expected)
@@ -440,13 +440,13 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        name = c._get_check_name('security_template_with_policy_version',
+        name = c._get_check_name('template_with_policy_version',
                                  extra=self.default_security_json)
         expected['info'][name] = {"text": "OK"}
-        name = c._get_check_name('security_template_exists',
+        name = c._get_check_name('template_exists',
                                  extra=self.default_security_json)
         expected['info'][name] = {"text": "OK"}
-        name = c._get_check_name('security_template_valid',
+        name = c._get_check_name('template_valid',
                                  extra=self.default_security_json)
         expected['warn'][name] = {"text": "No need to specify 'ubuntu-sdk' template"}
         self.check_results(report, expected=expected)
@@ -567,7 +567,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 2, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
         check_name = c._get_check_name(
-            'security_template_valid', app="%s.apparmor" % self.default_appname)
+            'template_valid', app="%s.apparmor" % self.default_appname)
         self.check_manual_review(report, check_name)
 
     def test_check_policy_groups_webapps(self):
@@ -889,7 +889,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
         check_name = c._get_check_name(
-            'security_policy_groups_safe', app=self.default_appname,
+            'policy_groups_safe', app=self.default_appname,
             extra='video_files')
         self.check_manual_review(report, check_name)
 
@@ -1896,7 +1896,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
-        m = report['error']['security_yaml_policy_present']['text']
+        name = c._get_check_name('yaml_policy_present')
+        m = report['error'][name]['text']
         self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
 
     def test_check_security_yaml_policy_missing1(self):
@@ -1908,10 +1909,11 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(report, expected_counts)
-        m = report['error']['security_yaml_policy_present']['text']
+        name = c._get_check_name('yaml_policy_present')
+        m = report['error'][name]['text']
         self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
         name = c._get_check_name(
-            'security_yaml_policy_format', app='test-app')
+            'yaml_policy_format', app='test-app')
         m = report['error'][name]['text']
         self.assertIn("'apparmor' not specified in 'security-policy' " +
                       "for 'test-app'", m)
@@ -1925,10 +1927,11 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(report, expected_counts)
-        m = report['error']['security_yaml_policy_present']['text']
+        name = c._get_check_name('yaml_policy_present')
+        m = report['error'][name]['text']
         self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
         name = c._get_check_name(
-            'security_yaml_policy_format', app='test-app')
+            'yaml_policy_format', app='test-app')
         m = report['error'][name]['text']
         self.assertIn("'seccomp' not specified in 'security-policy' " +
                       "for 'test-app'", m)

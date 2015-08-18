@@ -15,7 +15,7 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
         self.review._add_result('info', 'some-check', 'OK')
         self.assertEqual(self.review.click_report, {
             'info': {
-                'review_type_some-check': {
+                'some-check': {
                     'text': 'OK',
                     'manual_review': False,
                 }
@@ -29,7 +29,7 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
                                 manual_review=True)
         self.assertEqual(self.review.click_report, {
             'info': {
-                'review_type_some-check': {
+                'some-check': {
                     'text': 'OK',
                     'manual_review': True,
                 }
@@ -80,16 +80,16 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
 
     def test_get_check_name(self):
         name = self.review._get_check_name('prefix')
-        self.assertEqual(name, 'prefix')
+        self.assertEqual(name, 'review_type:prefix')
 
     def test_get_check_name_with_app(self):
         name = self.review._get_check_name('prefix', app='app')
-        self.assertEqual(name, 'prefix:app')
+        self.assertEqual(name, 'review_type:prefix:app')
 
     def test_get_check_name_with_extra(self):
         name = self.review._get_check_name('prefix', extra='extra')
-        self.assertEqual(name, 'prefix:extra')
+        self.assertEqual(name, 'review_type:prefix:extra')
 
     def test_get_check_name_with_app_and_extra(self):
         name = self.review._get_check_name('prefix', app='app', extra='extra')
-        self.assertEqual(name, 'prefix:app:extra')
+        self.assertEqual(name, 'review_type:prefix:app:extra')

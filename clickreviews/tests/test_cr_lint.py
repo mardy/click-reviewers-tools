@@ -201,8 +201,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected['info'] = dict()
         expected['warn'] = dict()
         expected['error'] = dict()
-        expected['info']["lint_control_architecture_match"] = \
-            {"text": "OK: architecture not specified in manifest"}
+        name = c._get_check_name('control_architecture_match')
+        expected['info'][name] = {
+            "text": "OK: architecture not specified in manifest"}
         self.check_results(r, expected=expected)
 
     def test_check_architecture_specified_needed(self):
@@ -487,7 +488,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         # Lets check that the right error is triggering
-        m = r['error']['lint_control_click_version_up_to_date']['text']
+        name = c._get_check_name('control_click_version_up_to_date')
+        m = r['error'][name]['text']
         self.assertIn('Click-Version is too old', m)
 
     def test_check_maintainer(self):
@@ -811,7 +813,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected['warn'] = dict()
         expected['error'] = dict()
         name = c._get_check_name(
-            'lint_sdk_security_extension', app='test-app')
+            'sdk_security_extension', app='test-app')
         expected['info'][name] = {
             "text": "test-app.json does not end with .apparmor (ok if not using sdk)"}
         self.check_results(r, expected=expected)
@@ -909,7 +911,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        name = c._get_check_name('lint_hooks_redflag', app='test-app')
+        name = c._get_check_name('hooks_redflag', app='test-app')
         self.check_manual_review(r, name)
 
     def test_check_hooks_redflagged_apparmor_profile(self):
@@ -923,7 +925,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        name = c._get_check_name('lint_hooks_redflag', app='test-app')
+        name = c._get_check_name('hooks_redflag', app='test-app')
         self.check_manual_review(r, name)
 
     def test_pkgname_toplevel(self):
@@ -1399,7 +1401,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
         # Lets check that the right warning is triggering
-        m = r['error']['lint_snappy_unknown']['text']
+        name = c._get_check_name('snappy_unknown')
+        m = r['error'][name]['text']
         self.assertIn("unknown entries in package.yaml: 'maintainer' "
                       "(maintainer obsoleted)", m)
 
@@ -1471,10 +1474,10 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        name = c._get_check_name('lint_snappy_in_services', extra='foo')
+        name = c._get_check_name('snappy_in_services', extra='foo')
         m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        name = c._get_check_name('lint_snappy_in_binaries', extra='foo')
+        name = c._get_check_name('snappy_in_binaries', extra='foo')
         m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
@@ -1490,10 +1493,10 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        name = c._get_check_name('lint_snappy_in_services', extra='foo')
+        name = c._get_check_name('snappy_in_services', extra='foo')
         m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        name = c._get_check_name('lint_snappy_in_binaries', extra='foo')
+        name = c._get_check_name('snappy_in_binaries', extra='foo')
         m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
@@ -1510,10 +1513,10 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 2}
         self.check_results(r, expected_counts)
 
-        name = c._get_check_name('lint_snappy_in_services', extra='foo')
+        name = c._get_check_name('snappy_in_services', extra='foo')
         m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
-        name = c._get_check_name('lint_snappy_in_binaries', extra='foo')
+        name = c._get_check_name('snappy_in_binaries', extra='foo')
         m = r['error'][name]['text']
         self.assertIn("'foo' in both 'services' and 'binaries'", m)
 
@@ -1547,7 +1550,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_hashes_archive-sha512_valid']['text']
+        name = c._get_check_name('hashes_archive-sha512_valid')
+        m = r['error'][name]['text']
         self.assertIn("hash mismatch: 'deadbeef' != '%s'" % self.sha512, m)
 
     def test_check_snappy_hashes_archive_files_missing(self):
@@ -1561,7 +1565,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_hashes_files_present']['text']
+        name = c._get_check_name('hashes_files_present')
+        m = r['error'][name]['text']
         self.assertIn("'files' not found in hashes.yaml", m)
 
     def test_check_snappy_hashes_archive_files_ok(self):
@@ -1633,7 +1638,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_file_mode']['text']
+        name = c._get_check_name('file_mode')
+        m = r['error'][name]['text']
         self.assertIn("found errors in hashes.yaml: unusual mode '%s' for entry 'bin/foo'" % "".join(orig_mode), m)
 
     def test_check_snappy_hashes_archive_files_mode_world_write(self):
@@ -1654,7 +1660,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_file_mode']['text']
+        name = c._get_check_name('file_mode')
+        m = r['error'][name]['text']
         self.assertIn("found errors in hashes.yaml: 'bin' is world-writable, mode 'frw-rw-rw-' for 'bin/foo' is world-writable", m)
 
     def test_check_snappy_hashes_archive_files_mode_mismatch(self):
@@ -1676,7 +1683,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_file_mode']['text']
+        name = c._get_check_name('file_mode')
+        m = r['error'][name]['text']
         self.assertIn("found errors in hashes.yaml: mode '---------' != '%s' for 'bin/foo'" % orig_mode, m)
 
     def test_check_snappy_hashes_archive_files_mode_bad_symlink(self):
@@ -1690,7 +1698,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_file_mode']['text']
+        name = c._get_check_name('file_mode')
+        m = r['error'][name]['text']
         self.assertIn("found errors in hashes.yaml: unusual mode 'lrwxrwxr-x' for entry 'badlink'", m)
 
     def test_check_snappy_hashes_archive_files_mode_devices(self):
@@ -1705,7 +1714,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_file_mode']['text']
+        name = c._get_check_name('file_mode')
+        m = r['error'][name]['text']
         self.assertIn("found errors in hashes.yaml: illegal file mode 'b': 'brw-rw-r--' for 'badblock', illegal file mode 'c': 'crw-rw-r--' for 'badchar'", m)
 
     def test_check_snappy_hashes_archive_files_missing_size(self):
@@ -1743,7 +1753,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_file_mode']['text']
+        name = c._get_check_name('file_mode')
+        m = r['error'][name]['text']
         self.assertIn("found errors in hashes.yaml: size " +
                       "%d != %d for 'bin/foo'" % (new_size, orig_size), m)
 
@@ -1776,7 +1787,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
-        m = r['error']['lint_hashes_extra_files']['text']
+        name = c._get_check_name('hashes_extra_files')
+        m = r['error'][name]['text']
         self.assertIn("found extra files not listed in hashes.yaml: extrafile",
                       m)
 

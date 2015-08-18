@@ -461,7 +461,7 @@ class ClickReview(object):
                 continue
             d = self._verify_peer_hooks(hook)
             t = 'info'
-            n = self._get_check_name("peer_hooks_requireds", extra=hook)
+            n = self._get_check_name("peer_hooks_required", extra=hook)
             s = "OK"
 
             if 'missing' in d and len(d['missing'].keys()) > 0:
@@ -475,7 +475,7 @@ class ClickReview(object):
                 self._add_result(t, n, s)
 
             t = 'info'
-            n = self._get_check_name("peer_hooks_disallowed_with", extra=hook)
+            n = self._get_check_name("peer_hooks_disallowed", extra=hook)
             s = "OK"
 
             if 'disallowed' in d and len(d['disallowed'].keys()) > 0:
@@ -492,8 +492,8 @@ class ClickReview(object):
         '''Set review name'''
         self.review_type = name
 
-    def _get_check_name(self, prefix, app='', extra=''):
-        name = prefix
+    def _get_check_name(self, name, app='', extra=''):
+        name = ':'.join([self.review_type, name])
         if app:
             name += ':' + app
         if extra:
@@ -510,16 +510,15 @@ class ClickReview(object):
         if result_type not in self.result_types:
             error("Invalid result type '%s'" % result_type)
 
-        name = "%s_%s" % (self.review_type, review_name)
-        if name not in self.click_report[result_type]:
-            self.click_report[result_type][name] = dict()
+        if review_name not in self.click_report[result_type]:
+            self.click_report[result_type][review_name] = dict()
 
-        self.click_report[result_type][name].update({
+        self.click_report[result_type][review_name].update({
             'text': result,
             'manual_review': manual_review,
         })
         if link is not None:
-            self.click_report[result_type][name]["link"] = link
+            self.click_report[result_type][review_name]["link"] = link
 
     def do_report(self):
         '''Print report'''
