@@ -21,6 +21,7 @@ from debian.deb822 import Deb822
 import glob
 import inspect
 import json
+import logging
 import magic
 import os
 import pprint
@@ -511,6 +512,7 @@ class ClickReview(object):
             error("Invalid result type '%s'" % result_type)
 
         if review_name not in self.click_report[result_type]:
+            logging.debug("CHECK_NAME|{}".format(review_name))
             self.click_report[result_type][review_name] = dict()
 
         self.click_report[result_type][review_name].update({
