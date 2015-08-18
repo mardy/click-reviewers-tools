@@ -77,3 +77,19 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
         self.assertEqual(1, len(d.keys()))
         self.assertTrue('disallowed' in d.keys())
         self.assertTrue('urls' in d['disallowed'][self.default_appname])
+
+    def test_get_check_name(self):
+        name = self.review._get_check_name('prefix')
+        self.assertEqual(name, 'prefix')
+
+    def test_get_check_name_with_app(self):
+        name = self.review._get_check_name('prefix', app='app')
+        self.assertEqual(name, 'prefix:app')
+
+    def test_get_check_name_with_extra(self):
+        name = self.review._get_check_name('prefix', extra='extra')
+        self.assertEqual(name, 'prefix:extra')
+
+    def test_get_check_name_with_app_and_extra(self):
+        name = self.review._get_check_name('prefix', app='app', extra='extra')
+        self.assertEqual(name, 'prefix:app:extra')

@@ -495,9 +495,9 @@ class ClickReview(object):
     def _get_check_name(self, prefix, app='', extra=''):
         name = prefix
         if app:
-            name += '_' + app
+            name += ':' + app
         if extra:
-            name += '_' + extra
+            name += ':' + extra
         return name
 
     # click_report[<result_type>][<review_name>] = <result>
