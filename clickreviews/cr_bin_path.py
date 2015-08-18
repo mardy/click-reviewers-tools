@@ -157,12 +157,12 @@ class ClickReviewBinPath(ClickReview):
     def check_path(self):
         '''Check path exists'''
         t = 'info'
-        n = self._get_check_name('path exists')
+        n = self._get_check_name('path_exists')
         s = "OK"
 
         for app in sorted(self.bin_paths_files):
             t = 'info'
-            n = self._get_check_name('path executable')
+            n = self._get_check_name('path_executable')
             s = "OK"
             if not self._check_bin_path_executable(app):
                 t = 'error'

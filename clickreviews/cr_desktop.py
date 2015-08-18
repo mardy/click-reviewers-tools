@@ -538,7 +538,7 @@ class ClickReviewDesktop(ClickReview):
             args = execline[1:]
             t = 'info'
             n = self._get_check_name(
-                'Exec_webbrowser_webappModelSearchPath present', app=app)
+                'Exec_webbrowser_webappModelSearchPath_present', app=app)
             s = 'OK'
             path = ""
             count = 0
