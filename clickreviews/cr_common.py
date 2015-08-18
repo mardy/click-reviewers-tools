@@ -461,7 +461,7 @@ class ClickReview(object):
                 continue
             d = self._verify_peer_hooks(hook)
             t = 'info'
-            n = "peer_hooks_required_%s" % hook
+            n = self._get_check_name("peer_hooks_requireds", extra=hook)
             s = "OK"
 
             if 'missing' in d and len(d['missing'].keys()) > 0:
@@ -475,7 +475,7 @@ class ClickReview(object):
                 self._add_result(t, n, s)
 
             t = 'info'
-            n = "peer_hooks_disallowed_with_%s" % hook
+            n = self._get_check_name("peer_hooks_disallowed_with", extra=hook)
             s = "OK"
 
             if 'disallowed' in d and len(d['disallowed'].keys()) > 0:
