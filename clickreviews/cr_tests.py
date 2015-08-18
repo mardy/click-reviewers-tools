@@ -40,6 +40,7 @@ TEST_WEBAPP_MANIFESTS = dict()
 TEST_URLS = dict()
 TEST_SCOPES = dict()
 TEST_CONTENT_HUB = dict()
+TEST_ACCOUNTS_MANIFEST = dict()
 TEST_ACCOUNTS_APPLICATION = dict()
 TEST_ACCOUNTS_PROVIDER = dict()
 TEST_ACCOUNTS_QML_PLUGIN = dict()
@@ -190,7 +191,10 @@ def _extract_account(self, app, account_type):
     '''Pretend we read the accounts file'''
     f = app
     val = None
-    if account_type == "account-application":
+    if account_type == "accounts":
+        f += ".accounts"
+        val = TEST_ACCOUNTS_MANIFEST[app]
+    elif account_type == "account-application":
         f += ".application"
         val = TEST_ACCOUNTS_APPLICATION[app]
     elif account_type == "account-provider":
@@ -449,6 +453,7 @@ class TestClickReview(TestCase):
         self.test_url_dispatcher = dict()
         self.test_scopes = dict()
         self.test_content_hub = dict()
+        self.test_accounts_manifest = dict()
         self.test_accounts_application = dict()
         self.test_accounts_provider = dict()
         self.test_accounts_qml_plugin = dict()
@@ -488,6 +493,7 @@ class TestClickReview(TestCase):
             self.set_test_content_hub(app, None, None)
 
             # Reset to no accounts entries in manifest
+            self.set_test_account(app, "accounts", None)
             self.set_test_account(app, "account-application", None)
             self.set_test_account(app, "account-provider", None)
             self.set_test_account(app, "account-qml-plugin", None)
@@ -515,6 +521,7 @@ class TestClickReview(TestCase):
         self._update_test_url_dispatcher()
         self._update_test_scopes()
         self._update_test_content_hub()
+        self._update_test_accounts_manifest()
         self._update_test_accounts_application()
         self._update_test_accounts_provider()
         self._update_test_accounts_qml_plugin()
@@ -616,6 +623,15 @@ class TestClickReview(TestCase):
             TEST_CONTENT_HUB[app] = self.test_content_hub[app]
             self.test_manifest["hooks"][app]["content-hub"] = \
                 "%s.content.json" % app
+        self._update_test_manifest()
+
+    def _update_test_accounts_manifest(self):
+        global TEST_ACCOUNTS_MANIFEST
+        TEST_ACCOUNTS_MANIFEST = dict()
+        for app in self.test_accounts_manifest.keys():
+            TEST_ACCOUNTS_MANIFEST[app] = self.test_accounts_manifest[app]
+            self.test_manifest["hooks"][app]["accounts"] = \
+                "%s.accounts" % app
         self._update_test_manifest()
 
     def _update_test_accounts_application(self):
@@ -923,7 +939,9 @@ class TestClickReview(TestCase):
 
     def set_test_account(self, app, account_type, value):
         '''Set accounts XML. If value is None, remove from manifest'''
-        if account_type == "account-application":
+        if account_type == "accounts":
+            d = self.test_accounts_manifest
+        elif account_type == "account-application":
             d = self.test_accounts_application
         elif account_type == "account-provider":
             d = self.test_accounts_provider
@@ -940,7 +958,9 @@ class TestClickReview(TestCase):
         else:
             d[app] = value
 
-        if account_type == "account-application":
+        if account_type == "accounts":
+            self._update_test_accounts_manifest()
+        elif account_type == "account-application":
             self._update_test_accounts_application()
         elif account_type == "account-provider":
             self._update_test_accounts_provider()
@@ -1115,6 +1135,8 @@ class TestClickReview(TestCase):
         TEST_SCOPES = dict()
         global TEST_CONTENT_HUB
         TEST_CONTENT_HUB = dict()
+        global TEST_ACCOUNTS_MANIFEST
+        TEST_ACCOUNTS_MANIFEST = dict()
         global TEST_ACCOUNTS_APPLICATION
         TEST_ACCOUNTS_APPLICATION = dict()
         global TEST_ACCOUNTS_PROVIDER
@@ -1122,7 +1144,7 @@ class TestClickReview(TestCase):
         global TEST_ACCOUNTS_QML_PLUGIN
         TEST_ACCOUNTS_QML_PLUGIN = dict()
         global TEST_ACCOUNTS_SERVICE
-        TEST_ACCOUNTS_APPLICATION = dict()
+        TEST_ACCOUNTS_SERVICE = dict()
         global TEST_PUSH_HELPER
         TEST_PUSH_HELPER = dict()
         global TEST_BIN_PATH
