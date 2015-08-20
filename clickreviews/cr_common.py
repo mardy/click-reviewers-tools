@@ -512,7 +512,14 @@ class ClickReview(object):
             error("Invalid result type '%s'" % result_type)
 
         if review_name not in self.click_report[result_type]:
-            logging.debug("CHECK_NAME|{}".format(review_name))
+            # log info about check so it can be collected into the
+            # check-names.list file
+            # format should be
+            # CHECK|<review_type:check_name>|<link>
+            msg = 'CHECK|{}|{}'
+            name = ':'.join(review_name.split(':')[:2])
+            link_text = link if link is not None else ""
+            logging.debug(msg.format(name, link_text))
             self.click_report[result_type][review_name] = dict()
 
         self.click_report[result_type][review_name].update({
