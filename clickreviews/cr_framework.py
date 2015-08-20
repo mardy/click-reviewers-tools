@@ -131,7 +131,7 @@ class ClickReviewFramework(ClickReview):
         if not self.is_snap or self.pkg_yaml['type'] != 'framework':
             return
         t = 'info'
-        n = self._get_check_name("framework_dependency")
+        n = self._get_check_name("dependency")
         s = "OK"
         if "frameworks" in self.pkg_yaml:
             t = 'error'
@@ -144,7 +144,7 @@ class ClickReviewFramework(ClickReview):
             return
 
         t = 'info'
-        n = self._get_check_name("framework_policies")
+        n = self._get_check_name("policies")
         s = "OK"
         found = False
         for i in self.framework_policy_dirs:
@@ -161,7 +161,7 @@ class ClickReviewFramework(ClickReview):
         self._add_result(t, n, s)
 
         t = 'info'
-        n = self._get_check_name("framework_policy_unknown")
+        n = self._get_check_name("policy_unknown")
         s = "OK"
         if len(self.framework_policy_unknown) > 0:
             t = 'warn'
@@ -175,7 +175,7 @@ class ClickReviewFramework(ClickReview):
             return
 
         t = 'info'
-        n = self._get_check_name("framework_policy_metadata")
+        n = self._get_check_name("policy_metadata")
         s = "OK"
         msgs = []
         for term in ["# Description: ", "# Usage: "]:
@@ -203,7 +203,7 @@ class ClickReviewFramework(ClickReview):
             return
 
         t = 'info'
-        n = self._get_check_name("framework_has_all_policy")
+        n = self._get_check_name("has_all_policy")
         s = "OK"
         if len(self.framework_policy.keys()) == 0:
             s = "OK (skipped missing policy)"
@@ -218,7 +218,7 @@ class ClickReviewFramework(ClickReview):
                             continue
                         t = 'info'
                         n = self._get_check_name(
-                            "framework_policy", extra="%s/%s/%s" % (i, j, k))
+                            "policy", extra="%s/%s/%s" % (i, j, k))
                         s = "OK"
                         if j not in self.framework_policy[other] or \
                            k not in self.framework_policy[other][j]:
@@ -238,7 +238,7 @@ class ClickReviewFramework(ClickReview):
                     f = "%s/%s/%s" % (i, j, k)
                     t = 'info'
                     n = self._get_check_name(
-                        "framework_policy_valid_name", extra=f)
+                        "policy_valid_name", extra=f)
                     s = "OK"
                     if not re.search(r'^[a-z0-9][a-z0-9+\.-]+$', k):
                         t = 'error'
