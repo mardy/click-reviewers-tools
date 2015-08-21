@@ -19,6 +19,8 @@ click-reviewers-tools (0.33) UNRELEASED; urgency=medium
     data.
   * build name from review_type, prefix, app and extra parts using : as
     separator
+  * list all possible check types by running tests and extracting seen check
+    names
 
   [ Daniel Holbach ]
   * Fix pep8 issues.
