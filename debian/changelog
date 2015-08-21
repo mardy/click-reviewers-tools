@@ -17,11 +17,13 @@ click-reviewers-tools (0.33) UNRELEASED; urgency=medium
     This will be used in a follow up branch to normalize check names in a way
     that allows extracting semantic meaning of check names from review results
     data.
+  * build name from review_type, prefix, app and extra parts using : as
+    separator
 
   [ Daniel Holbach ]
   * Fix pep8 issues.
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 22 Jul 2015 11:30:07 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 21 Aug 2015 13:10:52 -0500
 
 click-reviewers-tools (0.32) wily; urgency=medium
 
