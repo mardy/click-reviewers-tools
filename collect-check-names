@@ -1,0 +1,5 @@
+#!/bin/sh
+
+(./collect-check-names-from-tests 2>&1 | grep 'CHECK|' | cut -d '|' -f 2- \
+    | egrep -v '(skeleton|some-check)' | sort \
+    | awk -F '|' '(l && $1 != l1) {print l} {l1=$1; l=$0} END {print l}') > check-names.list

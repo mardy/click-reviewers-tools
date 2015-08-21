@@ -15,3 +15,7 @@ check: test syntax-check
 
 clean:
 	rm -rf ./clickreviews/__pycache__ ./clickreviews/tests/__pycache__
+
+.PHONY: check-names.list
+check-names.list:
+	./collect-check-names
