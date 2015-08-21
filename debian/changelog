@@ -11,6 +11,7 @@ click-reviewers-tools (0.33) UNRELEASED; urgency=medium
     https://wiki.ubuntu.com/SecurityTeam/Specifications/OnlineAccountsConfinement
   * clickreviews/tests/test_cr_online_accounts.py: don't stub or check for
     "type" element in OA .service files
+  * Makefile: make sure check-names.list is up to date via 'make check'
 
   [ Ricardo Kirkner ]
   * Refactor to abstract check name generation.
