@@ -443,7 +443,7 @@ exit 1
             return
 
         t = 'info'
-        n = self._get_check_name('unknown hooks')
+        n = self._get_check_name('unknown_hooks')
         s = 'OK'
 
         # Verify keys are well-formatted
@@ -460,7 +460,7 @@ exit 1
     def check_hooks_redflagged(self):
         '''Check if have any redflagged hooks'''
         t = 'info'
-        n = self._get_check_name('redflagged hooks')
+        n = self._get_check_name('redflagged_hooks')
         s = 'OK'
 
         for app in self.manifest['hooks']:
