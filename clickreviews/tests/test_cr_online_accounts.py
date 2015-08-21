@@ -145,9 +145,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
               }
             },
             {
-              "name": "Be cool",
-              "provider": "becool",
-              "description": "Share on Be Cool"
+              "provider": "becool"
             }
           ]
         }''')
@@ -225,32 +223,6 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
           "name": "Example",
           "provider": "no/slashes.please",
           "description": "Hello world"
-        }] }''')
-        self.set_test_account(self.default_appname, "accounts", data)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_manifest()
-        r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_manifest_no_name(self):
-        '''Test check_manifest() - no name'''
-        data = json.loads('''{ "services": [{
-          "provider": "example",
-          "description": "Hello world"
-        }] }''')
-        self.set_test_account(self.default_appname, "accounts", data)
-        c = ClickReviewAccounts(self.test_name)
-        c.check_manifest()
-        r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_manifest_no_description(self):
-        '''Test check_manifest() - no description'''
-        data = json.loads('''{ "services": [{
-          "name": "Example",
-          "provider": "example"
         }] }''')
         self.set_test_account(self.default_appname, "accounts", data)
         c = ClickReviewAccounts(self.test_name)

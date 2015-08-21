@@ -154,12 +154,12 @@ class ClickReviewAccounts(ClickReview):
     def check_manifest(self):
         '''Check manifest'''
         required_service_keys = [
-            ('name', str),
             ('provider', str),
-            ('description', str),
         ]
         allowed_service_keys = [
             ('auth', dict),
+            ('name', str),
+            ('description', str),
         ]
         provider_re = re.compile('^[a-zA-Z0-9-]+$')
 
