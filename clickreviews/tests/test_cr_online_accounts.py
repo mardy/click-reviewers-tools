@@ -133,7 +133,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
           "services": [
             {
               "name": "Example",
-              "provider": "example",
+              "provider": "myapp.com_example",
               "description": "publish my photos in example.com",
               "auth": {
                 "oauth2/web_server": {
@@ -147,13 +147,21 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
             {
               "provider": "becool"
             }
+          ],
+          "plugins": [
+            {
+              "provider": "example",
+              "name": "Example site",
+              "icon": "example.png",
+              "qml": "qml_files"
+            }
           ]
         }''')
         self.set_test_account(self.default_appname, "accounts", data)
         c = ClickReviewAccounts(self.test_name)
         c.check_manifest()
         r = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_not_specified(self):
