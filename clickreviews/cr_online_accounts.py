@@ -114,9 +114,9 @@ class ClickReviewAccounts(ClickReview):
             ('qml', str),
         ]
         self.allowed_keys["plugin"] = [
+            ('auth', dict),
         ]
         self.provider_re = re.compile('^[a-zA-Z0-9_.-]+$')
-
 
     def _extract_account(self, app, account_type):
         '''Extract accounts'''
