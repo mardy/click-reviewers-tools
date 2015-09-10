@@ -3,6 +3,7 @@ click-reviewers-tools (0.33) UNRELEASED; urgency=medium
   [ Alberto Mardegan ]
   * clickreviews/cr_online_accounts.py: Do not check for "type" element in OA
     .service files
+  * clickreviews/cr_online_accounts.py: Support the new "accounts" hook
 
   [ Jamie Strandboge ]
   * clickreviews/cr_common.py: add peer_hooks_link to __init__ and use it
@@ -26,7 +27,7 @@ click-reviewers-tools (0.33) UNRELEASED; urgency=medium
   [ Daniel Holbach ]
   * Fix pep8 issues.
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 21 Aug 2015 13:10:52 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 10 Sep 2015 11:17:00 -0500
 
 click-reviewers-tools (0.32) wily; urgency=medium
 
