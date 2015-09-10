@@ -16,6 +16,7 @@
 
 from clickreviews.cr_online_accounts import ClickReviewAccounts
 import clickreviews.cr_tests as cr_tests
+import json
 import lxml.etree as etree
 
 
@@ -83,6 +84,185 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
             service_domains.text = ".*\.example\.com"
             # More can go here, see /usr/share/accounts/providers/*
         return xml
+
+    def test_check_hooks_versions_new(self):
+        '''Test check_hooks_versions() - new hook'''
+        self.set_test_manifest("framework", "ubuntu-sdk-15.10")
+        self.set_test_account(self.default_appname, "accounts", dict())
+        c = ClickReviewAccounts(self.test_name)
+        c.check_hooks_versions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_versions_deprecated_service(self):
+        '''Test check_hooks_versions() - deprecated -service hook'''
+        self.set_test_manifest("framework", "ubuntu-sdk-15.10")
+        self.set_test_account(self.default_appname, "account-service", dict())
+        c = ClickReviewAccounts(self.test_name)
+        c.check_hooks_versions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_versions_disallowed_service(self):
+        '''Test check_hooks_versions() - deprecated -service hook'''
+        self.set_test_manifest("framework", "ubuntu-sdk-16.04")
+        self.set_test_account(self.default_appname, "account-service", dict())
+        c = ClickReviewAccounts(self.test_name)
+        c.check_hooks_versions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_versions_deprecated_application(self):
+        '''Test check_hooks_versions() - deprecated -application hook'''
+        self.set_test_manifest("framework", "ubuntu-sdk-15.10")
+        self.set_test_account(self.default_appname, "account-application", dict())
+        c = ClickReviewAccounts(self.test_name)
+        c.check_hooks_versions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_versions_old_framework(self):
+        '''Test check_hooks_versions() - deprecated -application hook'''
+        self.set_test_manifest("framework", "ubuntu-sdk-15.04")
+        self.set_test_account(self.default_appname, "account-application", dict())
+        self.set_test_account(self.default_appname, "account-service", dict())
+        c = ClickReviewAccounts(self.test_name)
+        c.check_hooks_versions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest(self):
+        '''Test check_manifest()'''
+        data = json.loads('''{
+          "translations": "my-app",
+          "services": [
+            {
+              "name": "Example",
+              "provider": "myapp.com_example",
+              "description": "publish my photos in example.com",
+              "auth": {
+                "oauth2/web_server": {
+                  "ClientId": "foo",
+                  "ClientSecret": "bar",
+                  "UseSSL": false,
+                  "Scopes": ["one scope","and another"]
+                }
+              }
+            },
+            {
+              "provider": "becool"
+            }
+          ],
+          "plugins": [
+            {
+              "provider": "example",
+              "name": "Example site",
+              "icon": "example.png",
+              "qml": "qml_files"
+            }
+          ]
+        }''')
+        self.set_test_account(self.default_appname, "accounts", data)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_not_specified(self):
+        '''Test check_manifest() - not specified'''
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_missing_services(self):
+        '''Test check_manifest() - missing services'''
+        data = json.loads('''{ "translations": "my-app" }''')
+        self.set_test_account(self.default_appname, "accounts", data)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_invalid_services(self):
+        '''Test check_manifest() - invalid services'''
+        data = json.loads('''{ "services": 12 }''')
+        self.set_test_account(self.default_appname, "accounts", data)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_empty_services(self):
+        '''Test check_manifest() - empty services'''
+        data = json.loads('''{ "services": [] }''')
+        self.set_test_account(self.default_appname, "accounts", data)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_empty_service(self):
+        '''Test check_manifest() - empty services'''
+        data = json.loads('''{ "services": [{}] }''')
+        self.set_test_account(self.default_appname, "accounts", data)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_no_provider(self):
+        '''Test check_manifest() - no provider'''
+        data = json.loads('''{ "services": [{
+          "name": "Example",
+          "description": "Hello world"
+        }] }''')
+        self.set_test_account(self.default_appname, "accounts", data)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_invalid_provider(self):
+        '''Test check_manifest() - invalid provider'''
+        data = json.loads('''{ "services": [{
+          "name": "Example",
+          "provider": "no/slashes.please",
+          "description": "Hello world"
+        }] }''')
+        self.set_test_account(self.default_appname, "accounts", data)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_unknown_key(self):
+        '''Test check_manifest() - unknown key'''
+        data = json.loads('''{ "services": [{
+          "name": "Example",
+          "provider": "example",
+          "description": "Hello world",
+          "intruder": "Who, me?"
+        }] }''')
+        self.set_test_account(self.default_appname, "accounts", data)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_manifest()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
 
     def test_check_application(self):
         '''Test check_application()'''

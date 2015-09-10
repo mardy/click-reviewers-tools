@@ -66,6 +66,7 @@ class ClickReview(object):
     # click service)
     app_allowed_peer_hooks = ["account-application",
                               "account-service",
+                              "accounts",
                               "account-provider",
                               "account-qml-plugin",
                               "apparmor",
@@ -76,6 +77,7 @@ class ClickReview(object):
                               ]
     scope_allowed_peer_hooks = ["account-application",
                                 "account-service",
+                                "accounts",
                                 "apparmor",
                                 "scope",
                                 ]

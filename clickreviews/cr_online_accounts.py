@@ -16,8 +16,10 @@
 
 from __future__ import print_function
 
-from clickreviews.cr_common import ClickReview, error
+from clickreviews.cr_common import ClickReview, error, open_file_read
+import json
 import os
+import re
 # http://lxml.de/tutorial.html
 import lxml.etree as etree
 
@@ -39,6 +41,13 @@ class ClickReviewAccounts(ClickReview):
         peer_hooks['account-service']['allowed'] = \
             ClickReview.app_allowed_peer_hooks + \
             ClickReview.scope_allowed_peer_hooks
+
+        peer_hooks['accounts'] = dict()
+        peer_hooks['accounts']['allowed'] = \
+            [h for h in (ClickReview.app_allowed_peer_hooks +
+                         ClickReview.scope_allowed_peer_hooks)
+             if not h.startswith('account-')]
+        peer_hooks['accounts']['required'] = ['apparmor']
 
         peer_hooks['account-provider'] = dict()
         peer_hooks['account-provider']['required'] = ['account-qml-plugin',
@@ -64,7 +73,8 @@ class ClickReviewAccounts(ClickReview):
         self.accounts_files = dict()
         self.accounts = dict()
 
-        self.account_hooks = ['account-application',
+        self.account_hooks = ['accounts',
+                              'account-application',
                               'account-provider',
                               'account-qml-plugin',
                               'account-service']
@@ -77,7 +87,7 @@ class ClickReviewAccounts(ClickReview):
                     error("manifest malformed: hooks/%s/%s is not a str" % (
                           app, h))
 
-                (full_fn, xml) = self._extract_account(app, h)
+                (full_fn, parsed) = self._extract_account(app, h)
 
                 if app not in self.accounts_files:
                     self.accounts_files[app] = dict()
@@ -85,7 +95,28 @@ class ClickReviewAccounts(ClickReview):
 
                 if app not in self.accounts:
                     self.accounts[app] = dict()
-                self.accounts[app][h] = xml
+                self.accounts[app][h] = parsed
+
+        self.required_keys = dict()
+        self.allowed_keys = dict()
+        self.required_keys["service"] = [
+            ('provider', str),
+        ]
+        self.allowed_keys["service"] = [
+            ('auth', dict),
+            ('name', str),
+            ('description', str),
+        ]
+        self.required_keys["plugin"] = [
+            ('provider', str),
+            ('name', str),
+            ('icon', str),
+            ('qml', str),
+        ]
+        self.allowed_keys["plugin"] = [
+            ('auth', dict),
+        ]
+        self.provider_re = re.compile('^[a-zA-Z0-9_.-]+$')
 
     def _extract_account(self, app, account_type):
         '''Extract accounts'''
@@ -100,6 +131,23 @@ class ClickReviewAccounts(ClickReview):
         # the hook present for now
         if account_type == "account-qml-plugin":
             return (fn, True)
+        elif account_type == "accounts":
+            fh = open_file_read(fn)
+            contents = ""
+            for line in fh.readlines():
+                contents += line
+            fh.close()
+
+            try:
+                jd = json.loads(contents)
+            except Exception as e:
+                error("accounts json unparseable: %s (%s):\n%s" % (bn,
+                      str(e), contents))
+
+            if not isinstance(jd, dict):
+                error("accounts json is malformed: %s:\n%s" % (bn, contents))
+
+            return (fn, jd)
         else:
             try:
                 tree = etree.parse(fn)
@@ -107,6 +155,113 @@ class ClickReviewAccounts(ClickReview):
             except Exception as e:
                 error("accounts xml unparseable: %s (%s)" % (bn, str(e)))
             return (fn, xml)
+
+    def check_hooks_versions(self):
+        '''Check hooks versions'''
+        framework = self.manifest['framework']
+        if not framework.startswith("ubuntu-sdk"):
+            return
+        t = "error"
+        if framework < "ubuntu-sdk-15.10":
+            for app in sorted(self.accounts.keys()):
+                for hook in self.accounts[app].keys():
+                    if hook == "accounts":
+                        n = self._get_check_name('%s_hook' % hook, app=app)
+                        s = "'accounts' hook is not available in '%s' (must be 15.10 or later)" % \
+                            (framework)
+                        self._add_result(t, n, s)
+            return
+        hook_state = "disallowed"
+        if framework < "ubuntu-sdk-16.04":
+            t = "warn"
+            hook_state = "deprecated"
+        for app in sorted(self.accounts.keys()):
+            for hook in self.accounts[app].keys():
+                if hook.startswith("account-"):
+                    n = self._get_check_name('%s_hook' % hook, app=app)
+                    s = "'%s' is %s in %s: use 'accounts' hook instead" % \
+                        (hook, hook_state, framework)
+                    self._add_result(t, n, s)
+
+    def _check_object(self, obj_type, obj, n):
+        t = "info"
+        s = "OK"
+        if not isinstance(obj, dict):
+            t = "error"
+            s = "%s is not an object" % obj_type
+            self._add_result(t, n, s)
+            return
+
+        for (k, vt) in self.required_keys[obj_type]:
+            if k not in obj.keys():
+                t = "error"
+                s = "required key '%s' is missing" % k
+                self._add_result(t, n, s)
+        if t == "error":
+            return
+
+        known_keys = self.required_keys[obj_type] + self.allowed_keys[obj_type]
+        for (k, v) in obj.items():
+            type_list = [kk[1] for kk in known_keys if kk[0] == k]
+            if len(type_list) < 1:
+                t = "error"
+                s = "unrecognized key '%s'" % k
+                self._add_result(t, n, s)
+                continue
+            if not isinstance(v, type_list[0]):
+                t = "error"
+                s = "value for '%s' must be of type %s" % (k, type_list[0])
+                self._add_result(t, n, s)
+                continue
+            if k == 'provider' and not self.provider_re.match(v):
+                t = "error"
+                s = "'provider' must only consist of alphanumeric characters"
+                self._add_result(t, n, s)
+        self._add_result(t, n, s)
+
+    def _check_object_list(self, app, key, obj_type, obj_list):
+        t = 'info'
+        n = self._get_check_name('accounts_%s' % key, app=app)
+        if not isinstance(obj_list, list):
+            t = "error"
+            s = "'%s' is not a list" % key
+        elif len(obj_list) < 1:
+            t = "error"
+            s = "'%s' is empty" % key
+        if t == "error":
+            self._add_result(t, n, s)
+            return
+
+        for (i, obj) in enumerate(obj_list):
+            n = self._get_check_name('accounts_%s' % (obj_type), app=app, extra=str(i))
+            self._check_object(obj_type, obj, n)
+
+    def check_manifest(self):
+        '''Check manifest'''
+        for app in sorted(self.accounts.keys()):
+            account_type = "accounts"
+
+            t = 'info'
+            n = self._get_check_name('%s_root' % account_type, app=app)
+            s = "OK"
+            if account_type not in self.accounts[app]:
+                s = "OK (missing)"
+                self._add_result(t, n, s)
+                continue
+
+            n = self._get_check_name('%s_services' % account_type, app=app)
+            if 'services' not in self.accounts[app][account_type]:
+                t = "error"
+                s = "'services' key is missing"
+                self._add_result(t, n, s)
+                continue
+            services = self.accounts[app][account_type]['services']
+            self._check_object_list(app, "services", "service", services)
+
+            n = self._get_check_name('%s_plugins' % account_type, app=app)
+            if 'plugins' in self.accounts[app][account_type]:
+                plugins = self.accounts[app][account_type]['plugins']
+                self._check_object_list(app, "plugins", "plugin", plugins)
 
     def check_application(self):
         '''Check application'''

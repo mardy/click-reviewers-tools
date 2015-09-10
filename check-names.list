@@ -97,6 +97,7 @@ lint:snappy_type_valid|
 lint:snappy_unknown|
 lint:snappy_vendor_valid|
 lint:snappy_version_valid|
+online_accounts:account-application_hook|
 online_accounts:account-application_id|
 online_accounts:account-application_root|
 online_accounts:account-application_service|
@@ -105,10 +106,14 @@ online_accounts:account-provider|
 online_accounts:account-provider_id|
 online_accounts:account-provider_root|
 online_accounts:account-qml-plugin|
+online_accounts:account-service_hook|
 online_accounts:account-service_id|
 online_accounts:account-service_name|
 online_accounts:account-service_provider|
 online_accounts:account-service_root|
+online_accounts:accounts_plugin|
+online_accounts:accounts_service|
+online_accounts:accounts_services|
 online_accounts:peer_hooks_disallowed|https://wiki.ubuntu.com/SecurityTeam/Specifications/OnlineAccountsConfinement
 online_accounts:peer_hooks_required|https://wiki.ubuntu.com/SecurityTeam/Specifications/OnlineAccountsConfinement
 push_helper:other_hooks|
