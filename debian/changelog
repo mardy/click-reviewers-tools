@@ -1,4 +1,4 @@
-click-reviewers-tools (0.33) UNRELEASED; urgency=medium
+click-reviewers-tools (0.33) wily; urgency=medium
 
   [ Alberto Mardegan ]
   * clickreviews/cr_online_accounts.py: Do not check for "type" element in OA
