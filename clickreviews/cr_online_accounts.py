@@ -163,13 +163,24 @@ class ClickReviewAccounts(ClickReview):
             return
         t = "error"
         if framework < "ubuntu-sdk-15.10":
+            for app in sorted(self.accounts.keys()):
+                for hook in self.accounts[app].keys():
+                    if hook == "accounts":
+                        n = self._get_check_name('%s_hook' % hook, app=app)
+                        s = "'accounts' hook is not available in '%s' (must be 15.10 or later)" % \
+                            (framework)
+                        self._add_result(t, n, s)
             return
+        hook_state = "disallowed"
+        if framework < "ubuntu-sdk-16.04":
+            t = "warn"
+            hook_state = "deprecated"
         for app in sorted(self.accounts.keys()):
             for hook in self.accounts[app].keys():
                 if hook.startswith("account-"):
                     n = self._get_check_name('%s_hook' % hook, app=app)
-                    s = "'%s' is disallowed in %s: use 'accounts' hook" % \
-                        (hook, framework)
+                    s = "'%s' is %s in %s: use 'accounts' hook instead" % \
+                        (hook, hook_state, framework)
                     self._add_result(t, n, s)
 
     def _check_object(self, obj_type, obj, n):
@@ -222,7 +233,7 @@ class ClickReviewAccounts(ClickReview):
             return
 
         for (i, obj) in enumerate(obj_list):
-            n = self._get_check_name('accounts_%s#%s' % (obj_type, i), app=app)
+            n = self._get_check_name('accounts_%s' % (obj_type), app=app, extra=str(i))
             self._check_object(obj_type, obj, n)
 
     def check_manifest(self):

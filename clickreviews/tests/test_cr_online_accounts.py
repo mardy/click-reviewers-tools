@@ -102,6 +102,16 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_hooks_versions()
         r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_versions_disallowed_service(self):
+        '''Test check_hooks_versions() - deprecated -service hook'''
+        self.set_test_manifest("framework", "ubuntu-sdk-16.04")
+        self.set_test_account(self.default_appname, "account-service", dict())
+        c = ClickReviewAccounts(self.test_name)
+        c.check_hooks_versions()
+        r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
@@ -112,7 +122,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         c = ClickReviewAccounts(self.test_name)
         c.check_hooks_versions()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_versions_old_framework(self):
