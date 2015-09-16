@@ -771,7 +771,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.manifest['hooks']["another-app"] = tmp
         c.check_hooks()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 9, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_multiple_apps(self):

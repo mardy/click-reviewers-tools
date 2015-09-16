@@ -348,9 +348,6 @@ exit 1
         # Some checks are already handled in
         # cr_common.py:_verify_manifest_structure()
 
-        # While we support multiple apps in the hooks db, we don't support
-        # multiple apps specifying desktop hooks. Eg, it is ok to specify a
-        # scope, an app and a push-helper, but it isn't ok to specify two apps
         t = 'info'
         n = self._get_check_name('hooks_multiple_apps')
         s = 'OK'
@@ -359,7 +356,9 @@ exit 1
             if "desktop" in self.manifest['hooks'][app]:
                 count += 1
         if count > 1:
-            t = 'error'
+            # 'info' for now but this might be removed in a future version
+            # (see https://launchpad.net/bugs/1496402)
+            t = 'info'
             s = 'more than one desktop app specified in hooks'
         self._add_result(t, n, s)
 
