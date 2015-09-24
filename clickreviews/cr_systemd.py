@@ -280,10 +280,19 @@ class ClickReviewSystemd(ClickReview):
                                           self.pkg_yaml['services']),
                                           'package_yaml')
 
-    def _verify_service_bus_name(self, pkgname, my_dict, test_str):
+    def _verify_service_bus_name(self, pkgname, my_dict, test_str, is_fwk):
         for app in sorted(my_dict):
             if 'bus-name' not in my_dict[app]:
                 continue
+
+            t = 'info'
+            n = self._get_check_name('%s_bus-name_framework' % test_str,
+                                     app=app)
+            s = 'OK'
+            if not is_fwk:
+                t = 'error'
+                s = "Use of bus-name requires package be of 'type: framework'"
+            self._add_result(t, n, s)
 
             t = 'info'
             n = self._get_check_name('%s_bus-name_empty' % test_str, app=app)
@@ -338,10 +347,15 @@ class ClickReviewSystemd(ClickReview):
         '''Check snappy package.yaml bus-name'''
         if not self.is_snap or 'services' not in self.pkg_yaml:
             return
+        is_framework = False
+        if 'type' in self.pkg_yaml and self.pkg_yaml['type'] == 'framework':
+            is_framework = True
+
         self._verify_service_bus_name(self.pkg_yaml['name'],
                                       self._create_dict(
                                           self.pkg_yaml['services']),
-                                      'package_yaml')
+                                      'package_yaml',
+                                      is_framework)
 
     def _verify_service_ports(self, pkgname, my_dict, test_str):
         for app in sorted(my_dict):

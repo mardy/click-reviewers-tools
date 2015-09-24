@@ -166,6 +166,7 @@ security:yaml_services|
 snappy-systemd:package_yaml_absolute_path|
 snappy-systemd:package_yaml_bus-name_empty|
 snappy-systemd:package_yaml_bus-name_format|http://dbus.freedesktop.org/doc/dbus-specification.html
+snappy-systemd:package_yaml_bus-name_framework|
 snappy-systemd:package_yaml_bus-name_matches_name|
 snappy-systemd:package_yaml_description_empty|
 snappy-systemd:package_yaml_description_present|

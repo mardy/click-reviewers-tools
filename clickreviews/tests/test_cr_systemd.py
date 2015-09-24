@@ -450,10 +450,11 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", name)])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_service_bus_name()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_service_bus_name_appname(self):
@@ -462,10 +463,37 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", "%s.%s" % (name, "test-app"))])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_service_bus_name()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_missing_framework_app(self):
+        '''Test check_snappy_service_bus_name() - missing framework (app)'''
+        name = self.test_name.split('_')[0]
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "%s.%s" % (name, "test-app"))])
+        self.set_test_pkg_yaml("type", 'app')
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_bus_name_missing_framework_oem(self):
+        '''Test check_snappy_service_bus_name() - missing framework (oem)'''
+        name = self.test_name.split('_')[0]
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("bus-name", "%s.%s" % (name, "test-app"))])
+        self.set_test_pkg_yaml("type", 'oem')
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_bus_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_service_bus_name_pkgname_vendor(self):
@@ -476,11 +504,12 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", "com.isp.%s" % name)])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.is_snap = True
         c.check_snappy_service_bus_name()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_service_bus_name_appname_vendor(self):
@@ -491,11 +520,12 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", "com.isp.%s.%s" % (name, "test-app"))])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.is_snap = True
         c.check_snappy_service_bus_name()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_service_bus_name_pkgname_bad(self):
@@ -505,6 +535,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", name + "-bad")])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_service_bus_name()
         r = c.click_report
@@ -517,6 +548,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", "%s.%s-bad" % (name, "test-app"))])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_service_bus_name()
         r = c.click_report
@@ -531,6 +563,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", "com.isp.%s-bad" % name)])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.is_snap = True
         c.check_snappy_service_bus_name()
@@ -547,6 +580,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
                            ("description", "something"),
                            ("bus-name", "com.isp.%s.%s-bad" % (name,
                                                                "test-app"))])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.is_snap = True
         c.check_snappy_service_bus_name()
@@ -561,6 +595,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", "")])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_service_bus_name()
         r = c.click_report
@@ -574,6 +609,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self._set_service([("start", "bin/test-app"),
                            ("description", "something"),
                            ("bus-name", "name$")])
+        self.set_test_pkg_yaml("type", 'framework')
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_service_bus_name()
         r = c.click_report

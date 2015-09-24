@@ -2,6 +2,7 @@ click-reviewers-tools (0.34) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * multiple 'desktop' hooks should only be 'info' these days (LP: #1496402)
+  * verify snaps that use 'bus-name' are of 'type: framework'
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 10 Sep 2015 14:28:13 -0500
 
