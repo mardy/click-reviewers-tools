@@ -436,8 +436,8 @@ class TestClickReview(TestCase):
         self.test_pkg_yaml = dict()
         self.set_test_pkg_yaml("name", self.test_control['Package'])
         self.set_test_pkg_yaml("version", self.test_control['Version'])
-        self.set_test_pkg_yaml("architecture",
-                               self.test_control['Architecture'])
+        self.set_test_pkg_yaml("architectures",
+                               [self.test_control['Architecture']])
         self._update_test_pkg_yaml()
 
         self.test_hashes_yaml = dict()

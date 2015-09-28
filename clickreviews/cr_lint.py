@@ -853,23 +853,32 @@ exit 1
         t = 'info'
         n = self._get_check_name('%s_architecture_valid' % test_str)
         s = 'OK'
-        if 'architecture' not in my_dict:
+        if 'architecture' not in my_dict and 'architectures' not in my_dict:
             s = 'OK (architecture not specified)'
             self._add_result(t, n, s)
             return
 
+        key = 'architecture'
+        if self.is_snap and 'architectures' in my_dict:
+            # new yaml allows for 'architecture' and 'architectures'
+            key = 'architectures'
+
         archs_list = list(self.valid_control_architectures)
         archs_list.remove("multi")
 
-        if isinstance(my_dict['architecture'], str) and \
-           my_dict['architecture'] not in archs_list:
+        if self.is_snap and key == 'architectures' and \
+           isinstance(my_dict[key], str):
+            # new yaml uses 'architectures' that must be a list
             t = 'error'
-            s = "not a valid architecture: %s" % my_dict['architecture']
-        elif isinstance(my_dict['architecture'], list):
+            s = "not a valid architecture: %s (not a list)" % my_dict[key]
+        elif isinstance(my_dict[key], str) and my_dict[key] not in archs_list:
+            t = 'error'
+            s = "not a valid architecture: %s" % my_dict[key]
+        elif isinstance(my_dict[key], list):
             if not self.is_snap:
                 archs_list.remove("all")
             bad_archs = []
-            for a in my_dict['architecture']:
+            for a in my_dict[key]:
                 if a not in archs_list:
                     bad_archs.append(a)
                 if len(bad_archs) > 0:
@@ -1009,6 +1018,17 @@ exit 1
             return
 
         self._verify_architecture(self.pkg_yaml, "package yaml")
+
+        t = 'info'
+        n = self._get_check_name('snappy_architecture_deprecated')
+        s = 'OK'
+        l = None
+        if 'architecture' in self.pkg_yaml:
+            t = 'warn'
+            s = "Found deprecated 'architecture' field in " + \
+                "meta/package.yaml. Use 'architectures' instead"
+            l = 'https://developer.ubuntu.com/en/snappy/guides/package-metadata/'
+        self._add_result(t, n, s, link=l)
 
     def check_snappy_unknown_entries(self):
         '''Check for any unknown fields'''

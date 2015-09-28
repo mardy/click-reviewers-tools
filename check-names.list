@@ -86,6 +86,7 @@ lint:package_yaml_icon_present|
 lint:pkgname_valid|
 lint:sdk_security_extension|
 lint:sha512sums|
+lint:snappy_architecture_deprecated|https://developer.ubuntu.com/en/snappy/guides/package-metadata/
 lint:snappy_config_hook_executable|
 lint:snappy_in_binaries|
 lint:snappy_in_services|
