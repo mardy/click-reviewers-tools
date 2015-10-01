@@ -54,6 +54,7 @@ class ClickReviewLint(ClickReview):
         self.valid_compiled_architectures = ['armhf',
                                              'i386',
                                              'amd64',
+                                             'arm64',
                                              ]
         self.valid_control_architectures = ['all',
                                             'multi',

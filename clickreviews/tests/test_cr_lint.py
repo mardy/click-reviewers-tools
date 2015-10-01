@@ -122,6 +122,15 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_architecture_arm64(self):
+        '''Test check_architecture() - arm64'''
+        self.set_test_control("Architecture", "arm64")
+        c = ClickReviewLint(self.test_name)
+        c.check_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_architecture_amd64(self):
         '''Test check_architecture() - amd64'''
         self.set_test_control("Architecture", "amd64")
@@ -1283,6 +1292,16 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     def test_check_snappy_arch_single_armhf(self):
         '''Test check_snappy_architecture() (single arch, armhf)'''
         self.set_test_pkg_yaml("architectures", ["armhf"])
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_arch_single_arm64(self):
+        '''Test check_snappy_architecture() (single arch, arm64)'''
+        self.set_test_pkg_yaml("architectures", ["arm64"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
         c.check_snappy_architecture()
