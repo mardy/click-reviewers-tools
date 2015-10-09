@@ -852,8 +852,14 @@ class ClickReviewSecurity(ClickReview):
                     'apparmor_profile', extra='%s (%s)' % (v, f))
                 s = "OK"
                 if v not in p:
-                    self._add_result('warn', n,
-                                     "could not find '%s' in profile" % v)
+                    if v.startswith('@') and \
+                            ("# Unrestricted AppArmor policy" in p or
+                             "# This profile offers no protection" in p):
+                        self._add_result('info', n,
+                                         "SKIPPED for '%s' (boilerplate)" % v)
+                    else:
+                        self._add_result('warn', n,
+                                         "could not find '%s' in profile" % v)
                     continue
                 self._add_result(t, n, s)
 

@@ -1286,6 +1286,58 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_apparmor_profile_missing_app_pkgname(self):
+        '''Test check_apparmor_profile() - missing @{APP_PKGNAME}'''
+        policy = '''
+###VAR###
+###PROFILEATTACH### {
+  #include <abstractions/base>
+  @{CLICK_DIR}/*/@{APP_VERSION}/**  mrklix,
+}
+'''
+        self.set_test_security_profile(self.default_appname, policy)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_apparmor_profile()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_missing_vars_unconfined(self):
+        '''Test check_apparmor_profile() - missing vars with unconfined
+           boilerplate (first test)
+        '''
+        policy = '''
+# Unrestricted AppArmor policy for fwk-name_svc
+###VAR###
+###PROFILEATTACH### {
+  #include <abstractions/base>
+}
+'''
+        self.set_test_security_profile(self.default_appname, policy)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_apparmor_profile()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_missing_var_unconfined2(self):
+        '''Test check_apparmor_profile() - missing vars with unconfined
+           boilerplate (second test)
+        '''
+        policy = '''
+# This profile offers no protection
+###VAR###
+###PROFILEATTACH### {
+  #include <abstractions/base>
+}
+'''
+        self.set_test_security_profile(self.default_appname, policy)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_apparmor_profile()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_template_default(self):
         '''Test check_security_template() - default'''
         self.set_test_security_manifest(self.default_appname, "template", None)
