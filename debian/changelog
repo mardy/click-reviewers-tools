@@ -8,6 +8,8 @@ click-reviewers-tools (0.34) UNRELEASED; urgency=medium
       deprecated. Adjust and add a warning for deprecation.
     - arm64 is a valid architecture now
     - don't warn on libc6 libraries with check_external_symlinks
+    - don't traceback on broken symlinks when checking for hardcoded paths
+      (LP: #1502962)
   * clickreviews/cr_security.py: don't complain about missing AppArmor
     template vars if we detect this is unconfined boilerplate policy
 

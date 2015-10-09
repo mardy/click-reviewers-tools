@@ -887,6 +887,8 @@ exit 1
                             t = 'error'
                             s = "Hardcoded path '%s' found in '%s'." % (
                                 bad_path, full_fn)
+                except FileNotFoundError:
+                    pass
                 except UnicodeDecodeError:
                     pass
         self._add_result(t, n, s)
