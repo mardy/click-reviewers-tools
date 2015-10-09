@@ -487,9 +487,50 @@ exit 1
         n = self._get_check_name('external_symlinks')
         s = 'OK'
 
+        common = '(-[0-9.]+)?\.so(\.[0-9.]+)?'
+        libc6_libs = ['ld-*.so',
+                      'libanl',
+                      'libBrokenLocale',
+                      'libc',
+                      'libcidn',
+                      'libcrypt',
+                      'libdl',
+                      'libmemusage',
+                      'libm',
+                      'libnsl',
+                      'libnss_compat',
+                      'libnss_dns',
+                      'libnss_files',
+                      'libnss_hesiod',
+                      'libnss_nisplus',
+                      'libnss_nis',
+                      'libpcprofile',
+                      'libpthread',
+                      'libresolv',
+                      'librt',
+                      'libSegFault',
+                      'libthread_db',
+                      'libutil',
+                      ]
+        libc6_pats = []
+        for lib in libc6_libs:
+            libc6_pats.append(re.compile(r'%s%s' % (lib, common)))
+        libc6_pats.append(re.compile(r'ld-*.so$'))
+        libc6_pats.append(re.compile(r'ld-linux-*.so\.[0-9.]+$'))
+
+        def _in_patterns(pats, f):
+            for pat in pats:
+                if pat.search(f):
+                    return True
+            return False
+
         external_symlinks = list(filter(lambda link: not
                                  os.path.realpath(link).startswith(
-                                     self.unpack_dir), self.pkg_files))
+                                     self.unpack_dir) and
+                                 not _in_patterns(libc6_pats,
+                                                  os.path.basename(link)),
+                                 self.pkg_files))
+
         if external_symlinks:
             t = 'error'
             s = 'package contains external symlinks: %s' % \

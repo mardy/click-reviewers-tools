@@ -3,13 +3,15 @@ click-reviewers-tools (0.34) UNRELEASED; urgency=medium
   [ Jamie Strandboge ]
   * multiple 'desktop' hooks should only be 'info' these days (LP: #1496402)
   * verify snaps that use 'bus-name' are of 'type: framework'
-  * snappy package.yaml defaults to 'architectures' and 'architecture' is
-    deprecated. Adjust and add a warning for deprecation.
-  * arm64 is a valid architecture now
+  * clickreviews/cr_lint.py:
+    - snappy package.yaml defaults to 'architectures' and 'architecture' is
+      deprecated. Adjust and add a warning for deprecation.
+    - arm64 is a valid architecture now
+    - don't warn on libc6 libraries with check_external_symlinks
   * clickreviews/cr_security.py: don't complain about missing AppArmor
     template vars if we detect this is unconfined boilerplate policy
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 10 Sep 2015 14:28:13 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 09 Oct 2015 17:07:28 -0500
 
 click-reviewers-tools (0.33) wily; urgency=medium
 
