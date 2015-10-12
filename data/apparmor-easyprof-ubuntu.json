@@ -303,11 +303,39 @@
       },
       "policy_groups": {
         "common": [
-          "networking",
+          "network-client",
           "network-service",
-          "network-client"
+          "networking"
         ],
-        "reserved": []
+        "reserved": [
+          "network-admin",
+          "network-firewall",
+          "network-status",
+          "snapd"
+	]
+      }
+    },
+    "15.10": {
+      "templates": {
+        "common": [
+          "default"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "network-client",
+          "network-service",
+          "networking"
+        ],
+        "reserved": [
+          "network-admin",
+          "network-firewall",
+          "network-status",
+          "snapd"
+	]
       }
     }
   }
