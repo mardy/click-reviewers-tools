@@ -1398,3 +1398,42 @@ class ClickReviewSecurity(ClickReview):
                 t = 'error'
                 s = "template is not 'ubuntu-account-plugin'"
             self._add_result(t, n, s)
+
+    def check_apparmor_profile_name_length(self):
+        '''Check AppArmor profile name length'''
+        # There are quite a few kernel interfaces that can cause problems with
+        # long profile names. These are outlined in
+        # https://launchpad.net/bugs/1499544. The big issue is that the audit
+        # message must fit within PAGE_SIZE (at least 4096 on supported archs),
+        # so long names could push the audit message to be too big, which would
+        # result in a denial for that rule (but, only if the rule would've
+        # allowed it). Giving a hard-error on maxlen since we know that this
+        # will be a problem. The advisory length is what it is since we know
+        # that compound labels are sometimes logged and so a snappy system
+        # running an app in a snappy container or a QA testbed running apps
+        # under LXC
+        maxlen = 230  # 245 minus a bit for child profiles
+        advlen = 100
+        for app in sorted(self.security_apps):
+            (f, m) = self._get_security_manifest(app)
+            t = 'info'
+            n = self._get_check_name('profile_name_length', extra=f)
+            s = "OK"
+            profile = "%s_%s_%s" % (self.click_pkgname, app,
+                                    self.click_version)
+            if len(profile) > maxlen:
+                t = 'error'
+                s = ("'%s' too long (exceeds %d characters). Please shorten "
+                     "'%s', '%s' and/or '%s'" % (profile, maxlen,
+                                                 self.click_pkgname, app,
+                                                 self.click_version))
+            elif len(profile) > advlen:
+                t = 'warn'
+                s = ("'%s' is long (exceeds %d characters) and thus could be "
+                     "problematic in certain environments. Please consider "
+                     "shortening '%s', '%s' and/or '%s'" % (profile, advlen,
+                                                            self.click_pkgname,
+                                                            app,
+                                                            self.click_version)
+                     )
+            self._add_result(t, n, s)

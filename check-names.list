@@ -145,6 +145,7 @@ security:policy_vendor_matches_framework|
 security:policy_version_exists|
 security:policy_version_is_highest|http://askubuntu.com/q/562116/94326
 security:policy_version_matches_framework|
+security:profile_name_length|
 security:redflag_fields|
 security:required_policy_groups_ubuntu_account_plugin|
 security:template_account_provider|

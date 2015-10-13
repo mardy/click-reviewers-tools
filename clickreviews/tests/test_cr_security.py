@@ -2147,3 +2147,29 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_name_length(self):
+        '''Test check_apparmor_profile_name_length()'''
+        c = ClickReviewSecurity(self.test_name)
+        c.check_apparmor_profile_name_length()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_name_length_bad(self):
+        '''Test check_apparmor_profile_name_length() - too long'''
+        c = ClickReviewSecurity(self.test_name)
+        c.click_pkgname += 'A' * 253
+        c.check_apparmor_profile_name_length()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_name_length_bad2(self):
+        '''Test check_apparmor_profile_name_length() - longer than advised'''
+        c = ClickReviewSecurity(self.test_name)
+        c.click_pkgname += 'A' * 100
+        c.check_apparmor_profile_name_length()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
