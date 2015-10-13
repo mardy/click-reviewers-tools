@@ -129,7 +129,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_optional()
         r = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 9, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_optional_stop_empty(self):
@@ -174,7 +174,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_optional()
         r = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 9, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_optional_stop_without_start(self):
@@ -185,7 +185,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_optional()
         r = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 9, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_optional_stop_without_start2(self):
@@ -199,7 +199,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_optional()
         r = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 9, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_unknown(self):
@@ -768,6 +768,180 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self.set_test_systemd(self.default_appname, "ports", ports)
         c = ClickReviewSystemd(self.test_name)
         c.check_snappy_service_ports()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_listen_stream_abspkgname(self):
+        '''Test check_snappy_service_listen_stream() - @pkgname'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", '@%s' % name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_listen_stream()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_listen_stream_abspkgname2(self):
+        '''Test check_snappy_service_listen_stream() - @pkgname_'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", '@%s_something' % name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_listen_stream()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_listen_stream_bad_abstract(self):
+        '''Test check_snappy_service_listen_stream() - bad (wrong name)'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", '@%s/nomatch' % name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_listen_stream()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_listen_stream_bad_relative(self):
+        '''Test check_snappy_service_listen_stream() - bad (not / or @)'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_listen_stream()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_listen_stream_empty(self):
+        '''Test check_snappy_service_listen_stream() - empty'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", "")])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_listen_stream()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_socket_user(self):
+        '''Test check_snappy_service_socket_user()'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", '@%s' % name),
+                           ("socket-user", name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_socket_user()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_socket_user_no_listen_stream(self):
+        '''Test check_snappy_service_socket_user() - missing listen-stream'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("socket-user", name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_socket_user()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_socket_user_bad(self):
+        '''Test check_snappy_service_socket_user() - bad user'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", '@%s' % name),
+                           ("socket-user", name + "nomatch")])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_socket_user()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_socket_group(self):
+        '''Test check_snappy_service_socket_group()'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", '@%s' % name),
+                           ("socket-group", name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_socket_group()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_socket_group_no_listen_stream(self):
+        '''Test check_snappy_service_socket_group() - missing listen-stream'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("socket-group", name)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_socket_group()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_socket_group_bad(self):
+        '''Test check_snappy_service_socket_group() - bad group'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", '@%s' % name),
+                           ("socket-group", name + "nomatch")])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_socket_group()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_socket(self):
+        '''Test check_snappy_service_socket()'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("listen-stream", '@%s' % name),
+                           ("socket", True)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_socket()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_service_socket_no_listen_stream(self):
+        '''Test check_snappy_service_socket() - missing listen-stream'''
+        name = self.test_name.split('_')[0]
+        self.set_test_pkg_yaml("name", name)
+        self._set_service([("start", "bin/test-app"),
+                           ("description", "something"),
+                           ("socket", True)])
+        c = ClickReviewSystemd(self.test_name)
+        c.check_snappy_service_socket()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)

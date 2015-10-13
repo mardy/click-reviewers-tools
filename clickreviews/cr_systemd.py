@@ -42,6 +42,10 @@ class ClickReviewSystemd(ClickReview):
                               'poststop',
                               'stop-timeout',
                               'bus-name',
+                              'listen-stream',
+                              'socket',
+                              'socket-user',
+                              'socket-group',
                               'ports'
                               ] + self.snappy_exe_security
 
@@ -119,6 +123,10 @@ class ClickReviewSystemd(ClickReview):
                         if not isinstance(my_dict[app][o], dict):
                             t = 'error'
                             s = "'%s' is not dictionary" % o
+                    elif o == 'socket':
+                        if not isinstance(my_dict[app][o], bool):
+                            t = 'error'
+                            s = "'%s' is not boolean" % o
                     elif not isinstance(my_dict[app][o], str):
                         t = 'error'
                         s = "'%s' is not a string" % o
@@ -463,3 +471,150 @@ class ClickReviewSystemd(ClickReview):
                                    self._create_dict(
                                        self.pkg_yaml['services']),
                                    'package_yaml')
+
+    def _verify_service_listen_stream(self, pkgname, my_dict, test_str):
+        for app in sorted(my_dict):
+            if 'listen-stream' not in my_dict[app]:
+                continue
+
+            t = 'info'
+            n = self._get_check_name('%s_listen-stream_empty' % test_str,
+                                     app=app)
+            s = 'OK'
+            if len(my_dict[app]['listen-stream']) == 0:
+                t = 'error'
+                s = "'listen-stream' is empty"
+                self._add_result(t, n, s)
+                continue
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = self._get_check_name('%s_listen-stream_matches_name' %
+                                     test_str, app=app)
+            s = 'OK'
+            sock = my_dict[app]['listen-stream']
+            if sock.startswith('@'):
+                if sock != '@%s' % pkgname and \
+                        not sock.startswith('@%s_' % pkgname):
+                    t = 'error'
+                    s = ("abstract socket '%s' is neither '%s' nor starts "
+                         "with '%s'" % (sock, '@%s' % pkgname,
+                                        '@%s_' % pkgname))
+            elif sock.startswith('/'):
+                found = False
+                for path in ["/tmp/",
+                             "/var/lib/apps/%s/" % pkgname,
+                             "/var/lib/apps/%s." % pkgname,
+                             "/run/shm/snaps/%s/" % pkgname,
+                             "/run/shm/snaps/%s." % pkgname]:
+                    if sock.startswith(path):
+                        found = True
+                        break
+                if not found:
+                    t = 'error'
+                    s = ("named socket '%s' should be in a writable"
+                         "app-specific area or /tmp" % sock)
+            else:
+                t = 'error'
+                s = ("'%s' does not specify an abstract socket (starts "
+                     "with '@') or absolute filename" % (sock))
+            self._add_result(t, n, s)
+
+    def check_snappy_service_listen_stream(self):
+        '''Check snappy package.yaml listen-stream'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+
+        self._verify_service_listen_stream(self.pkg_yaml['name'],
+                                           self._create_dict(
+                                               self.pkg_yaml['services']),
+                                           'package_yaml')
+
+    def check_snappy_service_socket_user(self):
+        '''Check snappy package.yaml socket-user'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+
+        my_dict = self._create_dict(self.pkg_yaml['services'])
+        for app in sorted(my_dict):
+            if 'socket-user' not in my_dict[app]:
+                continue
+
+            t = 'error'
+            n = self._get_check_name('package_yaml_socket-user', app=app)
+            s = "'socket-user' should not be used until snappy supports " + \
+                "per-app users"
+            self._add_result(t, n, s, manual_review=True)
+
+            t = 'info'
+            n = self._get_check_name('package_yaml_socket-user_matches',
+                                     app=app)
+            s = "OK"
+            if my_dict[app]['socket-user'] != self.pkg_yaml['name']:
+                t = 'error'
+                s = "'%s' != '%s'" % (my_dict[app]['socket-user'],
+                                      self.pkg_yaml['name'])
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = self._get_check_name('package_yaml_socket-user_listen-stream',
+                                     app=app)
+            s = "OK"
+            if 'listen-stream' not in my_dict[app]:
+                t = 'error'
+                s = "'socket-user' specified without 'listen-stream'"
+            self._add_result(t, n, s)
+
+    def check_snappy_service_socket_group(self):
+        '''Check snappy package.yaml socket-group'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+
+        my_dict = self._create_dict(self.pkg_yaml['services'])
+        for app in sorted(my_dict):
+            if 'socket-group' not in my_dict[app]:
+                continue
+
+            t = 'error'
+            n = self._get_check_name('package_yaml_socket-group', app=app)
+            s = "'socket-group' should not be used until snappy supports " + \
+                "per-app groups"
+            self._add_result(t, n, s, manual_review=True)
+
+            t = 'info'
+            n = self._get_check_name('package_yaml_socket-group_matches',
+                                     app=app)
+            s = "OK"
+            if my_dict[app]['socket-group'] != self.pkg_yaml['name']:
+                t = 'error'
+                s = "'%s' != '%s'" % (my_dict[app]['socket-group'],
+                                      self.pkg_yaml['name'])
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = self._get_check_name('package_yaml_socket-group_listen-stream',
+                                     app=app)
+            s = "OK"
+            if 'listen-stream' not in my_dict[app]:
+                t = 'error'
+                s = "'socket-group' specified without 'listen-stream'"
+            self._add_result(t, n, s)
+
+    def check_snappy_service_socket(self):
+        '''Check snappy package.yaml socket'''
+        if not self.is_snap or 'services' not in self.pkg_yaml:
+            return
+
+        my_dict = self._create_dict(self.pkg_yaml['services'])
+        for app in sorted(my_dict):
+            if 'socket' not in my_dict[app]:
+                continue
+
+            t = 'info'
+            n = self._get_check_name('package_yaml_socket_listen-stream',
+                                     app=app)
+            s = "OK"
+            if 'listen-stream' not in my_dict[app]:
+                t = 'error'
+                s = "'socket' specified without 'listen-stream'"
+            self._add_result(t, n, s)

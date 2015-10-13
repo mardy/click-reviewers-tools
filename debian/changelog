@@ -1,8 +1,10 @@
 click-reviewers-tools (0.35) UNRELEASED; urgency=medium
 
-  * 
+  [ Jamie Strandboge ]
+  * clickreviews/cr_systemd.py: add checks for listen-stream, socket,
+    socket-user and socket-group
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 12 Oct 2015 08:55:43 +0200
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 13 Oct 2015 13:21:46 -0500
 
 click-reviewers-tools (0.34) wily; urgency=medium
 

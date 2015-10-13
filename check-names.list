@@ -172,6 +172,8 @@ snappy-systemd:package_yaml_bus-name_matches_name|
 snappy-systemd:package_yaml_description_empty|
 snappy-systemd:package_yaml_description_present|
 snappy-systemd:package_yaml_empty|
+snappy-systemd:package_yaml_listen-stream_empty|
+snappy-systemd:package_yaml_listen-stream_matches_name|
 snappy-systemd:package_yaml_optional_key|
 snappy-systemd:package_yaml_ports|
 snappy-systemd:package_yaml_ports_bad_key|
@@ -181,6 +183,13 @@ snappy-systemd:package_yaml_ports_ext2_format|
 snappy-systemd:package_yaml_ports_int1_format|
 snappy-systemd:package_yaml_ports_invalid|
 snappy-systemd:package_yaml_required_key|
+snappy-systemd:package_yaml_socket-group|
+snappy-systemd:package_yaml_socket-group_listen-stream|
+snappy-systemd:package_yaml_socket-group_matches|
+snappy-systemd:package_yaml_socket_listen-stream|
+snappy-systemd:package_yaml_socket-user|
+snappy-systemd:package_yaml_socket-user_listen-stream|
+snappy-systemd:package_yaml_socket-user_matches|
 snappy-systemd:package_yaml_stop_timeout|
 snappy-systemd:package_yaml_unknown_key|
 url_dispatcher:optional_entry|
