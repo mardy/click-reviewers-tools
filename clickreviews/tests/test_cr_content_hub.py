@@ -24,7 +24,7 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
         # Monkey patch various file access classes. stop() is handled with
         # addCleanup in super()
         cr_tests.mock_patch()
-        super()
+        super().setUp()
 
     def test_check_unknown_keys_none(self):
         '''Test check_unknown() - no unknown'''

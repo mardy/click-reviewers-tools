@@ -255,7 +255,7 @@ def _has_framework_in_metadir(self):
 #           # Monkey patch various file access classes. stop() is handled with
 #           # addCleanup in super()
 #           cr_tests.mock_patch()
-#           super()
+#           super().setUp()
 patches = []
 patches.append(patch('clickreviews.cr_common.ClickReview._check_path_exists',
                _mock_func))
@@ -1109,7 +1109,7 @@ class TestClickReview(TestCase):
         '''Make sure our patches are applied everywhere'''
         global patches
         for p in patches:
-            self.addCleanup(p.stop())
+            self.addCleanup(p.stop)
 
     def tearDown(self):
         '''Make sure we reset everything to known good values'''

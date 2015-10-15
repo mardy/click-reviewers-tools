@@ -24,7 +24,7 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         # Monkey patch various file access classes. stop() is handled with
         # addCleanup in super()
         cr_tests.mock_patch()
-        super()
+        super().setUp()
 
     def _create_ports(self):
         ports = {'internal': {'int1': {"port": '8081/tcp', "negotiable": True}},

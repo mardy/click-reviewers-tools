@@ -25,7 +25,7 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         # Monkey patch various file access classes. stop() is handled with
         # addCleanup in super()
         cr_tests.mock_patch()
-        super()
+        super().setUp()
 
     def _create_scope(self, config_dict=None):
         '''Create a scope to pass to tests'''

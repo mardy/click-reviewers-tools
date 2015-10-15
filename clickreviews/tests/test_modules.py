@@ -8,7 +8,7 @@ class TestModules(cr_tests.TestClickReview):
     def setUp(self):
         self.cr_modules = modules.get_modules()
         cr_tests.mock_patch()
-        super()
+        super().setUp()
 
     def test_number_of_suitable_modules(self):
         path = clickreviews.__path__[0]

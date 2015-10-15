@@ -24,7 +24,7 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         # Monkey patch various file access classes. stop() is handled with
         # addCleanup in super()
         cr_tests.mock_patch()
-        super()
+        super().setUp()
 
     def test_check_desktop_file(self):
         '''Test check_desktop_file()'''

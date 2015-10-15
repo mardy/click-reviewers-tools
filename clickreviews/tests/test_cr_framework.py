@@ -24,7 +24,7 @@ class TestClickReviewFramework(cr_tests.TestClickReview):
         # Monkey patch various file access classes. stop() is handled with
         # addCleanup in super()
         cr_tests.mock_patch()
-        super()
+        super().setUp()
 
     def test_framework_hook_obsolete(self):
         '''Test check_framework_hook_obsolete()'''
