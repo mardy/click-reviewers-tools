@@ -14,15 +14,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from unittest import TestCase
 from unittest.mock import patch
 
 from clickreviews.cr_lint import ClickReviewLint
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
 from clickreviews.frameworks import FRAMEWORKS_DATA_URL, USER_DATA_FILE
+from clickreviews.tests import utils
 import clickreviews.cr_tests as cr_tests
 
 import os
+import shutil
 import stat
+import tempfile
 
 
 class TestClickReviewLint(cr_tests.TestClickReview):
@@ -1863,3 +1867,27 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+
+class ClickReviewLintTestCase(TestCase):
+    """Tests without mocks where they are not needed."""
+    def mkdtemp(self):
+        """Create a temp dir which is cleaned up after test."""
+        tmp_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp_dir)
+
+    def test_check_click_in_package_non_root(self):
+        c = ClickReviewLint(utils.make_package(extra_dirs=['foo/.click/']))
+
+        c.check_click_in_package()
+
+        warnings = list(c.click_report['warn'].keys())
+        self.assertEqual(warnings, ['lint:click_files'])
+
+    def test_check_click_in_package_root(self):
+        c = ClickReviewLint(utils.make_package(extra_dirs=['.click/']))
+
+        c.check_click_in_package()
+
+        warnings = list(c.click_report['warn'].keys())
+        self.assertEqual(warnings, ['lint:click_files'])
