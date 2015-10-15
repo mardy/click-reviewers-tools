@@ -868,6 +868,18 @@ exit 1
             s = 'found click packages in toplevel dir: %s' % ", ".join(found)
         self._add_result(t, n, s)
 
+    def check_dot_click(self):
+        '''Check for .click directory in the toplevel click package'''
+        t = 'info'
+        n = self._get_check_name('dot_click')
+        s = 'OK'
+
+        path = os.path.join(self.unpack_dir, '.click')
+        if os.path.exists(path):
+            t = 'error'
+            s = 'found .click in toplevel dir'
+        self._add_result(t, n, s)
+
     def check_contents_for_hardcoded_paths(self):
         '''Check for known hardcoded paths.'''
         PATH_BLACKLIST = ["/opt/click.ubuntu.com/"]
