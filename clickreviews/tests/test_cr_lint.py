@@ -1875,19 +1875,13 @@ class ClickReviewLintTestCase(TestCase):
         """Create a temp dir which is cleaned up after test."""
         tmp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, tmp_dir)
+        return tmp_dir
 
-    def test_check_click_in_package_non_root(self):
-        c = ClickReviewLint(utils.make_package(extra_dirs=['foo/.click/']))
+    def test_check_dot_click_root(self):
+        c = ClickReviewLint(utils.make_package(extra_dirs=['.click/'],
+                                               output_dir=self.mkdtemp()))
 
-        c.check_click_in_package()
+        c.check_dot_click()
 
-        warnings = list(c.click_report['warn'].keys())
-        self.assertEqual(warnings, ['lint:click_files'])
-
-    def test_check_click_in_package_root(self):
-        c = ClickReviewLint(utils.make_package(extra_dirs=['.click/']))
-
-        c.check_click_in_package()
-
-        warnings = list(c.click_report['warn'].keys())
-        self.assertEqual(warnings, ['lint:click_files'])
+        errors = list(c.click_report['error'].keys())
+        self.assertEqual(errors, ['lint:dot_click'])
