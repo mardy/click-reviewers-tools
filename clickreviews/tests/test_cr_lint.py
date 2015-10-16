@@ -17,6 +17,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
+from clickreviews.cr_common import cleanup_unpack
 from clickreviews.cr_lint import ClickReviewLint
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
 from clickreviews.frameworks import FRAMEWORKS_DATA_URL, USER_DATA_FILE
@@ -1869,6 +1870,13 @@ class ClickReviewLintTestCase(TestCase):
     def mkdtemp(self):
         """Create a temp dir which is cleaned up after test."""
         tmp_dir = tempfile.mkdtemp()
+        # XXX cleanup_unpack() is required because global
+        # variables UNPACK_DIR, RAW_UNPACK_DIR are initialised
+        # to None at module load time, but updated when a real
+        # (non-Mock) test runs, such as here, while two of the existing
+        # tests using mocks depend on both global vars being None.
+        # Ideally, those global vars should be refactored away.
+        self.addCleanup(cleanup_unpack)
         self.addCleanup(shutil.rmtree, tmp_dir)
         return tmp_dir
 
