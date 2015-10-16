@@ -176,5 +176,11 @@ def build_package(path, name, version, format, output_dir=None):
     filename = "{}_{}_all.{}".format(name, version, format)
     output_dir = output_dir or tempfile.mkdtemp()
     output_path = os.path.join(output_dir, filename)
+    # Note: We're not using 'click build' here as it corrects errors (such
+    # as filtering out a .click directory present in the build). We want
+    # to test with manually constructed, potentially tampered-with
+    # clicks/snaps. Ideally, we'd be using click rather than dpkg to
+    # construct the click without filtering any files in the build dir.
+
     subprocess.check_call(['dpkg-deb', '-b', path, output_path])
     return output_path

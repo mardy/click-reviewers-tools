@@ -1867,16 +1867,19 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
 class ClickReviewLintTestCase(TestCase):
     """Tests without mocks where they are not needed."""
+    def setUp(self):
+        # XXX cleanup_unpack() is required because global variables
+        # UNPACK_DIR, RAW_UNPACK_DIR are initialised to None at module
+        # load time, but updated when a real (non-Mock) test runs, such as
+        # here. While, at the same time, two of the existing tests using
+        # mocks depend on both global vars being None. Ideally, those
+        # global vars should be refactored away.
+        self.addCleanup(cleanup_unpack)
+        super().setUp()
+
     def mkdtemp(self):
         """Create a temp dir which is cleaned up after test."""
         tmp_dir = tempfile.mkdtemp()
-        # XXX cleanup_unpack() is required because global
-        # variables UNPACK_DIR, RAW_UNPACK_DIR are initialised
-        # to None at module load time, but updated when a real
-        # (non-Mock) test runs, such as here, while two of the existing
-        # tests using mocks depend on both global vars being None.
-        # Ideally, those global vars should be refactored away.
-        self.addCleanup(cleanup_unpack)
         self.addCleanup(shutil.rmtree, tmp_dir)
         return tmp_dir
 
