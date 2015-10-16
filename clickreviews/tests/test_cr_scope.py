@@ -21,11 +21,6 @@ import configparser
 
 class TestClickReviewScope(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
-    def setUp(self):
-        # Monkey patch various file access classes. stop() is handled with
-        # addCleanup in super()
-        cr_tests.mock_patch()
-        super().setUp()
 
     def _create_scope(self, config_dict=None):
         '''Create a scope to pass to tests'''

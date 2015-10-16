@@ -20,11 +20,6 @@ import clickreviews.cr_tests as cr_tests
 
 class TestClickReviewFramework(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
-    def setUp(self):
-        # Monkey patch various file access classes. stop() is handled with
-        # addCleanup in super()
-        cr_tests.mock_patch()
-        super().setUp()
 
     def test_framework_hook_obsolete(self):
         '''Test check_framework_hook_obsolete()'''

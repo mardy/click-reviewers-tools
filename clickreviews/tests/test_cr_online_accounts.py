@@ -22,11 +22,6 @@ import lxml.etree as etree
 
 class TestClickReviewAccounts(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
-    def setUp(self):
-        # Monkey patch various file access classes. stop() is handled with
-        # addCleanup in super()
-        cr_tests.mock_patch()
-        super().setUp()
 
     def _stub_application(self, root=None, id=None, do_subtree=True):
         '''Stub application xml'''

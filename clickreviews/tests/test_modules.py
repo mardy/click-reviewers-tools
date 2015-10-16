@@ -7,7 +7,6 @@ class TestModules(cr_tests.TestClickReview):
     '''Tests for the modules module.'''
     def setUp(self):
         self.cr_modules = modules.get_modules()
-        cr_tests.mock_patch()
         super().setUp()
 
     def test_number_of_suitable_modules(self):

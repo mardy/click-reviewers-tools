@@ -244,151 +244,131 @@ def _has_framework_in_metadir(self):
     return True
 
 
-# http://docs.python.org/3.4/library/unittest.mock-examples.html
-# Mock patching. Don't use decorators but instead patch in setUp() of the
-# child. Set up a list of patches, but don't start them. Create the helper
-# method mock_patch() to start all the patches. The child can do this in a
-# setUp() like so:
-#   import clickreviews.cr_tests as cr_tests
-#   class TestClickReviewFoo(cr_tests.TestClickReview):
-#       def setUp(self):
-#           # Monkey patch various file access classes. stop() is handled with
-#           # addCleanup in super()
-#           cr_tests.mock_patch()
-#           super().setUp()
-patches = []
-patches.append(patch('clickreviews.cr_common.ClickReview._check_path_exists',
-               _mock_func))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._extract_control_file',
-    _extract_control_file))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._extract_manifest_file',
-    _extract_manifest_file))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._extract_package_yaml',
-    _extract_package_yaml))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._extract_hashes_yaml',
-    _extract_hashes_yaml))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._path_join',
-    _path_join))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._get_sha512sum',
-    _get_sha512sum))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._extract_statinfo',
-    _extract_statinfo))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._extract_click_frameworks',
-    _extract_click_frameworks))
-patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
-patches.append(patch('clickreviews.cr_common.raw_unpack_pkg', _mock_func))
-patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
-               _mock_func))
-patches.append(patch(
-    'clickreviews.cr_common.ClickReview._list_all_compiled_binaries',
-    _mock_func))
+def create_patches():
+    # http://docs.python.org/3.4/library/unittest.mock-examples.html
+    # Mock patching. Don't use decorators but instead patch in setUp() of the
+    # child.
+    patches = []
+    patches.append(patch('clickreviews.cr_common.ClickReview._check_path_exists',
+                   _mock_func))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._extract_control_file',
+        _extract_control_file))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._extract_manifest_file',
+        _extract_manifest_file))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._extract_package_yaml',
+        _extract_package_yaml))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._extract_hashes_yaml',
+        _extract_hashes_yaml))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._path_join',
+        _path_join))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._get_sha512sum',
+        _get_sha512sum))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._extract_statinfo',
+        _extract_statinfo))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._extract_click_frameworks',
+        _extract_click_frameworks))
+    patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
+    patches.append(patch('clickreviews.cr_common.raw_unpack_pkg', _mock_func))
+    patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
+                   _mock_func))
+    patches.append(patch(
+        'clickreviews.cr_common.ClickReview._list_all_compiled_binaries',
+        _mock_func))
 
-# lint overrides
-patches.append(patch(
-               'clickreviews.cr_lint.ClickReviewLint._list_control_files',
-               _mock_func))
-patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_all_files',
-               _mock_func))
-patches.append(patch(
-    'clickreviews.cr_lint.ClickReview._list_all_compiled_binaries',
-    _mock_func))
-patches.append(patch(
-    'clickreviews.cr_lint.ClickReviewLint._extract_readme_md',
-    _extract_readme_md))
-patches.append(patch(
-    'clickreviews.cr_lint.ClickReviewLint._check_innerpath_executable',
-    _check_innerpath_executable))
+    # lint overrides
+    patches.append(patch(
+                   'clickreviews.cr_lint.ClickReviewLint._list_control_files',
+                   _mock_func))
+    patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_all_files',
+                   _mock_func))
+    patches.append(patch(
+        'clickreviews.cr_lint.ClickReview._list_all_compiled_binaries',
+        _mock_func))
+    patches.append(patch(
+        'clickreviews.cr_lint.ClickReviewLint._extract_readme_md',
+        _extract_readme_md))
+    patches.append(patch(
+        'clickreviews.cr_lint.ClickReviewLint._check_innerpath_executable',
+        _check_innerpath_executable))
 
-# security overrides
-patches.append(patch(
-    'clickreviews.cr_security.ClickReviewSecurity._extract_security_manifest',
-    _extract_security_manifest))
-patches.append(patch(
-    'clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
-    _get_security_manifest))
-patches.append(patch(
-    'clickreviews.cr_security.ClickReviewSecurity._extract_security_profile',
-    _extract_security_profile))
-patches.append(patch(
-    'clickreviews.cr_security.ClickReviewSecurity._get_security_profile',
-    _get_security_profile))
+    # security overrides
+    patches.append(patch(
+        'clickreviews.cr_security.ClickReviewSecurity._extract_security_manifest',
+        _extract_security_manifest))
+    patches.append(patch(
+        'clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
+        _get_security_manifest))
+    patches.append(patch(
+        'clickreviews.cr_security.ClickReviewSecurity._extract_security_profile',
+        _extract_security_profile))
+    patches.append(patch(
+        'clickreviews.cr_security.ClickReviewSecurity._get_security_profile',
+        _get_security_profile))
 
-# desktop overrides
-patches.append(patch(
-    'clickreviews.cr_desktop.ClickReviewDesktop._extract_desktop_entry',
-    _extract_desktop_entry))
-patches.append(patch(
-    'clickreviews.cr_desktop.ClickReviewDesktop._get_desktop_entry',
-    _get_desktop_entry))
-patches.append(patch(
-    'clickreviews.cr_desktop.ClickReviewDesktop._extract_webapp_manifests',
-    _extract_webapp_manifests))
+    # desktop overrides
+    patches.append(patch(
+        'clickreviews.cr_desktop.ClickReviewDesktop._extract_desktop_entry',
+        _extract_desktop_entry))
+    patches.append(patch(
+        'clickreviews.cr_desktop.ClickReviewDesktop._get_desktop_entry',
+        _get_desktop_entry))
+    patches.append(patch(
+        'clickreviews.cr_desktop.ClickReviewDesktop._extract_webapp_manifests',
+        _extract_webapp_manifests))
 
-# url-dispatcher overrides
-patches.append(patch(
-    'clickreviews.cr_url_dispatcher.ClickReviewUrlDispatcher._extract_url_dispatcher',
-    _extract_url_dispatcher))
+    # url-dispatcher overrides
+    patches.append(patch(
+        'clickreviews.cr_url_dispatcher.ClickReviewUrlDispatcher._extract_url_dispatcher',
+        _extract_url_dispatcher))
 
-# scope overrides
-patches.append(patch(
-    'clickreviews.cr_scope.ClickReviewScope._extract_scopes',
-    _extract_scopes))
+    # scope overrides
+    patches.append(patch(
+        'clickreviews.cr_scope.ClickReviewScope._extract_scopes',
+        _extract_scopes))
 
-# content-hub overrides
-patches.append(patch(
-    'clickreviews.cr_content_hub.ClickReviewContentHub._extract_content_hub',
-    _extract_content_hub))
+    # content-hub overrides
+    patches.append(patch(
+        'clickreviews.cr_content_hub.ClickReviewContentHub._extract_content_hub',
+        _extract_content_hub))
 
-# online accounts overrides
-patches.append(patch(
-    'clickreviews.cr_online_accounts.ClickReviewAccounts._extract_account',
-    _extract_account))
+    # online accounts overrides
+    patches.append(patch(
+        'clickreviews.cr_online_accounts.ClickReviewAccounts._extract_account',
+        _extract_account))
 
-# push-helper overrides
-patches.append(patch(
-    'clickreviews.cr_push_helper.ClickReviewPushHelper._extract_push_helper',
-    _extract_push_helper))
+    # push-helper overrides
+    patches.append(patch(
+        'clickreviews.cr_push_helper.ClickReviewPushHelper._extract_push_helper',
+        _extract_push_helper))
 
-# bin-path overrides
-patches.append(patch(
-    'clickreviews.cr_bin_path.ClickReviewBinPath._extract_bin_path',
-    _extract_bin_path))
-patches.append(patch(
-    'clickreviews.cr_bin_path.ClickReviewBinPath._check_bin_path_executable',
-    _check_bin_path_executable))
+    # bin-path overrides
+    patches.append(patch(
+        'clickreviews.cr_bin_path.ClickReviewBinPath._extract_bin_path',
+        _extract_bin_path))
+    patches.append(patch(
+        'clickreviews.cr_bin_path.ClickReviewBinPath._check_bin_path_executable',
+        _check_bin_path_executable))
 
-# framework overrides
-patches.append(patch(
-    'clickreviews.cr_framework.ClickReviewFramework._extract_framework',
-    _extract_framework))
-patches.append(patch(
-    'clickreviews.cr_framework.ClickReviewFramework._extract_framework_policy',
-    _extract_framework_policy))
-patches.append(patch(
-    'clickreviews.cr_framework.ClickReviewFramework._has_framework_in_metadir',
-    _has_framework_in_metadir))
+    # framework overrides
+    patches.append(patch(
+        'clickreviews.cr_framework.ClickReviewFramework._extract_framework',
+        _extract_framework))
+    patches.append(patch(
+        'clickreviews.cr_framework.ClickReviewFramework._extract_framework_policy',
+        _extract_framework_policy))
+    patches.append(patch(
+        'clickreviews.cr_framework.ClickReviewFramework._has_framework_in_metadir',
+        _has_framework_in_metadir))
 
-
-def mock_patch():
-    '''Call in setup of child'''
-    global patches
-    for p in patches:
-        try:
-            p.start()
-        except ImportError:
-            # This is only needed because we are importing ClickReviewLint
-            # in the security tests and ClickReviewSecurity in the lint tests.
-            # If we move those patches outside of this file, then we can
-            # remove this.
-            pass
+    return patches
 
 
 class TestClickReview(TestCase):
@@ -1107,8 +1087,9 @@ class TestClickReview(TestCase):
 
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
-        global patches
+        patches = create_patches()
         for p in patches:
+            p.start()
             self.addCleanup(p.stop)
 
     def tearDown(self):

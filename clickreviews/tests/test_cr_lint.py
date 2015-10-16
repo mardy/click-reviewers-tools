@@ -31,11 +31,6 @@ import tempfile
 
 class TestClickReviewLint(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
-    def setUp(self):
-        # Monkey patch various file access classes. stop() is handled with
-        # addCleanup in super()
-        cr_tests.mock_patch()
-        super().setUp()
 
     def _create_hashes_yaml(self):
         # find cr_tests.py since that is what _get_statinfo() is mocked to
@@ -1878,9 +1873,8 @@ class ClickReviewLintTestCase(TestCase):
         return tmp_dir
 
     def test_check_dot_click_root(self):
-        output_dir = self.mkdtemp()
-        package = utils.make_package(extra_dirs=['.click/'],
-                                     output_dir=output_dir)
+        package = utils.make_package(extra_files=['.click/'],
+                                     output_dir=self.mkdtemp())
         c = ClickReviewLint(package)
 
         c.check_dot_click()

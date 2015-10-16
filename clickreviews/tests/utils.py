@@ -24,7 +24,7 @@ import tempfile
 
 def make_package(name='test', package_format='click', package_types=None,
                  version='1.0', title="An application",
-                 framework='ubuntu-sdk-15.04', extra_dirs=None, output_dir=None):
+                 framework='ubuntu-sdk-15.04', extra_files=None, output_dir=None):
     """Return the path to a click/snap package with the given data.
 
     Caller is responsible for deleting the output_dir afterwards.
@@ -34,7 +34,7 @@ def make_package(name='test', package_format='click', package_types=None,
     package_types = package_types or []
 
     try:
-        make_dir_structure(build_dir, extra_dirs=extra_dirs)
+        make_dir_structure(build_dir, extra_files=extra_files)
         write_icon(build_dir)
         write_manifest(build_dir, name, version,
                        title, framework, package_types,
@@ -54,13 +54,22 @@ def make_package(name='test', package_format='click', package_types=None,
     return pkg_path
 
 
-def make_dir_structure(path, extra_dirs=None):
-    extra_dirs = extra_dirs or []
+def make_dir_structure(path, extra_files=None):
+    extra_files = extra_files or []
     directories = ['DEBIAN', 'meta']
-    directories.extend(extra_dirs)
+    directories.extend(
+        [os.path.dirname(extra_file) for extra_file in extra_files])
 
     for directory in directories:
-        os.makedirs(os.path.join(path, directory))
+        directory = os.path.join(path, directory)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+    for extra_file in extra_files:
+        dirname, basename = os.path.split(extra_file)
+        if basename != '':
+            with open(os.path.join(path, extra_file), 'wb'):
+                pass
 
 
 def write_icon(path):
