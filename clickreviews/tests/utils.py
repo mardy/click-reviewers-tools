@@ -73,17 +73,15 @@ def make_dir_structure(path, extra_files=None):
 
 
 def write_icon(path):
+    # XXX: Update to use a test icon in the branch to guarantee an icon.
     icons = glob.glob('/usr/share/icons/hicolor/256x256/apps/*.png')
     if len(icons) > 0:
         source_path = icons[0]
-    else:
-        source_path = 'src/softwarecenteragent/tests/test_data/eg_256x256.png'
-    target_path = os.path.join(path, 'meta', 'icon.png')
-    shutil.copyfile(source_path, target_path)
+        target_path = os.path.join(path, 'meta', 'icon.png')
+        shutil.copyfile(source_path, target_path)
 
 
 def write_manifest(path, name, version, title, framework, types, is_snap):
-    manifest_path = os.path.join(path, 'DEBIAN', 'manifest')
     manifest_content = {
         'framework': framework,
         'maintainer': 'Someone <someone@example.com>',
@@ -107,8 +105,13 @@ def write_manifest(path, name, version, title, framework, types, is_snap):
             if "application" in types:
                 manifest_content['hooks']['app'].update({'desktop': ""})
 
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest_content, f)
+    manifest_paths = [
+        os.path.join(path, 'DEBIAN', 'manifest'),
+        os.path.join(path, 'manifest.json'),
+    ]
+    for manifest_path in manifest_paths:
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest_content, f)
 
 
 def write_meta_data(path, name, version, title, framework):
@@ -176,11 +179,11 @@ def build_package(path, name, version, format, output_dir=None):
     filename = "{}_{}_all.{}".format(name, version, format)
     output_dir = output_dir or tempfile.mkdtemp()
     output_path = os.path.join(output_dir, filename)
+
     # Note: We're not using 'click build' here as it corrects errors (such
     # as filtering out a .click directory present in the build). We want
     # to test with manually constructed, potentially tampered-with
     # clicks/snaps. Ideally, we'd be using click rather than dpkg to
     # construct the click without filtering any files in the build dir.
-
     subprocess.check_call(['dpkg-deb', '-b', path, output_path])
     return output_path
