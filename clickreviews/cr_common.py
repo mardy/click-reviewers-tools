@@ -637,17 +637,30 @@ def cmd_pipe(command1, command2):
     return [sp2.returncode, out]
 
 
-def unpack_click(fn, dest=None):
-    '''Unpack click package'''
-    if not os.path.isfile(fn):
-        error("Could not find '%s'" % fn)
-    click_pkg = fn
-    if not click_pkg.startswith('/'):
-        click_pkg = os.path.abspath(click_pkg)
+def _unpack_snap_squashfs(snap_pkg, dest):
+    '''Unpack a squashfs based snap package to dest'''
+    d = tempfile.mkdtemp(prefix='clickreview-')
 
-    if dest is not None and os.path.exists(dest):
-        error("'%s' exists. Aborting." % dest)
+    curdir = os.getcwd()
+    os.chdir(d)
+    (rc, out) = cmd(['unsquashfs', '-f', '-d', d, snap_pkg])
+    os.chdir(curdir)
 
+    if rc != 0:
+        if os.path.isdir(d):
+            recursive_rm(d)
+        error("dpkg-deb -R failed with '%d':\n%s" % (rc, out))
+
+    if dest is None:
+        dest = d
+    else:
+        shutil.move(d, dest)
+
+    return dest
+
+
+def _unpack_click_deb(click_pkg, dest):
+    '''Unpack a click (deb) based package to dest'''
     d = tempfile.mkdtemp(prefix='clickreview-')
 
     curdir = os.getcwd()
@@ -667,6 +680,24 @@ def unpack_click(fn, dest=None):
 
     return dest
 
+def unpack_click(fn, dest=None):
+    '''Unpack click package'''
+    if not os.path.isfile(fn):
+        error("Could not find '%s'" % fn)
+    click_pkg = fn
+    if not click_pkg.startswith('/'):
+        click_pkg = os.path.abspath(click_pkg)
+
+    if dest is not None and os.path.exists(dest):
+        error("'%s' exists. Aborting." % dest)
+
+    # check if its a squashfs based snap
+    with open(click_pkg, 'rb') as f:
+        header = f.read(10)
+        if header.startswith(b"hsqs"):
+            return _unpack_snap_squashfs(fn, dest)
+        
+    return _unpack_click_deb(fn, dest)
 
 def raw_unpack_pkg(fn, dest=None):
     '''Unpack raw package'''

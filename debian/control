@@ -32,6 +32,7 @@ Depends: binutils,
          python3-yaml,
          ${misc:Depends},
          ${python3:Depends}
+Recommends: squashfs-tools
 Description: tools to review click packages
  These scripts can be used to review click packages both manually and in a
  programmatic fashion.
