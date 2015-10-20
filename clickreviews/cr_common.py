@@ -637,48 +637,34 @@ def cmd_pipe(command1, command2):
     return [sp2.returncode, out]
 
 
+def _unpack_cmd(cmd_args, d, dest):
+    '''Low level unpack helper'''
+    curdir = os.getcwd()
+    os.chdir(d)
+
+    (rc, out) = cmd(cmd_args)
+    os.chdir(curdir)
+
+    if rc != 0:
+        if os.path.isdir(d):
+            recursive_rm(d)
+        error("unsquashfs failed with '%d':\n%s" % (rc, out))
+
+    if dest is None:
+        dest = d
+    else:
+        shutil.move(d, dest)
+
+    return dest
+    
 def _unpack_snap_squashfs(snap_pkg, dest):
     '''Unpack a squashfs based snap package to dest'''
     d = tempfile.mkdtemp(prefix='clickreview-')
-
-    curdir = os.getcwd()
-    os.chdir(d)
-    (rc, out) = cmd(['unsquashfs', '-f', '-d', d, snap_pkg])
-    os.chdir(curdir)
-
-    if rc != 0:
-        if os.path.isdir(d):
-            recursive_rm(d)
-        error("dpkg-deb -R failed with '%d':\n%s" % (rc, out))
-
-    if dest is None:
-        dest = d
-    else:
-        shutil.move(d, dest)
-
-    return dest
-
+    return _unpack_cmd(['unsquashfs', '-f', '-d', d, snap_pkg], d, dest)
 
 def _unpack_click_deb(click_pkg, dest):
-    '''Unpack a click (deb) based package to dest'''
     d = tempfile.mkdtemp(prefix='clickreview-')
-
-    curdir = os.getcwd()
-    os.chdir(d)
-    (rc, out) = cmd(['dpkg-deb', '-R', click_pkg, d])
-    os.chdir(curdir)
-
-    if rc != 0:
-        if os.path.isdir(d):
-            recursive_rm(d)
-        error("dpkg-deb -R failed with '%d':\n%s" % (rc, out))
-
-    if dest is None:
-        dest = d
-    else:
-        shutil.move(d, dest)
-
-    return dest
+    return _unpack_cmd(['dpkg-deb', '-R', click_pkg, d], d, dest)
 
 def unpack_click(fn, dest=None):
     '''Unpack click package'''
@@ -694,8 +680,8 @@ def unpack_click(fn, dest=None):
     # check if its a squashfs based snap
     with open(click_pkg, 'rb') as f:
         header = f.read(10)
-        if header.startswith(b"hsqs"):
-            return _unpack_snap_squashfs(fn, dest)
+    if header.startswith(b"hsqs"):
+        return _unpack_snap_squashfs(fn, dest)
         
     return _unpack_click_deb(fn, dest)
 
