@@ -20,11 +20,6 @@ import clickreviews.cr_tests as cr_tests
 
 class TestClickReviewSkeleton(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
-    def setUp(self):
-        # Monkey patch various file access classes. stop() is handled with
-        # addCleanup in super()
-        cr_tests.mock_patch()
-        super()
 
     def test_check_foo(self):
         '''Test check_foo()'''

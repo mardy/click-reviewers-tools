@@ -5,10 +5,7 @@ from clickreviews import cr_tests
 class ClickReviewTestCase(cr_tests.TestClickReview):
 
     def setUp(self):
-        # Monkey patch various file access classes. stop() is handled with
-        # addCleanup in super()
-        cr_tests.mock_patch()
-        super()
+        super().setUp()
         self.review = ClickReview('app.click', 'review_type')
 
     def test_add_result_default_manual_review(self):

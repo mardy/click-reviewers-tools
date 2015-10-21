@@ -24,10 +24,7 @@ import clickreviews.cr_tests as cr_tests
 class TestClickReviewSecurity(cr_tests.TestClickReview):
     """Tests for the security lint review tool."""
     def setUp(self):
-        #  Monkey patch various file access classes. stop() is handled with
-        #  addCleanup in super()
-        cr_tests.mock_patch()
-        super()
+        super().setUp()
 
         self.default_security_json = "%s.apparmor" % \
             self.default_appname
