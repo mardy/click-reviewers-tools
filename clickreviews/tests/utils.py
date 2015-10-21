@@ -82,20 +82,18 @@ def write_icon(path):
 
 
 def write_manifest(path, name, version, title, framework, types, is_snap):
-    manifest_content = {
-        'framework': framework,
-        'maintainer': 'Someone <someone@example.com>',
-        'name': name,
-        'title': title,
-        'version': version,
-        'icon': 'meta/icon.png',
-        'hooks': {
-            'app': {
-                'apparmor': 'meta/{}.apparmor'.format(name),
-                },
-            },
-        'description': 'This is a test app.',
-        }
+    manifest_content = {'framework': framework,
+                        'maintainer': 'Someone <someone@example.com>',
+                        'name': name,
+                        'title': title,
+                        'version': version,
+                        'icon': 'meta/icon.png',
+                        'hooks': {'app': {'apparmor':
+                                          'meta/{}.apparmor'.format(name),
+                                          },
+                                  },
+                        'description': 'This is a test app.',
+                        }
     if types:
         if is_snap:
             manifest_content.update({'type': types[0]})
@@ -132,15 +130,14 @@ vendor: 'Someone <someone@example.com>',
 
 def write_control(path, name, version, title):
     control_path = os.path.join(path, 'DEBIAN', 'control')
-    control_content = {
-        'Package': name,
-        'Version': version,
-        'Click-Version': '0.4',
-        'Architecture': 'all',
-        'Maintainer': 'Someone <someone@example.com>',
-        'Installed-Size': '123',
-        'Description': title,
-        }
+    control_content = {'Package': name,
+                       'Version': version,
+                       'Click-Version': '0.4',
+                       'Architecture': 'all',
+                       'Maintainer': 'Someone <someone@example.com>',
+                       'Installed-Size': '123',
+                       'Description': title,
+                       }
     with open(control_path, 'w') as f:
         for key, value in control_content.items():
             f.write(key + ": " + value + "\n")
