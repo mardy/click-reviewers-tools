@@ -6,7 +6,9 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   * clickreviews/cr_security.py: make sure that the generated profile name
     is under the current 253 character maximum. This might have to be
     adjusted after the AppArmor stacking work is completed (LP: #1499544)
-  * clickreviews/cr_lint.py: check if package ships .click directory
+  * clickreviews/cr_lint.py:
+    - check if package ships .click directory
+    - add a few more vcs files
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 14 Oct 2015 22:37:53 -0500
 
