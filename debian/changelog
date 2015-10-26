@@ -9,11 +9,13 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   * clickreviews/cr_lint.py:
     - check if package ships .click directory
     - add a few more vcs files
+  * update data/apparmor-easyprof-ubuntu.json for 16.04 policy
+  * Makefile: add json syntax check
 
   [ Michael Nelson ]
   * add support for non-mocked tests
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 21 Oct 2015 16:52:38 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 26 Oct 2015 16:46:47 -0500
 
 click-reviewers-tools (0.34) wily; urgency=medium
 

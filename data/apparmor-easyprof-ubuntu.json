@@ -152,6 +152,7 @@
           "connectivity",
           "content_exchange",
           "content_exchange_source",
+	  "in-app-purchases",
           "keep-display-on",
           "location",
           "microphone",
@@ -198,6 +199,54 @@
           "connectivity",
           "content_exchange",
           "content_exchange_source",
+	  "in-app-purchases",
+          "keep-display-on",
+          "location",
+          "microphone",
+          "networking",
+          "push-notification-client",
+          "sensors",
+          "usermetrics",
+          "video",
+          "webview"
+        ],
+        "reserved": [
+          "calendar",
+          "contacts",
+          "debug",
+          "history",
+          "music_files",
+          "music_files_read",
+          "picture_files",
+          "picture_files_read",
+          "video_files",
+          "video_files_read"
+        ]
+      }
+    },
+    "16.04": {
+      "templates": {
+        "common": [
+          "default",
+          "ubuntu-account-plugin",
+          "ubuntu-push-helper",
+          "ubuntu-scope-network",
+          "ubuntu-sdk",
+          "ubuntu-webapp"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "accounts",
+          "audio",
+          "camera",
+          "connectivity",
+          "content_exchange",
+          "content_exchange_source",
+	  "in-app-purchases",
           "keep-display-on",
           "location",
           "microphone",
@@ -225,6 +274,52 @@
   },
   "ubuntu-personal": {
     "15.10": {
+      "templates": {
+        "common": [
+          "default",
+          "ubuntu-account-plugin",
+          "ubuntu-push-helper",
+          "ubuntu-scope-network",
+          "ubuntu-sdk",
+          "ubuntu-webapp"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "accounts",
+          "audio",
+          "camera",
+          "connectivity",
+          "content_exchange",
+          "content_exchange_source",
+          "keep-display-on",
+          "location",
+          "microphone",
+          "networking",
+          "push-notification-client",
+          "sensors",
+          "usermetrics",
+          "video",
+          "webview"
+        ],
+        "reserved": [
+          "calendar",
+          "contacts",
+          "debug",
+          "history",
+          "music_files",
+          "music_files_read",
+          "picture_files",
+          "picture_files_read",
+          "video_files",
+          "video_files_read"
+        ]
+      }
+    },
+    "16.04": {
       "templates": {
         "common": [
           "default",
@@ -329,6 +424,28 @@
           "network-client",
           "network-service",
           "networking"
+        ],
+        "reserved": [
+          "network-admin",
+          "network-firewall",
+          "network-status",
+          "snapd"
+	]
+      }
+    },
+    "16.04": {
+      "templates": {
+        "common": [
+          "default"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "network-client",
+          "network-service"
         ],
         "reserved": [
           "network-admin",
