@@ -648,7 +648,7 @@ def _unpack_cmd(cmd_args, d, dest):
     if rc != 0:
         if os.path.isdir(d):
             recursive_rm(d)
-        error("unsquashfs failed with '%d':\n%s" % (rc, out))
+        error("unpacking failed with '%d':\n%s" % (rc, out))
 
     if dest is None:
         dest = d
