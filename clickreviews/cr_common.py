@@ -639,6 +639,38 @@ def cmd_pipe(command1, command2):
     return [sp2.returncode, out]
 
 
+def _unpack_cmd(cmd_args, d, dest):
+    '''Low level unpack helper'''
+    curdir = os.getcwd()
+    os.chdir(d)
+
+    (rc, out) = cmd(cmd_args)
+    os.chdir(curdir)
+
+    if rc != 0:
+        if os.path.isdir(d):
+            recursive_rm(d)
+        error("unpacking failed with '%d':\n%s" % (rc, out))
+
+    if dest is None:
+        dest = d
+    else:
+        shutil.move(d, dest)
+
+    return dest
+
+
+def _unpack_snap_squashfs(snap_pkg, dest):
+    '''Unpack a squashfs based snap package to dest'''
+    d = tempfile.mkdtemp(prefix='clickreview-')
+    return _unpack_cmd(['unsquashfs', '-f', '-d', d, snap_pkg], d, dest)
+
+
+def _unpack_click_deb(click_pkg, dest):
+    d = tempfile.mkdtemp(prefix='clickreview-')
+    return _unpack_cmd(['dpkg-deb', '-R', click_pkg, d], d, dest)
+
+
 def unpack_click(fn, dest=None):
     '''Unpack click package'''
     if not os.path.isfile(fn):
@@ -650,24 +682,18 @@ def unpack_click(fn, dest=None):
     if dest is not None and os.path.exists(dest):
         error("'%s' exists. Aborting." % dest)
 
-    d = tempfile.mkdtemp(prefix='clickreview-')
+    # check if its a squashfs based snap
+    if is_squashfs(click_pkg):
+        return _unpack_snap_squashfs(fn, dest)
 
-    curdir = os.getcwd()
-    os.chdir(d)
-    (rc, out) = cmd(['dpkg-deb', '-R', click_pkg, d])
-    os.chdir(curdir)
+    return _unpack_click_deb(fn, dest)
 
-    if rc != 0:
-        if os.path.isdir(d):
-            recursive_rm(d)
-        error("dpkg-deb -R failed with '%d':\n%s" % (rc, out))
 
-    if dest is None:
-        dest = d
-    else:
-        shutil.move(d, dest)
-
-    return dest
+def is_squashfs(filename):
+    '''Return true if the given filename as a squashfs header'''
+    with open(filename, 'rb') as f:
+        header = f.read(10)
+    return header.startswith(b"hsqs")
 
 
 def raw_unpack_pkg(fn, dest=None):

@@ -70,6 +70,7 @@ lint:hooks_known|
 lint:hooks_multiple_apps|
 lint:hooks_redflag|
 lint:hooks_valid|
+lint:is_squashfs|
 lint:maintainer_format|http://askubuntu.com/questions/417351/what-does-lint-maintainer-format-mean/417352
 lint:maintainer_present|
 lint:manifest_architecture_valid|
