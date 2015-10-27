@@ -678,12 +678,16 @@ def unpack_click(fn, dest=None):
         error("'%s' exists. Aborting." % dest)
 
     # check if its a squashfs based snap
-    with open(click_pkg, 'rb') as f:
-        header = f.read(10)
-    if header.startswith(b"hsqs"):
+    if is_squashfs(click_pkg):
         return _unpack_snap_squashfs(fn, dest)
         
     return _unpack_click_deb(fn, dest)
+
+def is_squashfs(filename):
+    '''Return true if the given filename as a squashfs header'''
+    with open(filename, 'rb') as f:
+        header = f.read(10)
+    return header.startswith(b"hsqs")
 
 def raw_unpack_pkg(fn, dest=None):
     '''Unpack raw package'''

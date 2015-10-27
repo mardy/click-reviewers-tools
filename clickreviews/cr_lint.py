@@ -24,7 +24,13 @@ import stat
 import yaml
 
 from clickreviews.frameworks import Frameworks
-from clickreviews.cr_common import ClickReview, open_file_read, cmd, error
+from clickreviews.cr_common import (
+    ClickReview,
+    open_file_read,
+    cmd,
+    error,
+    is_squashfs,
+)
 
 CONTROL_FILE_NAMES = ["control", "manifest", "preinst"]
 MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
@@ -1196,6 +1202,15 @@ exit 1
                         s = "'%s' in both 'services' and 'binaries'" % app
                         break
                 self._add_result(t, n, s)
+
+    def check_is_squashfs(self):
+        '''Check snapfs'''
+        if is_squashfs(self.click_package):
+            t = 'error'
+            n = self._get_check_name('is_squashfs')
+            s = "(MANUAL REVIEW) squashfs pkg"
+            manual_review = True
+            self._add_result(t, n, s, manual_review=manual_review)
 
     def check_snappy_hashes(self):
         '''Check snappy hashes.yaml'''
