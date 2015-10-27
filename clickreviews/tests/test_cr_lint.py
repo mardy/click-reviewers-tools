@@ -14,24 +14,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from unittest import TestCase
 from unittest.mock import patch
 
+from clickreviews.cr_common import cleanup_unpack
 from clickreviews.cr_lint import ClickReviewLint
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
 from clickreviews.frameworks import FRAMEWORKS_DATA_URL, USER_DATA_FILE
+from clickreviews.tests import utils
 import clickreviews.cr_tests as cr_tests
 
 import os
+import shutil
 import stat
+import tempfile
 
 
 class TestClickReviewLint(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
-    def setUp(self):
-        # Monkey patch various file access classes. stop() is handled with
-        # addCleanup in super()
-        cr_tests.mock_patch()
-        super()
 
     def _create_hashes_yaml(self):
         # find cr_tests.py since that is what _get_statinfo() is mocked to
@@ -1874,3 +1874,32 @@ class TestClickReviewLint(cr_tests.TestClickReview):
             r = c.click_report
             expected_counts = {'info': None, 'warn': 0, 'error': 1}
             self.check_results(r, expected_counts)
+
+
+class ClickReviewLintTestCase(TestCase):
+    """Tests without mocks where they are not needed."""
+    def setUp(self):
+        # XXX cleanup_unpack() is required because global variables
+        # UNPACK_DIR, RAW_UNPACK_DIR are initialised to None at module
+        # load time, but updated when a real (non-Mock) test runs, such as
+        # here. While, at the same time, two of the existing tests using
+        # mocks depend on both global vars being None. Ideally, those
+        # global vars should be refactored away.
+        self.addCleanup(cleanup_unpack)
+        super().setUp()
+
+    def mkdtemp(self):
+        """Create a temp dir which is cleaned up after test."""
+        tmp_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp_dir)
+        return tmp_dir
+
+    def test_check_dot_click_root(self):
+        package = utils.make_package(extra_files=['.click/'],
+                                     output_dir=self.mkdtemp())
+        c = ClickReviewLint(package)
+
+        c.check_dot_click()
+
+        errors = list(c.click_report['error'].keys())
+        self.assertEqual(errors, ['lint:dot_click'])

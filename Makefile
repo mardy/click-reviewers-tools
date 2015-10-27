@@ -10,6 +10,7 @@ test:
 syntax-check: clean
 	./run-pyflakes
 	./run-pep8
+	python -mjson.tool ./data/*.json >/dev/null
 
 check-names:
 	# make sure check-names.list is up to date

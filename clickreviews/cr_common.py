@@ -42,9 +42,11 @@ def cleanup_unpack():
     global UNPACK_DIR
     if UNPACK_DIR is not None and os.path.isdir(UNPACK_DIR):
         recursive_rm(UNPACK_DIR)
+        UNPACK_DIR = None
     global RAW_UNPACK_DIR
     if RAW_UNPACK_DIR is not None and os.path.isdir(RAW_UNPACK_DIR):
         recursive_rm(RAW_UNPACK_DIR)
+        RAW_UNPACK_DIR = None
 atexit.register(cleanup_unpack)
 
 

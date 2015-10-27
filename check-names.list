@@ -57,6 +57,7 @@ lint:control_maintainer_match|
 lint:control_package_match|
 lint:control_structure|
 lint:control_version_match|
+lint:dot_click|
 lint:exclusive_hooks|
 lint:file_mode|
 lint:framework|http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file

@@ -65,7 +65,16 @@ class ClickReviewLint(ClickReview):
         self.valid_control_architectures = ['all',
                                             'multi',
                                             ] + self.valid_compiled_architectures
-        self.vcs_dirs = ['.bzr*', '.git*', '.svn*', '.hg', 'CVS*', 'RCS*']
+        self.vcs_files = ['.bzr*',
+                          '.excludes',
+                          '.git*',
+                          '.idea',
+                          '.svn*',
+                          '.hg',
+                          '.project',
+                          'CVS*',
+                          'RCS*'
+                          ]
 
         if 'maintainer' in self.manifest:
             maintainer = self.manifest['maintainer']
@@ -849,7 +858,7 @@ exit 1
         n = self._get_check_name('vcs_files')
         s = 'OK'
         found = []
-        for d in self.vcs_dirs:
+        for d in self.vcs_files:
             entries = glob.glob("%s/%s" % (self.unpack_dir, d))
             if len(entries) > 0:
                 for i in entries:
