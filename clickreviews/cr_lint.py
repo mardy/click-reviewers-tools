@@ -1225,6 +1225,9 @@ exit 1
         '''Check snappy hashes.yaml'''
         if not self.is_snap:
             return
+        # no hashes.yaml for squashfs images
+        if is_squashfs(self.click_package):
+            return
 
         def _check_allowed_perms(mode, allowed):
             '''Check that mode only uses allowed perms'''

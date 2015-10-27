@@ -703,6 +703,9 @@ def raw_unpack_pkg(fn, dest=None):
     pkg = fn
     if not pkg.startswith('/'):
         pkg = os.path.abspath(pkg)
+    # nothing to do for squashfs images
+    if is_squashfs(pkg):
+        return ""
 
     if dest is not None and os.path.exists(dest):
         error("'%s' exists. Aborting." % dest)
