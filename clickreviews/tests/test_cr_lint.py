@@ -1874,4 +1874,3 @@ class TestClickReviewLint(cr_tests.TestClickReview):
             r = c.click_report
             expected_counts = {'info': None, 'warn': 0, 'error': 1}
             self.check_results(r, expected_counts)
-        
