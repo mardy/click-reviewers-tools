@@ -663,13 +663,13 @@ def _unpack_cmd(cmd_args, d, dest):
 def _unpack_snap_squashfs(snap_pkg, dest):
     '''Unpack a squashfs based snap package to dest'''
     d = tempfile.mkdtemp(prefix='clickreview-')
-    return _unpack_cmd(['unsquashfs', '-f', '-d', d, 
+    return _unpack_cmd(['unsquashfs', '-f', '-d', d,
                         os.path.abspath(snap_pkg)], d, dest)
 
 
 def _unpack_click_deb(click_pkg, dest):
     d = tempfile.mkdtemp(prefix='clickreview-')
-    return _unpack_cmd(['dpkg-deb', '-R', 
+    return _unpack_cmd(['dpkg-deb', '-R',
                         os.path.abspath(click_pkg), d], d, dest)
 
 
