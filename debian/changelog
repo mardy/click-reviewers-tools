@@ -18,6 +18,10 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   [ Michael Vogt ]
   * add support for squashfs snaps (currently will trigger manual review)
 
+  [ Daniel Holbach ]
+  * Pass absolute path of click or snap file - that way it's safe even if we
+    chdir (LP: #1514346).
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 26 Oct 2015 16:46:47 -0500
 
 click-reviewers-tools (0.34) wily; urgency=medium
