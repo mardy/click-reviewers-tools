@@ -185,9 +185,11 @@ class ClickReviewLint(ClickReview):
                   'Version',
                   'Click-Version',
                   'Architecture',
-                  'Maintainer',
                   'Installed-Size',
                   'Description']
+
+        if not self.is_snap:
+            fields.append('Maintainer')
 
         error = False
         for f in sorted(fields):
