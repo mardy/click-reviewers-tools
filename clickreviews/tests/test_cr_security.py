@@ -1376,7 +1376,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.check_results(report, expected_counts)
 
     def test_check_security_caps_default(self):
-        '''Test check_security_caps() - default'''
+        '''Test check_security_caps() - default (networking)'''
         self.set_test_security_manifest(self.default_appname,
                                         "caps", ['networking'])
         self._set_yaml_binary([('caps', ['networking'])])
@@ -1386,12 +1386,35 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_caps_default2(self):
+        '''Test check_security_caps() - default (network-client)'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "caps", ['network-client'])
+        self._set_yaml_binary([('caps', ['network-client'])])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_caps_default_with_exec(self):
-        '''Test check_security_caps() - default with exec'''
+        '''Test check_security_caps() - default with exec (networking)'''
         self.set_test_security_manifest(self.default_appname,
                                         "caps", ['networking'])
         self._set_yaml_binary([('exec', 'bin/%s' % self.default_appname),
                                ('caps', ['networking'])])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_default_with_exec2(self):
+        '''Test check_security_caps() - default with exec (network-client)'''
+        self.set_test_security_manifest(self.default_appname,
+                                        "caps", ['network-client'])
+        self._set_yaml_binary([('exec', 'bin/%s' % self.default_appname),
+                               ('caps', ['network-client'])])
         c = ClickReviewSecurity(self.test_name)
         c.check_security_caps()
         report = c.click_report
@@ -1491,6 +1514,19 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self._set_yaml_binary([('caps', [])])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ['networking'])
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        del c.pkg_yaml['binaries'][0]['caps']
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_matching_caps2(self):
+        '''Test check_security_yaml_and_click() - matching default caps'''
+        self._set_yaml_binary([('caps', [])])
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ['network-client'])
         c = ClickReviewSecurity(self.test_name)
         c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
         del c.pkg_yaml['binaries'][0]['caps']
@@ -1669,6 +1705,21 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self._set_yaml_binary([('security-template', 'nondefault')])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ['networking'])
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "nondefault")
+        c = ClickReviewSecurity(self.test_name)
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+        del c.pkg_yaml['binaries'][0]['caps']
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_mismatch12(self):
+        '''Test check_security_yaml_and_click() - default caps with template'''
+        self._set_yaml_binary([('security-template', 'nondefault')])
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ['network-client'])
         self.set_test_security_manifest(self.default_appname,
                                         "template", "nondefault")
         c = ClickReviewSecurity(self.test_name)

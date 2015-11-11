@@ -3,9 +3,12 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   [ Jamie Strandboge ]
   * clickreviews/cr_systemd.py: add checks for listen-stream, socket,
     socket-user and socket-group
-  * clickreviews/cr_security.py: make sure that the generated profile name
-    is under the current 253 character maximum. This might have to be
-    adjusted after the AppArmor stacking work is completed (LP: #1499544)
+  * clickreviews/cr_security.py:
+    - make sure that the generated profile name is under the current 253
+      character maximum. This might have to be adjusted after the AppArmor
+      stacking work is completed (LP: #1499544)
+    - adjust for xenial snappy defaulting to using 'network-client' instead
+      of 'networking'
   * clickreviews/cr_lint.py:
     - check if package ships .click directory
     - add a few more vcs files

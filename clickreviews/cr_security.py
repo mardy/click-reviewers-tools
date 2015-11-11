@@ -882,6 +882,7 @@ class ClickReviewSecurity(ClickReview):
                 second = yaml
                 first_m = "click-manifest"
                 second_m = "package.yaml"
+
             for exe_t in ['binaries', 'services']:
                 t = 'info'
                 n = self._get_check_name('yaml_%s' % exe_t)
@@ -937,7 +938,7 @@ class ClickReviewSecurity(ClickReview):
                         # manifest, unless security-template is in yaml
                         t = 'error'
                         s = "'policy_groups' not found in click manifest " + \
-                            "(should default to ['networking'])"
+                            "(should default to ['network-client'])"
                         self._add_result(t, n, s)
                         continue
                     self._add_result(t, n, s)
@@ -979,9 +980,10 @@ class ClickReviewSecurity(ClickReview):
                             elif key == 'caps' and second == yaml and \
                                     'security-template' not in sapp and \
                                     key not in sapp and key in fapp and \
-                                    fapp[key] == set(['networking']):
+                                    (fapp[key] == set(['networking']) or
+                                     fapp[key] == set(['network-client'])):
                                 # no caps in yaml, policy_groups is networking
-                                # in click manifest wen security-template not
+                                # in click manifest when security-template not
                                 # specified in yaml
                                 self._add_result(t, n, s)
                                 continue
