@@ -1177,42 +1177,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_snappy_vendor(self):
-        '''Test check_snappy_vendor'''
-        self.set_test_pkg_yaml("vendor", "Foo Bar <foo.bar@example.com>")
-        c = ClickReviewLint(self.test_name)
-        c.check_snappy_vendor()
-        r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_snappy_vendor_missing(self):
-        '''Test check_snappy_vendor - missing'''
-        self.set_test_pkg_yaml("vendor", None)
-        c = ClickReviewLint(self.test_name)
-        c.check_snappy_vendor()
-        r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_snappy_vendor_empty(self):
-        '''Test check_snappy_vendor - empty'''
-        self.set_test_pkg_yaml("vendor", "")
-        c = ClickReviewLint(self.test_name)
-        c.check_snappy_vendor()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_snappy_vendor_bad(self):
-        '''Test check_snappy_vendor - bad'''
-        self.set_test_pkg_yaml("vendor", "Foo Bar")
-        c = ClickReviewLint(self.test_name)
-        c.check_snappy_vendor()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
     def test_check_snappy_icon(self):
         '''Test check_snappy_icon()'''
         self.set_test_pkg_yaml("icon", "someicon")

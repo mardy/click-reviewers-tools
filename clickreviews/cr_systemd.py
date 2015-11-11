@@ -330,16 +330,6 @@ class ClickReviewSystemd(ClickReview):
             suggested = [pkgname,
                          "%s.%s" % (pkgname, app)
                          ]
-            if self.is_snap and 'vendor' in self.pkg_yaml:
-                tmp = self.pkg_yaml['vendor'].split('@')
-                if len(tmp) > 1:
-                    rev = tmp[1].rstrip('>').split('.')
-                    rev.reverse()
-                    suggested.append("%s.%s" % (".".join(rev),
-                                                pkgname))
-                    suggested.append("%s.%s.%s" % (".".join(rev),
-                                                   pkgname,
-                                                   app))
             found = False
             for name in suggested:
                 if my_dict[app]['bus-name'].endswith(name):

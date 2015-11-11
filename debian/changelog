@@ -1,8 +1,9 @@
 click-reviewers-tools (0.35) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
-  * clickreviews/cr_systemd.py: add checks for listen-stream, socket,
-    socket-user and socket-group
+  * clickreviews/cr_systemd.py:
+    - add checks for listen-stream, socket, socket-user and socket-group
+    - remove vendor checks with bus-name (LP: #1510522)
   * clickreviews/cr_security.py:
     - make sure that the generated profile name is under the current 253
       character maximum. This might have to be adjusted after the AppArmor
@@ -12,6 +13,9 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   * clickreviews/cr_lint.py:
     - check if package ships .click directory
     - add a few more vcs files
+    - remove vendor-specific checks. 'vendor' is still allowed for
+      compatibility with older snappy versions, but no formatting checks are
+      performed (LP: #1510522)
   * update data/apparmor-easyprof-ubuntu.json for 16.04 policy
   * Makefile: add json syntax check
 

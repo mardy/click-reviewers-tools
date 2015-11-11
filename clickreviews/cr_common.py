@@ -103,7 +103,7 @@ class ClickReview(object):
                        "services",
                        "source",
                        "type",
-                       "vendor",  # replaces maintainer
+                       "vendor",  # deprecated, unused
                        ]
     snappy_exe_security = ["caps",
                            "security-template",

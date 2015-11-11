@@ -1061,21 +1061,6 @@ exit 1
                 l = "https://developer.ubuntu.com/en/snappy/guides/frameworks/"
         self._add_result(t, n, s, link=l, manual_review=manual_review)
 
-    def check_snappy_vendor(self):
-        '''Check package vendor'''
-        if not self.is_snap:
-            return
-
-        t = 'info'
-        n = self._get_check_name('snappy_vendor_valid')
-        s = 'OK'
-        if 'vendor' not in self.pkg_yaml:
-            s = "OK (skip missing)"
-        elif not self._verify_maintainer(self.pkg_yaml['vendor']):
-            t = 'error'
-            s = "malformed 'vendor': '%s'" % self.pkg_yaml['vendor']
-        self._add_result(t, n, s)
-
     def check_snappy_icon(self):
         '''Check icon()'''
         if not self.is_snap:
