@@ -16,6 +16,8 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
     - remove vendor-specific checks. 'vendor' is still allowed for
       compatibility with older snappy versions, but no formatting checks are
       performed (LP: #1510522)
+    - 'Maintainer' checks in the click manifest should only be done with click
+      packages (LP: #1510522)
   * update data/apparmor-easyprof-ubuntu.json for 16.04 policy
   * Makefile: add json syntax check
 
@@ -29,11 +31,7 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   * Pass absolute path of click or snap file - that way it's safe even if we
     chdir (LP: #1514346).
 
-  [ Sergio Schvezov ]
-  * clickreviews/cr_lint.py: 'Maintainer' checks in the click manifest should
-    only be done with click packages (LP: #1510522)
-
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 26 Oct 2015 16:46:47 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 12 Nov 2015 07:36:49 -0600
 
 click-reviewers-tools (0.34) wily; urgency=medium
 

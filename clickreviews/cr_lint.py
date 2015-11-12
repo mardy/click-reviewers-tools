@@ -185,11 +185,9 @@ class ClickReviewLint(ClickReview):
                   'Version',
                   'Click-Version',
                   'Architecture',
+                  'Maintainer',
                   'Installed-Size',
                   'Description']
-
-        if not self.is_snap:
-            fields.append('Maintainer')
 
         error = False
         for f in sorted(fields):
@@ -643,6 +641,11 @@ exit 1
             self._add_result(t, n, s)
             return
         self._add_result(t, n, s)
+
+        # Don't perform maintainer checks for snaps. They aren't used by
+        # anything.
+        if self.is_snap:
+            return
 
         # Simple regex as used by python3-debian. If we wanted to be more
         # thorough we could use email_re from django.core.validators

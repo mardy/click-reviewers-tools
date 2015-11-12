@@ -389,6 +389,8 @@ class TestClickReview(TestCase):
         self.set_test_control('Version', "1.0")
         self.set_test_control('Click-Version', MINIMUM_CLICK_FRAMEWORK_VERSION)
         self.set_test_control('Architecture', "all")
+        self.set_test_control('Maintainer',
+                              "Some User <some.user@example.com>")
         self.set_test_control('Installed-Size', "111")
         self.set_test_control('Description', "My Test App")
 
@@ -397,6 +399,7 @@ class TestClickReview(TestCase):
         self.set_test_manifest("description",
                                "Some longish description of My Test App")
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        self.set_test_manifest("maintainer", self.test_control['Maintainer'])
         self.set_test_manifest("name", self.test_control['Package'])
         self.set_test_manifest("title", self.test_control['Description'])
         self.set_test_manifest("version", self.test_control['Version'])

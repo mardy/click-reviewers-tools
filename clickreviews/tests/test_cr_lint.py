@@ -195,7 +195,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.is_snap = True
         c.check_control()
         r = c.click_report
-        expected_counts = {'info': 14, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 15, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control_manifest_architecture_missing(self):
@@ -513,9 +513,20 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         '''Test check_maintainer() - empty'''
         self.set_test_manifest("maintainer", "")
         c = ClickReviewLint(self.test_name)
+        c.is_snap = False
         c.check_maintainer()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_empty_snap(self):
+        '''Test check_maintainer() - empty (snap)'''
+        self.set_test_manifest("maintainer", "")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_maintainer_missing(self):
@@ -542,9 +553,20 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         '''Test check_maintainer() - badly formatted'''
         self.set_test_manifest("maintainer", "$%^@*")
         c = ClickReviewLint(self.test_name)
+        c.is_snap = False
         c.check_maintainer()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_badformat_snap(self):
+        '''Test check_maintainer() - badly formatted (snap)'''
+        self.set_test_manifest("maintainer", "$%^@*")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_maintainer_bad_email_missing_name(self):
@@ -553,9 +575,22 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.set_test_manifest("maintainer",
                                "user@example.com")
         c = ClickReviewLint(self.test_name)
+        c.is_snap = False
         c.check_maintainer()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_maintainer_bad_email_missing_name_snap(self):
+        '''Test check_maintainer() - bad email (missing name, snap)'''
+        self.set_test_manifest("name", "com.ubuntu.developer.user.app")
+        self.set_test_manifest("maintainer",
+                               "user@example.com")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_maintainer()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_maintainer_domain_appstore(self):
