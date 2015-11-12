@@ -479,10 +479,34 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     def test_check_control(self):
         """A very basic test to make sure check_control can be tested."""
         c = ClickReviewLint(self.test_name)
+        c.is_snap = False
         c.check_control()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 15, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_check_control_snap(self):
+        """check_control with snap."""
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_control()
+        r = c.click_report
+        expected_counts = {'info': 15, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_control_snap_missing_maintainer(self):
+        """check_control with snap with missing maintainer."""
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        self.set_test_control('Maintainer', None)
+        c.check_control()
+        r = c.click_report
+        expected_counts = {'info': 15, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+        # Lets check that the right info is triggering
+        name = c._get_check_name('control_has_field:Maintainer')
+        m = r['info'][name]['text']
+        self.assertIn('OK (maintainer not required for snappy)', m)
 
     # Make the current MINIMUM_CLICK_FRAMEWORK_VERSION newer
     @patch('clickreviews.cr_lint.MINIMUM_CLICK_FRAMEWORK_VERSION',

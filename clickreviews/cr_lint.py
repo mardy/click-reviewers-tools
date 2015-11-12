@@ -195,9 +195,12 @@ class ClickReviewLint(ClickReview):
             n = self._get_check_name('control_has_field', extra=f)
             s = 'OK'
             if f not in control:
-                t = 'error'
-                s = "'%s' missing" % f
-                error = True
+                if f == 'Maintainer' and self.is_snap:
+                    s = 'OK (maintainer not required for snappy)'
+                else:
+                    t = 'error'
+                    s = "'%s' missing" % f
+                    error = True
             self._add_result(t, n, s)
         if error is True:
             return
@@ -262,7 +265,8 @@ class ClickReviewLint(ClickReview):
         n = self._get_check_name('control_maintainer_match')
         s = 'OK'
         if 'maintainer' in self.manifest:
-            if control['Maintainer'] != self.manifest['maintainer']:
+            if 'Maintainer' in control and \
+                    control['Maintainer'] != self.manifest['maintainer']:
                 t = 'error'
                 s = "Maintainer=%s does not match manifest maintainer=%s" % \
                     (control['Maintainer'], self.manifest['maintainer'])
