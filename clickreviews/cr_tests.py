@@ -245,17 +245,21 @@ def _has_framework_in_metadir(self):
     '''Pretend we found the framework file'''
     return True
 
+
 def _pkgfmt_type(self):
     '''Pretend we found the pkgfmt type'''
     return TEST_PKGFMT_TYPE
+
 
 def _pkgfmt_version(self):
     '''Pretend we found the pkgfmt version'''
     return TEST_PKGFMT_VERSION
 
+
 def _is_squashfs(self):
     '''Pretend we discovered if it is a squashfs or not'''
     return (TEST_PKGFMT_TYPE == "snap" and float(TEST_PKGFMT_VERSION) > 15.04)
+
 
 def create_patches():
     # http://docs.python.org/3.4/library/unittest.mock-examples.html
@@ -383,9 +387,9 @@ def create_patches():
 
     # pkgfmt
     patches.append(patch("clickreviews.cr_common.ClickReview._pkgfmt_type",
-        _pkgfmt_type))
+                   _pkgfmt_type))
     patches.append(patch("clickreviews.cr_common.ClickReview._pkgfmt_version",
-        _pkgfmt_version))
+                   _pkgfmt_version))
     patches.append(patch("clickreviews.cr_common.is_squashfs", _is_squashfs))
     patches.append(patch("clickreviews.cr_lint.is_squashfs", _is_squashfs))
 

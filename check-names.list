@@ -44,9 +44,9 @@ framework:policy|
 framework:policy_metadata|
 framework:policy_unknown|
 framework:policy_valid_name|
+lint:architecture_specified_needed|
 lint:click_local_extensions|
 lint:control_architecture_match|
-lint:control_architecture_specified_needed|
 lint:control_architecture_valid|
 lint:control_architecture_valid_contents|
 lint:control_click_version_up_to_date|http://askubuntu.com/questions/417366/what-does-lint-control-click-version-up-to-date-mean/417367
@@ -77,10 +77,6 @@ lint:manifest_architecture_valid|
 lint:manifest_icon_absolute_path|
 lint:manifest_icon_empty|
 lint:manifest_icon_present|
-lint:package_filename_arch_match|
-lint:package_filename_arch_valid|
-lint:package_filename_format|
-lint:package_filename_version_match|http://askubuntu.com/questions/417384/what-does-lint-package-filename-version-match-mean/417385
 lint:package yaml_architecture_valid|
 lint:package_yaml_icon_absolute_path|
 lint:package_yaml_icon_empty|
@@ -134,7 +130,6 @@ security:peer_hooks_disallowed|
 security:peer_hooks_required|
 security:policy_groups_duplicates|
 security:policy_groups_exists|
-security:policy_groups_push_helper|
 security:policy_groups_safe|
 security:policy_groups_scopes|
 security:policy_groups_ubuntu_account_plugin|
@@ -152,7 +147,6 @@ security:required_policy_groups_ubuntu_account_plugin|
 security:template_account_provider|
 security:template_account_qml_plugin|
 security:template_exists|
-security:template_push_helper|
 security:template_valid|
 security:template_with_policy_version|
 security:yaml_and_click|

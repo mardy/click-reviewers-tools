@@ -203,7 +203,6 @@ class ClickReviewSecurity(ClickReview):
                     self._extract_security_profile(app)
                 self.security_apps_profiles.append(app)
 
-
     def _override_framework_policies(self, overrides):
         # override major framework policies
         self.major_framework_policy.update(overrides)
@@ -264,7 +263,7 @@ class ClickReviewSecurity(ClickReview):
 
     def _get_security_manifest(self, app):
         '''Get the security manifest for app'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "1504":
+        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "15.04":
             if app not in self.manifest['hooks']:
                 error("Could not find '%s' in click manifest" % app)
             elif 'apparmor' not in self.manifest['hooks'][app]:
@@ -280,7 +279,7 @@ class ClickReviewSecurity(ClickReview):
 
     def _extract_security_profile(self, app):
         '''Extract security profile'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "1504":
+        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "15.04":
             rel_fn = self.manifest['hooks'][app]['apparmor-profile']
         else:
             exe_t, name = app.split('/')
@@ -307,7 +306,7 @@ class ClickReviewSecurity(ClickReview):
 
     def _get_security_profile(self, app):
         '''Get the security profile for app'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "1504":
+        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "15.04":
             if app not in self.manifest['hooks']:
                 error("Could not find '%s' in click manifest" % app)
             elif 'apparmor-profile' not in self.manifest['hooks'][app]:
@@ -1272,13 +1271,13 @@ class ClickReviewSecurity(ClickReview):
 
                 self._add_result(t, n, s)
 
-                t = 'error'
-                n = self._get_check_name('yaml_override_present')
-                s = "(MANUAL REVIEW) 'security-override' not allowed"
-                l = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
-                m = True
-                self._add_result(t, n, s, link=l, manual_review=m)
-
+                if float(self._pkgfmt_version()) > 15.04:
+                    t = 'error'
+                    n = self._get_check_name('yaml_override_present')
+                    s = "(MANUAL REVIEW) 'security-override' not allowed"
+                    l = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
+                    m = True
+                    self._add_result(t, n, s, link=l, manual_review=m)
 
     def check_security_yaml_policy(self):
         '''Verify security yaml policy'''
