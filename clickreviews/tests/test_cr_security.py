@@ -1267,6 +1267,25 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_apparmor_profile_1604(self):
+        '''Test check_apparmor_profile() - snappy 16.04'''
+        policy = '''
+###VAR###
+###PROFILEATTACH### {
+  #include <abstractions/base>
+  # Read-only for the install directory
+  @{CLICK_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
+  @{INSTALL_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
+}
+'''
+        self.set_test_security_profile(self.default_appname, policy)
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_pkgfmt("snap", "16.04")
+        c.check_apparmor_profile()
+        report = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_apparmor_profile_missing_var(self):
         '''Test check_apparmor_profile() - missing ###VAR###'''
         policy = '''

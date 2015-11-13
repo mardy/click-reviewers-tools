@@ -39,6 +39,9 @@ class ClickReviewFunctional(ClickReview):
 
     def check_applicationName(self):
         '''Check applicationName matches click manifest'''
+        if self.manifest is None:
+            return
+
         t = 'info'
         n = self._get_check_name('qml_applicationName_matches_manifest')
         s = "OK"
@@ -148,7 +151,8 @@ class ClickReviewFunctional(ClickReview):
         s = "OK"
         l = None
 
-        if self.manifest['framework'] == "ubuntu-sdk-13.10":
+        if self.manifest is not None and \
+                self.manifest['framework'] == "ubuntu-sdk-13.10":
             s = "SKIPPED (Oxide not available in ubuntu-sdk-13.10)"
         else:
             qmls = []

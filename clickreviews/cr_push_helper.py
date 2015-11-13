@@ -38,6 +38,10 @@ class ClickReviewPushHelper(ClickReview):
 
         self.push_helper_files = dict()  # click-show-files and tests
         self.push_helper = dict()
+
+        if self.manifest is None:
+            return
+
         for app in self.manifest['hooks']:
             if 'push-helper' not in self.manifest['hooks'][app]:
                 # msg("Skipped missing push-helper hook for '%s'" % app)
@@ -121,6 +125,9 @@ class ClickReviewPushHelper(ClickReview):
 
     def check_hooks(self):
         '''Verify combinations of click hooks with the push-helper hook'''
+        if self.manifest is None:
+            return
+
         for app in sorted(self.manifest['hooks']):
             if app not in self.push_helper:
                 continue

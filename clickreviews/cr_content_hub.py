@@ -37,6 +37,10 @@ class ClickReviewContentHub(ClickReview):
 
         self.content_hub_files = dict()  # click-show-files and tests
         self.content_hub = dict()
+
+        if self.manifest is None:
+            return
+
         for app in self.manifest['hooks']:
             if 'content-hub' not in self.manifest['hooks'][app]:
                 # msg("Skipped missing content-hub hook for '%s'" % app)

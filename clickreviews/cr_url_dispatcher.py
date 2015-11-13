@@ -40,6 +40,10 @@ class ClickReviewUrlDispatcher(ClickReview):
 
         self.url_dispatcher_files = dict()  # click-show-files and tests
         self.url_dispatcher = dict()
+
+        if self.manifest is None:
+            return
+
         for app in self.manifest['hooks']:
             if 'urls' not in self.manifest['hooks'][app]:
                 # msg("Skipped missing urls hook for '%s'" % app)

@@ -41,6 +41,10 @@ class ClickReviewScope(ClickReview):
                              overrides=overrides)
 
         self.scopes = dict()
+
+        if self.manifest is None:
+            return
+
         for app in self.manifest['hooks']:
             if 'scope' not in self.manifest['hooks'][app]:
                 # msg("Skipped missing scope hook for '%s'" % app)
