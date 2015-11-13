@@ -367,6 +367,7 @@ def create_patches():
     patches.append(patch(
         'clickreviews.cr_framework.ClickReviewFramework._has_framework_in_metadir',
         _has_framework_in_metadir))
+    patches.append(patch("clickreviews.cr_common.is_squashfs", lambda x: False))
     patches.append(patch("clickreviews.cr_lint.is_squashfs", lambda x: False))
 
     return patches

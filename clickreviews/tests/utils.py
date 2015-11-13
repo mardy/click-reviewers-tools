@@ -22,31 +22,36 @@ import subprocess
 import tempfile
 
 
-def make_package(name='test', package_format='click', package_types=None,
-                 version='1.0', title="An application",
-                 framework='ubuntu-sdk-15.04', extra_files=None, output_dir=None):
+def make_package(name='test', pkgfmt_type='click', pkgfmt_version='0.4',
+                 package_types=None, version='1.0', title="An application",
+                 framework='ubuntu-sdk-15.04', extra_files=None,
+                 output_dir=None):
     """Return the path to a click/snap package with the given data.
 
     Caller is responsible for deleting the output_dir afterwards.
     """
-    is_snap = (package_format == "snap")
+    is_snap = (pkgfmt_type == "snap")
     build_dir = tempfile.mkdtemp()
     package_types = package_types or []
 
     try:
-        make_dir_structure(build_dir, extra_files=extra_files)
+        make_dir_structure(build_dir, pkgfmt_type=pkgfmt_type,
+                           pkgfmt_version=pkgfmt_version,
+                           extra_files=extra_files)
         write_icon(build_dir)
-        write_manifest(build_dir, name, version,
-                       title, framework, package_types,
-                       is_snap)
-        if is_snap:
-            write_meta_data(build_dir, name, version,
-                            title, framework)
-        write_control(build_dir, name, version, title)
-        write_preinst(build_dir)
-        write_apparmor_profile(build_dir, name)
-        write_other_files(build_dir)
-        pkg_path = build_package(build_dir, name, version, package_format,
+
+        if pkgfmt_type == 'click' or pkgfmt_version == 15.04:
+            write_manifest(build_dir, name, version,
+                           title, framework, package_types,
+                           is_snap)
+            write_control(build_dir, name, version, title, pkgfmt_version)
+            write_preinst(build_dir)
+            write_apparmor_profile(build_dir, name)
+            write_other_files(build_dir)
+        else:
+            write_meta_data(build_dir, name, version, title, framework)
+
+        pkg_path = build_package(build_dir, name, version, pkgfmt_type,
                                  output_dir=output_dir)
     finally:
         shutil.rmtree(build_dir)
@@ -54,9 +59,12 @@ def make_package(name='test', package_format='click', package_types=None,
     return pkg_path
 
 
-def make_dir_structure(path, extra_files=None):
+def make_dir_structure(path, pkgfmt_type, pkgfmt_version, extra_files=None):
     extra_files = extra_files or []
-    directories = ['DEBIAN', 'meta']
+    directories = ['meta']
+    if pkgfmt_type == 'click' or pkgfmt_version == 15.04:
+        directories.append('DEBIAN')
+
     directories.extend(
         [os.path.dirname(extra_file) for extra_file in extra_files])
 
@@ -128,11 +136,11 @@ vendor: 'Someone <someone@example.com>',
         f.write(title)
 
 
-def write_control(path, name, version, title):
+def write_control(path, name, version, title, pkgfmt_version):
     control_path = os.path.join(path, 'DEBIAN', 'control')
     control_content = {'Package': name,
                        'Version': version,
-                       'Click-Version': '0.4',
+                       'Click-Version': pkgfmt_version,
                        'Architecture': 'all',
                        'Maintainer': 'Someone <someone@example.com>',
                        'Installed-Size': '123',

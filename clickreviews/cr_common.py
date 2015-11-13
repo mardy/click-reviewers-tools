@@ -141,28 +141,24 @@ class ClickReview(object):
             RAW_UNPACK_DIR = raw_unpack_pkg(fn)
         self.raw_unpack_dir = RAW_UNPACK_DIR
 
-        # Get some basic information from the control file
-        control_file = self._extract_control_file()
-        tmp = list(Deb822.iter_paragraphs(control_file))
-        if len(tmp) != 1:
-            error("malformed control file: too many paragraphs")
-        control = tmp[0]
-        self.click_pkgname = control['Package']
-        self.click_version = control['Version']
-        self.click_arch = control['Architecture']
+        self.pkgfmt_type = ""
+        self.pkgfmt_version = ""
 
-        # Parse and store the manifest
-        manifest_json = self._extract_manifest_file()
-        try:
-            self.manifest = json.load(manifest_json)
-        except Exception:
-            error("Could not load manifest file. Is it properly formatted?")
-        self._verify_manifest_structure()
-
-        # Parse and store the package.yaml
+        # Parse and store the package.yaml, if it exists
         pkg_yaml = self._extract_package_yaml()
         self.is_snap = False
-        if pkg_yaml is not None:
+        if pkg_yaml is None:
+            self.pkgfmt_type = "click"
+        else:
+            self.pkgfmt_type = 'snap'
+            # Some day we will be able to introspect the version, but not
+            # today.... For now, decide on if it is a squashfs and if so,
+            # assume it is 16.04
+            if is_squashfs(fn):
+                self.pkgfmt_version = "16.04"
+            else:
+                self.pkgfmt_version = "15.04"
+
             try:
                 self.pkg_yaml = yaml.safe_load(pkg_yaml)
             except Exception:
@@ -173,6 +169,26 @@ class ClickReview(object):
             #  default to 'app'
             if 'type' not in self.pkg_yaml:
                 self.pkg_yaml['type'] = 'app'
+
+        if self.pkgfmt_type == "click" or self.pkgfmt_version == "15.04":
+            # Get some basic information from the control file
+            control_file = self._extract_control_file()
+            tmp = list(Deb822.iter_paragraphs(control_file))
+            if len(tmp) != 1:
+                error("malformed control file: too many paragraphs")
+            control = tmp[0]
+            self.click_pkgname = control['Package']
+            self.click_version = control['Version']
+            self.click_arch = control['Architecture']
+            self.pkgfmt_version = str(control['Click-Version'])
+
+            # Parse and store the manifest
+            manifest_json = self._extract_manifest_file()
+            try:
+                self.manifest = json.load(manifest_json)
+            except Exception:
+                error("Could not load manifest file. Is it properly formatted?")
+            self._verify_manifest_structure()
 
         self.is_snap_oem = False
         if self.is_snap and 'type' in self.pkg_yaml and \
