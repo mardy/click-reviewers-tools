@@ -188,7 +188,8 @@ class ClickReview(object):
             self.click_pkgname = control['Package']
             self.click_version = control['Version']
             self.pkg_arch.append(control['Architecture'])
-            self.pkgfmt["version"] = str(control['Click-Version'])
+            if self._pkgfmt_type() == "click":
+                self.pkgfmt["version"] = str(control['Click-Version'])
 
             # Parse and store the manifest
             manifest_json = self._extract_manifest_file()

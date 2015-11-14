@@ -263,7 +263,7 @@ class ClickReviewSecurity(ClickReview):
 
     def _get_security_manifest(self, app):
         '''Get the security manifest for app'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "15.04":
+        if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
             if app not in self.manifest['hooks']:
                 error("Could not find '%s' in click manifest" % app)
             elif 'apparmor' not in self.manifest['hooks'][app]:
@@ -279,7 +279,7 @@ class ClickReviewSecurity(ClickReview):
 
     def _extract_security_profile(self, app):
         '''Extract security profile'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "15.04":
+        if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
             rel_fn = self.manifest['hooks'][app]['apparmor-profile']
         else:
             exe_t, name = app.split('/')
@@ -306,7 +306,7 @@ class ClickReviewSecurity(ClickReview):
 
     def _get_security_profile(self, app):
         '''Get the security profile for app'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version == "15.04":
+        if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
             if app not in self.manifest['hooks']:
                 error("Could not find '%s' in click manifest" % app)
             elif 'apparmor-profile' not in self.manifest['hooks'][app]:

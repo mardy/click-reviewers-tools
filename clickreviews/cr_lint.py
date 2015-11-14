@@ -622,9 +622,9 @@ exit 1
         t = 'info'
         n = self._get_check_name('control_architecture_valid')
         s = 'OK'
-        if self.pkg_arch not in self.valid_control_architectures:
+        if self.pkg_arch[0] not in self.valid_control_architectures:
             t = 'error'
-            s = "not a valid architecture: %s" % self.pkg_arch
+            s = "not a valid architecture: %s" % self.pkg_arch[0]
         self._add_result(t, n, s)
 
     def check_architecture_all(self):
@@ -632,7 +632,7 @@ exit 1
         t = 'info'
         n = self._get_check_name('control_architecture_valid_contents')
         s = 'OK'
-        if self.pkg_arch != "all":
+        if self.pkg_arch[0] != "all":
             self._add_result(t, n, s)
             return
 

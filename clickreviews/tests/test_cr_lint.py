@@ -237,90 +237,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_package_filename(self):
-        '''Test check_package_filename()'''
-        c = ClickReviewLint(self.test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_missing_version(self):
-        '''Test check_package_filename() - missing version'''
-        test_name = "%s_%s.click" % (self.test_control['Package'],
-                                     self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 3, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_missing_arch(self):
-        '''Test check_package_filename() - missing arch'''
-        test_name = "%s_%s.click" % (self.test_control['Package'],
-                                     self.test_control['Version'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 3, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_missing_package(self):
-        '''Test check_package_filename() - missing package'''
-        test_name = "%s_%s.click" % (self.test_control['Version'],
-                                     self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 3, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_extra_underscore(self):
-        '''Test check_package_filename() - extra underscore'''
-        test_name = "_%s_%s_%s.click" % (self.test_control['Package'],
-                                         self.test_control['Version'],
-                                         self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 2, 'error': 2}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_version_mismatches(self):
-        '''Test check_package_filename() (version mismatches filename)'''
-        self.set_test_control("Version", "100.1.1")
-        c = ClickReviewLint(self.test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_valid_arch(self):
-        '''Test check_package_filename() (valid arch)'''
-        arch = "armhf"
-        self.set_test_control("Architecture", arch)
-        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
-                                        self.test_control['Version'],
-                                        self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_valid_arch_multi(self):
-        '''Test check_package_filename() (valid multi arch)'''
-        arch = "multi"
-        self.set_test_control("Architecture", arch)
-        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
-                                        self.test_control['Version'],
-                                        arch)
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
     def test_check_manifest_missing_arch(self):
         '''Test check_manifest_architecture() (missing)'''
         self.set_test_manifest("architecture", None)
@@ -453,27 +369,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_manifest_architecture()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_mismatch_arch(self):
-        '''Test check_package_filename() (control mismatches arch)'''
-        arch = "armhf"
-        self.set_test_control("Architecture", "all")
-        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
-                                        self.test_control['Version'],
-                                        arch)
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_with_extra_click(self):
-        """Test namespaces with the word "click" in them."""
-        c = ClickReviewLint(self.test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control(self):

@@ -200,19 +200,19 @@ class ClickReviewDesktop(ClickReview):
                     de.getExec()
                 l = 'http://askubuntu.com/questions/417381/what-does-desktop-exec-mean/417382'
             elif de.getExec().split()[0] not in self.expected_execs:
-                if self.click_arch == "all":  # interpreted file
+                if self.pkg_arch[0] == "all":  # interpreted file
                     if de.getExec().split()[0] not in self.deprecated_execs:
                         s = "found unexpected Exec with architecture '%s': %s" % \
-                            (self.click_arch, de.getExec().split()[0])
+                            (self.pkg_arch[0], de.getExec().split()[0])
                     else:
                         s = "found deprecated Exec with architecture '%s': %s" % \
-                            (self.click_arch, de.getExec().split()[0])
+                            (self.pkg_arch[0], de.getExec().split()[0])
                     t = 'warn'
                 else:                        # compiled
                     # TODO: this can be a lot smarter
                     s = "Non-standard Exec with architecture " + \
                         "'%s': %s (ok for compiled code)" % \
-                        (self.click_arch, de.getExec().split()[0])
+                        (self.pkg_arch[0], de.getExec().split()[0])
                     t = 'info'
             self._add_result(t, n, s, l)
 
