@@ -1,4 +1,4 @@
-click-reviewers-tools (0.35ubuntu1) UNRELEASED; urgency=medium
+click-reviewers-tools (0.35) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * clickreviews/cr_systemd.py:
