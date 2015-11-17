@@ -1,4 +1,4 @@
-click-reviewers-tools (0.35) UNRELEASED; urgency=medium
+click-reviewers-tools (0.35ubuntu1) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * clickreviews/cr_systemd.py:
@@ -30,8 +30,10 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   [ Daniel Holbach ]
   * Pass absolute path of click or snap file - that way it's safe even if we
     chdir (LP: #1514346).
+  * Allow translated scope .ini fields to have 3 letters as their lang_code
+    identifier, ie. 'ast'. (LP: #1517017)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 12 Nov 2015 07:36:49 -0600
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 17 Nov 2015 13:40:38 +0100
 
 click-reviewers-tools (0.34) wily; urgency=medium
 
