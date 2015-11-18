@@ -18,6 +18,7 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
       performed (LP: #1510522)
     - 'Maintainer' checks in the click manifest should only be done with click
       packages (LP: #1510522)
+    - don't prompt manual review when find .excludes file
   * update data/apparmor-easyprof-ubuntu.json for 16.04 policy
   * Makefile: add json syntax check
 
