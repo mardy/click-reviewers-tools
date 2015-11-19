@@ -177,6 +177,13 @@ class ClickReview(object):
 
             if 'architectures' in self.pkg_yaml:
                 self.pkg_arch = self.pkg_yaml['architectures']
+            elif 'architecture' in self.pkg_yaml:
+                if isinstance(self.pkg_yaml['architecture'], str):
+                    self.pkg_arch = [self.pkg_yaml['architecture']]
+                elif isinstance(self.pkg_yaml['architecture'], list):
+                    self.pkg_arch = self.pkg_yaml['architecture']
+                else:
+                    error("Could not load package.yaml: invalid 'architecture'")
             else:
                 self.pkg_arch = ['all']
 
