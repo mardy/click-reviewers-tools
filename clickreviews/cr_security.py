@@ -1271,7 +1271,10 @@ class ClickReviewSecurity(ClickReview):
 
                 self._add_result(t, n, s)
 
-                if float(self._pkgfmt_version()) > 15.04:
+                # security-override on 16.04 gives direct access to syscalls,
+                # read-paths, etc so it always needs a manual override
+                if 'security-override' in item and \
+                        float(self._pkgfmt_version()) > 15.04:
                     t = 'error'
                     n = self._get_check_name('yaml_override_present')
                     s = "(MANUAL REVIEW) 'security-override' not allowed"
