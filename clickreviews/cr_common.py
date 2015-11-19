@@ -177,6 +177,8 @@ class ClickReview(object):
 
             if 'architectures' in self.pkg_yaml:
                 self.pkg_arch = self.pkg_yaml['architectures']
+            else:
+                self.pkg_arch = ['all']
 
         if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
             # Get some basic information from the control file
