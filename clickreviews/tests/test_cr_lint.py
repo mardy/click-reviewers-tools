@@ -143,7 +143,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     def test_check_architecture_nonexistent(self):
         '''Test check_architecture() - nonexistent'''
         self.set_test_control("Architecture", "nonexistent")
+        self.set_test_pkgfmt("click", "0.4")
         c = ClickReviewLint(self.test_name)
+        c.pkg_arch = ["nonexistent"]
         c.check_architecture()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
@@ -220,6 +222,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.set_test_control("Architecture", "armhf")
         self.set_test_manifest("architecture", "armhf")
         c = ClickReviewLint(self.test_name)
+        c.pkg_arch = ['armhf']
         c.pkg_bin_files = []
         c.check_architecture_specified_needed()
         r = c.click_report
@@ -1214,6 +1217,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_missing_arch(self):
         '''Test check_snappy_architecture() (missing)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", None)
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1224,6 +1228,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_all_deprecated(self):
         '''Test check_snappy_architecture() (deprecated, all)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architecture", "all")
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1234,6 +1239,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_amd64_deprecated(self):
         '''Test check_snappy_architecture() (deprecated, all)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architecture", "amd64")
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1244,6 +1250,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_all(self):
         '''Test check_snappy_architecture() (all)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["all"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1254,6 +1261,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_armhf(self):
         '''Test check_snappy_architecture() (single arch, armhf)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["armhf"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1264,6 +1272,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_arm64(self):
         '''Test check_snappy_architecture() (single arch, arm64)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["arm64"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1274,6 +1283,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_i386(self):
         '''Test check_snappy_architecture() (single arch, i386)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["i386"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1284,6 +1294,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_amd64(self):
         '''Test check_snappy_architecture() (single arch, amd64)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["amd64"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1294,6 +1305,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_nonexistent(self):
         '''Test check_snappy_architecture() (single nonexistent arch)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["nonexistent"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1304,6 +1316,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_multi(self):
         '''Test check_snappy_architecture() (single arch: invalid multi)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", "multi")
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1314,12 +1327,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_valid_arch_multi(self):
         '''Test check_snappy_architecture() (valid multi)'''
-        arch = "multi"
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["armhf"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
-                                       arch)
+                                       "armhf")
         c = ClickReviewLint(test_name)
         c.is_snap = True
         c.check_snappy_architecture()
@@ -1329,9 +1341,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_valid_arch_multi2(self):
         '''Test check_snappy_architecture() (valid multi2)'''
+        self.set_test_pkgfmt("snap", "15.04")
         arch = "multi"
         self.set_test_pkg_yaml("architectures", ["armhf", "i386"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
                                        arch)
@@ -1344,9 +1356,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_invalid_arch_multi_nonexistent(self):
         '''Test check_snappy_architecture() (invalid multi)'''
+        self.set_test_pkgfmt("snap", "15.04")
         arch = "multi"
         self.set_test_pkg_yaml("architectures", ["armhf", "nonexistent"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
                                        arch)
@@ -1359,9 +1371,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_invalid_arch_multi_all(self):
         '''Test check_snappy_architecture() (invalid all)'''
+        self.set_test_pkgfmt("snap", "15.04")
         arch = "multi"
         self.set_test_pkg_yaml("architectures", ["armhf", "all"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
                                        arch)
@@ -1374,13 +1386,14 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_invalid_arch_multi_multi(self):
         '''Test check_snappy_architecture() (invalid multi)'''
+        self.set_test_pkgfmt("snap", "15.04")
         arch = "multi"
         self.set_test_pkg_yaml("architectures", ["multi", "armhf"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
                                        arch)
         c = ClickReviewLint(test_name)
+        c.is_snap = True
         c.check_snappy_architecture()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}

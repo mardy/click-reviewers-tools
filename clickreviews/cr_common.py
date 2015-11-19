@@ -200,8 +200,9 @@ class ClickReview(object):
             control = tmp[0]
             self.click_pkgname = control['Package']
             self.click_version = control['Version']
-            self.pkg_arch.append(control['Architecture'])
             if self._pkgfmt_type() == "click":
+                if control['Architecture'] not in self.pkg_arch:
+                    self.pkg_arch.append(control['Architecture'])
                 self.pkgfmt["version"] = str(control['Click-Version'])
 
             # Parse and store the manifest
