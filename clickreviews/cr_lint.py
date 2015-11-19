@@ -129,9 +129,11 @@ class ClickReviewLint(ClickReview):
         self.snappy_valid_types = ['app',
                                    'framework',
                                    'oem',
+                                   'os',
                                    ]
         self.snappy_redflagged_types = ['framework',
-                                        'oem',  # TBD
+                                        'oem',
+                                        'os',
                                         ]
 
     def _list_control_files(self):
@@ -526,6 +528,9 @@ exit 1
 
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''
+        if self.is_snap and self.pkg_yaml['type'] == "os":
+            return
+
         t = 'info'
         n = self._get_check_name('external_symlinks')
         s = 'OK'
