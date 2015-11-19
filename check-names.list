@@ -130,6 +130,7 @@ security:peer_hooks_disallowed|
 security:peer_hooks_required|
 security:policy_groups_duplicates|
 security:policy_groups_exists|
+security:policy_groups_push_helper|
 security:policy_groups_safe|
 security:policy_groups_scopes|
 security:policy_groups_ubuntu_account_plugin|
@@ -156,6 +157,7 @@ security:yaml_caps|
 security:yaml_combinations|
 security:yaml_override_click|
 security:yaml_override_format|
+security:yaml_override_present|https://developer.ubuntu.com/en/snappy/guides/security-policy/
 security:yaml_policy_format|
 security:yaml_policy_present|https://developer.ubuntu.com/en/snappy/guides/security-policy/
 security:yaml_security-template|

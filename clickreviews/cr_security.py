@@ -1244,7 +1244,7 @@ class ClickReviewSecurity(ClickReview):
                 s = "OK"
                 if 'security-override' not in item:
                     s = "OK (skipping unspecified override)"
-                elif self._pkgfmt_version() == 15.04:
+                elif float(self._pkgfmt_version()) < 16.04:
                     if 'apparmor' not in item['security-override']:
                         t = 'error'
                         s = "'apparmor' not specified in 'security-override' " + \

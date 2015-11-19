@@ -1936,6 +1936,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_override2(self):
         '''Test check_security_yaml_override() - seccomp/apparmor specified'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-override', {'apparmor': 'aa',
                                                       'seccomp': 'sc'})],
                               name=self.default_appname)
@@ -1943,6 +1944,84 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_security_yaml_override()
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override3(self):
+        '''Test check_security_yaml_override() - seccomp/apparmor specified
+           with 16.04
+        '''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override', {'apparmor': 'aa',
+                                                      'seccomp': 'sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override4(self):
+        '''Test check_security_yaml_override() - syscalls specified with
+           15.04
+        '''
+        self.set_test_pkgfmt("snap", "15.04")
+        self._set_yaml_binary([('security-override', {'syscalls': 'foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override5(self):
+        '''Test check_security_yaml_override() - syscalls specified with
+           16.04
+        '''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override', {'syscalls': 'foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        # the error is security-override not allowed
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override6(self):
+        '''Test check_security_yaml_override() - read-paths'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override', {'read-paths': '/foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        # the error is security-override not allowed
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override7(self):
+        '''Test check_security_yaml_override() - write-paths'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override', {'write-paths': '/foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        # the error is security-override not allowed
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override8(self):
+        '''Test check_security_yaml_override() - abstractions'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override',
+                                {'abstractions': '/foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        # the error is security-override not allowed
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_security_yaml_override_missing1(self):
@@ -2128,8 +2207,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_groups_ubuntu_account_plugin_no_hook(self):
         '''Test check_policy_groups_ubuntu_account_plugin() - no hook'''
-        self.set_test_security_manifest(self.default_appname,
-                                        "template", "ubuntu-account-plugin")
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_ubuntu_account_plugin()
         report = c.click_report
