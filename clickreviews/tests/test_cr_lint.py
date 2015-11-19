@@ -1113,6 +1113,15 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_snappy_type_kernel(self):
+        '''Test check_snappy_type - kernel'''
+        self.set_test_pkg_yaml("type", "kernel")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_snappy_type_redflagged(self):
         '''Test check_snappy_type_redflagged - unspecified'''
         self.set_test_pkg_yaml("type", None)
@@ -1152,6 +1161,15 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     def test_snappy_type_redflagged_os(self):
         '''Test check_snappy_type_redflagged - os'''
         self.set_test_pkg_yaml("type", "os")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged_kernel(self):
+        '''Test check_snappy_type_redflagged - kernel'''
+        self.set_test_pkg_yaml("type", "kernel")
         c = ClickReviewLint(self.test_name)
         c.check_snappy_type_redflagged()
         r = c.click_report
