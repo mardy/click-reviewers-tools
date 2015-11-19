@@ -145,6 +145,19 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_scope_ini_translated_field3(self):
+        '''Test check_scope_ini() - translated field - ast'''
+        config = self._stub_config()
+        config['searchhint[ast]'] = "foo"
+        scope = self._create_scope(config)
+
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_scope_ini_bad_translated_field(self):
         '''Test check_scope_ini() - bad translated field'''
         config = self._stub_config()
@@ -156,6 +169,19 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         c.check_scope_ini()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_scope_ini_bad_translated_field2(self):
+        '''Test check_scope_ini() - translated field - de_DE'''
+        config = self._stub_config()
+        config['searchhint[de_DE]'] = "foo"
+        scope = self._create_scope(config)
+
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_scope_ini_nonexistent_field(self):

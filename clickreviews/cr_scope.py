@@ -152,7 +152,7 @@ class ClickReviewScope(ClickReview):
                 f = i.lower()
                 if f not in required and f not in optional and \
                    (f.split("[")[0] not in translated or not
-                       re.search(r'.*\[[a-z][a-z](_[a-z][a-z])?\]$', f)):
+                       re.search('.*\[[a-z]{2,3}(_[a-z]{2,3})?\]$', f)):
                     unknown.append(f)
 
             if len(unknown) == 1:
