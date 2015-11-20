@@ -27,7 +27,9 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
     - add valid yaml keys for kernel snaps
   * update data/apparmor-easyprof-ubuntu.json for 16.04 policy
   * Makefile: add json syntax check
-  * several changes for squashfs snaps that won't have a click manifest, etc
+  * several changes for squashfs snaps that won't have a click manifest, etc.
+    Importantly, this means that only package.yaml is looked at and a lot of
+    click specific tests can be skipped
     - cr_common.py:
       + rename a few variable to not be click specific
       + add self.pkgfmt
