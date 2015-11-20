@@ -19,8 +19,35 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
     - 'Maintainer' checks in the click manifest should only be done with click
       packages (LP: #1510522)
     - don't prompt manual review when find .excludes file
+    - add kernel and os as valid snap types
+    - remove package filename checks. They were meaningless and hard to
+      maintain
+    - sort unknown snappy yaml keys
+  * clickreviews/cr_common.py:
+    - add valid yaml keys for kernel snaps
   * update data/apparmor-easyprof-ubuntu.json for 16.04 policy
   * Makefile: add json syntax check
+  * several changes for squashfs snaps that won't have a click manifest, etc
+    - cr_common.py:
+      + rename a few variable to not be click specific
+      + add self.pkgfmt
+      + adjust __init__() to conditionally use package.yaml on squashfs,
+        otherwise click manifest
+      + make click data structure initialization conditional on if click
+        or not (eg, don't run hooks code on squashfs images)
+    - adjust clickreviews/cr_* to conditionally run certain click-only tests
+      on click packages
+    - adjust architecture checks to use self.pkg_arch and rename
+      control_architecture_specified_needed as architecture_specified_needed
+    - cr_security.py:
+      + revamp to use package.yaml on non-click instead of now nonexistent
+        security manifest
+      + update push-helper template test to not make hooks specific
+      + network-client should not be allowed with push helpers either
+      + conditionally look for INSTALL_DIR on 16.04 systems in security-policy
+      + adjust security-override checks on 16.04 to follow 16.04 yaml
+      + make click manifest checks conditional on if click
+    - cr_tests.py: mock _pkgfmt_type(), _pkgfmt_version() and _is_squashfs()
 
   [ Michael Nelson ]
   * add support for non-mocked tests
