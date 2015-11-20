@@ -404,7 +404,7 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             if self._pkgfmt_type() == "snap" and \
-                    float(self._pkgfmt_version()) >= 15.04:
+                    float(self._pkgfmt_version()) >= 16.04:
                 continue
 
             t = 'info'
@@ -473,7 +473,7 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s, l)
 
             if self._pkgfmt_type() == "snap" and \
-                    float(self._pkgfmt_version()) >= 15.04:
+                    float(self._pkgfmt_version()) >= 16.04:
                 continue
 
             t = 'info'
