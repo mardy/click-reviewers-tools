@@ -132,7 +132,9 @@ class ClickReviewSecurity(ClickReview):
         self._override_framework_policies(framework_overrides)
 
         # snappy
-        self.sec_skipped_types = ['oem']  # these don't need security items
+        self.sec_skipped_types = ['oem',
+                                  'os',
+                                  'kernel']  # these don't need security items
 
         self.security_manifests = dict()
         self.security_apps = []
