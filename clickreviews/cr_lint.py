@@ -1106,7 +1106,8 @@ exit 1
                 unknown.append(f)
         if len(unknown) > 0:
             t = 'warn'
-            s = "unknown entries in package.yaml: '%s'" % (",".join(unknown))
+            s = "unknown entries in package.yaml: '%s'" % \
+                    (",".join(sorted(unknown)))
             obsoleted = ['maintainer', 'ports']
             tmp = list(set(unknown) & set(obsoleted))
             if len(tmp) > 0:
