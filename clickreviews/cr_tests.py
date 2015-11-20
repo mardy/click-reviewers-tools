@@ -141,6 +141,9 @@ def _extract_security_manifest(self, app):
 
 def _get_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
+    if TEST_PKGFMT_VERSION == "16.04":
+        return (app, json.loads(TEST_SECURITY[app]))
+
     return ("%s.apparmor" % app, json.loads(TEST_SECURITY[app]))
 
 
