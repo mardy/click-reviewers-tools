@@ -896,3 +896,17 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_desktop_file_snappy_1604(self):
+        '''Test check_desktop_file() -  snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        c = ClickReviewDesktop(self.test_name)
+        c.check_desktop_file()
+        r = c.click_report
+        expected = dict()
+        expected['info'] = dict()
+        expected['warn'] = dict()
+        expected['error'] = dict()
+        name = c._get_check_name('files_usable')
+        expected['info'][name] = {"text": "Skipped: could not find any desktop files"}
+        self.check_results(r, expected=expected)
