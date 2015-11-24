@@ -78,8 +78,8 @@ lint:manifest_icon_absolute_path|
 lint:manifest_icon_empty|
 lint:manifest_icon_present|
 lint:package_filename_arch_match|
-lint:package_filename_arch_valid|
-lint:package_filename_format|
+lint:package_filename_arch_valid|http://askubuntu.com/questions/685103/what-does-lint-package-filename-arch-valid-mean/685104
+lint:package_filename_format|http://askubuntu.com/questions/685049/what-does-lint-package-filename-format-mean/685050
 lint:package_filename_version_match|http://askubuntu.com/questions/417384/what-does-lint-package-filename-version-match-mean/417385
 lint:package yaml_architecture_valid|
 lint:package_yaml_icon_absolute_path|
@@ -110,8 +110,8 @@ online_accounts:account-provider_root|
 online_accounts:account-qml-plugin|
 online_accounts:account-service_hook|
 online_accounts:account-service_id|
-online_accounts:account-service_name|
-online_accounts:account-service_provider|
+online_accounts:account-service_name|http://askubuntu.com/q/697173
+online_accounts:account-service_provider|http://askubuntu.com/q/697173
 online_accounts:account-service_root|
 online_accounts:accounts_plugin|
 online_accounts:accounts_service|
@@ -145,7 +145,7 @@ security:policy_vendor|
 security:policy_vendor_matches_framework|
 security:policy_version_exists|
 security:policy_version_is_highest|http://askubuntu.com/q/562116/94326
-security:policy_version_matches_framework|
+security:policy_version_matches_framework|http://askubuntu.com/q/686347
 security:profile_name_length|
 security:redflag_fields|
 security:required_policy_groups_ubuntu_account_plugin|
@@ -153,7 +153,7 @@ security:template_account_provider|
 security:template_account_qml_plugin|
 security:template_exists|
 security:template_push_helper|
-security:template_valid|
+security:template_valid|http://askubuntu.com/q/671403
 security:template_with_policy_version|
 security:yaml_and_click|
 security:yaml_binaries|

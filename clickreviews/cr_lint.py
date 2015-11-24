@@ -788,11 +788,12 @@ exit 1
         t = 'info'
         n = self._get_check_name('package_filename_format')
         s = 'OK'
+        l = 'http://askubuntu.com/questions/685049/what-does-lint-package-filename-format-mean/685050'
         if len(tmp) != 3:
             t = 'warn'
             s = "'%s' not of form $pkgname_$version_$arch.[click|snap]" % \
                 click_package_bn
-        self._add_result(t, n, s)
+        self._add_result(t, n, s, l)
 
         t = 'info'
         n = self._get_check_name('package_filename_version_match')
@@ -818,6 +819,7 @@ exit 1
         t = 'info'
         n = self._get_check_name('package_filename_arch_valid')
         s = 'OK'
+        l = 'http://askubuntu.com/questions/685103/what-does-lint-package-filename-arch-valid-mean/685104'
         if len(tmp) >= 3:
             if self.click_package.endswith('.snap'):
                 arch = tmp[2].partition('.snap')[0]
@@ -837,7 +839,7 @@ exit 1
             t = 'warn'
             s = "could not determine architecture from '%s'" % \
                 os.path.basename(self.click_package)
-        self._add_result(t, n, s)
+        self._add_result(t, n, s, l)
 
         t = 'info'
         n = self._get_check_name('package_filename_arch_match')
