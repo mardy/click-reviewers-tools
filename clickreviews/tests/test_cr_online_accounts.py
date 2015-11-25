@@ -82,7 +82,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
 
     def test_check_hooks_versions_new(self):
         '''Test check_hooks_versions() - new hook'''
-        self.set_test_manifest("framework", "ubuntu-sdk-15.10")
+        self.set_test_manifest("framework", "ubuntu-sdk-15.04.1")
         self.set_test_account(self.default_appname, "accounts", dict())
         c = ClickReviewAccounts(self.test_name)
         c.check_hooks_versions()
