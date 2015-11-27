@@ -102,7 +102,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
 
     def test_check_hooks_versions_disallowed_service(self):
         '''Test check_hooks_versions() - deprecated -service hook'''
-        self.set_test_manifest("framework", "ubuntu-sdk-16.04")
+        self.set_test_manifest("framework", "ubuntu-sdk-16.10")
         self.set_test_account(self.default_appname, "account-service", dict())
         c = ClickReviewAccounts(self.test_name)
         c.check_hooks_versions()

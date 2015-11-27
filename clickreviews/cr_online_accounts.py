@@ -172,7 +172,7 @@ class ClickReviewAccounts(ClickReview):
                         self._add_result(t, n, s)
             return
         hook_state = "disallowed"
-        if framework < "ubuntu-sdk-16.04":
+        if framework < "ubuntu-sdk-16.10":
             t = "warn"
             hook_state = "deprecated"
         for app in sorted(self.accounts.keys()):
