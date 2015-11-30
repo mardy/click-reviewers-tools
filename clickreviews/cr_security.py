@@ -495,13 +495,14 @@ class ClickReviewSecurity(ClickReview):
                 found_major = True
                 if m['policy_version'] != data['policy_version']:
                     t = 'error'
+                    l = 'http://askubuntu.com/q/686347'
                     s = '%s != %s (%s)' % (str(m['policy_version']),
                                            data['policy_version'],
                                            framework)
             if not found_major:
                 t = 'error'
                 s = "Invalid framework '%s'" % framework
-            self._add_result(t, n, s)
+            self._add_result(t, n, s, l)
 
     def check_template(self):
         '''Check template'''
@@ -520,6 +521,7 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = self._get_check_name('template_valid', extra=f)
             s = "OK"
+            l = 'http://askubuntu.com/q/671403'
             manual_review = False
             if 'template' not in m:
                 # If template not specified, we just use the default
@@ -533,7 +535,7 @@ class ClickReviewSecurity(ClickReview):
                     and m['template'] in self.extraneous_ubuntu_templates:
                 t = 'warn'
                 s = "No need to specify '%s' template" % m['template']
-            self._add_result(t, n, s, manual_review=manual_review)
+            self._add_result(t, n, s, l, manual_review=manual_review)
 
             t = 'info'
             n = self._get_check_name('template_exists', extra=f)

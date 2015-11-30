@@ -350,6 +350,7 @@ class ClickReviewAccounts(ClickReview):
             if t == 'error':
                 continue
 
+            l = 'http://askubuntu.com/q/697173'
             for tag in ['name', 'provider']:
                 t = 'info'
                 n = self._get_check_name(
@@ -358,7 +359,7 @@ class ClickReviewAccounts(ClickReview):
                 if self.accounts[app][account_type].find(tag) is None:
                     t = 'error'
                     s = "Could not find '<%s>' tag" % tag
-                self._add_result(t, n, s)
+                self._add_result(t, n, s, l)
 
     def check_provider(self):
         '''Check provider'''
