@@ -172,17 +172,17 @@ class ClickReviewAccounts(ClickReview):
         if not framework.startswith("ubuntu-sdk"):
             return
         t = "error"
-        if framework < "ubuntu-sdk-15.10":
+        if framework < "ubuntu-sdk-15.04.1":
             for app in sorted(self.accounts.keys()):
                 for hook in self.accounts[app].keys():
                     if hook == "accounts":
                         n = self._get_check_name('%s_hook' % hook, app=app)
-                        s = "'accounts' hook is not available in '%s' (must be 15.10 or later)" % \
+                        s = "'accounts' hook is not available in '%s' (must be 15.04.1 or later)" % \
                             (framework)
                         self._add_result(t, n, s)
             return
         hook_state = "disallowed"
-        if framework < "ubuntu-sdk-16.04":
+        if framework < "ubuntu-sdk-16.10":
             t = "warn"
             hook_state = "deprecated"
         for app in sorted(self.accounts.keys()):
