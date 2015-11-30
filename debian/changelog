@@ -63,6 +63,10 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   * Allow translated scope .ini fields to have 3 letters as their lang_code
     identifier, ie. 'ast'. (LP: #1517017)
 
+  [ James Tait ]
+  * Add a handful of links to askubuntu questions to explain some of the
+    rejection messages.
+
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 17 Nov 2015 13:40:38 +0100
 
 click-reviewers-tools (0.34) wily; urgency=medium
