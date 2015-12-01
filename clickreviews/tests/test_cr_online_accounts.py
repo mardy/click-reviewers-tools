@@ -270,6 +270,30 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
         expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_application_snappy_1504(self):
+        '''Test check_application() - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        xml = self._stub_application()
+        # print(etree.tostring(xml))
+        self.set_test_account(self.default_appname, "account-application", xml)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_application()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_application_snappy_1604(self):
+        '''Test check_application() - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        xml = self._stub_application()
+        # print(etree.tostring(xml))
+        self.set_test_account(self.default_appname, "account-application", xml)
+        c = ClickReviewAccounts(self.test_name)
+        c.check_application()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_application_not_specified(self):
         '''Test check_application() - not specified'''
         c = ClickReviewAccounts(self.test_name)

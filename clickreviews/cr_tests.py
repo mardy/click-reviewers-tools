@@ -50,6 +50,8 @@ TEST_BIN_PATH = dict()
 TEST_FRAMEWORK = dict()
 TEST_FRAMEWORK_POLICY = dict()
 TEST_FRAMEWORK_POLICY_UNKNOWN = []
+TEST_PKGFMT_TYPE = "click"
+TEST_PKGFMT_VERSION = "0.4"
 
 
 #
@@ -139,6 +141,9 @@ def _extract_security_manifest(self, app):
 
 def _get_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
+    if TEST_PKGFMT_VERSION == "16.04":
+        return (app, json.loads(TEST_SECURITY[app]))
+
     return ("%s.apparmor" % app, json.loads(TEST_SECURITY[app]))
 
 
@@ -242,6 +247,21 @@ def _extract_framework_policy(self):
 def _has_framework_in_metadir(self):
     '''Pretend we found the framework file'''
     return True
+
+
+def _pkgfmt_type(self):
+    '''Pretend we found the pkgfmt type'''
+    return TEST_PKGFMT_TYPE
+
+
+def _pkgfmt_version(self):
+    '''Pretend we found the pkgfmt version'''
+    return TEST_PKGFMT_VERSION
+
+
+def _is_squashfs(self):
+    '''Pretend we discovered if it is a squashfs or not'''
+    return (TEST_PKGFMT_TYPE == "snap" and float(TEST_PKGFMT_VERSION) > 15.04)
 
 
 def create_patches():
@@ -367,7 +387,14 @@ def create_patches():
     patches.append(patch(
         'clickreviews.cr_framework.ClickReviewFramework._has_framework_in_metadir',
         _has_framework_in_metadir))
-    patches.append(patch("clickreviews.cr_lint.is_squashfs", lambda x: False))
+
+    # pkgfmt
+    patches.append(patch("clickreviews.cr_common.ClickReview._pkgfmt_type",
+                   _pkgfmt_type))
+    patches.append(patch("clickreviews.cr_common.ClickReview._pkgfmt_version",
+                   _pkgfmt_version))
+    patches.append(patch("clickreviews.cr_common.is_squashfs", _is_squashfs))
+    patches.append(patch("clickreviews.cr_lint.is_squashfs", _is_squashfs))
 
     return patches
 
@@ -427,6 +454,8 @@ class TestClickReview(TestCase):
         self.test_readme_md = self.test_control['Description']
         self._update_test_readme_md()
 
+        self.set_test_pkgfmt("click", "0.4")
+
         # hooks
         self.test_security_manifests = dict()
         self.test_security_profiles = dict()
@@ -444,6 +473,7 @@ class TestClickReview(TestCase):
         self.test_framework = dict()
         self.test_framework_policy = dict()
         self.test_framework_policy_unknown = []
+
         for app in self.test_manifest["hooks"].keys():
             # setup security manifest for each app
             self.set_test_security_manifest(app, 'policy_groups',
@@ -846,6 +876,12 @@ class TestClickReview(TestCase):
             self.test_security_profiles[app] = policy
         self._update_test_security_profiles()
 
+    def set_test_pkgfmt(self, t, v):
+        global TEST_PKGFMT_TYPE
+        global TEST_PKGFMT_VERSION
+        TEST_PKGFMT_TYPE = t
+        TEST_PKGFMT_VERSION = v
+
     def set_test_desktop(self, app, key, value, no_update=False):
         '''Set key in desktop file to value. If value is None, remove key'''
         if app not in self.test_desktop_files:
@@ -1137,6 +1173,10 @@ class TestClickReview(TestCase):
         TEST_FRAMEWORK_POLICY = dict()
         global TEST_FRAMEWORK_POLICY_UNKNOWN
         TEST_FRAMEWORK_POLICY_UNKNOWN = []
+        global TEST_PKGFMT_TYPE
+        TEST_PKGFMT_TYPE = "click"
+        global TEST_PKGFMT_VERSION
+        TEST_PKGFMT_VERSION = "0.4"
 
         self._reset_test_data()
         cr_common.recursive_rm(self.desktop_tmpdir)

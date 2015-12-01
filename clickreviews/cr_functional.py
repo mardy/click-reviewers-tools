@@ -39,6 +39,9 @@ class ClickReviewFunctional(ClickReview):
 
     def check_applicationName(self):
         '''Check applicationName matches click manifest'''
+        if self.manifest is None:
+            return
+
         t = 'info'
         n = self._get_check_name('qml_applicationName_matches_manifest')
         s = "OK"
@@ -100,18 +103,13 @@ class ClickReviewFunctional(ClickReview):
 
             if len(appnames) == 0:
                 s = "could not find applicationName in: %s" % \
-                    ", ".join(list(map(
-                                   lambda x: os.path.relpath(x,
-                                                             self.unpack_dir),
-                                   qmls)
-                                   ))
+                    ", ".join(sorted(list(map(
+                        lambda x: os.path.relpath(x, self.unpack_dir), qmls))))
             else:  # not ok
                 s = "click manifest name '%s' not found in: " % \
                     self.click_pkgname + "%s" % \
-                    ", ".join(list(map(
-                                   lambda x: "%s ('%s')" % (x, appnames[x]),
-                                   appnames)
-                                   ))
+                    ", ".join(sorted(list(map(
+                        lambda x: "%s ('%s')" % (x, appnames[x]), appnames))))
 
             if len(self.pkg_bin_files) == 0:
                 s += ". Application may not work properly when confined."
@@ -148,7 +146,8 @@ class ClickReviewFunctional(ClickReview):
         s = "OK"
         l = None
 
-        if self.manifest['framework'] == "ubuntu-sdk-13.10":
+        if self.manifest is not None and \
+                self.manifest['framework'] == "ubuntu-sdk-13.10":
             s = "SKIPPED (Oxide not available in ubuntu-sdk-13.10)"
         else:
             qmls = []

@@ -96,9 +96,13 @@ class ClickReview(object):
                        "binaries",
                        "caps",
                        "config",
+                       "firmware",
                        "frameworks",
                        "icon",
                        "immutable-config",
+                       "initrd",
+                       "kernel",
+                       "modules",
                        "oem",
                        "services",
                        "source",
@@ -112,11 +116,11 @@ class ClickReview(object):
 
     def __init__(self, fn, review_type, peer_hooks=None, overrides=None,
                  peer_hooks_link=None):
-        self.click_package = fn
+        self.pkg_filename = fn
         self._check_path_exists()
-        if not self.click_package.endswith(".click") and \
-                not self.click_package.endswith(".snap"):
-            if self.click_package.endswith(".deb"):
+        if not self.pkg_filename.endswith(".click") and \
+                not self.pkg_filename.endswith(".snap"):
+            if self.pkg_filename.endswith(".deb"):
                 error("filename does not end with '.click', but '.deb' "
                       "instead. See http://askubuntu.com/a/485544/94326 for "
                       "how click packages are different.")
@@ -141,28 +145,29 @@ class ClickReview(object):
             RAW_UNPACK_DIR = raw_unpack_pkg(fn)
         self.raw_unpack_dir = RAW_UNPACK_DIR
 
-        # Get some basic information from the control file
-        control_file = self._extract_control_file()
-        tmp = list(Deb822.iter_paragraphs(control_file))
-        if len(tmp) != 1:
-            error("malformed control file: too many paragraphs")
-        control = tmp[0]
-        self.click_pkgname = control['Package']
-        self.click_version = control['Version']
-        self.click_arch = control['Architecture']
+        self.pkgfmt = {"type": "", "version": ""}
+        self.manifest = None
+        self.click_pkgname = None
+        self.click_version = None
+        self.pkg_arch = []
 
-        # Parse and store the manifest
-        manifest_json = self._extract_manifest_file()
-        try:
-            self.manifest = json.load(manifest_json)
-        except Exception:
-            error("Could not load manifest file. Is it properly formatted?")
-        self._verify_manifest_structure()
-
-        # Parse and store the package.yaml
+        # Parse and store the package.yaml, if it exists
         pkg_yaml = self._extract_package_yaml()
         self.is_snap = False
-        if pkg_yaml is not None:
+        if pkg_yaml is None:
+            self.pkgfmt["type"] = "click"
+        else:
+            self.pkgfmt["type"] = "snap"
+            # Some day we will be able to introspect the version, but not
+            # today.... For now, decide on if it is a squashfs and if so,
+            # assume it is 16.04
+            if is_squashfs(fn):
+                self.pkgfmt["version"] = "16.04"
+                self.peer_hooks = None
+                self.peer_hooks_link = None
+            else:
+                self.pkgfmt["version"] = "15.04"
+
             try:
                 self.pkg_yaml = yaml.safe_load(pkg_yaml)
             except Exception:
@@ -173,6 +178,45 @@ class ClickReview(object):
             #  default to 'app'
             if 'type' not in self.pkg_yaml:
                 self.pkg_yaml['type'] = 'app'
+
+            if 'architectures' in self.pkg_yaml:
+                self.pkg_arch = self.pkg_yaml['architectures']
+            elif 'architecture' in self.pkg_yaml:
+                if isinstance(self.pkg_yaml['architecture'], str):
+                    self.pkg_arch = [self.pkg_yaml['architecture']]
+                elif isinstance(self.pkg_yaml['architecture'], list):
+                    self.pkg_arch = self.pkg_yaml['architecture']
+                else:
+                    error("Could not load package.yaml: invalid 'architecture'")
+            else:
+                self.pkg_arch = ['all']
+
+        if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
+            # Get some basic information from the control file
+            control_file = self._extract_control_file()
+            tmp = list(Deb822.iter_paragraphs(control_file))
+            if len(tmp) != 1:
+                error("malformed control file: too many paragraphs")
+            control = tmp[0]
+            self.click_pkgname = control['Package']
+            self.click_version = control['Version']
+            if self._pkgfmt_type() == "click":
+                if control['Architecture'] not in self.pkg_arch:
+                    self.pkg_arch.append(control['Architecture'])
+                self.pkgfmt["version"] = str(control['Click-Version'])
+
+            # Parse and store the manifest
+            manifest_json = self._extract_manifest_file()
+            try:
+                self.manifest = json.load(manifest_json)
+            except Exception:
+                error("Could not load manifest file. Is it properly formatted?")
+            self._verify_manifest_structure()
+
+            self.valid_frameworks = self._extract_click_frameworks()
+
+            self.peer_hooks = peer_hooks
+            self.peer_hooks_link = peer_hooks_link
 
         self.is_snap_oem = False
         if self.is_snap and 'type' in self.pkg_yaml and \
@@ -191,11 +235,7 @@ class ClickReview(object):
         # it now
         # self._list_all_compiled_binaries()
 
-        self.valid_frameworks = self._extract_click_frameworks()
-
-        self.peer_hooks = peer_hooks
         self.overrides = overrides if overrides is not None else {}
-        self.peer_hooks_link = peer_hooks_link
 
     def _extract_click_frameworks(self):
         '''Extract installed click frameworks'''
@@ -248,10 +288,22 @@ class ClickReview(object):
             return None
         return out.split()[0]
 
+    def _pkgfmt_type(self):
+        '''Return the package format type'''
+        if "type" not in self.pkgfmt:
+            return ""
+        return self.pkgfmt["type"]
+
+    def _pkgfmt_version(self):
+        '''Return the package format version'''
+        if "version" not in self.pkgfmt:
+            return ""
+        return self.pkgfmt["version"]
+
     def _check_path_exists(self):
         '''Check that the provided path exists'''
-        if not os.path.exists(self.click_package):
-            error("Could not find '%s'" % self.click_package)
+        if not os.path.exists(self.pkg_filename):
+            error("Could not find '%s'" % self.pkg_filename)
 
     def _extract_control_file(self):
         '''Extract '''

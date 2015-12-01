@@ -76,7 +76,7 @@ class ClickReviewLint(ClickReview):
                           'RCS*'
                           ]
 
-        if 'maintainer' in self.manifest:
+        if self.manifest is not None and 'maintainer' in self.manifest:
             maintainer = self.manifest['maintainer']
             self.email = maintainer.partition('<')[2].rstrip('>')
             self.is_core_app = \
@@ -125,13 +125,19 @@ class ClickReviewLint(ClickReview):
         # Valid values for 'type' in packaging yaml
         # - app
         # - framework
+        # - kernel
         # - oem
+        # - os
         self.snappy_valid_types = ['app',
                                    'framework',
+                                   'kernel',
                                    'oem',
+                                   'os',
                                    ]
         self.snappy_redflagged_types = ['framework',
-                                        'oem',  # TBD
+                                        'kernel',
+                                        'oem',
+                                        'os',
                                         ]
 
     def _list_control_files(self):
@@ -142,6 +148,10 @@ class ClickReviewLint(ClickReview):
 
     def check_control_files(self):
         '''Check DEBIAN/* files'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         for f in self.control_files:
             t = 'info'
             n = self._get_check_name(
@@ -169,6 +179,10 @@ class ClickReviewLint(ClickReview):
 
     def check_control(self):
         '''Check control()'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         fh = self._extract_control_file()
         tmp = list(Deb822.iter_paragraphs(fh))
         t = 'info'
@@ -340,6 +354,10 @@ class ClickReviewLint(ClickReview):
 
     def check_preinst(self):
         '''Check preinst()'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         expected = '''#! /bin/sh
 echo "Click packages may not be installed directly using dpkg."
 echo "Use 'click install' instead."
@@ -361,6 +379,10 @@ exit 1
 
     def check_hooks(self):
         '''Check click manifest hooks'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         #  oem snaps don't have a hooks entry
         if self.is_snap_oem:
             return
@@ -457,6 +479,10 @@ exit 1
 
     def check_hooks_unknown(self):
         '''Check if have any unknown hooks'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         #  oem snaps don't have a hooks entry
         if self.is_snap_oem:
             return
@@ -478,6 +504,10 @@ exit 1
 
     def check_hooks_redflagged(self):
         '''Check if have any redflagged hooks'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         t = 'info'
         n = self._get_check_name('redflagged_hooks')
         s = 'OK'
@@ -502,6 +532,9 @@ exit 1
 
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''
+        if self.is_snap and self.pkg_yaml['type'] not in ['app', 'framework']:
+            return
+
         t = 'info'
         n = self._get_check_name('external_symlinks')
         s = 'OK'
@@ -571,7 +604,11 @@ exit 1
         self._add_result(t, n, s)
 
     def check_version(self):
-        '''Check package version is valid'''
+        '''Check click package version is valid'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         # deb-version(5)
         t = 'info'
         n = self._get_check_name('version_valid')
@@ -586,13 +623,17 @@ exit 1
         self._add_result(t, n, s)
 
     def check_architecture(self):
-        '''Check package architecture in DEBIAN/control is valid'''
+        '''Check click package architecture in DEBIAN/control is valid'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         t = 'info'
         n = self._get_check_name('control_architecture_valid')
         s = 'OK'
-        if self.click_arch not in self.valid_control_architectures:
+        if self.pkg_arch[0] not in self.valid_control_architectures:
             t = 'error'
-            s = "not a valid architecture: %s" % self.click_arch
+            s = "not a valid architecture: %s" % self.pkg_arch[0]
         self._add_result(t, n, s)
 
     def check_architecture_all(self):
@@ -600,7 +641,7 @@ exit 1
         t = 'info'
         n = self._get_check_name('control_architecture_valid_contents')
         s = 'OK'
-        if self.click_arch != "all":
+        if self.pkg_arch[0] != "all":
             self._add_result(t, n, s)
             return
 
@@ -616,22 +657,27 @@ exit 1
 
     def check_architecture_specified_needed(self):
         '''Check if the specified architecture is actually needed'''
-        t = 'info'
-        n = self._get_check_name('control_architecture_specified_needed')
-        s = 'OK'
-        if self.click_arch == "all":
-            s = "SKIPPED: architecture is 'all'"
-            self._add_result(t, n, s)
-            return
+        for arch in self.pkg_arch:
+            t = 'info'
+            n = self._get_check_name('architecture_specified_needed')
+            s = 'OK'
+            if arch == "all":
+                s = "SKIPPED: architecture is 'all'"
+                self._add_result(t, n, s)
+                return
 
-        if len(self.pkg_bin_files) == 0:
-            t = 'warn'
-            s = "Could not find compiled binaries for architecture '%s'" % \
-                self.click_arch
-        self._add_result(t, n, s)
+            if len(self.pkg_bin_files) == 0:
+                t = 'warn'
+                s = "Could not find compiled binaries for architecture '%s'" % \
+                    arch
+            self._add_result(t, n, s)
 
     def check_maintainer(self):
-        '''Check maintainer()'''
+        '''Check manifest maintainer()'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         t = 'info'
         n = self._get_check_name('maintainer_present')
         s = 'OK'
@@ -671,7 +717,11 @@ exit 1
         self._add_result(t, n, s)
 
     def check_title(self):
-        '''Check title()'''
+        '''Check manifest title()'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         t = 'info'
         n = self._get_check_name('title_present')
         s = 'OK'
@@ -691,7 +741,11 @@ exit 1
         self._add_result(t, n, s)
 
     def check_description(self):
-        '''Check description()'''
+        '''Check manifest description()'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         t = 'info'
         n = self._get_check_name('description_present')
         s = 'OK'
@@ -717,7 +771,11 @@ exit 1
         self._add_result(t, n, s)
 
     def check_framework(self):
-        '''Check framework()'''
+        '''Check manifest framework()'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         n = self._get_check_name('framework')
         l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
         framework_overrides = self.overrides.get('framework', {})
@@ -759,6 +817,10 @@ exit 1
 
     def check_click_local_extensions(self):
         '''Report any click local extensions'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         t = 'info'
         n = self._get_check_name('click_local_extensions')
         s = 'OK'
@@ -781,90 +843,8 @@ exit 1
             s = 'found unofficial extension%s: %s' % (plural, ', '.join(found))
         self._add_result(t, n, s)
 
-    def check_package_filename(self):
-        '''Check filename of package'''
-        tmp = os.path.basename(self.click_package).split('_')
-        click_package_bn = os.path.basename(self.click_package)
-        t = 'info'
-        n = self._get_check_name('package_filename_format')
-        s = 'OK'
-        l = 'http://askubuntu.com/questions/685049/what-does-lint-package-filename-format-mean/685050'
-        if len(tmp) != 3:
-            t = 'warn'
-            s = "'%s' not of form $pkgname_$version_$arch.[click|snap]" % \
-                click_package_bn
-        self._add_result(t, n, s, l)
-
-        t = 'info'
-        n = self._get_check_name('package_filename_version_match')
-        s = 'OK'
-        l = None
-        if len(tmp) >= 2:
-            #  handle $pkgname_$version.click or $pkgname_$version.snap
-            if self.click_package.endswith('.snap'):
-                version = tmp[1].partition('.snap')[0]
-            else:
-                version = tmp[1].partition('.click')[0]
-            if version != self.click_version:
-                t = 'error'
-                s = "'%s' != '%s' from DEBIAN/control" % (version,
-                                                          self.click_version)
-                l = 'http://askubuntu.com/questions/417384/what-does-lint-package-filename-version-match-mean/417385'
-        else:
-            t = 'warn'
-            s = "could not determine version from '%s'" % \
-                os.path.basename(self.click_package)
-        self._add_result(t, n, s, l)
-
-        t = 'info'
-        n = self._get_check_name('package_filename_arch_valid')
-        s = 'OK'
-        l = 'http://askubuntu.com/questions/685103/what-does-lint-package-filename-arch-valid-mean/685104'
-        if len(tmp) >= 3:
-            if self.click_package.endswith('.snap'):
-                arch = tmp[2].partition('.snap')[0]
-            else:
-                arch = tmp[2].partition('.click')[0]
-            if arch == "unknown":
-                # short-circuit here since the appstore doesn't determine
-                # the version yet
-                t = 'info'
-                s = "SKIP: architecture 'unknown'"
-                self._add_result(t, n, s)
-                return
-            if arch not in self.valid_control_architectures:
-                t = 'warn'
-                s = "not a valid architecture: %s" % arch
-        else:
-            t = 'warn'
-            s = "could not determine architecture from '%s'" % \
-                os.path.basename(self.click_package)
-        self._add_result(t, n, s, l)
-
-        t = 'info'
-        n = self._get_check_name('package_filename_arch_match')
-        s = 'OK'
-        if len(tmp) >= 3:
-            if self.click_package.endswith('.snap'):
-                arch = tmp[2].partition('.snap')[0]
-            else:
-                arch = tmp[2].partition('.click')[0]
-            if arch != self.click_arch:
-                if arch == 'all' and self.click_arch == 'multi':
-                    # The store creates filenames for fat packages with _all
-                    pass
-                else:
-                    t = 'error'
-                    s = "'%s' != '%s' from DEBIAN/control" % (arch,
-                                                              self.click_arch)
-        else:
-            t = 'warn'
-            s = "could not determine architecture from '%s'" % \
-                os.path.basename(self.click_package)
-        self._add_result(t, n, s)
-
     def check_vcs(self):
-        '''Check for VCS files in the click package'''
+        '''Check for VCS files in the package'''
         t = 'info'
         n = self._get_check_name('vcs_files')
         s = 'OK'
@@ -881,6 +861,9 @@ exit 1
 
     def check_click_in_package(self):
         '''Check for *.click files in the toplevel click package'''
+        if self._pkgfmt_type() == "snap":
+            return
+
         t = 'info'
         n = self._get_check_name('click_files')
         s = 'OK'
@@ -896,6 +879,10 @@ exit 1
 
     def check_dot_click(self):
         '''Check for .click directory in the toplevel click package'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         t = 'info'
         n = self._get_check_name('dot_click')
         s = 'OK'
@@ -971,6 +958,10 @@ exit 1
 
     def check_manifest_architecture(self):
         '''Check package architecture in manifest is valid'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         self._verify_architecture(self.manifest, "manifest")
 
     def _verify_icon(self, my_dict, test_str):
@@ -1003,6 +994,10 @@ exit 1
 
     def check_icon(self):
         '''Check icon()'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         self._verify_icon(self.manifest, "manifest")
 
     def check_snappy_name(self):
@@ -1111,7 +1106,8 @@ exit 1
                 unknown.append(f)
         if len(unknown) > 0:
             t = 'warn'
-            s = "unknown entries in package.yaml: '%s'" % (",".join(unknown))
+            s = "unknown entries in package.yaml: '%s'" % \
+                (",".join(sorted(unknown)))
             obsoleted = ['maintainer', 'ports']
             tmp = list(set(unknown) & set(obsoleted))
             if len(tmp) > 0:
@@ -1210,7 +1206,7 @@ exit 1
 
     def check_is_squashfs(self):
         '''Check snapfs'''
-        if is_squashfs(self.click_package):
+        if is_squashfs(self.pkg_filename):
             t = 'error'
             n = self._get_check_name('is_squashfs')
             s = "(MANUAL REVIEW) squashfs pkg"
@@ -1219,10 +1215,14 @@ exit 1
 
     def check_snappy_hashes(self):
         '''Check snappy hashes.yaml'''
+        if self._pkgfmt_type() == "snap" and \
+                float(self._pkgfmt_version()) > 15.04:
+            return
+
         if not self.is_snap:
             return
         # no hashes.yaml for squashfs images
-        if is_squashfs(self.click_package):
+        if is_squashfs(self.pkg_filename):
             return
 
         def _check_allowed_perms(mode, allowed):
@@ -1387,3 +1387,7 @@ exit 1
             s = 'found extra files not listed in hashes.yaml: %s' % \
                 ", ".join(extra)
         self._add_result(t, n, s)
+
+    def check_snappy_frameworks(self):
+        '''TODO'''
+        return False

@@ -78,6 +78,10 @@ class ClickReviewAccounts(ClickReview):
                               'account-provider',
                               'account-qml-plugin',
                               'account-service']
+
+        if self.manifest is None:
+            return
+
         for app in self.manifest['hooks']:
             for h in self.account_hooks:
                 if h not in self.manifest['hooks'][app]:
@@ -120,6 +124,9 @@ class ClickReviewAccounts(ClickReview):
 
     def _extract_account(self, app, account_type):
         '''Extract accounts'''
+        if self.manifest is None:
+            return
+
         a = self.manifest['hooks'][app][account_type]
         fn = os.path.join(self.unpack_dir, a)
 
@@ -158,6 +165,9 @@ class ClickReviewAccounts(ClickReview):
 
     def check_hooks_versions(self):
         '''Check hooks versions'''
+        if self.manifest is None:
+            return
+
         framework = self.manifest['framework']
         if not framework.startswith("ubuntu-sdk"):
             return

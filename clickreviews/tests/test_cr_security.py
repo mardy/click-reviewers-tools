@@ -41,14 +41,41 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_version_vendor(self):
         '''Test check_policy_version() - valid'''
-        for v in [1.0]:  # update when have more vendor policy
-            c = ClickReviewSecurity(self.test_name)
-            self.set_test_security_manifest(self.default_appname,
-                                            "policy_version", v)
-            c.check_policy_version()
-            report = c.click_report
-            expected_counts = {'info': 3, 'warn': 0, 'error': 0}
-            self.check_results(report, expected_counts)
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_version", 1.0)
+        c.check_policy_version()
+        report = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_version_vendor_snappy_1504(self):
+        '''Test check_policy_version() - valid - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        n = "bin/%s" % self.default_appname
+        self._set_yaml_binary([('caps', ['network-client'])], name=n)
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest("binaries/%s" % n,
+                                        "policy_version", 1.0)
+        c.check_policy_version()
+        report = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_version_vendor_snappy_1604(self):
+        '''Test check_policy_version() - valid - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        n = "bin/%s" % self.default_appname
+        self._set_yaml_binary([('caps', ['network-client'])], name=n)
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest("binaries/%s" % n,
+                                        "policy_vendor", "ubuntu-core")
+        self.set_test_security_manifest("binaries/%s" % n,
+                                        "policy_version", 15.04)
+        c.check_policy_version()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
 
     def test_check_policy_version_highest(self):
         '''Test check_policy_version() - highest'''
@@ -271,6 +298,32 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_policy_vendor()
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_vendor_ubuntu_1504(self):
+        '''Test check_policy_vendor() - ubuntu - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        n = "bin/%s" % self.default_appname
+        self._set_yaml_binary([('caps', ['network-client'])], name=n)
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest("binaries/%s" % n,
+                                        "policy_vendor", "ubuntu")
+        c.check_policy_vendor()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_vendor_ubuntu_1604(self):
+        '''Test check_policy_vendor() - ubuntu - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        n = "bin/%s" % self.default_appname
+        self._set_yaml_binary([('caps', ['network-client'])], name=n)
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_security_manifest("binaries/%s" % n,
+                                        "policy_vendor", "ubuntu")
+        c.check_policy_vendor()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_vendor_ubuntu(self):
@@ -975,10 +1028,26 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups",
                                         ["push-notification-client"])
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-push-helper")
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_push_helpers()
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_policy_groups_pushhelper_wrong_template(self):
+        '''Test check_policy_groups_pushhelper()'''
+        self.set_test_push_helper(self.default_appname, "exec", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups",
+                                        ["push-notification-client"])
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-sdk")
+        c = ClickReviewSecurity(self.test_name)
+        c.check_policy_groups_push_helpers()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_policy_groups_pushhelper_missing(self):
@@ -987,6 +1056,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups",
                                         None)
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-push-helper")
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_push_helpers()
         report = c.click_report
@@ -1001,6 +1072,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         ["video_files",
                                          "networking",
                                          "push-notification-client"])
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-push-helper")
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_push_helpers()
         report = c.click_report
@@ -1014,60 +1087,10 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                                         "policy_groups",
                                         ["networking",
                                          "push-notification-client"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_policy_groups_push_helpers()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_template_pushhelper(self):
-        '''Test check_template_pushhelper'''
-        self.set_test_push_helper(self.default_appname, "exec", "foo")
         self.set_test_security_manifest(self.default_appname,
                                         "template", "ubuntu-push-helper")
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups",
-                                        ["push-notification-client"])
         c = ClickReviewSecurity(self.test_name)
-        c.check_template_push_helpers()
-        report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_template_pushhelper_no_hook(self):
-        '''Test check_template_pushhelper'''
-        self.set_test_security_manifest(self.default_appname,
-                                        "template", "ubuntu-sdk")
-        c = ClickReviewSecurity(self.test_name)
-        c.check_template_push_helpers()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_template_pushhelper_wrong_template(self):
-        '''Test check_template_pushhelper - wrong template'''
-        self.set_test_push_helper(self.default_appname, "exec", "foo")
-        self.set_test_security_manifest(self.default_appname,
-                                        "template", "ubuntu-webapp")
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups",
-                                        ["push-notification-client"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_template_push_helpers()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_template_pushhelper_wrong_template2(self):
-        '''Test check_template_pushhelper - default template'''
-        self.set_test_push_helper(self.default_appname, "exec", "foo")
-        self.set_test_security_manifest(self.default_appname,
-                                        "template", None)
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups",
-                                        ["push-notification-client"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_template_push_helpers()
+        c.check_policy_groups_push_helpers()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
@@ -1267,6 +1290,25 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_apparmor_profile_1604(self):
+        '''Test check_apparmor_profile() - snappy 16.04'''
+        policy = '''
+###VAR###
+###PROFILEATTACH### {
+  #include <abstractions/base>
+  # Read-only for the install directory
+  @{CLICK_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
+  @{INSTALL_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
+}
+'''
+        self.set_test_security_profile(self.default_appname, policy)
+        c = ClickReviewSecurity(self.test_name)
+        self.set_test_pkgfmt("snap", "16.04")
+        c.check_apparmor_profile()
+        report = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_apparmor_profile_missing_var(self):
         '''Test check_apparmor_profile() - missing ###VAR###'''
         policy = '''
@@ -1366,6 +1408,30 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_template_nondefault_1504(self):
+        '''Test check_security_template() - nondefault - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "nondefault")
+        self._set_yaml_binary([('security-template', 'nondefault')])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_nondefault_1604(self):
+        '''Test check_security_template() - nondefault - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "nondefault")
+        self._set_yaml_binary([('security-template', 'nondefault')])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_template_bad(self):
         '''Test check_security_template() - {}'''
         self._set_yaml_binary([('security-template', {})])
@@ -1453,6 +1519,33 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_security_yaml_and_click()
         report = c.click_report
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_snappy_1504(self):
+        '''Test check_security_yaml_and_click() - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self._set_yaml_binary([('caps', ['networking'])],
+                              name="bin/%s" % self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+
+        # update the manifest and test_manifest
+        c.manifest["hooks"][self.default_appname]['bin-path'] = "bin/path"
+
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_and_click_snappy_1604(self):
+        '''Test check_security_yaml_and_click() - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('caps', ['networking'])],
+                              name="bin/%s" % self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+
+        c.check_security_yaml_and_click()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_security_yaml_and_click_name_exec(self):
@@ -1923,6 +2016,28 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_yaml_override_and_click_1504(self):
+        '''Test check_security_yaml_override_and_click() - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override_and_click()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override_and_click_1604(self):
+        '''Test check_security_yaml_override_and_click() - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override_and_click()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_yaml_override_and_click_bad(self):
         '''Test check_security_yaml_override_and_click() - bad'''
         self.set_test_security_manifest(self.default_appname, "template", None)
@@ -1945,8 +2060,31 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_yaml_override_1504(self):
+        '''Test check_security_yaml_override() - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override_1604(self):
+        '''Test check_security_yaml_override() - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_security_manifest(self.default_appname, "template", None)
+        self._set_yaml_binary([])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_yaml_override2(self):
         '''Test check_security_yaml_override() - seccomp/apparmor specified'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-override', {'apparmor': 'aa',
                                                       'seccomp': 'sc'})],
                               name=self.default_appname)
@@ -1954,6 +2092,84 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_security_yaml_override()
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override3(self):
+        '''Test check_security_yaml_override() - seccomp/apparmor specified
+           with 16.04
+        '''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override', {'apparmor': 'aa',
+                                                      'seccomp': 'sc'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override4(self):
+        '''Test check_security_yaml_override() - syscalls specified with
+           15.04
+        '''
+        self.set_test_pkgfmt("snap", "15.04")
+        self._set_yaml_binary([('security-override', {'syscalls': 'foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override5(self):
+        '''Test check_security_yaml_override() - syscalls specified with
+           16.04
+        '''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override', {'syscalls': 'foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        # the error is security-override not allowed
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override6(self):
+        '''Test check_security_yaml_override() - read-paths'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override', {'read-paths': '/foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        # the error is security-override not allowed
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override7(self):
+        '''Test check_security_yaml_override() - write-paths'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override', {'write-paths': '/foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        # the error is security-override not allowed
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_yaml_override8(self):
+        '''Test check_security_yaml_override() - abstractions'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self._set_yaml_binary([('security-override',
+                                {'abstractions': '/foo'})],
+                              name=self.default_appname)
+        c = ClickReviewSecurity(self.test_name)
+        c.check_security_yaml_override()
+        report = c.click_report
+        # the error is security-override not allowed
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_security_yaml_override_missing1(self):
@@ -2049,6 +2265,34 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_template_online_account_provider_1504(self):
+        '''Test check_template_online_account_provider - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_account(self.default_appname, "account-provider", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-account-plugin")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["accounts"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_template_online_accounts_provider()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_online_account_provider_1604(self):
+        '''Test check_template_online_account_provider - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_account(self.default_appname, "account-provider", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-account-plugin")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["accounts"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_template_online_accounts_provider()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_template_online_account_provider_no_hook(self):
         '''Test check_template_online_account_provider'''
         self.set_test_security_manifest(self.default_appname,
@@ -2099,6 +2343,36 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_template_online_account_qml_plugin_1504(self):
+        '''Test check_template_online_account_qml_plugin - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_account(self.default_appname,
+                              "account-qml-plugin", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-account-plugin")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["accounts"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_template_online_accounts_qml_plugin()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_template_online_account_qml_plugin_1604(self):
+        '''Test check_template_online_account_qml_plugin - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_account(self.default_appname,
+                              "account-qml-plugin", "foo")
+        self.set_test_security_manifest(self.default_appname,
+                                        "template", "ubuntu-account-plugin")
+        self.set_test_security_manifest(self.default_appname,
+                                        "policy_groups", ["accounts"])
+        c = ClickReviewSecurity(self.test_name)
+        c.check_template_online_accounts_qml_plugin()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_template_online_account_qml_plugin_no_hook(self):
         '''Test check_template_online_account_qml_plugin'''
         self.set_test_security_manifest(self.default_appname,
@@ -2139,8 +2413,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_groups_ubuntu_account_plugin_no_hook(self):
         '''Test check_policy_groups_ubuntu_account_plugin() - no hook'''
-        self.set_test_security_manifest(self.default_appname,
-                                        "template", "ubuntu-account-plugin")
         c = ClickReviewSecurity(self.test_name)
         c.check_policy_groups_ubuntu_account_plugin()
         report = c.click_report

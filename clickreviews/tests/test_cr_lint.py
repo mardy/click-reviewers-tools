@@ -143,7 +143,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     def test_check_architecture_nonexistent(self):
         '''Test check_architecture() - nonexistent'''
         self.set_test_control("Architecture", "nonexistent")
+        self.set_test_pkgfmt("click", "0.4")
         c = ClickReviewLint(self.test_name)
+        c.pkg_arch = ["nonexistent"]
         c.check_architecture()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
@@ -155,6 +157,25 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_control()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_control_architecture_snappy_1504(self):
+        '''Test check_control() (architecture) - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        c = ClickReviewLint(self.test_name)
+        c.check_control()
+        r = c.click_report
+        expected_counts = {'info': 15, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_control_architecture_snappy_1604(self):
+        '''Test check_control() (architecture) - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        c = ClickReviewLint(self.test_name)
+        c.check_control()
+        r = c.click_report
+        # should be empty with this pkgfmt
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control_architecture_missing(self):
@@ -220,6 +241,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.set_test_control("Architecture", "armhf")
         self.set_test_manifest("architecture", "armhf")
         c = ClickReviewLint(self.test_name)
+        c.pkg_arch = ['armhf']
         c.pkg_bin_files = []
         c.check_architecture_specified_needed()
         r = c.click_report
@@ -237,90 +259,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_package_filename(self):
-        '''Test check_package_filename()'''
-        c = ClickReviewLint(self.test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_missing_version(self):
-        '''Test check_package_filename() - missing version'''
-        test_name = "%s_%s.click" % (self.test_control['Package'],
-                                     self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 3, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_missing_arch(self):
-        '''Test check_package_filename() - missing arch'''
-        test_name = "%s_%s.click" % (self.test_control['Package'],
-                                     self.test_control['Version'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 3, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_missing_package(self):
-        '''Test check_package_filename() - missing package'''
-        test_name = "%s_%s.click" % (self.test_control['Version'],
-                                     self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 3, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_extra_underscore(self):
-        '''Test check_package_filename() - extra underscore'''
-        test_name = "_%s_%s_%s.click" % (self.test_control['Package'],
-                                         self.test_control['Version'],
-                                         self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 2, 'error': 2}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_version_mismatches(self):
-        '''Test check_package_filename() (version mismatches filename)'''
-        self.set_test_control("Version", "100.1.1")
-        c = ClickReviewLint(self.test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_valid_arch(self):
-        '''Test check_package_filename() (valid arch)'''
-        arch = "armhf"
-        self.set_test_control("Architecture", arch)
-        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
-                                        self.test_control['Version'],
-                                        self.test_control['Architecture'])
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_valid_arch_multi(self):
-        '''Test check_package_filename() (valid multi arch)'''
-        arch = "multi"
-        self.set_test_control("Architecture", arch)
-        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
-                                        self.test_control['Version'],
-                                        arch)
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
     def test_check_manifest_missing_arch(self):
         '''Test check_manifest_architecture() (missing)'''
         self.set_test_manifest("architecture", None)
@@ -328,6 +266,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_manifest_architecture()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_missing_arch_snappy_1504(self):
+        '''Test check_manifest_architecture() - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_manifest("architecture", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_manifest_missing_arch_snappy_1604(self):
+        '''Test check_manifest_architecture() - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_manifest("architecture", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_manifest_architecture()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_manifest_arch_all(self):
@@ -453,27 +411,6 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_manifest_architecture()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_mismatch_arch(self):
-        '''Test check_package_filename() (control mismatches arch)'''
-        arch = "armhf"
-        self.set_test_control("Architecture", "all")
-        test_name = "%s_%s_%s.click" % (self.test_control['Package'],
-                                        self.test_control['Version'],
-                                        arch)
-        c = ClickReviewLint(test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_package_filename_with_extra_click(self):
-        """Test namespaces with the word "click" in them."""
-        c = ClickReviewLint(self.test_name)
-        c.check_package_filename()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_control(self):
@@ -638,6 +575,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_icon_snappy_1504(self):
+        '''Test check_icon() - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_manifest("icon", "someicon")
+        c = ClickReviewLint(self.test_name)
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_snappy_1604(self):
+        '''Test check_icon() - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_manifest("icon", "someicon")
+        c = ClickReviewLint(self.test_name)
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_icon_unspecified(self):
         '''Test check_icon()'''
         self.set_test_manifest("icon", None)
@@ -714,6 +671,34 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_click_local_extensions_snappy_1504(self):
+        '''Testeck_click_local_extensions() - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        for k in self.test_manifest.keys():
+            if k.startswith("x-"):
+                self.set_test_manifest(k, None)
+        self.set_test_manifest("x-source", {"vcs-bzr": "lp:notes-app",
+                                            "vcs-bzr-revno": "209"})
+        c = ClickReviewLint(self.test_name)
+        c.check_click_local_extensions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_click_local_extensions_snappy_1604(self):
+        '''Testeck_click_local_extensions() - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        for k in self.test_manifest.keys():
+            if k.startswith("x-"):
+                self.set_test_manifest(k, None)
+        self.set_test_manifest("x-source", {"vcs-bzr": "lp:notes-app",
+                                            "vcs-bzr-revno": "209"})
+        c = ClickReviewLint(self.test_name)
+        c.check_click_local_extensions()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_framework(self):
         '''Test check_framework()'''
         self.patch_frameworks()
@@ -746,6 +731,19 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_framework()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_framework_multiple_snappy_1604(self):
+        '''Test check_framework() - snappy 16.04'''
+        self.patch_frameworks()
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_manifest("framework",
+                               "ubuntu-sdk-14.10-qml-dev2,ubuntu-core-15.04")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_framework()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     @patch('clickreviews.remote.read_cr_file')
@@ -829,6 +827,27 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_hooks()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_snappy_1504(self):
+        '''Test check_hooks() - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_snappy_1604(self):
+        '''Test check_hooks() - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        # this should be 0 with this pkgfmt
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_multiple_desktop_apps(self):
@@ -950,6 +969,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_hooks_unknown_nonexistent_snappy_1504(self):
+        '''Test check_hooks_unknown() - nonexistent - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.check_hooks_unknown()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_unknown_nonexistent_snappy_1604(self):
+        '''Test check_hooks_unknown() - nonexistent - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.check_hooks_unknown()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_hooks_unknown_good(self):
         '''Test check_hooks_unknown()'''
         self.set_test_manifest("framework", "ubuntu-sdk-13.10")
@@ -981,6 +1020,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
         name = c._get_check_name('hooks_redflag', app='test-app')
         self.check_manual_review(r, name)
+
+    def test_check_hooks_redflagged_payui_snappy_1504(self):
+        '''Test check_hooks_redflagged() - pay-ui - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.check_hooks_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_redflagged_payui_snappy_1604(self):
+        '''Test check_hooks_redflagged() - pay-ui - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.check_hooks_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
 
     def test_check_hooks_redflagged_apparmor_profile(self):
         '''Test check_hooks_redflagged() - apparmor-profile'''
@@ -1028,6 +1087,28 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_snappy_name_toplevel(self):
         '''Test check_snappy_name - toplevel'''
+        self.set_test_pkg_yaml("name", "foo")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name_toplevel_1504(self):
+        '''Test check_snappy_name - toplevel - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_pkg_yaml("name", "foo")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_snappy_name()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_name_toplevel_1604(self):
+        '''Test check_snappy_name - toplevel - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
         self.set_test_pkg_yaml("name", "foo")
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1090,6 +1171,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_snappy_name()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version_1504(self):
+        '''Test check_snappy_version - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_pkg_yaml("version", 1)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_version_1604(self):
+        '''Test check_snappy_version - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_pkg_yaml("version", 1)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_version()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_snappy_version1(self):
@@ -1191,6 +1292,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_snappy_type_app_1504(self):
+        '''Test check_snappy_type - app - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_pkg_yaml("type", "app")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_app_1604(self):
+        '''Test check_snappy_type - app - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        self.set_test_pkg_yaml("type", "app")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_snappy_type_framework(self):
         '''Test check_snappy_type - framework'''
         self.set_test_pkg_yaml("type", "framework")
@@ -1209,8 +1330,46 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_snappy_type_os(self):
+        '''Test check_snappy_type - os'''
+        self.set_test_pkg_yaml("type", "os")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_kernel(self):
+        '''Test check_snappy_type - kernel'''
+        self.set_test_pkg_yaml("type", "kernel")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_snappy_type_redflagged(self):
         '''Test check_snappy_type_redflagged - unspecified'''
+        self.set_test_pkg_yaml("type", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged_1504(self):
+        '''Test check_snappy_type_redflagged - unspecified - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_pkg_yaml("type", None)
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged_1604(self):
+        '''Test check_snappy_type_redflagged - unspecified - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
         self.set_test_pkg_yaml("type", None)
         c = ClickReviewLint(self.test_name)
         c.check_snappy_type_redflagged()
@@ -1236,8 +1395,55 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_snappy_type_redflagged_oem(self):
+        '''Test check_snappy_type_redflagged - oem'''
+        self.set_test_pkg_yaml("type", "oem")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged_os(self):
+        '''Test check_snappy_type_redflagged - os'''
+        self.set_test_pkg_yaml("type", "os")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged_kernel(self):
+        '''Test check_snappy_type_redflagged - kernel'''
+        self.set_test_pkg_yaml("type", "kernel")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_snappy_icon(self):
         '''Test check_snappy_icon()'''
+        self.set_test_pkg_yaml("icon", "someicon")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_icon()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_icon_1504(self):
+        '''Test check_snappy_icon() - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_pkg_yaml("icon", "someicon")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_icon()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_icon_1604(self):
+        '''Test check_snappy_icon() - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
         self.set_test_pkg_yaml("icon", "someicon")
         c = ClickReviewLint(self.test_name)
         c.check_snappy_icon()
@@ -1274,6 +1480,18 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_missing_arch(self):
         '''Test check_snappy_architecture() (missing)'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_pkg_yaml("architectures", None)
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        c.check_snappy_architecture()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_missing_arch_1604(self):
+        '''Test check_snappy_architecture() (missing)'''
+        self.set_test_pkgfmt("snap", "16.04")
         self.set_test_pkg_yaml("architectures", None)
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1284,6 +1502,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_all_deprecated(self):
         '''Test check_snappy_architecture() (deprecated, all)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architecture", "all")
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1294,6 +1513,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_amd64_deprecated(self):
         '''Test check_snappy_architecture() (deprecated, all)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architecture", "amd64")
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1304,6 +1524,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_all(self):
         '''Test check_snappy_architecture() (all)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["all"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1314,6 +1535,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_armhf(self):
         '''Test check_snappy_architecture() (single arch, armhf)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["armhf"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1324,6 +1546,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_arm64(self):
         '''Test check_snappy_architecture() (single arch, arm64)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["arm64"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1334,6 +1557,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_i386(self):
         '''Test check_snappy_architecture() (single arch, i386)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["i386"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1344,6 +1568,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_amd64(self):
         '''Test check_snappy_architecture() (single arch, amd64)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["amd64"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1354,6 +1579,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_nonexistent(self):
         '''Test check_snappy_architecture() (single nonexistent arch)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["nonexistent"])
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1364,6 +1590,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_arch_single_multi(self):
         '''Test check_snappy_architecture() (single arch: invalid multi)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", "multi")
         c = ClickReviewLint(self.test_name)
         c.is_snap = True
@@ -1374,12 +1601,11 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_valid_arch_multi(self):
         '''Test check_snappy_architecture() (valid multi)'''
-        arch = "multi"
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("architectures", ["armhf"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
-                                       arch)
+                                       "armhf")
         c = ClickReviewLint(test_name)
         c.is_snap = True
         c.check_snappy_architecture()
@@ -1389,9 +1615,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_valid_arch_multi2(self):
         '''Test check_snappy_architecture() (valid multi2)'''
+        self.set_test_pkgfmt("snap", "15.04")
         arch = "multi"
         self.set_test_pkg_yaml("architectures", ["armhf", "i386"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
                                        arch)
@@ -1404,9 +1630,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_invalid_arch_multi_nonexistent(self):
         '''Test check_snappy_architecture() (invalid multi)'''
+        self.set_test_pkgfmt("snap", "15.04")
         arch = "multi"
         self.set_test_pkg_yaml("architectures", ["armhf", "nonexistent"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
                                        arch)
@@ -1419,9 +1645,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_invalid_arch_multi_all(self):
         '''Test check_snappy_architecture() (invalid all)'''
+        self.set_test_pkgfmt("snap", "15.04")
         arch = "multi"
         self.set_test_pkg_yaml("architectures", ["armhf", "all"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
                                        arch)
@@ -1434,13 +1660,14 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_invalid_arch_multi_multi(self):
         '''Test check_snappy_architecture() (invalid multi)'''
+        self.set_test_pkgfmt("snap", "15.04")
         arch = "multi"
         self.set_test_pkg_yaml("architectures", ["multi", "armhf"])
-        self.set_test_control("Architecture", arch)
         test_name = "%s_%s_%s.snap" % (self.test_control['Package'],
                                        self.test_control['Version'],
                                        arch)
         c = ClickReviewLint(test_name)
+        c.is_snap = True
         c.check_snappy_architecture()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
@@ -1448,6 +1675,26 @@ class TestClickReviewLint(cr_tests.TestClickReview):
 
     def test_check_snappy_unknown_entries(self):
         '''Test check_snappy_unknown_entries - none'''
+        self.set_test_pkg_yaml("name", "foo")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_unknown_entries()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_unknown_entries_1504(self):
+        '''Test check_snappy_unknown_entries - none - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        self.set_test_pkg_yaml("name", "foo")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_unknown_entries()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_unknown_entries_1604(self):
+        '''Test check_snappy_unknown_entries - none - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
         self.set_test_pkg_yaml("name", "foo")
         c = ClickReviewLint(self.test_name)
         c.check_snappy_unknown_entries()
@@ -1651,6 +1898,33 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         c.check_snappy_hashes()
         r = c.click_report
         expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_1504(self):
+        '''Test check_snappy_hashes() - 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        c.pkg_files = self._test_pkg_files
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_snappy_hashes_1604(self):
+        '''Test check_snappy_hashes() - 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        c = ClickReviewLint(self.test_name)
+        c.is_snap = True
+        yaml = self._create_hashes_yaml()
+        c.pkg_files = self._test_pkg_files
+        self.set_test_hashes_yaml(yaml)
+        c.check_snappy_hashes()
+        r = c.click_report
+        # this should be empty with this package format
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_snappy_hashes_archive_files_missing_name(self):

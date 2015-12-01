@@ -281,3 +281,27 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+
+    def test_check_scope_ini_snappy_1504(self):
+        '''Test check_scope_ini() - snappy 15.04'''
+        self.set_test_pkgfmt("snap", "15.04")
+        scope = self._create_scope(self._stub_config())
+
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_scope_ini_snappy_1604(self):
+        '''Test check_scope_ini() - snappy 16.04'''
+        self.set_test_pkgfmt("snap", "16.04")
+        scope = self._create_scope(self._stub_config())
+
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)

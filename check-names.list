@@ -44,9 +44,9 @@ framework:policy|
 framework:policy_metadata|
 framework:policy_unknown|
 framework:policy_valid_name|
+lint:architecture_specified_needed|
 lint:click_local_extensions|
 lint:control_architecture_match|
-lint:control_architecture_specified_needed|
 lint:control_architecture_valid|
 lint:control_architecture_valid_contents|
 lint:control_click_version_up_to_date|http://askubuntu.com/questions/417366/what-does-lint-control-click-version-up-to-date-mean/417367
@@ -77,10 +77,6 @@ lint:manifest_architecture_valid|
 lint:manifest_icon_absolute_path|
 lint:manifest_icon_empty|
 lint:manifest_icon_present|
-lint:package_filename_arch_match|
-lint:package_filename_arch_valid|http://askubuntu.com/questions/685103/what-does-lint-package-filename-arch-valid-mean/685104
-lint:package_filename_format|http://askubuntu.com/questions/685049/what-does-lint-package-filename-format-mean/685050
-lint:package_filename_version_match|http://askubuntu.com/questions/417384/what-does-lint-package-filename-version-match-mean/417385
 lint:package yaml_architecture_valid|
 lint:package_yaml_icon_absolute_path|
 lint:package_yaml_icon_empty|
@@ -153,7 +149,6 @@ security:required_policy_groups_ubuntu_account_plugin|
 security:template_account_provider|
 security:template_account_qml_plugin|
 security:template_exists|
-security:template_push_helper|
 security:template_valid|http://askubuntu.com/q/671403
 security:template_with_policy_version|
 security:yaml_and_click|
@@ -163,6 +158,7 @@ security:yaml_caps|
 security:yaml_combinations|
 security:yaml_override_click|
 security:yaml_override_format|
+security:yaml_override_present|https://developer.ubuntu.com/en/snappy/guides/security-policy/
 security:yaml_policy_format|
 security:yaml_policy_present|https://developer.ubuntu.com/en/snappy/guides/security-policy/
 security:yaml_security-template|

@@ -23,22 +23,24 @@ import re
 
 
 class ClickReviewFramework(ClickReview):
-    '''This class represents click lint reviews'''
+    '''This class represents click framework reviews'''
     def __init__(self, fn, overrides=None):
         ClickReview.__init__(self, fn, "framework", overrides=overrides)
 
         self.frameworks_file = dict()
         self.frameworks = dict()
-        for app in self.manifest['hooks']:
-            if 'framework' not in self.manifest['hooks'][app]:
-                # msg("Skipped missing framework hook for '%s'" % app)
-                continue
-            if not isinstance(self.manifest['hooks'][app]['framework'], str):
-                error("manifest malformed: hooks/%s/framework is not str" %
-                      app)
-            (full_fn, data) = self._extract_framework(app)
-            self.frameworks_file[app] = full_fn
-            self.frameworks[app] = data
+
+        if self.manifest is not None:
+            for app in self.manifest['hooks']:
+                if 'framework' not in self.manifest['hooks'][app]:
+                    # msg("Skipped missing framework hook for '%s'" % app)
+                    continue
+                if not isinstance(self.manifest['hooks'][app]['framework'], str):
+                    error("manifest malformed: hooks/%s/framework is not str" %
+                          app)
+                (full_fn, data) = self._extract_framework(app)
+                self.frameworks_file[app] = full_fn
+                self.frameworks[app] = data
 
         self.framework_policy_dirs = ['apparmor', 'seccomp']
         self.framework_policy_subdirs = ['templates', 'policygroups']
