@@ -124,6 +124,7 @@ class ClickReviewScope(ClickReview):
             translated = ['description',
                           'displayname',
                           'searchhint']
+            internal = ['debugmode']
 
             missing = []
             t = 'info'
@@ -150,7 +151,7 @@ class ClickReviewScope(ClickReview):
             unknown = []
             for i in self.scopes[app]["scope_config"]['ScopeConfig'].keys():
                 f = i.lower()
-                if f not in required and f not in optional and \
+                if f not in required and f not in optional and f not in internal and \
                    (f.split("[")[0] not in translated or not
                        re.search('.*\[[a-z]{2,3}(_[a-z]{2,3})?\]$', f)):
                     unknown.append(f)
@@ -165,4 +166,23 @@ class ClickReviewScope(ClickReview):
                 s = "Unknown fields in '%s': %s" % (
                     self.scopes[app]["ini_file_rel"],
                     ", ".join(unknown))
+            self._add_result(t, n, s)
+
+            t = 'info'
+            n = self._get_check_name('ini_scope_internal_fields', app=app)
+            s = "OK"
+            forbidden = []
+            for r in internal:
+                if r in self.scopes[app]["scope_config"]['ScopeConfig']:
+                    forbidden.append(r)
+            if len(forbidden) == 1:
+                t = 'error'
+                s = "Forbidden field in '%s': %s" % (
+                    self.scopes[app]["ini_file_rel"],
+                    forbidden[0])
+            elif len(forbidden) > 1:
+                t = 'error'
+                s = "Forbidden fields in '%s': %s" % (
+                    self.scopes[app]["ini_file_rel"],
+                    ", ".join(forbidden))
             self._add_result(t, n, s)
