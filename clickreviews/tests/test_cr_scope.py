@@ -291,7 +291,7 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         c = ClickReviewScope(self.test_name)
         c.check_scope_ini()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_scope_ini_snappy_1604(self):
