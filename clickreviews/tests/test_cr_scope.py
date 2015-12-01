@@ -62,7 +62,7 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         c = ClickReviewScope(self.test_name)
         c.check_scope_ini()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_scope_ini_missing_required1(self):
@@ -195,6 +195,19 @@ class TestClickReviewScope(cr_tests.TestClickReview):
         c.check_scope_ini()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_scope_ini_forbidden_field(self):
+        '''Test check_scope_ini() - forbidden field'''
+        config = self._stub_config()
+        config['debugmode'] = "true"
+        scope = self._create_scope(config)
+
+        self.set_test_scope(self.default_appname, scope)
+        c = ClickReviewScope(self.test_name)
+        c.check_scope_ini()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_peer_hooks(self):

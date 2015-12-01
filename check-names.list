@@ -124,6 +124,7 @@ push_helper:peer_hooks_required|
 push_helper:unknown|
 push_helper:valid|
 push_helper:valid_required|
+scope:ini_scope_internal_fields|
 scope:ini_scope_required_fields|
 scope:ini_scope_section|
 scope:ini_scope_unknown_fields|
