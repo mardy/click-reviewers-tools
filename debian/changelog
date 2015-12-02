@@ -25,6 +25,8 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
     - sort unknown snappy yaml keys
   * clickreviews/cr_common.py:
     - add valid yaml keys for kernel snaps
+    - add a couple more mime types for detecting binaries (useful for arm
+      kernels)
   * update data/apparmor-easyprof-ubuntu.json for 16.04 policy
   * Makefile: add json syntax check
   * several changes for squashfs snaps that won't have a click manifest, etc.

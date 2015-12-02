@@ -322,7 +322,9 @@ class ClickReview(object):
         for i in self.pkg_files:
             res = self.mime.file(i)
             if res in ['application/x-executable; charset=binary',
-                       'application/x-sharedlib; charset=binary']:
+                       'application/x-sharedlib; charset=binary',
+                       'application/x-object; charset=binary',
+                       'application/octet-stream; charset=binary']:
                 self.pkg_bin_files.append(i)
 
     def _verify_manifest_structure(self):
