@@ -96,6 +96,7 @@ class ClickReview(object):
                        "binaries",
                        "caps",
                        "config",
+                       "dtbs",
                        "firmware",
                        "frameworks",
                        "icon",
