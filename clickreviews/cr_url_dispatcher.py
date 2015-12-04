@@ -57,7 +57,11 @@ class ClickReviewUrlDispatcher(ClickReview):
     def _extract_url_dispatcher(self, app):
         '''Get url dispatcher json'''
         u = self.manifest['hooks'][app]['urls']
+        if not u:
+            error("'urls' definition is empty for '%s'" % app)
         fn = os.path.join(self.unpack_dir, u)
+        if not os.path.isfile(fn):
+            error("'%s' is not a file" % fn)
 
         bn = os.path.basename(fn)
         if not os.path.exists(fn):

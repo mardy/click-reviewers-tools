@@ -64,6 +64,7 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
     chdir (LP: #1514346).
   * Allow translated scope .ini fields to have 3 letters as their lang_code
     identifier, ie. 'ast'. (LP: #1517017)
+  * Ensure "urls" is not empty (LP: #1522777)
 
   [ James Tait ]
   * Add a handful of links to askubuntu questions to explain some of the
