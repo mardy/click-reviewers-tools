@@ -112,7 +112,6 @@ class ClickReviewAccounts(ClickReview):
             ('description', str),
         ]
         self.required_keys["plugin"] = [
-            ('provider', str),
             ('name', str),
             ('icon', str),
             ('qml', str),
@@ -259,19 +258,23 @@ class ClickReviewAccounts(ClickReview):
                 self._add_result(t, n, s)
                 continue
 
+            has_services_or_plugin = False
             n = self._get_check_name('%s_services' % account_type, app=app)
-            if 'services' not in self.accounts[app][account_type]:
-                t = "error"
-                s = "'services' key is missing"
-                self._add_result(t, n, s)
-                continue
-            services = self.accounts[app][account_type]['services']
-            self._check_object_list(app, "services", "service", services)
+            if 'services' in self.accounts[app][account_type]:
+                has_services_or_plugin = True
+                services = self.accounts[app][account_type]['services']
+                self._check_object_list(app, "services", "service", services)
 
-            n = self._get_check_name('%s_plugins' % account_type, app=app)
-            if 'plugins' in self.accounts[app][account_type]:
-                plugins = self.accounts[app][account_type]['plugins']
-                self._check_object_list(app, "plugins", "plugin", plugins)
+            n = self._get_check_name('%s_plugin' % account_type, app=app)
+            if 'plugin' in self.accounts[app][account_type]:
+                has_services_or_plugin = True
+                plugin = self.accounts[app][account_type]['plugin']
+                self._check_object("plugin", plugin, n)
+
+            if not has_services_or_plugin:
+                t = "error"
+                s = "either 'services' or 'plugin' key must be present"
+                self._add_result(t, n, s)
 
     def check_application(self):
         '''Check application'''

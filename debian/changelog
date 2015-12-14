@@ -72,6 +72,7 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
 
   [ Alberto Mardegan ]
   * Allow "accounts" hook since the 15.04.1 framework
+  * Online Accounts: update to latest plugin hook format
 
   [ Marcus Tomlinson ]
   * Forbid the internal "DebugMode" scope.ini key from making its way into the

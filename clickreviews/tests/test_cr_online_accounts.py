@@ -153,14 +153,11 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
               "provider": "becool"
             }
           ],
-          "plugins": [
-            {
-              "provider": "example",
+          "plugin": {
               "name": "Example site",
               "icon": "example.png",
               "qml": "qml_files"
-            }
-          ]
+          }
         }''')
         self.set_test_account(self.default_appname, "accounts", data)
         c = ClickReviewAccounts(self.test_name)
