@@ -526,7 +526,7 @@ exit 1
                     found.append(hook)
             if len(found) > 0:
                 t = 'error'
-                s = "(MANUAL REVIEW) '%s' not allowed" % ", ".join(found)
+                s = "(NEEDS REVIEW) '%s' not allowed" % ", ".join(found)
                 manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
 
@@ -1061,7 +1061,7 @@ exit 1
             s = 'OK (skip missing)'
         elif self.pkg_yaml['type'] in self.snappy_redflagged_types:
             t = 'error'
-            s = "(MANUAL REVIEW) type '%s' not allowed" % self.pkg_yaml['type']
+            s = "(NEEDS REVIEW) type '%s' not allowed" % self.pkg_yaml['type']
             manual_review = True
             if self.pkg_yaml['type'] == "framework":
                 l = "https://developer.ubuntu.com/en/snappy/guides/frameworks/"
@@ -1209,7 +1209,7 @@ exit 1
         if is_squashfs(self.pkg_filename):
             t = 'error'
             n = self._get_check_name('is_squashfs')
-            s = "(MANUAL REVIEW) squashfs pkg"
+            s = "(NEEDS REVIEW) squashfs pkg"
             manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
 

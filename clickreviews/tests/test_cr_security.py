@@ -2214,7 +2214,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.check_results(report, expected_counts)
         name = c._get_check_name('yaml_policy_present')
         m = report['error'][name]['text']
-        self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
+        self.assertIn("(NEEDS REVIEW) 'security-policy' not allowed", m)
 
     def test_check_security_yaml_policy_missing1(self):
         '''Test check_security_yaml_policy() - missing apparmor'''
@@ -2227,7 +2227,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.check_results(report, expected_counts)
         name = c._get_check_name('yaml_policy_present')
         m = report['error'][name]['text']
-        self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
+        self.assertIn("(NEEDS REVIEW) 'security-policy' not allowed", m)
         name = c._get_check_name(
             'yaml_policy_format', app='test-app')
         m = report['error'][name]['text']
@@ -2245,7 +2245,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.check_results(report, expected_counts)
         name = c._get_check_name('yaml_policy_present')
         m = report['error'][name]['text']
-        self.assertIn("(MANUAL REVIEW) 'security-policy' not allowed", m)
+        self.assertIn("(NEEDS REVIEW) 'security-policy' not allowed", m)
         name = c._get_check_name(
             'yaml_policy_format', app='test-app')
         m = report['error'][name]['text']

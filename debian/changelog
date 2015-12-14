@@ -10,6 +10,7 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
       stacking work is completed (LP: #1499544)
     - adjust for xenial snappy defaulting to using 'network-client' instead
       of 'networking'
+    - use 'NEEDS REVIEW' instead of 'MANUAL REVIEW'
   * clickreviews/cr_lint.py:
     - check if package ships .click directory
     - add a few more vcs files
@@ -23,6 +24,7 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
     - remove package filename checks. They were meaningless and hard to
       maintain
     - sort unknown snappy yaml keys
+    - use 'NEEDS REVIEW' instead of 'MANUAL REVIEW'
   * clickreviews/cr_common.py:
     - add valid yaml keys for kernel snaps
     - add a couple more mime types for detecting binaries (useful for arm

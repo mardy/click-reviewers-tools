@@ -529,7 +529,7 @@ class ClickReviewSecurity(ClickReview):
                 continue
             elif m['template'] in self.redflag_templates:
                 t = 'error'
-                s = "(MANUAL REVIEW) '%s' not allowed" % m['template']
+                s = "(NEEDS REVIEW) '%s' not allowed" % m['template']
                 manual_review = True
             elif ('policy_vendor' not in m or m['policy_vendor'] == 'ubuntu') \
                     and m['template'] in self.extraneous_ubuntu_templates:
@@ -826,7 +826,7 @@ class ClickReviewSecurity(ClickReview):
                             "'%s': not for production use" % (i)
                     elif aa_type == "reserved":
                         t = 'error'
-                        s = "(MANUAL REVIEW) %s policy group " % aa_type + \
+                        s = "(NEEDS REVIEW) %s policy group " % aa_type + \
                             "'%s': vetted applications only" % (i)
                         if i == "debug":
                             l = 'http://askubuntu.com/a/562123/94326'
@@ -1281,7 +1281,7 @@ class ClickReviewSecurity(ClickReview):
                         float(self._pkgfmt_version()) > 15.04:
                     t = 'error'
                     n = self._get_check_name('yaml_override_present')
-                    s = "(MANUAL REVIEW) 'security-override' not allowed"
+                    s = "(NEEDS REVIEW) 'security-override' not allowed"
                     l = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
                     m = True
                     self._add_result(t, n, s, link=l, manual_review=m)
@@ -1323,7 +1323,7 @@ class ClickReviewSecurity(ClickReview):
                 if 'security-policy' in item:
                     t = 'error'
                     n = self._get_check_name('yaml_policy_present')
-                    s = "(MANUAL REVIEW) 'security-policy' not allowed"
+                    s = "(NEEDS REVIEW) 'security-policy' not allowed"
                     l = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
                     m = True
                     self._add_result(t, n, s, link=l, manual_review=m)
