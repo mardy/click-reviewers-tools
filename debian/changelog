@@ -1,4 +1,4 @@
-click-reviewers-tools (0.35) UNRELEASED; urgency=medium
+click-reviewers-tools (0.35) xenial; urgency=medium
 
   [ Jamie Strandboge ]
   * clickreviews/cr_systemd.py:
@@ -80,7 +80,7 @@ click-reviewers-tools (0.35) UNRELEASED; urgency=medium
   * Forbid the internal "DebugMode" scope.ini key from making its way into the
     store (LP: #1511063)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 30 Nov 2015 15:47:03 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 14 Dec 2015 16:09:52 -0600
 
 click-reviewers-tools (0.34) wily; urgency=medium
 
