@@ -18,6 +18,7 @@ from __future__ import print_function
 import atexit
 import codecs
 from debian.deb822 import Deb822
+import gettext
 import glob
 import inspect
 import json
@@ -114,6 +115,12 @@ class ClickReview(object):
                            "security-template",
                            "security-override",
                            "security-policy"]
+    magic_binary_file_descriptions = [
+        'application/x-executable; charset=binary',
+        'application/x-sharedlib; charset=binary',
+        'application/x-object; charset=binary',
+        'application/octet-stream; charset=binary'
+    ]
 
     def __init__(self, fn, review_type, peer_hooks=None, overrides=None,
                  peer_hooks_link=None):
@@ -317,14 +324,22 @@ class ClickReview(object):
             for f in filenames:
                 self.pkg_files.append(os.path.join(root, f))
 
+    def _check_if_message_catalog(self, fn):
+        '''Check if file is a message catalog (.mo file).'''
+        if fn.endswith('.mo'):
+            try:
+                gettext.GNUTranslations(open(fn, 'rb'))
+                return True
+            except:
+        return False
+
+
     def _list_all_compiled_binaries(self):
         '''List all compiled binaries in this click package.'''
         for i in self.pkg_files:
             res = self.mime.file(i)
-            if res in ['application/x-executable; charset=binary',
-                       'application/x-sharedlib; charset=binary',
-                       'application/x-object; charset=binary',
-                       'application/octet-stream; charset=binary']:
+            if res in self.magic_binary_file_descriptions and \
+               not self._check_if_message_catalog(i):
                 self.pkg_bin_files.append(i)
 
     def _verify_manifest_structure(self):
