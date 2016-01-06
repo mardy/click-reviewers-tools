@@ -331,6 +331,7 @@ class ClickReview(object):
                 gettext.GNUTranslations(open(fn, 'rb'))
                 return True
             except:
+                return False
         return False
 
 
