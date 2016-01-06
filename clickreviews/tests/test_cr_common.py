@@ -90,3 +90,9 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
     def test_get_check_name_with_app_and_extra(self):
         name = self.review._get_check_name('prefix', app='app', extra='extra')
         self.assertEqual(name, 'review_type:prefix:app:extra')
+
+    def test_check_if_message_catalog_true(self):
+        self.assertTrue(self.review._check_if_message_catalog('/a/b/foo.mo'))
+
+    def test_check_if_message_catalog_false(self):
+        self.assertFalse(self.review._check_if_message_catalog('/a/b/foo.txt'))
