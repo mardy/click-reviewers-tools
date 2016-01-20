@@ -1330,6 +1330,15 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_snappy_type_gadget(self):
+        '''Test check_snappy_type - gadget'''
+        self.set_test_pkg_yaml("type", "gadget")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_snappy_type_os(self):
         '''Test check_snappy_type - os'''
         self.set_test_pkg_yaml("type", "os")
@@ -1398,6 +1407,15 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     def test_snappy_type_redflagged_oem(self):
         '''Test check_snappy_type_redflagged - oem'''
         self.set_test_pkg_yaml("type", "oem")
+        c = ClickReviewLint(self.test_name)
+        c.check_snappy_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_snappy_type_redflagged_gadget(self):
+        '''Test check_snappy_type_redflagged - gadget'''
+        self.set_test_pkg_yaml("type", "gadget")
         c = ClickReviewLint(self.test_name)
         c.check_snappy_type_redflagged()
         r = c.click_report
