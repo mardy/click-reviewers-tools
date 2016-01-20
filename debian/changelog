@@ -4,6 +4,9 @@ click-reviewers-tools (0.36) UNRELEASED; urgency=medium
   * Add check if suspected (using python-magic) compiled binaries
     aren't actually just message catalogs (.mo files) (LP: #1530894).
 
+  [ Martin Albisetti ]
+  * add gadget type
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 14 Dec 2015 16:34:46 -0600
 
 click-reviewers-tools (0.35) xenial; urgency=medium
