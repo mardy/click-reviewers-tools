@@ -105,6 +105,7 @@ class ClickReview(object):
                        "kernel",
                        "modules",
                        "oem",
+                       "gadget",
                        "services",
                        "source",
                        "type",
@@ -229,6 +230,11 @@ class ClickReview(object):
         if self.is_snap and 'type' in self.pkg_yaml and \
            self.pkg_yaml['type'] == 'oem':
             self.is_snap_oem = True
+
+        self.is_snap_gadget = False
+        if self.is_snap and 'type' in self.pkg_yaml and \
+           self.pkg_yaml['type'] == 'gadget':
+            self.is_snap_gadget = True
 
         # Get a list of all unpacked files, except DEBIAN/
         self.pkg_files = []

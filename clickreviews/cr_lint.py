@@ -126,17 +126,20 @@ class ClickReviewLint(ClickReview):
         # - app
         # - framework
         # - kernel
-        # - oem
+        # - oem (deprecated, 15.04 only)
+        # - gadget
         # - os
         self.snappy_valid_types = ['app',
                                    'framework',
                                    'kernel',
                                    'oem',
+                                   'gadget',
                                    'os',
                                    ]
         self.snappy_redflagged_types = ['framework',
                                         'kernel',
                                         'oem',
+                                        'gadget',
                                         'os',
                                         ]
 
@@ -387,6 +390,9 @@ exit 1
         if self.is_snap_oem:
             return
 
+        if self.is_snap_gadget:
+            return
+
         # Some checks are already handled in
         # cr_common.py:_verify_manifest_structure()
 
@@ -485,6 +491,9 @@ exit 1
 
         #  oem snaps don't have a hooks entry
         if self.is_snap_oem:
+            return
+
+        if self.is_snap_gadget:
             return
 
         t = 'info'
