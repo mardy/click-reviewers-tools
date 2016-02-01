@@ -2190,6 +2190,30 @@ class TestClickReviewLint(cr_tests.TestClickReview):
             expected_counts = {'info': None, 'warn': 0, 'error': 1}
             self.check_results(r, expected_counts)
 
+    def test_squashfs_needs_snap_yaml(self):
+        '''Test that squashfs snaps have a snap.yaml'''
+        c = ClickReviewLint(self.test_name)
+        c.unpack_dir = "/nonexistent.nonexec"
+        with patch("clickreviews.cr_lint.is_squashfs") as mock_is_squashfs:
+            mock_is_squashfs.return_value = True
+            c.check_squashfs_uses_snap_yaml()
+            r = c.click_report
+            expected_counts = {'info': None, 'warn': 0, 'error': 1}
+            self.assertEqual(r["error"]["lint:check_squashfs_uses_snap_yaml"]["text"], "squashfs snaps must have a meta/snap.yaml")
+            self.check_results(r, expected_counts)
+
+    def test_squashfs_needs_snap_yaml_ok(self):
+        '''Test that squashfs snaps have a snap.yaml'''
+        c = ClickReviewLint(self.test_name)
+        c.unpack_dir = "/nonexistent.nonexec"
+        c.snap_yaml = {"name": "foo"}
+        with patch("clickreviews.cr_lint.is_squashfs") as mock_is_squashfs:
+            mock_is_squashfs.return_value = True
+            c.check_squashfs_uses_snap_yaml()
+            r = c.click_report
+            expected_counts = {'info': None, 'warn': 0, 'error': 0}
+            self.check_results(r, expected_counts)
+
 
 class ClickReviewLintTestCase(TestCase):
     """Tests without mocks where they are not needed."""
