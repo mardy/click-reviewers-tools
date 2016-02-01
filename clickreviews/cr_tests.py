@@ -458,7 +458,7 @@ class TestClickReview(TestCase):
         self._update_test_pkg_yaml()
 
         self.test_snap_yaml = dict()
-        
+
         self.test_hashes_yaml = dict()
         self._update_test_hashes_yaml()
 

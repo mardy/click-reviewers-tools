@@ -183,7 +183,7 @@ class ClickReview(object):
                 except Exception:
                     error("Could not load snap.yaml. Is it properly formatted?")
                 # convert enough of snap_yaml too pkg.yaml to make
-                # the basics of the review tools 
+                # the basics of the review tools
                 if self.snap_yaml:
                     self.pkg_yaml = self.snap_yaml
                     self.pkg_yaml["version"] = str(self.snap_yaml["version"])
