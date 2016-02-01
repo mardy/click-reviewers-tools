@@ -1,4 +1,12 @@
-click-reviewers-tools (0.36) UNRELEASED; urgency=medium
+click-reviewers-tools (0.37) UNRELEASED; urgency=medium
+
+  [ Jamie Strandboge ]
+  * cr_lint.py: 'accounts' hook was added in 15.04.1. The other checks are
+    already in place since r553 which missed this addition
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 01 Feb 2016 12:11:44 -0600
+
+click-reviewers-tools (0.36) xenial; urgency=medium
 
   [ Daniel Holbach ]
   * Add check if suspected (using python-magic) compiled binaries
@@ -7,7 +15,16 @@ click-reviewers-tools (0.36) UNRELEASED; urgency=medium
   [ Martin Albisetti ]
   * add gadget type
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 14 Dec 2015 16:34:46 -0600
+  [ Michael Vogt ]
+  * Merge partial support for snap.yaml in 16.04
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 01 Feb 2016 11:37:35 -0600
+
+click-reviewers-tools (0.35.1) xenial; urgency=medium
+
+  * No change rebuild for newer python3
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 01 Feb 2016 10:07:35 -0600
 
 click-reviewers-tools (0.35) xenial; urgency=medium
 

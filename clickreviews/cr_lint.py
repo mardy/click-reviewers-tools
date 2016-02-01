@@ -103,7 +103,8 @@ class ClickReviewLint(ClickReview):
 
         self._list_all_compiled_binaries()
 
-        self.known_hooks = ['account-application',
+        self.known_hooks = ['accounts',
+                            'account-application',
                             'account-provider',
                             'account-qml-plugin',
                             'account-service',
