@@ -1,3 +1,11 @@
+click-reviewers-tools (0.37) UNRELEASED; urgency=medium
+
+  [ Jamie Strandboge ]
+  * cr_lint.py: 'accounts' hook was added in 15.04.1. The other checks are
+    already in place since r553 which missed this addition
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 01 Feb 2016 12:11:44 -0600
+
 click-reviewers-tools (0.36) xenial; urgency=medium
 
   [ Daniel Holbach ]
