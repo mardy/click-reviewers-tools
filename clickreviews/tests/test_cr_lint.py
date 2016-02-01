@@ -1754,6 +1754,21 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_snappy_readme_md_squashfs(self):
+        '''Test check_snappy_readme_md() - squashfs file'''
+        with patch("clickreviews.cr_lint.is_squashfs") as mock_is_squashfs:
+            mock_is_squashfs.return_value = True
+            with patch("clickreviews.cr_lint.ClickReviewLint."
+                       "_extract_readme_md") as mock_readme_md:
+                mock_readme_md.return_value = "Something suitably long"
+                c = ClickReviewLint(self.test_name)
+                c.unpack_dir = "/nonexistent.nonexec"
+                c.check_snappy_readme_md()
+                r = c.click_report
+                expected_counts = {'info': None, 'warn': 0, 'error': 0}
+                self.check_results(r, expected_counts)
+                self.assertFalse(mock_readme_md.called)
+
     def test_check_snappy_readme_md_bad(self):
         '''Test check_snappy_readme_md() - short'''
         self.set_test_pkg_yaml("name", "prettylong.name")
