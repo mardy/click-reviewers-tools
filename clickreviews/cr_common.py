@@ -161,8 +161,9 @@ class ClickReview(object):
 
         # Parse and store the package.yaml, if it exists
         pkg_yaml = self._extract_package_yaml()
+        snap_yaml = self._extract_snap_yaml()
         self.is_snap = False
-        if pkg_yaml is None:
+        if pkg_yaml is None and snap_yaml is None:
             self.pkgfmt["type"] = "click"
         else:
             self.pkgfmt["type"] = "snap"
@@ -176,11 +177,23 @@ class ClickReview(object):
             else:
                 self.pkgfmt["version"] = "15.04"
 
-            try:
-                self.pkg_yaml = yaml.safe_load(pkg_yaml)
-            except Exception:
-                error("Could not load package.yaml. Is it properly formatted?")
-            self._verify_package_yaml_structure()
+            if snap_yaml:
+                try:
+                    self.snap_yaml = yaml.safe_load(snap_yaml)
+                except Exception:
+                    error("Could not load snap.yaml. Is it properly formatted?")
+                # convert enough of snap_yaml too pkg.yaml to make
+                # the basics of the review tools 
+                if self.snap_yaml:
+                    self.pkg_yaml = self.snap_yaml
+                    self.pkg_yaml["version"] = str(self.snap_yaml["version"])
+
+            if pkg_yaml:
+                try:
+                    self.pkg_yaml = yaml.safe_load(pkg_yaml)
+                except Exception:
+                    error("Could not load package.yaml. Is it properly formatted?")
+                self._verify_package_yaml_structure()
             self.is_snap = True
 
             #  default to 'app'
@@ -272,8 +285,15 @@ class ClickReview(object):
         return open_file_read(m)
 
     def _extract_package_yaml(self):
-        '''Extract and read the snappy package.yaml'''
+        '''Extract and read the snappy 15.04 package.yaml'''
         y = os.path.join(self.unpack_dir, "meta/package.yaml")
+        if not os.path.isfile(y):
+            return None  # snappy packaging is still optional
+        return open_file_read(y)
+
+    def _extract_snap_yaml(self):
+        '''Extract and read the snappy 16.04 snap.yaml'''
+        y = os.path.join(self.unpack_dir, "meta/snap.yaml")
         if not os.path.isfile(y):
             return None  # snappy packaging is still optional
         return open_file_read(y)

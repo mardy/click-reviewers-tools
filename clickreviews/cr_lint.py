@@ -1222,6 +1222,15 @@ exit 1
             manual_review = True
             self._add_result(t, n, s, manual_review=manual_review)
 
+    def check_squashfs_uses_snap_yaml(self):
+        '''Ensure that squashfs uses 16.04'''
+        if is_squashfs(self.pkg_filename) and not getattr(self, "snap_yaml"):
+            t = 'error'
+            n = self._get_check_name('check_squashfs_uses_snap_yaml')
+            s = "squashfs snaps must have a meta/snap.yaml"
+            manual_review = False
+            self._add_result(t, n, s, manual_review=manual_review)
+
     def check_snappy_hashes(self):
         '''Check snappy hashes.yaml'''
         if self._pkgfmt_type() == "snap" and \

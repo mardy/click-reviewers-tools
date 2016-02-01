@@ -31,6 +31,7 @@ import clickreviews.cr_common as cr_common
 TEST_CONTROL = ""
 TEST_MANIFEST = ""
 TEST_PKG_YAML = ""
+TEST_SNAP_YAML = ""
 TEST_HASHES_YAML = ""
 TEST_README_MD = ""
 TEST_SECURITY = dict()
@@ -75,6 +76,11 @@ def _extract_manifest_file(self):
 def _extract_package_yaml(self):
     '''Pretend we read the package.yaml file'''
     return io.StringIO(TEST_PKG_YAML)
+
+
+def _extract_snap_yaml(self):
+    '''Pretend we read the package.yaml file'''
+    return io.StringIO(TEST_SNAP_YAML)
 
 
 def _extract_hashes_yaml(self):
@@ -281,6 +287,9 @@ def create_patches():
         'clickreviews.cr_common.ClickReview._extract_package_yaml',
         _extract_package_yaml))
     patches.append(patch(
+        'clickreviews.cr_common.ClickReview._extract_snap_yaml',
+        _extract_snap_yaml))
+    patches.append(patch(
         'clickreviews.cr_common.ClickReview._extract_hashes_yaml',
         _extract_hashes_yaml))
     patches.append(patch(
@@ -448,6 +457,8 @@ class TestClickReview(TestCase):
                                [self.test_control['Architecture']])
         self._update_test_pkg_yaml()
 
+        self.test_snap_yaml = dict()
+        
         self.test_hashes_yaml = dict()
         self._update_test_hashes_yaml()
 
@@ -565,6 +576,12 @@ class TestClickReview(TestCase):
         TEST_PKG_YAML = yaml.dump(self.test_pkg_yaml,
                                   default_flow_style=False,
                                   indent=4)
+
+    def _update_test_snap_yaml(self):
+        global TEST_SNAP_YAML
+        TEST_SNAP_YAML = yaml.dump(self.test_snap_yaml,
+                                   default_flow_style=False,
+                                   indent=4)
 
     def _update_test_hashes_yaml(self):
         global TEST_HASHES_YAML
@@ -793,6 +810,16 @@ class TestClickReview(TestCase):
         else:
             self.test_pkg_yaml[key] = value
         self._update_test_pkg_yaml()
+
+    def set_test_snap_yaml(self, key, value):
+        '''Set key in meta/snap.yaml to value. If value is None, remove
+           key'''
+        if value is None:
+            if key in self.test_snap_yaml:
+                self.test_snap_yaml.pop(key, None)
+        else:
+            self.test_snap_yaml[key] = value
+        self._update_test_snap_yaml()
 
     def set_test_hashes_yaml(self, yaml):
         '''Set hashes.yaml to yaml'''
@@ -1137,6 +1164,8 @@ class TestClickReview(TestCase):
         TEST_MANIFEST = ""
         global TEST_PKG_YAML
         TEST_PKG_YAML = ""
+        global TEST_SNAP_YAML
+        TEST_SNAP_YAML = ""
         global TEST_HASHES_YAML
         TEST_HASHES_YAML = ""
         global TEST_README_MD
