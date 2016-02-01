@@ -1138,6 +1138,9 @@ exit 1
         if not self.is_snap:
             return
 
+        if is_squashfs(self.pkg_filename):
+            return
+
         contents = self._extract_readme_md()
 
         t = 'info'
