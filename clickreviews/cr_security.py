@@ -939,9 +939,6 @@ class ClickReviewSecurity(ClickReview):
                         '@{APP_PKGNAME}',
                         '@{APP_VERSION}',
                         ]
-            if self._pkgfmt_type() == 'snap' and \
-                    float(self._pkgfmt_version()) > 15.04:
-                searches.append("@{INSTALL_DIR}")
 
             for v in searches:
                 t = 'info'
@@ -1180,8 +1177,7 @@ class ClickReviewSecurity(ClickReview):
             return
 
         if not self.is_snap1 or \
-                self.pkg_yaml['type'] in self.sec_skipped_types or \
-                float(self._pkgfmt_version()) > 15.04:
+                self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         # setup a small dict that is a subset of self.pkg_yaml
@@ -1225,8 +1221,7 @@ class ClickReviewSecurity(ClickReview):
             return
 
         if not self.is_snap1 or \
-                self.pkg_yaml['type'] in self.sec_skipped_types or \
-                float(self._pkgfmt_version()) > 15.04:
+                self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1504,10 +1499,6 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_click and not self.is_snap1:
             return
 
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
-            return
-
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
@@ -1523,10 +1514,6 @@ class ClickReviewSecurity(ClickReview):
     def check_template_online_accounts_qml_plugin(self):
         '''Check template for online accounts account-qml-plugin'''
         if not self.is_click and not self.is_snap1:
-            return
-
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
             return
 
         for app in sorted(self.security_apps):
