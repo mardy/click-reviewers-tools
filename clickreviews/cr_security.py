@@ -411,10 +411,6 @@ class ClickReviewSecurity(ClickReview):
                 s = "policy_vendor '%s' not found" % m['policy_vendor']
             self._add_result(t, n, s)
 
-            if self._pkgfmt_type() == "snap" and \
-                    float(self._pkgfmt_version()) >= 16.04:
-                continue
-
             t = 'info'
             n = self._get_check_name('policy_vendor_matches_framework', extra=f)
             s = "OK"
@@ -482,10 +478,6 @@ class ClickReviewSecurity(ClickReview):
                 l = 'http://askubuntu.com/q/562116/94326'
                 s = '%s != %s' % (str(m['policy_version']), str(highest))
             self._add_result(t, n, s, l)
-
-            if self._pkgfmt_type() == "snap" and \
-                    float(self._pkgfmt_version()) >= 16.04:
-                continue
 
             t = 'info'
             n = self._get_check_name('policy_version_matches_framework', extra=f)
@@ -1296,7 +1288,7 @@ class ClickReviewSecurity(ClickReview):
                 s = "OK"
                 if 'security-override' not in item:
                     s = "OK (skipping unspecified override)"
-                elif float(self._pkgfmt_version()) < 16.04:
+                else:
                     if 'apparmor' not in item['security-override']:
                         t = 'error'
                         s = "'apparmor' not specified in 'security-override' " + \
@@ -1305,34 +1297,8 @@ class ClickReviewSecurity(ClickReview):
                         t = 'error'
                         s = "'seccomp' not specified in 'security-override' " + \
                             "for '%s'" % app
-                else:
-                    allowed_fields = ['read-paths',
-                                      'write-paths',
-                                      'abstractions',
-                                      'syscalls']
-                    if len(item['security-override'].keys()) == 0:
-                        t = 'error'
-                        s = "nothing specified in 'security-override' " + \
-                            "for '%s'" % app
-                    else:
-                        for f in item['security-override'].keys():
-                            if f not in allowed_fields:
-                                t = 'error'
-                                s = "unknown field '%s' in " % f + \
-                                    "'security-override' for '%s'" % app
 
                 self._add_result(t, n, s)
-
-                # security-override on 16.04 gives direct access to syscalls,
-                # read-paths, etc so it always needs a manual override
-                if 'security-override' in item and \
-                        float(self._pkgfmt_version()) > 15.04:
-                    t = 'error'
-                    n = self._get_check_name('yaml_override_present')
-                    s = "(NEEDS REVIEW) 'security-override' not allowed"
-                    l = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
-                    m = True
-                    self._add_result(t, n, s, link=l, manual_review=m)
 
     def check_security_yaml_policy(self):
         '''Verify security yaml policy'''
