@@ -47,6 +47,9 @@ class ClickReviewSecurity(ClickReview):
         ClickReview.__init__(self, fn, "security", peer_hooks=peer_hooks,
                              overrides=overrides)
 
+        if not self.is_click and not self.is_snap1:
+            return
+
         # If local_copy is None, then this will check the server to see if
         # we are up to date. However, if we are working within the development
         # tree, use it unconditionally.
@@ -141,7 +144,7 @@ class ClickReviewSecurity(ClickReview):
         self.security_profiles = dict()
         self.security_apps_profiles = []
 
-        if self.manifest is None and self.is_snap:
+        if self.manifest is None and self.is_snap1:
             for exe_t in ['services', 'binaries']:
                 if exe_t not in self.pkg_yaml:
                     continue
@@ -394,6 +397,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_vendor(self):
         '''Check policy_vendor'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
@@ -418,7 +424,7 @@ class ClickReviewSecurity(ClickReview):
                     framework = self.manifest['framework']
                     # snappy compat manifest supports comma-separated list
                     # for framework
-                    if self.is_snap and ',' in framework:
+                    if self.is_snap1 and ',' in framework:
                         # For now, we know the release framework is appended.
                         # TODO: fix for multiple frameworks
                         framework = framework.split(',')[-1]
@@ -440,6 +446,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_version(self):
         '''Check policy version'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
 
@@ -486,7 +495,7 @@ class ClickReviewSecurity(ClickReview):
                 framework = self.manifest['framework']
                 # snappy compat manifest supports comma-separated list
                 # for framework
-                if self.is_snap and ',' in framework:
+                if self.is_snap1 and ',' in framework:
                     # For now, we know the release framework is appended.
                     # TODO: fix for multiple frameworks
                     framework = framework.split(',')[-1]
@@ -506,6 +515,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_template(self):
         '''Check template'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
 
@@ -556,7 +568,7 @@ class ClickReviewSecurity(ClickReview):
             found = False
             if m['template'] in self._get_templates(vendor, version):
                 found = True
-            elif self.is_snap:
+            elif self.is_snap1:
                 frameworks = []
                 if 'framework' in self.pkg_yaml:
                     frameworks = [x.strip() for x in
@@ -581,6 +593,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_groups_webapps(self):
         '''Check policy_groups for webapps'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
@@ -617,6 +632,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_groups_push_helpers(self):
         '''Check policy groups for push-helpers'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
@@ -647,6 +665,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_groups_scopes(self):
         '''Check policy_groups for scopes'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'
@@ -680,6 +701,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_groups_ubuntu_account_plugin(self):
         '''Check policy_groups for ubuntu-account-plugin template'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
 
@@ -719,6 +743,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_policy_groups(self):
         '''Check policy_groups'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
 
@@ -762,7 +789,7 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             frameworks = []
-            if self.is_snap:
+            if self.is_snap1:
                 if 'framework' in self.pkg_yaml:
                     frameworks = [x.strip() for x in
                                   self.pkg_yaml['framework'].split(',')]
@@ -841,6 +868,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_ignored(self):
         '''Check ignored fields'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
 
@@ -859,6 +889,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_redflag(self):
         '''Check redflag fields'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
 
@@ -881,6 +914,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_required(self):
         '''Check required fields'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
 
@@ -899,6 +935,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_apparmor_profile(self):
         '''Check apparmor-profile'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.security_apps_profiles):
             (f, p) = self._get_security_profile(app)
 
@@ -1145,7 +1184,10 @@ class ClickReviewSecurity(ClickReview):
         '''Verify click and security yaml are in sync (not including
            override)
         '''
-        if not self.is_snap or \
+        if not self.is_click and not self.is_snap1:
+            return
+
+        if not self.is_snap1 or \
                 self.pkg_yaml['type'] in self.sec_skipped_types or \
                 float(self._pkgfmt_version()) > 15.04:
             return
@@ -1187,7 +1229,10 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_yaml_override_and_click(self):
         '''Verify click and security yaml override are in sync'''
-        if not self.is_snap or \
+        if not self.is_click and not self.is_snap1:
+            return
+
+        if not self.is_snap1 or \
                 self.pkg_yaml['type'] in self.sec_skipped_types or \
                 float(self._pkgfmt_version()) > 15.04:
             return
@@ -1226,7 +1271,10 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_yaml_override(self):
         '''Verify security yaml override'''
-        if not self.is_snap:
+        if not self.is_click and not self.is_snap1:
+            return
+
+        if not self.is_snap1:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1288,7 +1336,10 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_yaml_policy(self):
         '''Verify security yaml policy'''
-        if not self.is_snap:
+        if not self.is_click and not self.is_snap1:
+            return
+
+        if not self.is_snap1:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1330,7 +1381,10 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_yaml_combinations(self):
         '''Verify security yaml uses valid combinations'''
-        if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
+        if not self.is_click and not self.is_snap1:
+            return
+
+        if not self.is_snap1 or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1367,7 +1421,10 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_template(self):
         '''Check snap security-template'''
-        if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
+        if not self.is_click and not self.is_snap1:
+            return
+
+        if not self.is_snap1 or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1421,7 +1478,10 @@ class ClickReviewSecurity(ClickReview):
 
     def check_security_caps(self):
         '''Check snap caps'''
-        if not self.is_snap or self.pkg_yaml['type'] in self.sec_skipped_types:
+        if not self.is_click and not self.is_snap1:
+            return
+
+        if not self.is_snap1 or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1475,6 +1535,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_template_online_accounts_provider(self):
         '''Check template for online accounts account-provider'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         if self._pkgfmt_type() == "snap" and \
                 float(self._pkgfmt_version()) > 15.04:
             return
@@ -1493,6 +1556,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_template_online_accounts_qml_plugin(self):
         '''Check template for online accounts account-qml-plugin'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         if self._pkgfmt_type() == "snap" and \
                 float(self._pkgfmt_version()) > 15.04:
             return
@@ -1511,6 +1577,9 @@ class ClickReviewSecurity(ClickReview):
 
     def check_apparmor_profile_name_length(self):
         '''Check AppArmor profile name length'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         # There are quite a few kernel interfaces that can cause problems with
         # long profile names. These are outlined in
         # https://launchpad.net/bugs/1499544. The big issue is that the audit

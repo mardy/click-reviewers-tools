@@ -17,8 +17,8 @@
 
 from __future__ import print_function
 
-from clickreviews import cr_common
+from clickreviews import common
 from clickreviews import cr_desktop
 
 if __name__ == "__main__":
-    cr_common.run_click_check(cr_desktop.ClickReviewDesktop)
+    common.run_check(cr_desktop.ClickReviewDesktop)

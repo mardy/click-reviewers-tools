@@ -37,6 +37,8 @@ class ClickReviewDesktop(ClickReview):
 
         ClickReview.__init__(self, fn, "desktop", peer_hooks=peer_hooks,
                              overrides=overrides)
+        if not self.is_click and not self.is_snap1:
+            return
 
         self.desktop_files = dict()  # click-show-files and a couple tests
         self.desktop_entries = dict()
@@ -113,6 +115,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_file(self):
         '''Check desktop file'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name('files_usable')
         s = 'OK'
@@ -125,6 +130,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_file_valid(self):
         '''Check desktop file validates'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -141,6 +149,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_required_keys(self):
         '''Check for required keys'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -169,6 +180,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_blacklisted_keys(self):
         '''Check for blacklisted keys'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -185,6 +199,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_exec(self):
         '''Check Exec entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -218,6 +235,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_exec_webapp_container(self):
         '''Check Exec=webapp-container entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         if self.manifest is None:
             return
 
@@ -272,6 +292,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_exec_webbrowser(self):
         '''Check Exec=webbrowser-app entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -307,6 +330,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_exec_webapp_args(self):
         '''Check Exec=web* args'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -475,6 +501,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_exec_webbrowser_urlpatterns(self):
         '''Check Exec=webbrowser-app entry has valid --webappUrlPatterns'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             execline = de.getExec().split()
@@ -532,6 +561,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_exec_webbrowser_modelsearchpath(self):
         '''Check Exec=webbrowser-app entry has valid --webappModelSearchPath'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             execline = de.getExec().split()
@@ -637,6 +669,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_groups(self):
         '''Check Desktop Entry entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -652,6 +687,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_type(self):
         '''Check Type entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -667,6 +705,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_x_ubuntu_touch(self):
         '''Check X-Ubuntu-Touch entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -683,6 +724,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_x_ubuntu_stagehint(self):
         '''Check X-Ubuntu-StageHint entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -700,6 +744,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_x_ubuntu_gettext_domain(self):
         '''Check X-Ubuntu-Gettext-Domain entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -722,6 +769,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_terminal(self):
         '''Check Terminal entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -736,6 +786,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_version(self):
         '''Check Version entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -754,6 +807,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_comment(self):
         '''Check Comment entry'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             de = self._get_desktop_entry(app)
             t = 'info'
@@ -769,6 +825,8 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_icon(self):
         '''Check Icon entry'''
+        if not self.is_click and not self.is_snap1:
+            return
 
         ICON_SUFFIXES = ['.svg',
                          '.png',
@@ -805,6 +863,9 @@ class ClickReviewDesktop(ClickReview):
 
     def check_desktop_duplicate_entries(self):
         '''Check desktop for duplicate entries'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.desktop_entries):
             found = []
             dupes = []

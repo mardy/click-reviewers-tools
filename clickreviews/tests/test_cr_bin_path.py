@@ -19,7 +19,10 @@ import clickreviews.cr_tests as cr_tests
 
 
 class TestClickReviewBinPath(cr_tests.TestClickReview):
-    """Tests for the lint review tool."""
+    """Tests for the bin-path review tool."""
+    def setUp(self):
+        super().setUp()
+        self.set_test_pkgfmt("snap", "15.04")
 
     def _set_binary(self, entries, name=None):
         d = dict()

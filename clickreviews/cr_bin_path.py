@@ -26,16 +26,19 @@ class ClickReviewBinPath(ClickReview):
         # bin-path is ignored by snappy install so don't bother with peerhooks
         ClickReview.__init__(self, fn, "bin-path", overrides=overrides)
 
+        self.bin_paths_files = dict()
+        self.bin_paths = dict()
+
+        if not self.is_snap1:
+            return
+
         # snappy yaml currently only allows specifying:
         # - exec (optional)
         # - description (optional)
         self.required_keys = []
         self.optional_keys = ['description', 'exec'] + self.snappy_exe_security
 
-        self.bin_paths_files = dict()
-        self.bin_paths = dict()
-
-        if self.is_snap and 'binaries' in self.pkg_yaml:
+        if self.is_snap1 and 'binaries' in self.pkg_yaml:
             if len(self.pkg_yaml['binaries']) == 0:
                 error("package.yaml malformed: 'binaries' is empty")
             for binary in self.pkg_yaml['binaries']:
@@ -91,7 +94,7 @@ class ClickReviewBinPath(ClickReview):
 
     def check_snappy_required(self):
         '''Check for package.yaml required fields'''
-        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+        if not self.is_snap1 or 'binaries' not in self.pkg_yaml:
             return
         self._verify_required(self._create_dict(self.pkg_yaml['binaries']),
                               'package_yaml')
@@ -121,7 +124,7 @@ class ClickReviewBinPath(ClickReview):
 
     def check_snappy_optional(self):
         '''Check snappy packate.yaml optional fields'''
-        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+        if not self.is_snap1 or 'binaries' not in self.pkg_yaml:
             return
         self._verify_optional(self._create_dict(self.pkg_yaml['binaries']),
                               'package_yaml')
@@ -149,13 +152,16 @@ class ClickReviewBinPath(ClickReview):
 
     def check_snappy_unknown(self):
         '''Check snappy package.yaml unknown fields'''
-        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+        if not self.is_snap1 or 'binaries' not in self.pkg_yaml:
             return
         self._verify_unknown(self._create_dict(self.pkg_yaml['binaries']),
                              'package_yaml')
 
     def check_path(self):
         '''Check path exists'''
+        if not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name('path_exists')
         s = "OK"
@@ -172,7 +178,7 @@ class ClickReviewBinPath(ClickReview):
 
     def check_binary_description(self):
         '''Check package.yaml binary description'''
-        if not self.is_snap or 'binaries' not in self.pkg_yaml:
+        if not self.is_snap1 or 'binaries' not in self.pkg_yaml:
             return
 
         my_dict = self._create_dict(self.pkg_yaml['binaries'])

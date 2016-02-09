@@ -45,7 +45,6 @@ framework:policy_metadata|
 framework:policy_unknown|
 framework:policy_valid_name|
 lint:architecture_specified_needed|
-lint:check_squashfs_uses_snap_yaml|
 lint:click_local_extensions|
 lint:control_architecture_match|
 lint:control_architecture_valid|
@@ -71,7 +70,6 @@ lint:hooks_known|
 lint:hooks_multiple_apps|
 lint:hooks_redflag|
 lint:hooks_valid|
-lint:is_squashfs|
 lint:maintainer_format|http://askubuntu.com/questions/417351/what-does-lint-maintainer-format-mean/417352
 lint:maintainer_present|
 lint:manifest_architecture_valid|
@@ -159,7 +157,6 @@ security:yaml_caps|
 security:yaml_combinations|
 security:yaml_override_click|
 security:yaml_override_format|
-security:yaml_override_present|https://developer.ubuntu.com/en/snappy/guides/security-policy/
 security:yaml_policy_format|
 security:yaml_policy_present|https://developer.ubuntu.com/en/snappy/guides/security-policy/
 security:yaml_security-template|

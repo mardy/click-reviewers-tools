@@ -27,6 +27,12 @@ class ClickReviewSystemd(ClickReview):
         # systemd isn't implemented as a hook any more so don't setup peerhooks
         ClickReview.__init__(self, fn, "snappy-systemd", overrides=overrides)
 
+        self.systemd_files = dict()  # click-show-files and tests
+        self.systemd = dict()
+
+        if not self.is_snap1:
+            return
+
         # snappy-systemd currently only allows specifying:
         # - start (required)
         # - description (required)
@@ -49,10 +55,7 @@ class ClickReviewSystemd(ClickReview):
                               'ports'
                               ] + self.snappy_exe_security
 
-        self.systemd_files = dict()  # click-show-files and tests
-        self.systemd = dict()
-
-        if self.is_snap and 'services' in self.pkg_yaml:
+        if self.is_snap1 and 'services' in self.pkg_yaml:
             if len(self.pkg_yaml['services']) == 0:
                 error("package.yaml malformed: 'services' is empty")
             for service in self.pkg_yaml['services']:
@@ -91,7 +94,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_required(self):
         '''Check for package.yaml required fields'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_required(self._create_dict(self.pkg_yaml['services']),
                               'package_yaml')
@@ -141,7 +144,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_optional(self):
         '''Check snappy packate.yaml optional fields'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_optional(self._create_dict(self.pkg_yaml['services']),
                               'package_yaml')
@@ -168,7 +171,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_unknown(self):
         '''Check snappy package.yaml unknown fields'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_unknown(self._create_dict(self.pkg_yaml['services']),
                              'package_yaml')
@@ -195,7 +198,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_description(self):
         '''Check snappy package.yaml description'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_service_description(self._create_dict(
                                          self.pkg_yaml['services']),
@@ -226,21 +229,21 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_start(self):
         '''Check snappy package.yaml start'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_entry(self._create_dict(self.pkg_yaml['services']),
                            'start', 'package_yaml')
 
     def check_snappy_service_stop(self):
         '''Check snappy package.yaml stop'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_entry(self._create_dict(self.pkg_yaml['services']),
                            'stop', 'package_yaml')
 
     def check_snappy_service_poststop(self):
         '''Check snappy package.yaml poststop'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_entry(self._create_dict(self.pkg_yaml['services']),
                            'poststop', 'package_yaml')
@@ -282,7 +285,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_stop_timeout(self):
         '''Check snappy package.yaml stop-timeout'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_service_stop_timeout(self._create_dict(
                                           self.pkg_yaml['services']),
@@ -343,7 +346,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_bus_name(self):
         '''Check snappy package.yaml bus-name'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         is_framework = False
         if 'type' in self.pkg_yaml and self.pkg_yaml['type'] == 'framework':
@@ -455,7 +458,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_ports(self):
         '''Check snappy package.yaml ports'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
         self._verify_service_ports(self.pkg_yaml['name'],
                                    self._create_dict(
@@ -512,7 +515,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_listen_stream(self):
         '''Check snappy package.yaml listen-stream'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
 
         self._verify_service_listen_stream(self.pkg_yaml['name'],
@@ -522,7 +525,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_socket_user(self):
         '''Check snappy package.yaml socket-user'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
 
         my_dict = self._create_dict(self.pkg_yaml['services'])
@@ -557,7 +560,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_socket_group(self):
         '''Check snappy package.yaml socket-group'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
 
         my_dict = self._create_dict(self.pkg_yaml['services'])
@@ -592,7 +595,7 @@ class ClickReviewSystemd(ClickReview):
 
     def check_snappy_service_socket(self):
         '''Check snappy package.yaml socket'''
-        if not self.is_snap or 'services' not in self.pkg_yaml:
+        if not self.is_snap1 or 'services' not in self.pkg_yaml:
             return
 
         my_dict = self._create_dict(self.pkg_yaml['services'])

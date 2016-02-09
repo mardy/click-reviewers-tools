@@ -23,7 +23,7 @@ import simplejson
 import sys
 import time
 
-from clickreviews import cr_common
+from clickreviews import common
 
 top_url = "https://search.apps.ubuntu.com"
 
@@ -40,12 +40,12 @@ def get_store_json(url):
 def download(entry, download_dir=None):
     '''Download a click app'''
     if 'resource_url' not in entry:
-        cr_common.error("Could not find 'resource_url' in:\n%s" % entry)
+        common.error("Could not find 'resource_url' in:\n%s" % entry)
     resource_url = top_url + entry['resource_url']
 
     res = get_store_json(resource_url)
     if 'download_url' not in res:
-        cr_common.error("Could not find 'download_url' in:\n%s" % res)
+        common.error("Could not find 'download_url' in:\n%s" % res)
     download_url = res['download_url']
 
     if download_dir is None:
@@ -55,12 +55,12 @@ def download(entry, download_dir=None):
 
     fn = os.path.join(download_dir, download_url.split('/')[-1])
     if os.path.exists(fn):
-        cr_common.warn("'%s' already exists, skipping" % os.path.basename(fn))
+        common.warn("'%s' already exists, skipping" % os.path.basename(fn))
         return True
-    cr_common.msg("Downloading %s" % os.path.basename(fn))
+    common.msg("Downloading %s" % os.path.basename(fn))
     # FIXME: on 2013-10-15 this will break
     url = download_url + "?noauth=1"
-    cr_common.msg("-- Downloading %s" % url)
+    common.msg("-- Downloading %s" % url)
 
     #  attempt to deal with intermittent failures
     count = 0
@@ -72,14 +72,14 @@ def download(entry, download_dir=None):
             (tmp, headers) = urllib.request.urlretrieve(url)
             shutil.move(tmp, fn)
             result = True
-            cr_common.msg("-- Success!")
+            common.msg("-- Success!")
         except urllib.error.HTTPError as error:
             err_str = "-- urlretrieve() failed: %d: %s" % (error.code,
                                                            error.reason)
             count += 1
             time.sleep(5)
     if not result:
-        cr_common.warn("%s (tried %d times)" % (err_str, max_tries))
+        common.warn("%s (tried %d times)" % (err_str, max_tries))
     return result
 
 if __name__ == "__main__":
@@ -96,12 +96,12 @@ if __name__ == "__main__":
     (opt, args) = parser.parse_args()
 
     if not opt.all and len(args) < 1:
-        cr_common.error("%s --all|<pkgname>" % os.path.basename(sys.argv[0]))
+        common.error("%s --all|<pkgname>" % os.path.basename(sys.argv[0]))
 
     url = top_url + "/api/v1/search?q="
     items = get_store_json(url)
     if not isinstance(items, list):
-        cr_common.error("Didn't get valid result from: %s" % url)
+        common.error("Didn't get valid result from: %s" % url)
 
     errors = False
     if opt.all:
@@ -117,10 +117,10 @@ if __name__ == "__main__":
                     break
 
             if not entry:
-                cr_common.warn("Could not find '%s', skipping" % pkgname)
+                common.warn("Could not find '%s', skipping" % pkgname)
                 continue
 
             if not download(entry, opt.download_dir):
                 errors = True
     if errors:
-        cr_common.error("problem downloading")
+        common.error("problem downloading")

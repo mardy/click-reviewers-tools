@@ -34,11 +34,17 @@ class ClickReviewSkeleton(ClickReview):
         ClickReview.__init__(self, fn, "skeleton", peer_hooks=peer_hooks,
                              overrides=overrides)
 
+        if not self.is_click and not self.is_snap1:
+            return
+
         # If not a hooks test, skip the above and omit peer_hooks like so:
         # ClickReview.__init__(self, fn, "skeleton")
 
     def check_foo(self):
         '''Check foo'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name('foo')
         s = "OK"
@@ -49,6 +55,9 @@ class ClickReviewSkeleton(ClickReview):
 
     def check_bar(self):
         '''Check bar'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name('bar')
         s = "OK"
@@ -59,6 +68,9 @@ class ClickReviewSkeleton(ClickReview):
 
     def check_baz(self):
         '''Check baz'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         n = self._get_check_name('baz')
         self._add_result('warn', n, 'TODO', link="http://example.com")
 

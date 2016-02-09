@@ -32,6 +32,8 @@ class ClickReviewContentHub(ClickReview):
 
         ClickReview.__init__(self, fn, "content_hub", peer_hooks=peer_hooks,
                              overrides=overrides)
+        if not self.is_click and not self.is_snap1:
+            return
 
         self.valid_keys = ['destination', 'share', 'source']
 
@@ -79,6 +81,9 @@ class ClickReviewContentHub(ClickReview):
 
     def check_valid(self):
         '''Check validity of content-hub entries'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.content_hub):
             for k in self.content_hub[app].keys():
                 t = "info"
@@ -109,6 +114,9 @@ class ClickReviewContentHub(ClickReview):
 
     def check_unknown_keys(self):
         '''Check unknown'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.content_hub):
             unknown = []
             t = "info"

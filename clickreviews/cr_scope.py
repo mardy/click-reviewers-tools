@@ -40,6 +40,9 @@ class ClickReviewScope(ClickReview):
         ClickReview.__init__(self, fn, "scope", peer_hooks=peer_hooks,
                              overrides=overrides)
 
+        if not self.is_click and not self.is_snap1:
+            return
+
         self.scopes = dict()
 
         if self.manifest is None:
@@ -85,6 +88,9 @@ class ClickReviewScope(ClickReview):
 
     def check_scope_ini(self):
         '''Check scope .ini file'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.scopes.keys()):
             t = 'info'
             n = self._get_check_name('ini_scope_section', app=app)

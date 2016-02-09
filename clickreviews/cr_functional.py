@@ -29,6 +29,8 @@ class ClickReviewFunctional(ClickReview):
     '''This class represents click lint reviews'''
     def __init__(self, fn, overrides=None):
         ClickReview.__init__(self, fn, "functional", overrides=overrides)
+        if not self.is_click and not self.is_snap1:
+            return
 
         self.qml_files = []
         for i in self.pkg_files:
@@ -39,6 +41,9 @@ class ClickReviewFunctional(ClickReview):
 
     def check_applicationName(self):
         '''Check applicationName matches click manifest'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         if self.manifest is None:
             return
 
@@ -120,6 +125,9 @@ class ClickReviewFunctional(ClickReview):
 
     def check_qtwebkit(self):
         '''Check that QML applications don't use QtWebKit'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name('qml_application_uses_QtWebKit')
         s = "OK"
@@ -169,6 +177,9 @@ class ClickReviewFunctional(ClickReview):
 
     def check_friends(self):
         '''Check that QML applications don't use deprecated Friends API'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name('qml_application_uses_friends')
         s = "OK"

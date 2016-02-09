@@ -20,6 +20,9 @@ import clickreviews.cr_tests as cr_tests
 
 class TestClickReviewSystemd(cr_tests.TestClickReview):
     """Tests for the lint review tool."""
+    def setUp(self):
+        super().setUp()
+        self.set_test_pkgfmt("snap", "15.04")
 
     def _create_ports(self):
         ports = {'internal': {'int1': {"port": '8081/tcp', "negotiable": True}},

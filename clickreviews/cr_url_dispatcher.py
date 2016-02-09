@@ -35,6 +35,9 @@ class ClickReviewUrlDispatcher(ClickReview):
         ClickReview.__init__(self, fn, "url_dispatcher", peer_hooks=peer_hooks,
                              overrides=overrides)
 
+        if not self.is_click and not self.is_snap1:
+            return
+
         self.required_keys = ['protocol']
         self.optional_keys = ['domain-suffix']
 
@@ -86,6 +89,9 @@ class ClickReviewUrlDispatcher(ClickReview):
 
     def check_required(self):
         '''Check url-dispatcher required fields'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.url_dispatcher):
             for r in self.required_keys:
                 found = False
@@ -114,6 +120,9 @@ class ClickReviewUrlDispatcher(ClickReview):
 
     def check_optional(self):
         '''Check url-dispatcher optional fields'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.url_dispatcher):
             for o in self.optional_keys:
                 found = False
@@ -141,6 +150,9 @@ class ClickReviewUrlDispatcher(ClickReview):
 
     def check_unknown(self):
         '''Check url-dispatcher unknown fields'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.url_dispatcher):
             unknown = []
             for entry in self.url_dispatcher[app]:
