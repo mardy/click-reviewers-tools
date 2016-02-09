@@ -256,11 +256,6 @@ def _pkgfmt_version(self):
     return TEST_PKGFMT_VERSION
 
 
-def _is_squashfs(self):
-    '''Pretend we discovered if it is a squashfs or not'''
-    return (TEST_PKGFMT_TYPE == "snap" and float(TEST_PKGFMT_VERSION) > 15.04)
-
-
 def _detect_package(self, fn):
     '''Pretend we detected the package'''
     ver = 1
@@ -390,7 +385,6 @@ def create_patches():
                    _pkgfmt_type))
     patches.append(patch("clickreviews.common.Review._pkgfmt_version",
                    _pkgfmt_version))
-    patches.append(patch("clickreviews.common.is_squashfs", _is_squashfs))
 
     return patches
 
