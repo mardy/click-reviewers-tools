@@ -869,7 +869,7 @@ exit 1
 
     def check_click_in_package(self):
         '''Check for *.click files in the toplevel click package'''
-        if self._pkgfmt_type() == "snap":
+        if not self.is_click:
             return
 
         t = 'info'

@@ -154,7 +154,7 @@ class ClickReview(Review):
             if 'type' in self.pkg_yaml and self.pkg_yaml['type'] == 'oem':
                 self.is_snap_oem = True
 
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
+        if self.is_click or self.is_snap1:
             # Get some basic information from the control file
             control_file = self._extract_control_file()
             tmp = list(Deb822.iter_paragraphs(control_file))
@@ -163,7 +163,7 @@ class ClickReview(Review):
             control = tmp[0]
             self.click_pkgname = control['Package']
             self.click_version = control['Version']
-            if self._pkgfmt_type() == "click":
+            if self.is_click:
                 if control['Architecture'] not in self.pkg_arch:
                     self.pkg_arch.append(control['Architecture'])
                 self.pkgfmt["version"] = str(control['Click-Version'])

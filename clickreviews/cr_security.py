@@ -268,30 +268,19 @@ class ClickReviewSecurity(ClickReview):
 
     def _get_security_manifest(self, app):
         '''Get the security manifest for app'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
-            if app not in self.manifest['hooks']:
-                error("Could not find '%s' in click manifest" % app)
-            elif 'apparmor' not in self.manifest['hooks'][app]:
-                error("Could not find apparmor hook for '%s' in click manifest" %
-                      app)
-            f = self.manifest['hooks'][app]['apparmor']
-            m = self.security_manifests[f]
-        else:
-            f = app
-            m = self.security_manifests[app]
+        if app not in self.manifest['hooks']:
+            error("Could not find '%s' in click manifest" % app)
+        elif 'apparmor' not in self.manifest['hooks'][app]:
+            error("Could not find apparmor hook for '%s' in click manifest" %
+                  app)
+        f = self.manifest['hooks'][app]['apparmor']
+        m = self.security_manifests[f]
 
         return (f, m)
 
     def _extract_security_profile(self, app):
         '''Extract security profile'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
-            rel_fn = self.manifest['hooks'][app]['apparmor-profile']
-        else:
-            exe_t, name = app.split('/')
-            for item in self.pkg_yaml[exe_t]:
-                if 'name' in item and item['name'] == name:
-                    rel_fn = item['security-policy']['apparmor']
-                    break
+        rel_fn = self.manifest['hooks'][app]['apparmor-profile']
 
         fn = os.path.join(self.unpack_dir, rel_fn)
         if not os.path.exists(fn):
@@ -311,19 +300,12 @@ class ClickReviewSecurity(ClickReview):
 
     def _get_security_profile(self, app):
         '''Get the security profile for app'''
-        if self._pkgfmt_type() == "click" or self._pkgfmt_version() == "15.04":
-            if app not in self.manifest['hooks']:
-                error("Could not find '%s' in click manifest" % app)
-            elif 'apparmor-profile' not in self.manifest['hooks'][app]:
-                error("Could not find apparmor-profile hook for '%s' in click "
-                      "manifest" % app)
-            f = self.manifest['hooks'][app]['apparmor-profile']
-        else:
-            exe_t, name = app.split('/')
-            for item in self.pkg_yaml[exe_t]:
-                if 'name' in item and item['name'] == name:
-                    f = item['security-policy']['apparmor']
-                    break
+        if app not in self.manifest['hooks']:
+            error("Could not find '%s' in click manifest" % app)
+        elif 'apparmor-profile' not in self.manifest['hooks'][app]:
+            error("Could not find apparmor-profile hook for '%s' in click "
+                  "manifest" % app)
+        f = self.manifest['hooks'][app]['apparmor-profile']
 
         p = self.security_profiles[f]
         return (f, p)
@@ -1419,7 +1401,7 @@ class ClickReviewSecurity(ClickReview):
                     continue
                 self._add_result(t, n, s)
 
-                if self._pkgfmt_version() == "15.04":
+                if self.is_snap1:
                     t = 'info'
                     n = self._get_check_name('yaml_security-template_in_manifest', app=app)
                     s = "OK"
@@ -1476,7 +1458,7 @@ class ClickReviewSecurity(ClickReview):
                     continue
                 self._add_result(t, n, s)
 
-                if self._pkgfmt_version() == "15.04":
+                if self.is_snap1:
                     t = 'info'
                     n = self._get_check_name('yaml_caps_in_manifest', app=app)
                     s = "OK"
