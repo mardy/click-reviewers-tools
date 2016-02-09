@@ -48,7 +48,7 @@ class ClickReviewLint(ClickReview):
         if not self.is_click and not self.is_snap1:
             return
 
-        if not self.is_snap1 and "md5sums" not in CONTROL_FILE_NAMES:
+        if self.is_click and "md5sums" not in CONTROL_FILE_NAMES:
             CONTROL_FILE_NAMES.append("md5sums")
         elif self.is_snap1:
             CONTROL_FILE_NAMES.append("hashes.yaml")
@@ -337,7 +337,7 @@ class ClickReviewLint(ClickReview):
 
     def check_md5sums(self):
         '''Check md5sums()'''
-        if self.is_snap1 or not self.is_snap1:
+        if not self.is_click:
             return
         curdir = os.getcwd()
         fh = open_file_read(self.control_files["md5sums"])
@@ -597,7 +597,7 @@ exit 1
 
     def check_pkgname(self):
         '''Check click package name valid'''
-        if not self.is_click and not self.is_snap1:
+        if not self.is_click:
             return
         p = self.manifest['name']
         # http://www.debian.org/doc/debian-policy/ch-controlfields.html
@@ -1007,7 +1007,7 @@ exit 1
 
     def check_snappy_name(self):
         '''Check package name'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1023,7 +1023,7 @@ exit 1
 
     def check_snappy_version(self):
         '''Check package version'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1039,7 +1039,7 @@ exit 1
 
     def check_snappy_type(self):
         '''Check type'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1054,7 +1054,7 @@ exit 1
 
     def check_snappy_type_redflagged(self):
         '''Check if snappy type is redflagged'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1074,14 +1074,14 @@ exit 1
 
     def check_snappy_icon(self):
         '''Check icon()'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         self._verify_icon(self.pkg_yaml, "package_yaml")
 
     def check_snappy_architecture(self):
         '''Check package architecture in package.yaml is valid'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         self._verify_architecture(self.pkg_yaml, "package yaml")
@@ -1099,7 +1099,7 @@ exit 1
 
     def check_snappy_unknown_entries(self):
         '''Check for any unknown fields'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1131,7 +1131,7 @@ exit 1
 
     def check_snappy_readme_md(self):
         '''Check snappy readme.md'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         contents = self._extract_readme_md()
@@ -1157,7 +1157,7 @@ exit 1
 
     def check_snappy_config(self):
         '''Check snappy config'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         fn = os.path.join(self.unpack_dir, 'meta/hooks/config')
@@ -1174,7 +1174,7 @@ exit 1
 
     def check_snappy_services_and_binaries(self):
         '''Services and binaries should not overlap'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
         for exe_t in ['binaries', 'services']:
             if exe_t not in self.pkg_yaml:
@@ -1207,7 +1207,7 @@ exit 1
 
     def check_snappy_hashes(self):
         '''Check snappy hashes.yaml'''
-        if self._pkgfmt_type() == "click" or not self.is_snap1:
+        if self.is_click or not self.is_snap1:
             return
 
         def _check_allowed_perms(mode, allowed):
