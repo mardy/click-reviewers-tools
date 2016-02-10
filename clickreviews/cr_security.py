@@ -1158,8 +1158,7 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_click and not self.is_snap1:
             return
 
-        if not self.is_snap1 or \
-                self.pkg_yaml['type'] in self.sec_skipped_types:
+        if self.is_click or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         # setup a small dict that is a subset of self.pkg_yaml
@@ -1202,8 +1201,7 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_click and not self.is_snap1:
             return
 
-        if not self.is_snap1 or \
-                self.pkg_yaml['type'] in self.sec_skipped_types:
+        if self.is_click or self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         for exe_t in ['services', 'binaries']:
