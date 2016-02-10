@@ -28,6 +28,7 @@ TEST_PKGFMT_TYPE = "snap"
 TEST_PKGFMT_VERSION = "16.04"
 TEST_UNPACK_DIR = ""
 
+
 #
 # Mock override functions
 #
