@@ -360,7 +360,7 @@ class SnapReviewLint(SnapReview):
         if not self.is_snap2:
             return
 
-        fn = os.path.join(self.unpack_dir, 'meta/hooks/config')
+        fn = os.path.join(self._get_unpack_dir(), 'meta/hooks/config')
         if fn not in self.pkg_files:
             return
 
@@ -413,7 +413,7 @@ class SnapReviewLint(SnapReview):
         t = 'info'
         n = self._get_check_name('icon_exists')
         s = 'OK'
-        fn = self._path_join(self.unpack_dir, self.snap_yaml['icon'])
+        fn = self._path_join(self._get_unpack_dir(), self.snap_yaml['icon'])
         if fn not in self.pkg_files:
             t = 'error'
             s = "icon entry '%s' does not exist" % self.snap_yaml['icon']
@@ -540,7 +540,7 @@ class SnapReviewLint(SnapReview):
                 s = "invalid %s (empty)" % (key)
                 self._add_result(t, n, s)
             else:
-                fn = self._path_join(self.unpack_dir,
+                fn = self._path_join(self._get_unpack_dir(),
                                      self.snap_yaml['apps'][app][key])
                 if fn not in self.pkg_files:
                     t = 'error'

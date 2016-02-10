@@ -538,8 +538,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_config(self):
         '''Test check_config()'''
         c = SnapReviewLint(self.test_name)
-        c.unpack_dir = "/nonexistent"
-        c.pkg_files.append(os.path.join(c.unpack_dir, 'meta/hooks/config'))
+        self.set_test_unpack_dir("/nonexistent")
+        c.pkg_files.append(os.path.join(c._get_unpack_dir(),
+                           'meta/hooks/config'))
         c.check_config()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
@@ -548,9 +549,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_config_nonexecutable(self):
         '''Test check_config() - not executable'''
         c = SnapReviewLint(self.test_name)
-        c.unpack_dir = "/nonexistent.nonexec"
-        c.pkg_files.append(os.path.join(c.unpack_dir,
-                                        'meta/hooks/config'))
+        self.set_test_unpack_dir("/nonexistent.nonexec")
+        c.pkg_files.append(os.path.join(c._get_unpack_dir(),
+                           'meta/hooks/config'))
         c.check_config()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}

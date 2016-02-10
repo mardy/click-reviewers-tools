@@ -115,6 +115,10 @@ class SnapReview(Review):
             return None  # snappy packaging is still optional
         return open_file_read(y)
 
+    def _get_unpack_dir(self):
+        '''Get unpack directory'''
+        return self.unpack_dir
+
     def _verify_pkgname(self, n):
         '''Verify package name'''
         pat = re.compile(r'^[a-z0-9][a-z0-9+-]+$')

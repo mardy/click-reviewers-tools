@@ -26,7 +26,7 @@ from unittest import TestCase
 TEST_SNAP_YAML = ""
 TEST_PKGFMT_TYPE = "snap"
 TEST_PKGFMT_VERSION = "16.04"
-
+TEST_UNPACK_DIR = ""
 
 #
 # Mock override functions
@@ -81,6 +81,11 @@ def _detect_package(self, fn):
     return (TEST_PKGFMT_TYPE, ver)
 
 
+def __get_unpack_dir(self):
+    '''Pretend we found the unpack dir'''
+    return TEST_UNPACK_DIR
+
+
 def create_patches():
     # http://docs.python.org/3.4/library/unittest.mock-examples.html
     # Mock patching. Don't use decorators but instead patch in setUp() of the
@@ -116,6 +121,10 @@ def create_patches():
         'clickreviews.common.Review._check_innerpath_executable',
         _check_innerpath_executable))
 
+    #  sr_common
+    patches.append(patch('clickreviews.sr_common.SnapReview._get_unpack_dir',
+                   __get_unpack_dir))
+
     # pkgfmt
     patches.append(patch("clickreviews.sr_common.SnapReview._pkgfmt_type",
                    _pkgfmt_type))
@@ -133,7 +142,6 @@ class TestSnapReview(TestCase):
         self._reset_test_data()
 
     def _reset_test_data(self):
-        # dictionary representing DEBIAN/control
         self.test_snap_yaml = dict()
         self.set_test_pkgfmt("snap", "16.04")
 
@@ -149,6 +157,8 @@ class TestSnapReview(TestCase):
 
         # mockup a package name
         self._update_test_name()
+
+        self.set_test_unpack_dir("/fake")
 
     def _update_test_snap_yaml(self):
         global TEST_SNAP_YAML
@@ -221,6 +231,10 @@ class TestSnapReview(TestCase):
         TEST_PKGFMT_TYPE = t
         TEST_PKGFMT_VERSION = v
 
+    def set_test_unpack_dir(self, d):
+        global TEST_UNPACK_DIR
+        TEST_UNPACK_DIR = d
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         patches = create_patches()
@@ -236,5 +250,7 @@ class TestSnapReview(TestCase):
         TEST_PKGFMT_TYPE = "snap"
         global TEST_PKGFMT_VERSION
         TEST_PKGFMT_VERSION = "16.04"
+        global TEST_UNPACK_DIR
+        TEST_UNPACK_DIR = ""
 
         self._reset_test_data()
