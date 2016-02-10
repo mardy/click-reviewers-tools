@@ -86,7 +86,8 @@ class Results(object):
         #     review.do_checks()
         #     rc = review.do_report()
         #
-        section = module.replace('cr_', '')
+        section = module.replace('cr_', 'click,snap.v1_')
+        section = section.replace('sr_', 'snap.v2_')
         review = modules.init_main_class(module, self.click_fn)
         if review:
             review.do_checks()
