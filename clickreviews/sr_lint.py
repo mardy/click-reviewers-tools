@@ -19,6 +19,10 @@ from clickreviews.frameworks import Frameworks
 from clickreviews.sr_common import (
     SnapReview,
 )
+from clickreviews.common import (
+    find_external_symlinks,
+)
+import glob
 import os
 import re
 
@@ -1119,16 +1123,81 @@ class SnapReviewLint(SnapReview):
                 self._add_result(t, n, s)
 
     def check_external_symlinks(self):
-        '''TODO'''
+        '''Check snap for external symlinks'''
+        if not self.is_snap2:
+            return
+
+        if 'type' in self.snap_yaml and \
+                self.snap_yaml['type'] not in ['app', 'framework']:
+            return
+
+        t = 'info'
+        n = self._get_check_name('external_symlinks')
+        s = 'OK'
+        links = find_external_symlinks(self._get_unpack_dir(), self.pkg_files)
+        if len(links) > 0:
+            t = 'error'
+            s = 'package contains external symlinks: %s' % ', '.join(links)
+        self._add_result(t, n, s)
 
     def check_architecture_all(self):
-        '''TODO'''
+        '''Check if actually architecture all'''
+        if not self.is_snap2:
+            return
+
+        if 'architectures' in self.snap_yaml and \
+                'all' not in self.snap_yaml['architectures']:
+            return
+
+        t = 'info'
+        n = self._get_check_name('valid_contents_for_architecture')
+        s = 'OK'
+
+        # look for compiled code
+        x_binaries = []
+        for i in self.pkg_bin_files:
+            x_binaries.append(os.path.relpath(i, self._get_unpack_dir()))
+        if len(x_binaries) > 0:
+            t = 'error'
+            s = "found binaries for architecture 'all': %s" % \
+                ", ".join(x_binaries)
+        self._add_result(t, n, s)
 
     def check_architecture_specified_needed(self):
-        '''TODO'''
+        '''Check if the specified architecture is actually needed'''
+        if not self.is_snap2:
+            return
+
+        if 'architectures' in self.snap_yaml and \
+                'all' in self.snap_yaml['architectures']:
+            return
+
+        for arch in self.snap_yaml['architectures']:
+            t = 'info'
+            n = self._get_check_name('architecture_specified_needed',
+                                     extra=arch)
+            s = 'OK'
+            if len(self.pkg_bin_files) == 0:
+                t = 'warn'
+                s = "Could not find compiled binaries for architecture '%s'" \
+                    % arch
+            self._add_result(t, n, s)
 
     def check_vcs(self):
-        '''TODO'''
+        '''Check for VCS files in the package'''
+        if not self.is_snap2:
+            return
 
-    def check_contents_for_hardcoded_paths(self):
-        '''TODO'''
+        t = 'info'
+        n = self._get_check_name('vcs_files')
+        s = 'OK'
+        found = []
+        for d in self.vcs_files:
+            entries = glob.glob("%s/%s" % (self._get_unpack_dir(), d))
+            if len(entries) > 0:
+                for i in entries:
+                    found.append(os.path.relpath(i, self.unpack_dir))
+        if len(found) > 0:
+            t = 'warn'
+            s = 'found VCS files in package: %s' % ", ".join(found)
+        self._add_result(t, n, s)
