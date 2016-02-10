@@ -902,6 +902,9 @@ exit 1
 
     def check_contents_for_hardcoded_paths(self):
         '''Check for known hardcoded paths.'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         PATH_BLACKLIST = ["/opt/click.ubuntu.com/"]
         t = 'info'
         n = self._get_check_name('hardcoded_paths')
