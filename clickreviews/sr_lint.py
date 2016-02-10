@@ -19,9 +19,6 @@ from clickreviews.frameworks import Frameworks
 from clickreviews.sr_common import (
     SnapReview,
 )
-from clickreviews.common import (
-    is_squashfs,
-)
 import os
 import re
 
@@ -439,21 +436,15 @@ class SnapReviewLint(SnapReview):
 
     def check_is_squashfs(self):
         '''Check snapfs'''
-        if is_squashfs(self.pkg_filename):
-            t = 'error'
-            n = self._get_check_name('is_squashfs')
-            s = "(NEEDS REVIEW) squashfs pkg"
-            manual_review = True
-            self._add_result(t, n, s, manual_review=manual_review)
+        if not self.is_snap2:
+            return
 
-    def check_squashfs_uses_snap_yaml(self):
-        '''Ensure that squashfs uses 16.04'''
-        if is_squashfs(self.pkg_filename) and not getattr(self, "snap_yaml"):
-            t = 'error'
-            n = self._get_check_name('check_squashfs_uses_snap_yaml')
-            s = "squashfs snaps must have a meta/snap.yaml"
-            manual_review = False
-            self._add_result(t, n, s, manual_review=manual_review)
+        # Manual review until have squashfs tests
+        t = 'error'
+        n = self._get_check_name('is_squashfs')
+        s = "(NEEDS REVIEW) squashfs pkg"
+        manual_review = True
+        self._add_result(t, n, s, manual_review=manual_review)
 
     def check_apps(self):
         '''Check apps'''
