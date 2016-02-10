@@ -9,3 +9,4 @@ debian/click-reviewers-tools.prerm.debhelper
 debian/click-reviewers-tools.substvars
 debian/files
 debian/tmp
+.coverage

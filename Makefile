@@ -7,6 +7,12 @@ install: all
 test:
 	./run-tests
 
+coverage:
+	python3 -m coverage run ./run-tests
+
+coverage-report:
+	python3 -m coverage report --show-missing --omit="*skeleton*,*/dist-packages/*"
+
 syntax-check: clean
 	./run-pyflakes
 	./run-pep8
@@ -23,6 +29,7 @@ check: test syntax-check check-names
 
 clean:
 	rm -rf ./clickreviews/__pycache__ ./clickreviews/tests/__pycache__
+	rm -rf ./.coverage
 
 .PHONY: check-names.list
 check-names.list:
