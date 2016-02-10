@@ -116,6 +116,7 @@ lint-snap-v2:icon_absolute_path|
 lint-snap-v2:icon_empty|
 lint-snap-v2:icon_exists|
 lint-snap-v2:icon_present|
+lint-snap-v2:is_squashfs|
 lint-snap-v2:license-agreement|
 lint-snap-v2:license-agreement_present|
 lint-snap-v2:license-version|

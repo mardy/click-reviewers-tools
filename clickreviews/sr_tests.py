@@ -26,7 +26,7 @@ from unittest import TestCase
 TEST_SNAP_YAML = ""
 TEST_PKGFMT_TYPE = "snap"
 TEST_PKGFMT_VERSION = "16.04"
-TEST_UNPACK_DIR = ""
+TEST_UNPACK_DIR = "/fake"
 
 
 #
@@ -159,8 +159,6 @@ class TestSnapReview(TestCase):
         # mockup a package name
         self._update_test_name()
 
-        self.set_test_unpack_dir("/fake")
-
     def _update_test_snap_yaml(self):
         global TEST_SNAP_YAML
         TEST_SNAP_YAML = yaml.dump(self.test_snap_yaml,
@@ -252,6 +250,6 @@ class TestSnapReview(TestCase):
         global TEST_PKGFMT_VERSION
         TEST_PKGFMT_VERSION = "16.04"
         global TEST_UNPACK_DIR
-        TEST_UNPACK_DIR = ""
+        TEST_UNPACK_DIR = "/fake"
 
         self._reset_test_data()

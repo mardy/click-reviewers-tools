@@ -303,22 +303,20 @@ class SnapReviewLint(SnapReview):
 
     def check_type(self):
         '''Check type'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'type' not in self.snap_yaml:
             return
 
         t = 'info'
         n = self._get_check_name('snap_type_valid')
         s = 'OK'
-        if 'type' not in self.snap_yaml:
-            s = 'OK (skip missing)'
-        elif self.snap_yaml['type'] not in self.valid_snap_types:
+        if self.snap_yaml['type'] not in self.valid_snap_types:
             t = 'error'
             s = "unknown 'type': '%s'" % self.snap_yaml['type']
         self._add_result(t, n, s)
 
     def check_type_redflagged(self):
         '''Check if type is redflagged'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'type' not in self.snap_yaml:
             return
 
         t = 'info'
@@ -326,9 +324,7 @@ class SnapReviewLint(SnapReview):
         s = "OK"
         l = None
         manual_review = False
-        if 'type' not in self.snap_yaml:
-            s = 'OK (skip missing)'
-        elif self.snap_yaml['type'] in self.redflagged_snap_types:
+        if self.snap_yaml['type'] in self.redflagged_snap_types:
             t = 'error'
             s = "(NEEDS REVIEW) type '%s' not allowed" % self.snap_yaml['type']
             manual_review = True
@@ -372,17 +368,13 @@ class SnapReviewLint(SnapReview):
     def check_icon(self):
         '''Check icon'''
         # see docs/meta.md and docs/gadget.md
-        if not self.is_snap2:
+        if not self.is_snap2 or 'icon' not in self.snap_yaml:
             return
 
         t = 'info'
         n = self._get_check_name('icon_present')
         s = 'OK'
-        if 'icon' not in self.snap_yaml:
-            s = 'Skipped, optional icon not present'
-            self._add_result(t, n, s)
-            return
-        elif 'type' in self.snap_yaml and self.snap_yaml['type'] != "gadget":
+        if 'type' in self.snap_yaml and self.snap_yaml['type'] != "gadget":
             t = 'warn'
             s = 'icon only used with gadget snaps'
             self._add_result(t, n, s)
@@ -395,6 +387,7 @@ class SnapReviewLint(SnapReview):
         if len(self.snap_yaml['icon']) == 0:
             t = 'error'
             s = "icon entry is empty"
+            self._add_result(t, n, s)
             return
         self._add_result(t, n, s)
 

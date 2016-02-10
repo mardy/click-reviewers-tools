@@ -236,6 +236,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_name_missing(self):
+        '''Test check_name - missing'''
+        self.set_test_snap_yaml("name", None)
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_version(self):
         '''Test check_version'''
         self.set_test_snap_yaml("version", 1)
@@ -326,6 +335,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_version_missing(self):
+        '''Test check_version - missing'''
+        self.set_test_snap_yaml("version", None)
+        c = SnapReviewLint(self.test_name)
+        c.check_version()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_type(self):
         '''Test check_type - unspecified'''
         self.set_test_snap_yaml("type", None)
@@ -407,12 +425,22 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_type_unknown(self):
+        '''Test check_type - unknown'''
+        self.set_test_snap_yaml("type", "nonexistent")
+        c = SnapReviewLint(self.test_name)
+        c.check_type()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_icon(self):
         '''Test check_icon()'''
         self.set_test_snap_yaml("icon", "someicon")
         self.set_test_snap_yaml("type", "gadget")
+        self.set_test_unpack_dir = "/nonexistent"
         c = SnapReviewLint(self.test_name)
-        c.pkg_files.append('/fake/someicon')
+        c.pkg_files.append(os.path.join(c._get_unpack_dir(), 'someicon'))
         c.check_icon()
         r = c.click_report
         expected_counts = {'info': 4, 'warn': 0, 'error': 0}
@@ -421,7 +449,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_icon_no_gadget(self):
         '''Test check_icon() - no gadget'''
         self.set_test_snap_yaml("icon", "someicon")
+        self.set_test_unpack_dir = "/nonexistent"
         c = SnapReviewLint(self.test_name)
+        c.pkg_files.append(os.path.join(c._get_unpack_dir(), 'someicon'))
         c.check_icon()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
@@ -432,10 +462,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.set_test_snap_yaml("icon", None)
         self.set_test_snap_yaml("type", "gadget")
         c = SnapReviewLint(self.test_name)
-        c.unpack_dir = "/nonexistent"
         c.check_icon()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_icon_empty(self):
@@ -443,10 +472,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.set_test_snap_yaml("icon", "")
         self.set_test_snap_yaml("type", "gadget")
         c = SnapReviewLint(self.test_name)
-        c.unpack_dir = "/nonexistent"
         c.check_icon()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_icon_absolute_path(self):
@@ -456,6 +484,28 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.pkg_files.append('/foo/bar/someicon')
         c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_missing(self):
+        '''Test check_icon() - missing icon'''
+        self.set_test_snap_yaml("icon", "someicon")
+        self.set_test_snap_yaml("type", "gadget")
+        self.set_test_unpack_dir = "/nonexistent"
+        c = SnapReviewLint(self.test_name)
+        # since the icon isn't in c.pkg_files, don't add it for this test
+        # c.pkg_files.append(os.path.join(c._get_unpack_dir(), 'someicon'))
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_architectures_bad(self):
+        '''Test check_architectures() - bad (dict)'''
+        self.set_test_snap_yaml("architectures", {})
+        c = SnapReviewLint(self.test_name)
+        c.check_architectures()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
@@ -1554,6 +1604,18 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_apps_ports_missing_internal_port_subkey(self):
+        '''Test check_apps_ports() - missing internal port subkey'''
+        ports = self._create_ports()
+        del ports['internal']['int1']['port']
+
+        self.set_test_snap_yaml("apps", {"bar": {"ports": ports}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_ports()
+        r = c.click_report
+        expected_counts = {'info': 7, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_apps_ports_invalid_internal_subkey(self):
         '''Test check_apps_ports() - invalid internal subkey'''
         ports = self._create_ports()
@@ -1729,6 +1791,17 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c.check_apps_socket()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_listen_stream_path(self):
+        '''Test check_apps_listen_stream() - path'''
+        name = self.test_snap_yaml['name']
+        self.set_test_snap_yaml("apps", {"bar": {"listen-stream":
+                                                 "/tmp/%s" % name}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_listen_stream()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_socket_no_listen_stream(self):
