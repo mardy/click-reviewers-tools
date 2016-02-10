@@ -40,6 +40,16 @@ if __name__ == "__main__":
 
     review = cr_lint.ClickReviewLint(sys.argv[1])
 
+    fn = os.path.join(review.unpack_dir, "meta", "snap.yaml")
+    if os.path.exists(fn):  # just show snap.yaml for snap v2+ snaps
+        print("= %s =" % os.path.basename(fn))
+        fh = common.open_file_read(fn)
+        for line in fh.readlines():
+            print(line, end="")
+        fh.close()
+        print("")
+        sys.exit(0)
+
     for i in sorted(review.control_files):
         fh = common.open_file_read(review.control_files[i])
         print("= %s =" % os.path.basename(i))
