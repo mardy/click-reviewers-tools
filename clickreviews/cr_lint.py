@@ -26,11 +26,14 @@ import yaml
 from clickreviews.frameworks import Frameworks
 from clickreviews.cr_common import (
     ClickReview,
+)
+
+from clickreviews.common import (
     open_file_read,
     cmd,
     error,
-    is_squashfs,
 )
+
 
 CONTROL_FILE_NAMES = ["control", "manifest", "preinst"]
 MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
@@ -42,9 +45,12 @@ class ClickReviewLint(ClickReview):
     def __init__(self, fn, overrides=None):
         '''Set up the class.'''
         ClickReview.__init__(self, fn, "lint", overrides=overrides)
-        if not self.is_snap and "md5sums" not in CONTROL_FILE_NAMES:
+        if not self.is_click and not self.is_snap1:
+            return
+
+        if self.is_click and "md5sums" not in CONTROL_FILE_NAMES:
             CONTROL_FILE_NAMES.append("md5sums")
-        elif self.is_snap:
+        elif self.is_snap1:
             CONTROL_FILE_NAMES.append("hashes.yaml")
         self.control_files = dict()
         self._list_control_files()
@@ -152,8 +158,7 @@ class ClickReviewLint(ClickReview):
 
     def check_control_files(self):
         '''Check DEBIAN/* files'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         for f in self.control_files:
@@ -162,7 +167,7 @@ class ClickReviewLint(ClickReview):
                 'DEBIAN_has_files', extra=os.path.basename(f))
             s = "OK"
             if not os.path.isfile(self.control_files[os.path.basename(f)]):
-                if self.is_snap and os.path.basename(f) == 'md5sums':
+                if self.is_snap1 and os.path.basename(f) == 'md5sums':
                     s = "OK (skip md5sums with snap)"
                 else:
                     t = 'error'
@@ -183,8 +188,7 @@ class ClickReviewLint(ClickReview):
 
     def check_control(self):
         '''Check control()'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         fh = self._extract_control_file()
@@ -213,7 +217,7 @@ class ClickReviewLint(ClickReview):
             n = self._get_check_name('control_has_field', extra=f)
             s = 'OK'
             if f not in control:
-                if f == 'Maintainer' and self.is_snap:
+                if f == 'Maintainer' and self.is_snap1:
                     s = 'OK (maintainer not required for snappy)'
                 else:
                     t = 'error'
@@ -269,7 +273,7 @@ class ClickReviewLint(ClickReview):
                     s = 'If arch=multi, manifest architecture needs to ' + \
                         'comprise of only compiled architectures.'
             elif control['Architecture'] != self.manifest['architecture'] and \
-                    not self.is_snap:  # snappy doesn't use this field; ignore
+                    not self.is_snap1:  # snappy doesn't use this field; ignore
                 t = 'error'
                 s = "Architecture=%s " % control['Architecture'] + \
                     "does not match manifest architecture=%s" % \
@@ -333,7 +337,7 @@ class ClickReviewLint(ClickReview):
 
     def check_md5sums(self):
         '''Check md5sums()'''
-        if self.is_snap:
+        if not self.is_click:
             return
         curdir = os.getcwd()
         fh = open_file_read(self.control_files["md5sums"])
@@ -358,8 +362,7 @@ class ClickReviewLint(ClickReview):
 
     def check_preinst(self):
         '''Check preinst()'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         expected = '''#! /bin/sh
@@ -383,15 +386,11 @@ exit 1
 
     def check_hooks(self):
         '''Check click manifest hooks'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         #  oem snaps don't have a hooks entry
         if self.is_snap_oem:
-            return
-
-        if self.is_snap_gadget:
             return
 
         # Some checks are already handled in
@@ -486,15 +485,11 @@ exit 1
 
     def check_hooks_unknown(self):
         '''Check if have any unknown hooks'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         #  oem snaps don't have a hooks entry
         if self.is_snap_oem:
-            return
-
-        if self.is_snap_gadget:
             return
 
         t = 'info'
@@ -514,8 +509,7 @@ exit 1
 
     def check_hooks_redflagged(self):
         '''Check if have any redflagged hooks'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         t = 'info'
@@ -531,7 +525,7 @@ exit 1
             for hook in self.manifest['hooks'][app]:
                 if hook in self.redflagged_hooks:
                     # This check is handled elsewhere
-                    if self.is_snap and hook == "apparmor-profile":
+                    if self.is_snap1 and hook == "apparmor-profile":
                         continue
                     found.append(hook)
             if len(found) > 0:
@@ -542,7 +536,9 @@ exit 1
 
     def check_external_symlinks(self):
         '''Check if symlinks in the click package go out to the system.'''
-        if self.is_snap and self.pkg_yaml['type'] not in ['app', 'framework']:
+        if not self.is_click and not self.is_snap1:
+            return
+        if self.is_snap1 and self.pkg_yaml['type'] not in ['app', 'framework']:
             return
 
         t = 'info'
@@ -601,7 +597,7 @@ exit 1
 
     def check_pkgname(self):
         '''Check click package name valid'''
-        if self.is_snap:
+        if not self.is_click:
             return
         p = self.manifest['name']
         # http://www.debian.org/doc/debian-policy/ch-controlfields.html
@@ -615,8 +611,7 @@ exit 1
 
     def check_version(self):
         '''Check click package version is valid'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         # deb-version(5)
@@ -634,8 +629,7 @@ exit 1
 
     def check_architecture(self):
         '''Check click package architecture in DEBIAN/control is valid'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         t = 'info'
@@ -648,6 +642,9 @@ exit 1
 
     def check_architecture_all(self):
         '''Check if actually architecture all'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name('control_architecture_valid_contents')
         s = 'OK'
@@ -667,6 +664,9 @@ exit 1
 
     def check_architecture_specified_needed(self):
         '''Check if the specified architecture is actually needed'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for arch in self.pkg_arch:
             t = 'info'
             n = self._get_check_name('architecture_specified_needed')
@@ -684,15 +684,14 @@ exit 1
 
     def check_maintainer(self):
         '''Check manifest maintainer()'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         t = 'info'
         n = self._get_check_name('maintainer_present')
         s = 'OK'
         if 'maintainer' not in self.manifest:
-            if self.is_snap:
+            if self.is_snap1:
                 s = 'Skipped optional maintainer field not specified in ' + \
                     'manifest'
             else:
@@ -704,7 +703,7 @@ exit 1
 
         # Don't perform maintainer checks for snaps. They aren't used by
         # anything.
-        if self.is_snap:
+        if self.is_snap1:
             return
 
         # Simple regex as used by python3-debian. If we wanted to be more
@@ -728,8 +727,7 @@ exit 1
 
     def check_title(self):
         '''Check manifest title()'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         t = 'info'
@@ -752,8 +750,7 @@ exit 1
 
     def check_description(self):
         '''Check manifest description()'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         t = 'info'
@@ -771,8 +768,8 @@ exit 1
         pkgname_base = self.click_pkgname.split('.')[-1]
         if len(self.manifest['description']) < len(pkgname_base):
             t = 'warn'
-            if self.is_snap and (self.manifest['description'] == '\n' or
-                                 self.manifest['description'] == ''):
+            if self.is_snap1 and (self.manifest['description'] == '\n' or
+                                  self.manifest['description'] == ''):
                 s = "manifest description is empty. Is meta/readme.md " + \
                     "formatted correctly?"
             else:
@@ -782,8 +779,7 @@ exit 1
 
     def check_framework(self):
         '''Check manifest framework()'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         n = self._get_check_name('framework')
@@ -791,7 +787,7 @@ exit 1
         framework_overrides = self.overrides.get('framework', {})
         frameworks = Frameworks(overrides=framework_overrides)
 
-        if not self.is_snap and ',' in self.manifest['framework']:
+        if not self.is_snap1 and ',' in self.manifest['framework']:
             # click doesn't support multiple frameworks yet
             t = 'error'
             s = 'ERROR: multiple frameworks found in click manifest'
@@ -827,8 +823,7 @@ exit 1
 
     def check_click_local_extensions(self):
         '''Report any click local extensions'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         t = 'info'
@@ -855,6 +850,9 @@ exit 1
 
     def check_vcs(self):
         '''Check for VCS files in the package'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name('vcs_files')
         s = 'OK'
@@ -871,7 +869,7 @@ exit 1
 
     def check_click_in_package(self):
         '''Check for *.click files in the toplevel click package'''
-        if self._pkgfmt_type() == "snap":
+        if not self.is_click:
             return
 
         t = 'info'
@@ -889,8 +887,7 @@ exit 1
 
     def check_dot_click(self):
         '''Check for .click directory in the toplevel click package'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         t = 'info'
@@ -905,6 +902,9 @@ exit 1
 
     def check_contents_for_hardcoded_paths(self):
         '''Check for known hardcoded paths.'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         PATH_BLACKLIST = ["/opt/click.ubuntu.com/"]
         t = 'info'
         n = self._get_check_name('hardcoded_paths')
@@ -938,14 +938,14 @@ exit 1
             return
 
         key = 'architecture'
-        if self.is_snap and 'architectures' in my_dict:
+        if self.is_snap1 and 'architectures' in my_dict:
             # new yaml allows for 'architecture' and 'architectures'
             key = 'architectures'
 
         archs_list = list(self.valid_control_architectures)
         archs_list.remove("multi")
 
-        if self.is_snap and key == 'architectures' and \
+        if self.is_snap1 and key == 'architectures' and \
            isinstance(my_dict[key], str):
             # new yaml uses 'architectures' that must be a list
             t = 'error'
@@ -954,7 +954,7 @@ exit 1
             t = 'error'
             s = "not a valid architecture: %s" % my_dict[key]
         elif isinstance(my_dict[key], list):
-            if not self.is_snap:
+            if not self.is_snap1:
                 archs_list.remove("all")
             bad_archs = []
             for a in my_dict[key]:
@@ -968,8 +968,7 @@ exit 1
 
     def check_manifest_architecture(self):
         '''Check package architecture in manifest is valid'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         self._verify_architecture(self.manifest, "manifest")
@@ -1004,15 +1003,14 @@ exit 1
 
     def check_icon(self):
         '''Check icon()'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
+        if not self.is_click and not self.is_snap1:
             return
 
         self._verify_icon(self.manifest, "manifest")
 
     def check_snappy_name(self):
         '''Check package name'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1028,7 +1026,7 @@ exit 1
 
     def check_snappy_version(self):
         '''Check package version'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1044,7 +1042,7 @@ exit 1
 
     def check_snappy_type(self):
         '''Check type'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1059,7 +1057,7 @@ exit 1
 
     def check_snappy_type_redflagged(self):
         '''Check if snappy type is redflagged'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1079,14 +1077,14 @@ exit 1
 
     def check_snappy_icon(self):
         '''Check icon()'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
 
         self._verify_icon(self.pkg_yaml, "package_yaml")
 
     def check_snappy_architecture(self):
         '''Check package architecture in package.yaml is valid'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
 
         self._verify_architecture(self.pkg_yaml, "package yaml")
@@ -1104,7 +1102,7 @@ exit 1
 
     def check_snappy_unknown_entries(self):
         '''Check for any unknown fields'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
 
         t = 'info'
@@ -1136,10 +1134,7 @@ exit 1
 
     def check_snappy_readme_md(self):
         '''Check snappy readme.md'''
-        if not self.is_snap:
-            return
-
-        if is_squashfs(self.pkg_filename):
+        if self.is_click or not self.is_snap1:
             return
 
         contents = self._extract_readme_md()
@@ -1163,13 +1158,9 @@ exit 1
             s = "meta/readme.md is too short"
         self._add_result(t, n, s)
 
-    def _check_innerpath_executable(self, fn):
-        '''Check that the provided path exists and is executable'''
-        return os.access(fn, os.X_OK)
-
     def check_snappy_config(self):
         '''Check snappy config'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
 
         fn = os.path.join(self.unpack_dir, 'meta/hooks/config')
@@ -1186,7 +1177,7 @@ exit 1
 
     def check_snappy_services_and_binaries(self):
         '''Services and binaries should not overlap'''
-        if not self.is_snap:
+        if self.is_click or not self.is_snap1:
             return
         for exe_t in ['binaries', 'services']:
             if exe_t not in self.pkg_yaml:
@@ -1217,34 +1208,9 @@ exit 1
                         break
                 self._add_result(t, n, s)
 
-    def check_is_squashfs(self):
-        '''Check snapfs'''
-        if is_squashfs(self.pkg_filename):
-            t = 'error'
-            n = self._get_check_name('is_squashfs')
-            s = "(NEEDS REVIEW) squashfs pkg"
-            manual_review = True
-            self._add_result(t, n, s, manual_review=manual_review)
-
-    def check_squashfs_uses_snap_yaml(self):
-        '''Ensure that squashfs uses 16.04'''
-        if is_squashfs(self.pkg_filename) and not getattr(self, "snap_yaml"):
-            t = 'error'
-            n = self._get_check_name('check_squashfs_uses_snap_yaml')
-            s = "squashfs snaps must have a meta/snap.yaml"
-            manual_review = False
-            self._add_result(t, n, s, manual_review=manual_review)
-
     def check_snappy_hashes(self):
         '''Check snappy hashes.yaml'''
-        if self._pkgfmt_type() == "snap" and \
-                float(self._pkgfmt_version()) > 15.04:
-            return
-
-        if not self.is_snap:
-            return
-        # no hashes.yaml for squashfs images
-        if is_squashfs(self.pkg_filename):
+        if self.is_click or not self.is_snap1:
             return
 
         def _check_allowed_perms(mode, allowed):

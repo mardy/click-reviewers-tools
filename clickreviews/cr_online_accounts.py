@@ -69,6 +69,8 @@ class ClickReviewAccounts(ClickReview):
                              peer_hooks=peer_hooks,
                              overrides=overrides,
                              peer_hooks_link="https://wiki.ubuntu.com/SecurityTeam/Specifications/OnlineAccountsConfinement")
+        if not self.is_click and not self.is_snap1:
+            return
 
         self.accounts_files = dict()
         self.accounts = dict()
@@ -164,6 +166,9 @@ class ClickReviewAccounts(ClickReview):
 
     def check_hooks_versions(self):
         '''Check hooks versions'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         if self.manifest is None:
             return
 
@@ -247,6 +252,9 @@ class ClickReviewAccounts(ClickReview):
 
     def check_manifest(self):
         '''Check manifest'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.accounts.keys()):
             account_type = "accounts"
 
@@ -278,6 +286,9 @@ class ClickReviewAccounts(ClickReview):
 
     def check_application(self):
         '''Check application'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.accounts.keys()):
             account_type = "account-application"
 
@@ -325,6 +336,9 @@ class ClickReviewAccounts(ClickReview):
 
     def check_service(self):
         '''Check service'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.accounts.keys()):
             account_type = "account-service"
 
@@ -366,6 +380,9 @@ class ClickReviewAccounts(ClickReview):
 
     def check_provider(self):
         '''Check provider'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.accounts.keys()):
             account_type = "account-provider"
 
@@ -398,6 +415,9 @@ class ClickReviewAccounts(ClickReview):
 
     def check_qml_plugin(self):
         '''Check qml-plugin'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.accounts.keys()):
             account_type = "account-qml-plugin"
 

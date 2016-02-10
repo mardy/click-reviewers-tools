@@ -33,6 +33,9 @@ class ClickReviewPushHelper(ClickReview):
         ClickReview.__init__(self, fn, "push_helper", peer_hooks=peer_hooks,
                              overrides=overrides)
 
+        if not self.is_click and not self.is_snap1:
+            return
+
         self.required_keys = ['exec']
         self.optional_keys = ['app_id']
 
@@ -81,6 +84,9 @@ class ClickReviewPushHelper(ClickReview):
 
     def check_valid(self):
         '''Check validity of push-helper entries'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.push_helper):
             for k in self.push_helper[app].keys():
                 t = "info"
@@ -106,6 +112,9 @@ class ClickReviewPushHelper(ClickReview):
 
     def check_unknown_keys(self):
         '''Check unknown'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         for app in sorted(self.push_helper):
             unknown = []
             t = "info"
@@ -125,6 +134,9 @@ class ClickReviewPushHelper(ClickReview):
 
     def check_hooks(self):
         '''Verify combinations of click hooks with the push-helper hook'''
+        if not self.is_click and not self.is_snap1:
+            return
+
         if self.manifest is None:
             return
 

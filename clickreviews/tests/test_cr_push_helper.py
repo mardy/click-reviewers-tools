@@ -211,13 +211,3 @@ class TestClickReviewPushHelper(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-
-    def test_check_valid_exec_snappy_1604(self):
-        '''Test check_valid() - exec - snappy 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self.set_test_push_helper(self.default_appname, "exec", "foo")
-        c = ClickReviewPushHelper(self.test_name)
-        c.check_valid()
-        r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)

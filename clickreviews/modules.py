@@ -4,7 +4,7 @@ import inspect
 import os
 import pkgutil
 
-IRRELEVANT_MODULES = ['cr_common', 'cr_tests', 'cr_skeleton']
+IRRELEVANT_MODULES = ['cr_common', 'cr_tests', 'cr_skeleton', 'common']
 
 
 def narrow_down_modules(modules):
@@ -49,14 +49,14 @@ def find_main_class(module_name):
 
     classes = inspect.getmembers(module, inspect.isclass)
 
-    def find_cr_class(a):
+    def find_test_class(a):
         return a[0].startswith('Click') and \
             not a[0].endswith('Exception') and \
             a[1].__module__ == module_name
-    cr_class = list(filter(find_cr_class, classes))
-    if not cr_class:
+    test_class = list(filter(find_test_class, classes))
+    if not test_class:
         return None
-    init_object = getattr(module, cr_class[0][0])
+    init_object = getattr(module, test_class[0][0])
     return init_object
 
 

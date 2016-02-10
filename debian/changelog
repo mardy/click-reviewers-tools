@@ -3,6 +3,12 @@ click-reviewers-tools (0.37) UNRELEASED; urgency=medium
   [ Jamie Strandboge ]
   * cr_lint.py: 'accounts' hook was added in 15.04.1. The other checks are
     already in place since r553 which missed this addition
+  * refactor and make less click-centric such that click and snap v1 tests
+    use existing scripts and snap v2 will use new scripts. The cr_* tests have
+    16.04 checks removed (since this simplifies them and this code won't be
+    run any way)
+  * add bin/detect-package and detect_package()
+  * rename unpack-click as unpack-package
 
   [ James Tait ]
   * cr_lint.py: Don't check for the presence of readme.md if the package is a

@@ -62,21 +62,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_policy_version_vendor_snappy_1604(self):
-        '''Test check_policy_version() - valid - snappy 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        n = "bin/%s" % self.default_appname
-        self._set_yaml_binary([('caps', ['network-client'])], name=n)
-        c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest("binaries/%s" % n,
-                                        "policy_vendor", "ubuntu-core")
-        self.set_test_security_manifest("binaries/%s" % n,
-                                        "policy_version", 15.04)
-        c.check_policy_version()
-        report = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
     def test_check_policy_version_highest(self):
         '''Test check_policy_version() - highest'''
         c = ClickReviewSecurity(self.test_name)
@@ -184,6 +169,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_version_framework_match_snappy_multiple(self):
         '''Test check_policy_version() - matching framework - multiple'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_manifest("framework", "foo,ubuntu-core-15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "policy_vendor", "ubuntu-core")
@@ -313,19 +299,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_policy_vendor_ubuntu_1604(self):
-        '''Test check_policy_vendor() - ubuntu - 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        n = "bin/%s" % self.default_appname
-        self._set_yaml_binary([('caps', ['network-client'])], name=n)
-        c = ClickReviewSecurity(self.test_name)
-        self.set_test_security_manifest("binaries/%s" % n,
-                                        "policy_vendor", "ubuntu")
-        c.check_policy_vendor()
-        report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
     def test_check_policy_vendor_ubuntu(self):
         '''Test check_policy_vendor() - ubuntu'''
         c = ClickReviewSecurity(self.test_name)
@@ -338,6 +311,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_vendor_ubuntu_snappy(self):
         '''Test check_policy_vendor() - ubuntu-core'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_manifest("framework", "ubuntu-core-15.04")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -385,6 +359,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_vendor_framwork_match_snappy_multiple(self):
         '''Test check_policy_vendor() - matching framework - multiple'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_manifest("framework", "foo,ubuntu-core-15.04")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -525,6 +500,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_default_with_snappy(self):
         '''Test check_template() - default specified with ubuntu-snappy vendor'''
+        self.set_test_pkgfmt("snap", "15.04")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
                                         "template", "default")
@@ -539,6 +515,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_nonexistent_with_snappy(self):
         '''Test check_template() - nonexistent with ubuntu-snappy vendor'''
+        self.set_test_pkgfmt("snap", "15.04")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
                                         "template", "nonexistent")
@@ -553,6 +530,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_snappy_framework_deprecated(self):
         '''Test check_template() - in deprecated framework declaration'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("framework", "fwk")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -564,6 +542,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_snappy_framework_deprecated2(self):
         '''Test check_template() - in deprecated framework declaration list'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("framework", "fwk, somethingelse")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -575,6 +554,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_snappy_frameworks(self):
         '''Test check_template() - in frameworks declaration'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("frameworks", ["fwk"])
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -586,6 +566,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_template_snappy_framework_type(self):
         '''Test check_template() - type framework'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("type", "framework")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -968,6 +949,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_groups_snappy_framework_deprecated(self):
         '''Test check_policy_groups() - in deprecated framework declaration'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("framework", "fwk")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -981,6 +963,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         '''Test check_policy_groups() - in deprecated framework declaration
            list
         '''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("framework", "fwk, somethingelse")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -992,6 +975,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_groups_snappy_frameworks(self):
         '''Test check_policy_groups() - in frameworks declaration'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("frameworks", ["fwk"])
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -1003,6 +987,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_policy_groups_snappy_framework_type(self):
         '''Test check_policy_groups() - type framework'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_pkg_yaml("type", "framework")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
@@ -1215,6 +1200,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_redflag_policy_vendor_ubuntu_snappy(self):
         '''Test check_redflag() - policy_vendor - ubuntu-snappy'''
+        self.set_test_pkgfmt("snap", "15.04")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,
                                         "policy_vendor", "ubuntu-snappy")
@@ -1275,6 +1261,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_apparmor_profile(self):
         '''Test check_apparmor_profile()'''
+        self.set_test_pkgfmt("snap", "15.04")
         policy = '''
 ###VAR###
 ###PROFILEATTACH### {
@@ -1290,27 +1277,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_apparmor_profile_1604(self):
-        '''Test check_apparmor_profile() - snappy 16.04'''
-        policy = '''
-###VAR###
-###PROFILEATTACH### {
-  #include <abstractions/base>
-  # Read-only for the install directory
-  @{CLICK_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
-  @{INSTALL_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
-}
-'''
-        self.set_test_security_profile(self.default_appname, policy)
-        c = ClickReviewSecurity(self.test_name)
-        self.set_test_pkgfmt("snap", "16.04")
-        c.check_apparmor_profile()
-        report = c.click_report
-        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
     def test_check_apparmor_profile_missing_var(self):
         '''Test check_apparmor_profile() - missing ###VAR###'''
+        self.set_test_pkgfmt("snap", "15.04")
         policy = '''
 ###PROFILEATTACH### {
   #include <abstractions/base>
@@ -1327,6 +1296,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_apparmor_profile_missing_app_pkgname(self):
         '''Test check_apparmor_profile() - missing @{APP_PKGNAME}'''
+        self.set_test_pkgfmt("snap", "15.04")
         policy = '''
 ###VAR###
 ###PROFILEATTACH### {
@@ -1345,6 +1315,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         '''Test check_apparmor_profile() - missing vars with unconfined
            boilerplate (first test)
         '''
+        self.set_test_pkgfmt("snap", "15.04")
         policy = '''
 # Unrestricted AppArmor policy for fwk-name_svc
 ###VAR###
@@ -1363,6 +1334,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         '''Test check_apparmor_profile() - missing vars with unconfined
            boilerplate (second test)
         '''
+        self.set_test_pkgfmt("snap", "15.04")
         policy = '''
 # This profile offers no protection
 ###VAR###
@@ -1379,6 +1351,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_template_default(self):
         '''Test check_security_template() - default'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname, "template", None)
         self._set_yaml_binary([])
         c = ClickReviewSecurity(self.test_name)
@@ -1389,6 +1362,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_template_default_with_exec(self):
         '''Test check_security_template() - default with exec'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname, "template", None)
         self._set_yaml_binary([('exec', 'bin/%s' % self.default_appname)])
         c = ClickReviewSecurity(self.test_name)
@@ -1399,6 +1373,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_template_nondefault(self):
         '''Test check_security_template() - nondefault'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "template", "nondefault")
         self._set_yaml_binary([('security-template', 'nondefault')])
@@ -1420,20 +1395,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_template_nondefault_1604(self):
-        '''Test check_security_template() - nondefault - 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self.set_test_security_manifest(self.default_appname,
-                                        "template", "nondefault")
-        self._set_yaml_binary([('security-template', 'nondefault')])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_security_template()
-        report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
     def test_check_security_template_bad(self):
         '''Test check_security_template() - {}'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', {})])
         c = ClickReviewSecurity(self.test_name)
         c.check_security_template()
@@ -1443,6 +1407,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_caps_default(self):
         '''Test check_security_caps() - default (networking)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "caps", ['networking'])
         self._set_yaml_binary([('caps', ['networking'])])
@@ -1454,6 +1419,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_caps_default2(self):
         '''Test check_security_caps() - default (network-client)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "caps", ['network-client'])
         self._set_yaml_binary([('caps', ['network-client'])])
@@ -1465,6 +1431,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_caps_default_with_exec(self):
         '''Test check_security_caps() - default with exec (networking)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "caps", ['networking'])
         self._set_yaml_binary([('exec', 'bin/%s' % self.default_appname),
@@ -1477,6 +1444,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_caps_default_with_exec2(self):
         '''Test check_security_caps() - default with exec (network-client)'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "caps", ['network-client'])
         self._set_yaml_binary([('exec', 'bin/%s' % self.default_appname),
@@ -1489,6 +1457,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_caps_nondefault(self):
         '''Test check_security_caps() - nondefault'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "caps", [])
         self._set_yaml_binary([('caps', [])])
@@ -1500,6 +1469,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_caps_bad(self):
         '''Test check_security_caps() - {}'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', {})])
         c = ClickReviewSecurity(self.test_name)
         c.check_security_caps()
@@ -1509,6 +1479,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_name_relative(self):
         '''Test check_security_yaml_and_click() - relative path'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', ['networking'])],
                               name="bin/%s" % self.default_appname)
         c = ClickReviewSecurity(self.test_name)
@@ -1536,20 +1507,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_yaml_and_click_snappy_1604(self):
-        '''Test check_security_yaml_and_click() - snappy 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self._set_yaml_binary([('caps', ['networking'])],
-                              name="bin/%s" % self.default_appname)
-        c = ClickReviewSecurity(self.test_name)
-
-        c.check_security_yaml_and_click()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
     def test_check_security_yaml_and_click_name_exec(self):
         '''Test check_security_yaml_and_click() - uses exec'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', ['networking']),
                                ('exec', "bin/%s" % self.default_appname)],
                               name=self.default_appname)
@@ -1565,6 +1525,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_matching_template(self):
         '''Test check_security_yaml_and_click() - matching default template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', ['networking'])])
         self.set_test_security_manifest(self.default_appname,
                                         "template", "default")
@@ -1578,6 +1539,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_security_override(self):
         '''Test check_security_yaml_and_click() - security-override'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'default')])
         self._set_yaml_binary([('security-override', {})])
         self.set_test_security_manifest(self.default_appname,
@@ -1591,6 +1553,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_security_policy(self):
         '''Test check_security_yaml_and_click() - security-policy'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'default')])
         self._set_yaml_binary([('security-policy', {})])
         self.set_test_security_manifest(self.default_appname,
@@ -1604,6 +1567,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_matching_caps(self):
         '''Test check_security_yaml_and_click() - matching default caps'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', [])])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ['networking'])
@@ -1617,6 +1581,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_matching_caps2(self):
         '''Test check_security_yaml_and_click() - matching default caps'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', [])])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ['network-client'])
@@ -1630,6 +1595,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_matching_no_caps(self):
         '''Test check_security_yaml_and_click() - matching no caps'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', [])])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", None)
@@ -1644,6 +1610,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         '''Test check_security_yaml_and_click() - matching no caps with
            template
         '''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'nondefault')])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", None)
@@ -1658,6 +1625,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch0(self):
         '''Test check_security_yaml_and_click() - missing app in hooks'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([])
         self.set_test_security_manifest(self.default_appname,
                                         "template", None)
@@ -1674,6 +1642,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch2(self):
         '''Test check_security_yaml_and_click() - missing apparmor in hooks'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([])
         c = ClickReviewSecurity(self.test_name)
 
@@ -1689,6 +1658,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch3(self):
         '''Test check_security_yaml_and_click() - missing security-template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', ['networking'])])
         self.set_test_security_manifest(self.default_appname,
                                         "template", "nondefault")
@@ -1702,6 +1672,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch4(self):
         '''Test check_security_yaml_and_click() - missing click template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([("security-template", "nondefault"),
                                ('caps', ['networking'])],
                               name=self.default_appname)
@@ -1716,6 +1687,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch5(self):
         '''Test check_security_yaml_and_click() - different templates'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "template", "other")
         self._set_yaml_binary([("security-template", "nondefault"),
@@ -1730,6 +1702,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch6(self):
         '''Test check_security_yaml_and_click() - missing caps in yaml'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', [])])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ["1", "2"])
@@ -1743,6 +1716,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch7(self):
         '''Test check_security_yaml_and_click() - missing policy_groups'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', ['networking'])],
                               name=self.default_appname)
         self.set_test_security_manifest(self.default_appname,
@@ -1756,6 +1730,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch8(self):
         '''Test check_security_yaml_and_click() - different caps/groups'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ["1", "2"])
         self._set_yaml_binary([('caps', ["3"])],
@@ -1769,6 +1744,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch9(self):
         '''Test check_security_yaml_and_click() - unordered caps/groups'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ["1", "2"])
         self._set_yaml_binary([('caps', ["2", "1"])],
@@ -1782,6 +1758,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch10(self):
         '''Test check_security_yaml_and_click() - missing caps in both'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', [])])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", None)
@@ -1795,6 +1772,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch11(self):
         '''Test check_security_yaml_and_click() - default caps with template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'nondefault')])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ['networking'])
@@ -1810,6 +1788,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_mismatch12(self):
         '''Test check_security_yaml_and_click() - default caps with template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'nondefault')])
         self.set_test_security_manifest(self.default_appname,
                                         "policy_groups", ['network-client'])
@@ -1825,6 +1804,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_invalid_template(self):
         '''Test check_security_yaml_and_click() - invalid template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "template", "other")
         self._set_yaml_binary([("security-template", None),
@@ -1839,6 +1819,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_and_click_invalid_caps(self):
         '''Test check_security_yaml_and_click() - invalid caps'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname,
                                         "template", "other")
         self._set_yaml_binary([("security-template", "nondefault"),
@@ -1853,6 +1834,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations(self):
         '''Test check_security_yaml_combinations()'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([], name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
         c.check_security_yaml_combinations()
@@ -1862,6 +1844,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations1(self):
         '''Test check_security_yaml_combinations() - template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'foo')],
                               name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
@@ -1872,6 +1855,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations2(self):
         '''Test check_security_yaml_combinations() - caps'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', ['networking'])],
                               name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
@@ -1882,6 +1866,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations3(self):
         '''Test check_security_yaml_combinations() - template,caps'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'foo'),
                                ('caps', ['networking'])],
                               name=self.default_appname)
@@ -1893,6 +1878,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations4(self):
         '''Test check_security_yaml_combinations() - override'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-override', {'apparmor': 'foo.aa',
                                                       'seccomp': 'foo.sc'})],
                               name=self.default_appname)
@@ -1904,6 +1890,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations5(self):
         '''Test check_security_yaml_combinations() - override, template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'foo'),
                                ('security-override', {'apparmor': 'foo.aa',
                                                       'seccomp': 'foo.sc'})],
@@ -1916,6 +1903,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations6(self):
         '''Test check_security_yaml_combinations() - override, caps'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', ['networking']),
                                ('security-override', {'apparmor': 'foo.aa',
                                                       'seccomp': 'foo.sc'})],
@@ -1929,6 +1917,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
     def test_check_security_yaml_combinations7(self):
         '''Test check_security_yaml_combinations() - override, caps, template
         '''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'foo'),
                                ('caps', ['networking']),
                                ('security-override', {'apparmor': 'foo.aa',
@@ -1944,6 +1933,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         '''Test check_security_yaml_combinations() - override, caps, template,
            policy
         '''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'foo'),
                                ('caps', ['networking']),
                                ('security-policy', {'apparmor': 'foo.aa',
@@ -1959,6 +1949,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations9(self):
         '''Test check_security_yaml_combinations() - policy'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-policy', {'apparmor': 'foo.aa',
                                                     'seccomp': 'foo.sc'})],
                               name=self.default_appname)
@@ -1970,6 +1961,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations10(self):
         '''Test check_security_yaml_combinations() - policy, template'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'foo'),
                                ('security-policy', {'apparmor': 'foo.aa',
                                                     'seccomp': 'foo.sc'})],
@@ -1982,6 +1974,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_combinations11(self):
         '''Test check_security_yaml_combinations() - policy, caps'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('caps', ['networking']),
                                ('security-policy', {'apparmor': 'foo.aa',
                                                     'seccomp': 'foo.sc'})],
@@ -1995,6 +1988,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
     def test_check_security_yaml_combinations12(self):
         '''Test check_security_yaml_combinations() - policy, caps, template
         '''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-template', 'foo'),
                                ('caps', ['networking']),
                                ('security-policy', {'apparmor': 'foo.aa',
@@ -2008,6 +2002,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_override_and_click(self):
         '''Test check_security_yaml_override_and_click()'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname, "template", None)
         self._set_yaml_binary([])
         c = ClickReviewSecurity(self.test_name)
@@ -2027,19 +2022,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_yaml_override_and_click_1604(self):
-        '''Test check_security_yaml_override_and_click() - 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self.set_test_security_manifest(self.default_appname, "template", None)
-        self._set_yaml_binary([])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_security_yaml_override_and_click()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
     def test_check_security_yaml_override_and_click_bad(self):
         '''Test check_security_yaml_override_and_click() - bad'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname, "template", None)
         self._set_yaml_binary([('security-override', {'apparmor':
                                                       'something.else'})],
@@ -2052,6 +2037,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_override(self):
         '''Test check_security_yaml_override()'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname, "template", None)
         self._set_yaml_binary([])
         c = ClickReviewSecurity(self.test_name)
@@ -2063,17 +2049,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
     def test_check_security_yaml_override_1504(self):
         '''Test check_security_yaml_override() - 15.04'''
         self.set_test_pkgfmt("snap", "15.04")
-        self.set_test_security_manifest(self.default_appname, "template", None)
-        self._set_yaml_binary([])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_security_yaml_override()
-        report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_yaml_override_1604(self):
-        '''Test check_security_yaml_override() - 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
         self.set_test_security_manifest(self.default_appname, "template", None)
         self._set_yaml_binary([])
         c = ClickReviewSecurity(self.test_name)
@@ -2094,20 +2069,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_yaml_override3(self):
-        '''Test check_security_yaml_override() - seccomp/apparmor specified
-           with 16.04
-        '''
-        self.set_test_pkgfmt("snap", "16.04")
-        self._set_yaml_binary([('security-override', {'apparmor': 'aa',
-                                                      'seccomp': 'sc'})],
-                              name=self.default_appname)
-        c = ClickReviewSecurity(self.test_name)
-        c.check_security_yaml_override()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(report, expected_counts)
-
     def test_check_security_yaml_override4(self):
         '''Test check_security_yaml_override() - syscalls specified with
            15.04
@@ -2121,59 +2082,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
-    def test_check_security_yaml_override5(self):
-        '''Test check_security_yaml_override() - syscalls specified with
-           16.04
-        '''
-        self.set_test_pkgfmt("snap", "16.04")
-        self._set_yaml_binary([('security-override', {'syscalls': 'foo'})],
-                              name=self.default_appname)
-        c = ClickReviewSecurity(self.test_name)
-        c.check_security_yaml_override()
-        report = c.click_report
-        # the error is security-override not allowed
-        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_yaml_override6(self):
-        '''Test check_security_yaml_override() - read-paths'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self._set_yaml_binary([('security-override', {'read-paths': '/foo'})],
-                              name=self.default_appname)
-        c = ClickReviewSecurity(self.test_name)
-        c.check_security_yaml_override()
-        report = c.click_report
-        # the error is security-override not allowed
-        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_yaml_override7(self):
-        '''Test check_security_yaml_override() - write-paths'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self._set_yaml_binary([('security-override', {'write-paths': '/foo'})],
-                              name=self.default_appname)
-        c = ClickReviewSecurity(self.test_name)
-        c.check_security_yaml_override()
-        report = c.click_report
-        # the error is security-override not allowed
-        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_yaml_override8(self):
-        '''Test check_security_yaml_override() - abstractions'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self._set_yaml_binary([('security-override',
-                                {'abstractions': '/foo'})],
-                              name=self.default_appname)
-        c = ClickReviewSecurity(self.test_name)
-        c.check_security_yaml_override()
-        report = c.click_report
-        # the error is security-override not allowed
-        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
     def test_check_security_yaml_override_missing1(self):
         '''Test check_security_yaml_override() - missing apparmor'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-override', {'seccomp': 'sc'})],
                               name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
@@ -2184,6 +2095,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_override_missing2(self):
         '''Test check_security_yaml_override() - missing seccomp'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-override', {'apparmor': 'aa'})],
                               name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
@@ -2194,6 +2106,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_policy(self):
         '''Test check_security_yaml_policy()'''
+        self.set_test_pkgfmt("snap", "15.04")
         self.set_test_security_manifest(self.default_appname, "template", None)
         self._set_yaml_binary([])
         c = ClickReviewSecurity(self.test_name)
@@ -2204,6 +2117,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_policy2(self):
         '''Test check_security_yaml_policy() - seccomp/apparmor specified'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-policy', {'apparmor': 'aa',
                                                     'seccomp': 'sc'})],
                               name=self.default_appname)
@@ -2218,6 +2132,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_policy_missing1(self):
         '''Test check_security_yaml_policy() - missing apparmor'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-policy', {'seccomp': 'sc'})],
                               name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
@@ -2236,6 +2151,7 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
 
     def test_check_security_yaml_policy_missing2(self):
         '''Test check_security_yaml_policy() - missing seccomp'''
+        self.set_test_pkgfmt("snap", "15.04")
         self._set_yaml_binary([('security-policy', {'apparmor': 'aa'})],
                               name=self.default_appname)
         c = ClickReviewSecurity(self.test_name)
@@ -2277,20 +2193,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_template_online_accounts_provider()
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_template_online_account_provider_1604(self):
-        '''Test check_template_online_account_provider - 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self.set_test_account(self.default_appname, "account-provider", "foo")
-        self.set_test_security_manifest(self.default_appname,
-                                        "template", "ubuntu-account-plugin")
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups", ["accounts"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_template_online_accounts_provider()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_template_online_account_provider_no_hook(self):
@@ -2356,21 +2258,6 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         c.check_template_online_accounts_qml_plugin()
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_template_online_account_qml_plugin_1604(self):
-        '''Test check_template_online_account_qml_plugin - 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self.set_test_account(self.default_appname,
-                              "account-qml-plugin", "foo")
-        self.set_test_security_manifest(self.default_appname,
-                                        "template", "ubuntu-account-plugin")
-        self.set_test_security_manifest(self.default_appname,
-                                        "policy_groups", ["accounts"])
-        c = ClickReviewSecurity(self.test_name)
-        c.check_template_online_accounts_qml_plugin()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_template_online_account_qml_plugin_no_hook(self):

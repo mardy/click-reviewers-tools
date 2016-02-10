@@ -33,7 +33,7 @@ class Results(object):
     def __init__(self, args):
         self.args = args
         self.click_fn = self.args.filename
-        self.cr_modules = modules.get_modules()
+        self.modules = modules.get_modules()
 
     def _sumarise_results(self):
         for module in self.results:
@@ -96,12 +96,12 @@ class Results(object):
 
     def run_all_checks(self):
         if self.args.sdk:
-            for module in self.cr_modules:
+            for module in self.modules:
                 section = self._run_module_checks(module)
                 if section:
                     self._report_module(section)
         else:
-            for module in self.cr_modules:
+            for module in self.modules:
                 self._run_module_checks(module)
             self._complete_report()
 
@@ -125,7 +125,7 @@ def main():
         sys.exit(1)
 
     results = Results(args)
-    if not results.cr_modules:
+    if not results.modules:
         print("No 'clickreviews' modules found.")
         sys.exit(1)
 

@@ -19,7 +19,7 @@ from __future__ import print_function
 import os
 import sys
 
-from clickreviews import cr_common
+from clickreviews import common
 from clickreviews import cr_desktop
 from clickreviews import cr_lint
 from clickreviews import cr_security
@@ -36,12 +36,12 @@ from clickreviews import cr_systemd
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        cr_common.error("Must give path to click package")
+        common.error("Must give path to package")
 
     review = cr_lint.ClickReviewLint(sys.argv[1])
 
     for i in sorted(review.control_files):
-        fh = cr_common.open_file_read(review.control_files[i])
+        fh = common.open_file_read(review.control_files[i])
         print("= %s =" % os.path.basename(i))
         for line in fh.readlines():
             print(line, end="")
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     fn = os.path.join(review.unpack_dir, "meta", "package.yaml")
     if os.path.exists(fn):
         print("= %s =" % os.path.basename(fn))
-        fh = cr_common.open_file_read(fn)
+        fh = common.open_file_read(fn)
         for line in fh.readlines():
             print(line, end="")
         fh.close()
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     review_content_hub = cr_content_hub.ClickReviewContentHub(sys.argv[1])
     for app in sorted(review_content_hub.content_hub_files):
         f = review_content_hub.content_hub_files[app]
-        fh = cr_common.open_file_read(os.path.join(
+        fh = common.open_file_read(os.path.join(
             review_content_hub.unpack_dir, f))
         print("== content_hub: %s ==" % os.path.basename(f))
         for line in fh.readlines():
@@ -73,8 +73,7 @@ if __name__ == "__main__":
     review_desktop = cr_desktop.ClickReviewDesktop(sys.argv[1])
     for app in sorted(review_desktop.desktop_files):
         f = review_desktop.desktop_files[app]
-        fh = cr_common.open_file_read(os.path.join(review_desktop.unpack_dir,
-                                                   f))
+        fh = common.open_file_read(os.path.join(review_desktop.unpack_dir, f))
         print("== desktop: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
@@ -87,7 +86,7 @@ if __name__ == "__main__":
             if account_type not in review_accounts.accounts_files[app]:
                 continue
             f = review_accounts.accounts_files[app][account_type]
-            fh = cr_common.open_file_read(os.path.join(
+            fh = common.open_file_read(os.path.join(
                 review_accounts.unpack_dir, f))
             print("== online %s: %s ==" % (account_type, os.path.basename(f)))
             for line in fh.readlines():
@@ -98,7 +97,7 @@ if __name__ == "__main__":
     review_push_helper = cr_push_helper.ClickReviewPushHelper(sys.argv[1])
     for app in sorted(review_push_helper.push_helper_files):
         f = review_push_helper.push_helper_files[app]
-        fh = cr_common.open_file_read(os.path.join(
+        fh = common.open_file_read(os.path.join(
             review_push_helper.unpack_dir, f))
         print("== push_helper: %s ==" % os.path.basename(f))
         for line in fh.readlines():
@@ -109,7 +108,7 @@ if __name__ == "__main__":
     review_scope = cr_scope.ClickReviewScope(sys.argv[1])
     for app in sorted(review_scope.scopes):
         f = review_scope.scopes[app]["ini_file"]
-        fh = cr_common.open_file_read(os.path.join(review_scope.unpack_dir, f))
+        fh = common.open_file_read(os.path.join(review_scope.unpack_dir, f))
         print("== scope .INI: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
@@ -120,7 +119,7 @@ if __name__ == "__main__":
     for app in sorted(review_framework.frameworks_file):
         f = os.path.join(review_framework.unpack_dir,
                          review_framework.frameworks_file[app])
-        fh = cr_common.open_file_read(os.path.join(review_framework.unpack_dir, f))
+        fh = common.open_file_read(os.path.join(review_framework.unpack_dir, f))
         print("== click .framework: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
@@ -135,8 +134,7 @@ if __name__ == "__main__":
 
     review_apparmor = cr_security.ClickReviewSecurity(sys.argv[1])
     for f in sorted(review_apparmor.security_manifests):
-        fh = cr_common.open_file_read(os.path.join(review_apparmor.unpack_dir,
-                                                   f))
+        fh = common.open_file_read(os.path.join(review_apparmor.unpack_dir, f))
         print("== security: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
@@ -146,8 +144,7 @@ if __name__ == "__main__":
     review_systemd = cr_systemd.ClickReviewSystemd(sys.argv[1])
     for app in sorted(review_systemd.systemd_files):
         f = review_systemd.systemd_files[app]
-        fh = cr_common.open_file_read(os.path.join(review_systemd.unpack_dir,
-                                                   f))
+        fh = common.open_file_read(os.path.join(review_systemd.unpack_dir, f))
         print("== systemd: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
@@ -157,8 +154,8 @@ if __name__ == "__main__":
     review_url_dispatcher = cr_url_dispatcher.ClickReviewUrlDispatcher(sys.argv[1])
     for app in sorted(review_url_dispatcher.url_dispatcher_files):
         f = review_url_dispatcher.url_dispatcher_files[app]
-        fh = cr_common.open_file_read(os.path.join(review_url_dispatcher.unpack_dir,
-                                                   f))
+        fh = common.open_file_read(os.path.join(review_url_dispatcher.unpack_dir,
+                                                f))
         print("== url_dispatcher: %s ==" % os.path.basename(f))
         for line in fh.readlines():
             print(line, end="")
@@ -166,4 +163,4 @@ if __name__ == "__main__":
         print("")
 
     # Cleanup our unpack directory
-    cr_common.cleanup_unpack()
+    common.cleanup_unpack()

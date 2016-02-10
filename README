@@ -1,4 +1,4 @@
-Runnable tests:
+Runnable click and snap v1 tests:
 - bin/click-check-bin-path: snappy bin-path tests
 - bin/click-check-content-hub: content-hub hook tests
 - bin/click-check-desktop: desktop hook tests

@@ -17,8 +17,8 @@
 
 from __future__ import print_function
 
-import clickreviews.cr_common as cr_common
+import clickreviews.common as common
 import clickreviews.cr_scope as cr_scope
 
 if __name__ == "__main__":
-    cr_common.run_click_check(cr_scope.ClickReviewScope)
+    common.run_check(cr_scope.ClickReviewScope)

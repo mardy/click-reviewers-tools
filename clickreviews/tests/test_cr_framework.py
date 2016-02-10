@@ -19,7 +19,10 @@ import clickreviews.cr_tests as cr_tests
 
 
 class TestClickReviewFramework(cr_tests.TestClickReview):
-    """Tests for the lint review tool."""
+    """Tests for the framework review tool."""
+    def setUp(self):
+        super().setUp()
+        self.set_test_pkgfmt("snap", "15.04")
 
     def test_framework_hook_obsolete(self):
         '''Test check_framework_hook_obsolete()'''

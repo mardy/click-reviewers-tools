@@ -167,16 +167,3 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
         r = c.click_report
         expected_counts = {'info': 6, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-
-    def test_check_valid_snappy_1604(self):
-        '''Test check_valid() - snappy 16.04'''
-        self.set_test_pkgfmt("snap", "16.04")
-        self.set_test_content_hub(self.default_appname, "destination", "pictures")
-        self.set_test_content_hub(self.default_appname, "share", "pictures")
-        self.set_test_content_hub(self.default_appname, "source", "pictures")
-        c = ClickReviewContentHub(self.test_name)
-        c.check_valid()
-        r = c.click_report
-        # should be empty with this pkgfmt
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)

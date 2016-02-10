@@ -30,7 +30,9 @@ def make_package(name='test', pkgfmt_type='click', pkgfmt_version='0.4',
 
     Caller is responsible for deleting the output_dir afterwards.
     """
-    is_snap = (pkgfmt_type == "snap")
+    is_snap1 = (pkgfmt_type == "snap" and pkgfmt_version == "15.04")
+    # TODO: implement writing snap2 packages
+    # is_snap2 = (pkgfmt_type == "snap" and not pkgfmt_version == "15.04")
     build_dir = tempfile.mkdtemp()
     package_types = package_types or []
 
@@ -43,7 +45,7 @@ def make_package(name='test', pkgfmt_type='click', pkgfmt_version='0.4',
         if pkgfmt_type == 'click' or pkgfmt_version == 15.04:
             write_manifest(build_dir, name, version,
                            title, framework, package_types,
-                           is_snap)
+                           is_snap1)
             write_control(build_dir, name, version, title, pkgfmt_version)
             write_preinst(build_dir)
             write_apparmor_profile(build_dir, name)

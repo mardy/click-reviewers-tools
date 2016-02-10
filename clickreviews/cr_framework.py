@@ -30,6 +30,9 @@ class ClickReviewFramework(ClickReview):
         self.frameworks_file = dict()
         self.frameworks = dict()
 
+        if not self.is_snap1:
+            return
+
         if self.manifest is not None:
             for app in self.manifest['hooks']:
                 if 'framework' not in self.manifest['hooks'][app]:
@@ -98,7 +101,7 @@ class ClickReviewFramework(ClickReview):
 
     def _has_framework_in_metadir(self):
         '''Check if snap has meta/<name>.framework'''
-        if not self.is_snap:
+        if not self.is_snap1:
             return False
 
         return os.path.exists(os.path.join(self.unpack_dir, 'meta',
@@ -107,6 +110,9 @@ class ClickReviewFramework(ClickReview):
 
     def check_framework_hook_obsolete(self):
         '''Check manifest doesn't specify 'framework' hook'''
+        if not self.is_snap1:
+            return
+
         t = 'info'
         n = self._get_check_name("obsolete_declaration")
         s = "OK"
@@ -118,7 +124,7 @@ class ClickReviewFramework(ClickReview):
 
     def check_snappy_framework_file_obsolete(self):
         '''Check snap doesn't ship .framework file'''
-        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+        if not self.is_snap1 or self.pkg_yaml['type'] != 'framework':
             return
         t = 'info'
         n = self._get_check_name("obsolete_framework_file")
@@ -130,7 +136,7 @@ class ClickReviewFramework(ClickReview):
 
     def check_snappy_framework_depends(self):
         '''Check framework doesn't depend on other frameworks'''
-        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+        if not self.is_snap1 or self.pkg_yaml['type'] != 'framework':
             return
         t = 'info'
         n = self._get_check_name("dependency")
@@ -142,7 +148,7 @@ class ClickReviewFramework(ClickReview):
 
     def check_snappy_framework_policy(self):
         '''Check framework ships at least some policy'''
-        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+        if not self.is_snap1 or self.pkg_yaml['type'] != 'framework':
             return
 
         t = 'info'
@@ -173,7 +179,7 @@ class ClickReviewFramework(ClickReview):
 
     def check_snappy_framework_policy_metadata(self):
         '''Check framework policy has expected meta data'''
-        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+        if not self.is_snap1 or self.pkg_yaml['type'] != 'framework':
             return
 
         t = 'info'
@@ -201,7 +207,7 @@ class ClickReviewFramework(ClickReview):
 
     def check_snappy_framework_policy_matching(self):
         '''Check framework policy ships apparmor and seccomp for each'''
-        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+        if not self.is_snap1 or self.pkg_yaml['type'] != 'framework':
             return
 
         t = 'info'
@@ -231,7 +237,7 @@ class ClickReviewFramework(ClickReview):
 
     def check_snappy_framework_policy_filenames(self):
         '''Check framework policy file names'''
-        if not self.is_snap or self.pkg_yaml['type'] != 'framework':
+        if not self.is_snap1 or self.pkg_yaml['type'] != 'framework':
             return
 
         for i in self.framework_policy:

@@ -25,13 +25,12 @@ from unittest.mock import patch
 from unittest import TestCase
 
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
-import clickreviews.cr_common as cr_common
+import clickreviews.common as common
 
 # These should be set in the test cases
 TEST_CONTROL = ""
 TEST_MANIFEST = ""
 TEST_PKG_YAML = ""
-TEST_SNAP_YAML = ""
 TEST_HASHES_YAML = ""
 TEST_README_MD = ""
 TEST_SECURITY = dict()
@@ -78,11 +77,6 @@ def _extract_package_yaml(self):
     return io.StringIO(TEST_PKG_YAML)
 
 
-def _extract_snap_yaml(self):
-    '''Pretend we read the package.yaml file'''
-    return io.StringIO(TEST_SNAP_YAML)
-
-
 def _extract_hashes_yaml(self):
     '''Pretend we read the hashes.yaml file'''
     return io.StringIO(TEST_HASHES_YAML)
@@ -95,7 +89,7 @@ def _path_join(self, d, fn):
 
 def _get_sha512sum(self, fn):
     '''Pretend we found performed a sha512'''
-    (rc, out) = cr_common.cmd(['sha512sum', os.path.realpath(__file__)])
+    (rc, out) = common.cmd(['sha512sum', os.path.realpath(__file__)])
     if rc != 0:
         return None
     return out.split()[0]
@@ -147,9 +141,6 @@ def _extract_security_manifest(self, app):
 
 def _get_security_manifest(self, app):
     '''Pretend we read the security manifest file'''
-    if TEST_PKGFMT_VERSION == "16.04":
-        return (app, json.loads(TEST_SECURITY[app]))
-
     return ("%s.apparmor" % app, json.loads(TEST_SECURITY[app]))
 
 
@@ -265,9 +256,12 @@ def _pkgfmt_version(self):
     return TEST_PKGFMT_VERSION
 
 
-def _is_squashfs(self):
-    '''Pretend we discovered if it is a squashfs or not'''
-    return (TEST_PKGFMT_TYPE == "snap" and float(TEST_PKGFMT_VERSION) > 15.04)
+def _detect_package(self, fn):
+    '''Pretend we detected the package'''
+    ver = 1
+    if TEST_PKGFMT_TYPE == "snap" and TEST_PKGFMT_VERSION != "15.04":
+        ver = 2
+    return (TEST_PKGFMT_TYPE, ver)
 
 
 def create_patches():
@@ -275,7 +269,7 @@ def create_patches():
     # Mock patching. Don't use decorators but instead patch in setUp() of the
     # child.
     patches = []
-    patches.append(patch('clickreviews.cr_common.ClickReview._check_path_exists',
+    patches.append(patch('clickreviews.common.Review._check_package_exists',
                    _mock_func))
     patches.append(patch(
         'clickreviews.cr_common.ClickReview._extract_control_file',
@@ -287,45 +281,34 @@ def create_patches():
         'clickreviews.cr_common.ClickReview._extract_package_yaml',
         _extract_package_yaml))
     patches.append(patch(
-        'clickreviews.cr_common.ClickReview._extract_snap_yaml',
-        _extract_snap_yaml))
-    patches.append(patch(
         'clickreviews.cr_common.ClickReview._extract_hashes_yaml',
         _extract_hashes_yaml))
+    patches.append(patch('clickreviews.common.Review._path_join', _path_join))
     patches.append(patch(
-        'clickreviews.cr_common.ClickReview._path_join',
-        _path_join))
+        'clickreviews.common.Review._get_sha512sum', _get_sha512sum))
     patches.append(patch(
-        'clickreviews.cr_common.ClickReview._get_sha512sum',
-        _get_sha512sum))
-    patches.append(patch(
-        'clickreviews.cr_common.ClickReview._extract_statinfo',
-        _extract_statinfo))
+        'clickreviews.common.Review._extract_statinfo', _extract_statinfo))
     patches.append(patch(
         'clickreviews.cr_common.ClickReview._extract_click_frameworks',
         _extract_click_frameworks))
-    patches.append(patch('clickreviews.cr_common.unpack_click', _mock_func))
-    patches.append(patch('clickreviews.cr_common.raw_unpack_pkg', _mock_func))
-    patches.append(patch('clickreviews.cr_common.ClickReview._list_all_files',
+    patches.append(patch('clickreviews.common.unpack_pkg', _mock_func))
+    patches.append(patch('clickreviews.common.raw_unpack_pkg', _mock_func))
+    patches.append(patch('clickreviews.common.detect_package',
+                   _detect_package))
+    patches.append(patch('clickreviews.common.Review._list_all_files',
                    _mock_func))
     patches.append(patch(
-        'clickreviews.cr_common.ClickReview._list_all_compiled_binaries',
-        _mock_func))
+        'clickreviews.common.Review._list_all_compiled_binaries', _mock_func))
 
     # lint overrides
     patches.append(patch(
                    'clickreviews.cr_lint.ClickReviewLint._list_control_files',
                    _mock_func))
-    patches.append(patch('clickreviews.cr_lint.ClickReviewLint._list_all_files',
-                   _mock_func))
-    patches.append(patch(
-        'clickreviews.cr_lint.ClickReview._list_all_compiled_binaries',
-        _mock_func))
     patches.append(patch(
         'clickreviews.cr_lint.ClickReviewLint._extract_readme_md',
         _extract_readme_md))
     patches.append(patch(
-        'clickreviews.cr_lint.ClickReviewLint._check_innerpath_executable',
+        'clickreviews.common.Review._check_innerpath_executable',
         _check_innerpath_executable))
 
     # security overrides
@@ -398,12 +381,10 @@ def create_patches():
         _has_framework_in_metadir))
 
     # pkgfmt
-    patches.append(patch("clickreviews.cr_common.ClickReview._pkgfmt_type",
+    patches.append(patch("clickreviews.common.Review._pkgfmt_type",
                    _pkgfmt_type))
-    patches.append(patch("clickreviews.cr_common.ClickReview._pkgfmt_version",
+    patches.append(patch("clickreviews.common.Review._pkgfmt_version",
                    _pkgfmt_version))
-    patches.append(patch("clickreviews.cr_common.is_squashfs", _is_squashfs))
-    patches.append(patch("clickreviews.cr_lint.is_squashfs", _is_squashfs))
 
     return patches
 
@@ -456,8 +437,6 @@ class TestClickReview(TestCase):
         self.set_test_pkg_yaml("architectures",
                                [self.test_control['Architecture']])
         self._update_test_pkg_yaml()
-
-        self.test_snap_yaml = dict()
 
         self.test_hashes_yaml = dict()
         self._update_test_hashes_yaml()
@@ -576,12 +555,6 @@ class TestClickReview(TestCase):
         TEST_PKG_YAML = yaml.dump(self.test_pkg_yaml,
                                   default_flow_style=False,
                                   indent=4)
-
-    def _update_test_snap_yaml(self):
-        global TEST_SNAP_YAML
-        TEST_SNAP_YAML = yaml.dump(self.test_snap_yaml,
-                                   default_flow_style=False,
-                                   indent=4)
 
     def _update_test_hashes_yaml(self):
         global TEST_HASHES_YAML
@@ -810,16 +783,6 @@ class TestClickReview(TestCase):
         else:
             self.test_pkg_yaml[key] = value
         self._update_test_pkg_yaml()
-
-    def set_test_snap_yaml(self, key, value):
-        '''Set key in meta/snap.yaml to value. If value is None, remove
-           key'''
-        if value is None:
-            if key in self.test_snap_yaml:
-                self.test_snap_yaml.pop(key, None)
-        else:
-            self.test_snap_yaml[key] = value
-        self._update_test_snap_yaml()
 
     def set_test_hashes_yaml(self, yaml):
         '''Set hashes.yaml to yaml'''
@@ -1164,8 +1127,6 @@ class TestClickReview(TestCase):
         TEST_MANIFEST = ""
         global TEST_PKG_YAML
         TEST_PKG_YAML = ""
-        global TEST_SNAP_YAML
-        TEST_SNAP_YAML = ""
         global TEST_HASHES_YAML
         TEST_HASHES_YAML = ""
         global TEST_README_MD
@@ -1208,4 +1169,4 @@ class TestClickReview(TestCase):
         TEST_PKGFMT_VERSION = "0.4"
 
         self._reset_test_data()
-        cr_common.recursive_rm(self.desktop_tmpdir)
+        common.recursive_rm(self.desktop_tmpdir)
