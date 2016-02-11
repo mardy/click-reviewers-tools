@@ -562,6 +562,7 @@ def find_external_symlinks(unpack_dir, pkg_files):
 
     return external_symlinks
 
+
 # check_results(report, expected_counts, expected)
 # Verify exact counts of types
 #   expected_counts={'info': 1, 'warn': 0, 'error': 0}
@@ -576,6 +577,8 @@ def find_external_symlinks(unpack_dir, pkg_files):
 #   expected['warn']['skeleton_baz'] = "TODO"
 #   expected['error'] = dict()
 #   self.check_results(r, expected=expected)
+
+
 def check_results(testobj, report,
                   expected_counts={'info': 1, 'warn': 0, 'error': 0},
                   expected=None):
@@ -596,4 +599,4 @@ def check_results(testobj, report,
                 continue
             testobj.assertEqual(len(report[k]), expected_counts[k],
                                 "(%s not equal)\n%s" %
-                             (k, json.dumps(report, indent=2)))
+                                (k, json.dumps(report, indent=2)))
