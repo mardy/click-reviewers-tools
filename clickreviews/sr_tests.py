@@ -21,7 +21,7 @@ import yaml
 from unittest.mock import patch
 from unittest import TestCase
 from clickreviews.common import (
-        check_results as common_check_results
+    check_results as common_check_results
 )
 
 # These should be set in the test cases

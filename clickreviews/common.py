@@ -33,6 +33,7 @@ import types
 DEBUGGING = False
 UNPACK_DIR = None
 RAW_UNPACK_DIR = None
+MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
 
 
 def cleanup_unpack():

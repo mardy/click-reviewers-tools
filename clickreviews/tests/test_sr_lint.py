@@ -15,9 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest.mock import patch
+from unittest import TestCase
+import os
+import shutil
+import tempfile
+
+from clickreviews.common import cleanup_unpack
+from clickreviews.common import check_results as common_check_results
 from clickreviews.sr_lint import SnapReviewLint
 import clickreviews.sr_tests as sr_tests
-import os
+from clickreviews.tests import utils
 
 
 class TestSnapReviewLint(sr_tests.TestSnapReview):
@@ -608,7 +615,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_config(self):
+    def test_check_config(self):
         '''Test check_config()'''
         c = SnapReviewLint(self.test_name)
         self.set_test_unpack_dir("/nonexistent")
@@ -619,7 +626,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_config_nonexecutable(self):
+    def test_check_config_nonexecutable(self):
         '''Test check_config() - not executable'''
         c = SnapReviewLint(self.test_name)
         self.set_test_unpack_dir("/nonexistent.nonexec")
@@ -2257,36 +2264,133 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.check_results(r, expected_counts)
 
 
-# Below is if we ever want to use this methodology
-# from unittest import TestCase
-# from clickreviews.common import cleanup_unpack
-# from clickreviews.tests import utils
-# import shutil
-# import tempfile
-# class SnapReviewLintTestCase(TestCase):
-#     """Tests without mocks where they are not needed."""
-#     def setUp(self):
-#         # XXX cleanup_unpack() is required because global variables
-#         # UNPACK_DIR, RAW_UNPACK_DIR are initialised to None at module
-#         # load time, but updated when a real (non-Mock) test runs, such as
-#         # here. While, at the same time, two of the existing tests using
-#         # mocks depend on both global vars being None. Ideally, those
-#         # global vars should be refactored away.
-#         self.addCleanup(cleanup_unpack)
-#         super().setUp()
-#
-#     def mkdtemp(self):
-#         """Create a temp dir which is cleaned up after test."""
-#         tmp_dir = tempfile.mkdtemp()
-#         self.addCleanup(shutil.rmtree, tmp_dir)
-#         return tmp_dir
-#
-#     def _test_check_dot_click_root(self):
-#         package = utils.make_package(extra_files=['.click/'],
-#                                      output_dir=self.mkdtemp())
-#         c = SnapReviewLint(package)
-#
-#         c.check_dot_click()
-#
-#         errors = list(c.click_report['error'].keys())
-#         self.assertEqual(errors, ['lint:dot_click'])
+class TestSnapReviewLintNoMock(TestCase):
+    """Tests without mocks where they are not needed."""
+    def setUp(self):
+        # XXX cleanup_unpack() is required because global variables
+        # UNPACK_DIR, RAW_UNPACK_DIR are initialised to None at module
+        # load time, but updated when a real (non-Mock) test runs, such as
+        # here. While, at the same time, two of the existing tests using
+        # mocks depend on both global vars being None. Ideally, those
+        # global vars should be refactored away.
+        self.addCleanup(cleanup_unpack)
+        super().setUp()
+
+    def mkdtemp(self):
+        """Create a temp dir which is cleaned up after test."""
+        tmp_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp_dir)
+        return tmp_dir
+
+    def check_results(self, report,
+                      expected_counts={'info': 1, 'warn': 0, 'error': 0},
+                      expected=None):
+        common_check_results(self, report, expected_counts, expected)
+
+    def test_check_external_symlinks(self):
+        '''Test check_external_symlinks()'''
+        package = utils.make_snap2(output_dir=self.mkdtemp())
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_external_symlinks_has_symlink(self):
+        '''Test check_external_symlinks() - has symlink'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['/some/where,outside']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_all(self):
+        '''Test check_architecture_all()'''
+        package = utils.make_snap2(output_dir=self.mkdtemp())
+        c = SnapReviewLint(package)
+        c.check_architecture_all()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_all_has_binary(self):
+        '''Test check_architecture_all() - has binary'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['/bin/ls:ls']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_architecture_all()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_specified_needed_has_binary(self):
+        '''Test check_architecture_specified_needed() - has binary'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+architectures: [ amd64 ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path,
+                                                '/bin/ls:ls'
+                                                ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_architecture_specified_needed()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_specified_needed(self):
+        '''Test check_architecture_specified_needed()'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+architectures: [ amd64 ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_architecture_specified_needed()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_vcs(self):
+        '''Test check_vcs()'''
+        package = utils.make_snap2(output_dir=self.mkdtemp())
+        c = SnapReviewLint(package)
+        c.check_vcs()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_vcs_bzrignore(self):
+        '''Test check_vcs() - .bzrignore'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['.bzrignore']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_vcs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
