@@ -413,6 +413,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        name = c._get_check_name('snap_type_redflag')
+        self.check_manual_review(r, name)
 
     def test_check_type_redflagged_kernel(self):
         '''Test check_type_redflagged - kernel'''
@@ -422,6 +424,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        name = c._get_check_name('snap_type_redflag')
+        self.check_manual_review(r, name)
 
     def test_check_type_redflagged_os(self):
         '''Test check_type_redflagged - os'''
@@ -431,6 +435,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        name = c._get_check_name('snap_type_redflag')
+        self.check_manual_review(r, name)
 
     def test_check_type_unknown(self):
         '''Test check_type - unknown'''
@@ -2307,6 +2313,29 @@ class TestSnapReviewLintNoMock(TestCase):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_external_symlinks_gadget(self):
+        '''Test check_external_symlinks() - os'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+type: os
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_architecture_all(self):
         '''Test check_architecture_all()'''
         package = utils.make_snap2(output_dir=self.mkdtemp())
@@ -2325,6 +2354,31 @@ class TestSnapReviewLintNoMock(TestCase):
         c.check_architecture_all()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_architecture_all_amd64(self):
+        '''Test check_architecture_all() - amd64'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+architectures: [ amd64 ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path,
+                                                '/bin/ls:ls'
+                                                ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_architecture_all()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_architecture_specified_needed_has_binary(self):

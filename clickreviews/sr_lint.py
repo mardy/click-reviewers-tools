@@ -1128,7 +1128,8 @@ class SnapReviewLint(SnapReview):
             return
 
         if 'type' in self.snap_yaml and \
-                self.snap_yaml['type'] not in ['app', 'framework']:
+                self.snap_yaml['type'] not in ['app', 'framework', 'gadget',
+                                               'kernel']:
             return
 
         t = 'info'

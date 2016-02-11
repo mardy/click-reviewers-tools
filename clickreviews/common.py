@@ -33,6 +33,7 @@ import types
 DEBUGGING = False
 UNPACK_DIR = None
 RAW_UNPACK_DIR = None
+# This needs to match up with snapcraft
 MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
 
 
