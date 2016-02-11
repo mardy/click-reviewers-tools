@@ -92,7 +92,7 @@ class SnapReview(Review):
         if snap_yaml:
             try:
                 self.snap_yaml = yaml.safe_load(snap_yaml)
-            except Exception:
+            except Exception:  # pragma: nocover
                 error("Could not load snap.yaml. Is it properly formatted?")
 
         # default to 'app'
@@ -108,14 +108,18 @@ class SnapReview(Review):
         if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'gadget':
             self.is_snap_gadget = True
 
-    def _extract_snap_yaml(self):
+    # Since coverage is looked at via the testsuite and the testsuite mocks
+    # this out, don't cover this
+    def _extract_snap_yaml(self):  # pragma: nocover
         '''Extract and read the snappy 16.04 snap.yaml'''
         y = os.path.join(self.unpack_dir, "meta/snap.yaml")
         if not os.path.isfile(y):
             return None  # snappy packaging is still optional
         return open_file_read(y)
 
-    def _get_unpack_dir(self):
+    # Since coverage is looked at via the testsuite and the testsuite mocks
+    # this out, don't cover this
+    def _get_unpack_dir(self):  # pragma: nocover
         '''Get unpack directory'''
         return self.unpack_dir
 
