@@ -9,6 +9,7 @@ click-reviewers-tools (0.37) UNRELEASED; urgency=medium
     run any way)
   * add bin/detect-package and detect_package()
   * rename unpack-click as unpack-package
+  * add sr_* checks and tests for snap v2
 
   [ James Tait ]
   * cr_lint.py: Don't check for the presence of readme.md if the package is a
