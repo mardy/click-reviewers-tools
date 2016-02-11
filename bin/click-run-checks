@@ -37,8 +37,8 @@ set_rc() {
 
 prefer_local click-show-files "$c"
 
-CHECKS=$(ls ${CHECKS_BIN_PATH}/click-check-* | egrep -v '(click-check-skeleton|click-check-lint)')
-CHECKS="click-check-lint ${CHECKS}"
+CHECKS=$(ls ${CHECKS_BIN_PATH}/click-check-* ${CHECKS_BIN_PATH}/snap-check-* | egrep -v '(click-check-skeleton|click-check-lint|snap-check-skeleton)')
+CHECKS="click-check-lint snap-check-lint ${CHECKS}"
 for check_path in ${CHECKS}; do
     check=$(basename ${check_path} ${CHECKS_BIN_PATH})
     echo ""

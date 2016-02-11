@@ -4,7 +4,9 @@ import inspect
 import os
 import pkgutil
 
-IRRELEVANT_MODULES = ['cr_common', 'cr_tests', 'cr_skeleton', 'common']
+IRRELEVANT_MODULES = ['cr_common', 'cr_tests', 'cr_skeleton',
+                      'sr_common', 'sr_tests', 'sr_skeleton',
+                      'common']
 
 
 def narrow_down_modules(modules):
@@ -16,7 +18,8 @@ def narrow_down_modules(modules):
     for module in modules:
         module_name = os.path.basename(module).replace('.py', '')
         if module_name not in IRRELEVANT_MODULES and \
-                module_name.startswith('cr_'):
+                (module_name.startswith('cr_') or
+                 module_name.startswith('sr_')):
             relevant_modules += [module]
     return relevant_modules
 
@@ -28,7 +31,7 @@ def get_modules():
     are not relevant.
 
     Basically we look at all the ones which are
-    derived from cr_common, where we can later on
+    derived from [cs]r_common, where we can later on
     instantiate a *Review* object and run the
     necessary checks.
     '''
@@ -50,7 +53,7 @@ def find_main_class(module_name):
     classes = inspect.getmembers(module, inspect.isclass)
 
     def find_test_class(a):
-        return a[0].startswith('Click') and \
+        return (a[0].startswith('Click') or a[0].startswith('Snap')) and \
             not a[0].endswith('Exception') and \
             a[1].__module__ == module_name
     test_class = list(filter(find_test_class, classes))

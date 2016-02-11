@@ -13,6 +13,9 @@ Runnable click and snap v1 tests:
 - bin/click-check-url-dispatcher: url-dispatcher hook tests
 - bin/click-run-checks: all tests
 
+Runnable snap v2 tests:
+- bin/snap-run-checks: all tests
+
 This gives an alternate view on bin/click-run-checks:
 - bin/click-review
 
@@ -42,6 +45,8 @@ short:
  * modify click-check-<something> to use cr_<something>.py
  * add tests to cr_<something>.py. If you name the tests 'check_<sometest>'
    ClickReview.do_checks() will enumerate and run them automatically
+
+(substitute 'sr_' for 'cr_' for snap v2 checks)
 
 To run tests, just execute:
 $ ./run-tests                       # all tests
