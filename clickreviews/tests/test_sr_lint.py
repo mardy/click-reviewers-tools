@@ -2313,7 +2313,55 @@ class TestSnapReviewLintNoMock(TestCase):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_external_symlinks_gadget(self):
+    def test_check_external_symlinks_has_symlink_framework(self):
+        '''Test check_external_symlinks() - has symlink (framework)'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+type: framework
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path,
+                                                '/some/where,outside']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_external_symlinks_has_symlink_gadget(self):
+        '''Test check_external_symlinks() - has symlink (gadget)'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+type: gadget
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path,
+                                                '/some/where,outside']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_external_symlinks_os(self):
         '''Test check_external_symlinks() - os'''
         output_dir = self.mkdtemp()
         path = os.path.join(output_dir, 'snap.yaml')

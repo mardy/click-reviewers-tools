@@ -1127,9 +1127,9 @@ class SnapReviewLint(SnapReview):
         if not self.is_snap2:
             return
 
-        if 'type' in self.snap_yaml and \
-                self.snap_yaml['type'] not in ['app', 'framework', 'gadget',
-                                               'kernel']:
+        # Note: unclear if kernel and gadget snaps can legitimately have
+        # external symlinks, but err on side of caution
+        if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'os':
             return
 
         t = 'info'
