@@ -1088,7 +1088,7 @@ class SnapReviewLint(SnapReview):
                 continue
 
             t = 'info'
-            n = self._get_check_name(key, app=app)
+            n = self._get_check_name("app_%s" % key, app=app)
             s = "OK"
             if not isinstance(self.snap_yaml['apps'][app][key], list):
                 t = 'error'
@@ -1107,7 +1107,7 @@ class SnapReviewLint(SnapReview):
             # mapping
             for slot_ref in self.snap_yaml['apps'][app][key]:
                 t = 'info'
-                n = self._get_check_name('uses_slot_reference',
+                n = self._get_check_name('app_uses_slot_reference',
                                          app=app,
                                          extra=slot_ref)
                 s = "OK"
