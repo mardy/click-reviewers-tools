@@ -561,3 +561,39 @@ def find_external_symlinks(unpack_dir, pkg_files):
                              pkg_files))
 
     return external_symlinks
+
+# check_results(report, expected_counts, expected)
+# Verify exact counts of types
+#   expected_counts={'info': 1, 'warn': 0, 'error': 0}
+#   self.check_results(report, expected_counts)
+# Verify counts of warn and error types
+#   expected_counts={'info': None, 'warn': 0, 'error': 0}
+#   self.check_results(report, expected_counts)
+# Verify exact messages:
+#   expected = dict()
+#   expected['info'] = dict()
+#   expected['warn'] = dict()
+#   expected['warn']['skeleton_baz'] = "TODO"
+#   expected['error'] = dict()
+#   self.check_results(r, expected=expected)
+def check_results(testobj, report,
+                  expected_counts={'info': 1, 'warn': 0, 'error': 0},
+                  expected=None):
+    if expected is not None:
+        for t in expected.keys():
+            for r in expected[t]:
+                testobj.assertTrue(r in report[t],
+                                   "Could not find '%s' (%s) in:\n%s" %
+                                   (r, t, json.dumps(report, indent=2)))
+                for k in expected[t][r]:
+                    testobj.assertTrue(k in report[t][r],
+                                       "Could not find '%s' (%s) in:\n%s" %
+                                       (k, r, json.dumps(report, indent=2)))
+                testobj.assertEqual(expected[t][r][k], report[t][r][k])
+    else:
+        for k in expected_counts.keys():
+            if expected_counts[k] is None:
+                continue
+            testobj.assertEqual(len(report[k]), expected_counts[k],
+                                "(%s not equal)\n%s" %
+                             (k, json.dumps(report, indent=2)))
