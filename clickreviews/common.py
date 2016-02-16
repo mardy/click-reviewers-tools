@@ -206,6 +206,67 @@ class Review(object):
             return True
         return False
 
+    def _get_policy_versions(self, vendor):
+        '''Get the supported AppArmor policy versions'''
+        if not self.aa_policy:
+            return None
+
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return None
+
+        supported_policy_versions = []
+        for i in self.aa_policy[vendor].keys():
+            supported_policy_versions.append("%.1f" % float(i))
+
+        return sorted(supported_policy_versions)
+
+    def _get_templates(self, vendor, version, aa_type="all"):
+        '''Get templates by type'''
+        if not self.aa_policy:
+            return None
+
+        templates = []
+        if aa_type == "all":
+            for k in self.aa_policy[vendor][version]['templates'].keys():
+                templates += self.aa_policy[vendor][version]['templates'][k]
+        else:
+            templates = self.aa_policy[vendor][version]['templates'][aa_type]
+
+        return sorted(templates)
+
+    def _get_policy_groups(self, vendor, version, aa_type="all"):
+        '''Get policy groups by type'''
+        if not self.aa_policy:
+            return None
+
+        groups = []
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return groups
+
+        if not self._has_policy_version(vendor, version):
+            error("Could not find version '%s'" % version, do_exit=False)
+            return groups
+
+        v = str(version)
+        if aa_type == "all":
+            for k in self.aa_policy[vendor][v]['policy_groups'].keys():
+                groups += self.aa_policy[vendor][v]['policy_groups'][k]
+        else:
+            groups = self.aa_policy[vendor][v]['policy_groups'][aa_type]
+
+        return sorted(groups)
+
+    def _get_policy_group_type(self, vendor, version, policy_group):
+        '''Return policy group type'''
+        if not self.aa_policy:
+            return None
+
+        for t in self.aa_policy[vendor][version]['policy_groups']:
+            if policy_group in self.aa_policy[vendor][version]['policy_groups'][t]:
+                return t
+
     # click_report[<result_type>][<review_name>] = <result>
     #   result_type: info, warn, error
     #   review_name: name of the check (prefixed with self.review_type)

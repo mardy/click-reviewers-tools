@@ -310,29 +310,6 @@ class ClickReviewSecurity(ClickReview):
         p = self.security_profiles[f]
         return (f, p)
 
-    def _get_policy_versions(self, vendor):
-        '''Get the supported AppArmor policy versions'''
-        if vendor not in self.aa_policy:
-            error("Could not find vendor '%s'" % vendor, do_exit=False)
-            return None
-
-        supported_policy_versions = []
-        for i in self.aa_policy[vendor].keys():
-            supported_policy_versions.append("%.1f" % float(i))
-
-        return sorted(supported_policy_versions)
-
-    def _get_templates(self, vendor, version, aa_type="all"):
-        '''Get templates by type'''
-        templates = []
-        if aa_type == "all":
-            for k in self.aa_policy[vendor][version]['templates'].keys():
-                templates += self.aa_policy[vendor][version]['templates'][k]
-        else:
-            templates = self.aa_policy[vendor][version]['templates'][aa_type]
-
-        return sorted(templates)
-
     def _has_policy_version(self, vendor, version):
         '''Determine if has specified policy version'''
         if vendor not in self.aa_policy:
@@ -350,32 +327,6 @@ class ClickReviewSecurity(ClickReview):
             return None
 
         return float(sorted(self.aa_policy[vendor].keys())[-1])
-
-    def _get_policy_groups(self, vendor, version, aa_type="all"):
-        '''Get policy groups by type'''
-        groups = []
-        if vendor not in self.aa_policy:
-            error("Could not find vendor '%s'" % vendor, do_exit=False)
-            return groups
-
-        if not self._has_policy_version(vendor, version):
-            error("Could not find version '%s'" % version, do_exit=False)
-            return groups
-
-        v = str(version)
-        if aa_type == "all":
-            for k in self.aa_policy[vendor][v]['policy_groups'].keys():
-                groups += self.aa_policy[vendor][v]['policy_groups'][k]
-        else:
-            groups = self.aa_policy[vendor][v]['policy_groups'][aa_type]
-
-        return sorted(groups)
-
-    def _get_policy_group_type(self, vendor, version, policy_group):
-        '''Return policy group type'''
-        for t in self.aa_policy[vendor][version]['policy_groups']:
-            if policy_group in self.aa_policy[vendor][version]['policy_groups'][t]:
-                return t
 
     def check_policy_vendor(self):
         '''Check policy_vendor'''
