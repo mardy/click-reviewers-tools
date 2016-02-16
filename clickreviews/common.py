@@ -235,6 +235,19 @@ class Review(object):
 
         return sorted(templates)
 
+    def _has_policy_version(self, vendor, version):
+        '''Determine if has specified policy version'''
+        if not self.aa_policy:
+            return None
+
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return False
+
+        if str(version) not in self.aa_policy[vendor]:
+            return False
+        return True
+
     def _get_policy_groups(self, vendor, version, aa_type="all"):
         '''Get policy groups by type'''
         if not self.aa_policy:
