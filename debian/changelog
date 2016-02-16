@@ -9,13 +9,14 @@ click-reviewers-tools (0.37) UNRELEASED; urgency=medium
     run any way)
   * add bin/detect-package and detect_package()
   * rename unpack-click as unpack-package
+  * add snap v2 lint checks
 
   [ James Tait ]
   * cr_lint.py: Don't check for the presence of readme.md if the package is a
     squashfs filesystem. Snappy 2.0 uses squashfs as its file format, and
     doesn't require readme.md.
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 01 Feb 2016 12:11:44 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 16 Feb 2016 10:41:33 -0600
 
 click-reviewers-tools (0.36) xenial; urgency=medium
 
