@@ -14,6 +14,7 @@ Runnable click and snap v1 tests:
 - bin/click-run-checks: all tests
 
 Runnable snap v2 tests:
+- bin/snap-check-lint: lint tests
 - bin/snap-run-checks: all tests
 
 This gives an alternate view on bin/click-run-checks:

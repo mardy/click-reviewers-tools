@@ -27,13 +27,14 @@ from clickreviews.frameworks import Frameworks
 from clickreviews.cr_common import (
     ClickReview,
 )
-
 from clickreviews.common import (
     open_file_read,
     cmd,
     error,
 )
-
+from clickreviews.common import (
+    find_external_symlinks,
+)
 
 CONTROL_FILE_NAMES = ["control", "manifest", "preinst"]
 MINIMUM_CLICK_FRAMEWORK_VERSION = "0.4"
@@ -538,61 +539,19 @@ exit 1
         '''Check if symlinks in the click package go out to the system.'''
         if not self.is_click and not self.is_snap1:
             return
-        if self.is_snap1 and self.pkg_yaml['type'] not in ['app', 'framework']:
+
+        if self.is_snap1 and 'type' in self.snap_yaml and \
+                self.snap_yaml['type'] not in ['app', 'framework']:
             return
 
         t = 'info'
         n = self._get_check_name('external_symlinks')
         s = 'OK'
 
-        common = '(-[0-9.]+)?\.so(\.[0-9.]+)?'
-        libc6_libs = ['ld-*.so',
-                      'libanl',
-                      'libBrokenLocale',
-                      'libc',
-                      'libcidn',
-                      'libcrypt',
-                      'libdl',
-                      'libmemusage',
-                      'libm',
-                      'libnsl',
-                      'libnss_compat',
-                      'libnss_dns',
-                      'libnss_files',
-                      'libnss_hesiod',
-                      'libnss_nisplus',
-                      'libnss_nis',
-                      'libpcprofile',
-                      'libpthread',
-                      'libresolv',
-                      'librt',
-                      'libSegFault',
-                      'libthread_db',
-                      'libutil',
-                      ]
-        libc6_pats = []
-        for lib in libc6_libs:
-            libc6_pats.append(re.compile(r'%s%s' % (lib, common)))
-        libc6_pats.append(re.compile(r'ld-*.so$'))
-        libc6_pats.append(re.compile(r'ld-linux-*.so\.[0-9.]+$'))
-
-        def _in_patterns(pats, f):
-            for pat in pats:
-                if pat.search(f):
-                    return True
-            return False
-
-        external_symlinks = list(filter(lambda link: not
-                                 os.path.realpath(link).startswith(
-                                     self.unpack_dir) and
-                                 not _in_patterns(libc6_pats,
-                                                  os.path.basename(link)),
-                                 self.pkg_files))
-
-        if external_symlinks:
+        links = find_external_symlinks(self.unpack_dir, self.pkg_files)
+        if len(links) > 0:
             t = 'error'
-            s = 'package contains external symlinks: %s' % \
-                ', '.join(external_symlinks)
+            s = 'package contains external symlinks: %s' % ', '.join(links)
         self._add_result(t, n, s)
 
     def check_pkgname(self):

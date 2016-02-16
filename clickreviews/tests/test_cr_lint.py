@@ -1940,8 +1940,8 @@ class ClickReviewLintTestCase(TestCase):
         return tmp_dir
 
     def test_check_dot_click_root(self):
-        package = utils.make_package(extra_files=['.click/'],
-                                     output_dir=self.mkdtemp())
+        package = utils.make_click(extra_files=['.click/'],
+                                   output_dir=self.mkdtemp())
         c = ClickReviewLint(package)
 
         c.check_dot_click()

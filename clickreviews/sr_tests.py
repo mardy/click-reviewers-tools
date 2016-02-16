@@ -15,17 +15,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import io
-import json
 import os
 import yaml
 
 from unittest.mock import patch
 from unittest import TestCase
+from clickreviews.common import (
+    check_results as common_check_results
+)
 
 # These should be set in the test cases
 TEST_SNAP_YAML = ""
 TEST_PKGFMT_TYPE = "snap"
 TEST_PKGFMT_VERSION = "16.04"
+TEST_UNPACK_DIR = "/fake"
 
 
 #
@@ -81,6 +84,11 @@ def _detect_package(self, fn):
     return (TEST_PKGFMT_TYPE, ver)
 
 
+def __get_unpack_dir(self):
+    '''Pretend we found the unpack dir'''
+    return TEST_UNPACK_DIR
+
+
 def create_patches():
     # http://docs.python.org/3.4/library/unittest.mock-examples.html
     # Mock patching. Don't use decorators but instead patch in setUp() of the
@@ -116,6 +124,10 @@ def create_patches():
         'clickreviews.common.Review._check_innerpath_executable',
         _check_innerpath_executable))
 
+    #  sr_common
+    patches.append(patch('clickreviews.sr_common.SnapReview._get_unpack_dir',
+                   __get_unpack_dir))
+
     # pkgfmt
     patches.append(patch("clickreviews.sr_common.SnapReview._pkgfmt_type",
                    _pkgfmt_type))
@@ -133,7 +145,6 @@ class TestSnapReview(TestCase):
         self._reset_test_data()
 
     def _reset_test_data(self):
-        # dictionary representing DEBIAN/control
         self.test_snap_yaml = dict()
         self.set_test_pkgfmt("snap", "16.04")
 
@@ -162,43 +173,10 @@ class TestSnapReview(TestCase):
             self.test_snap_yaml["version"],
             self.test_snap_yaml["architectures"][0])
 
-    #
-    # check_results(report, expected_counts, expected)
-    # Verify exact counts of types
-    #   expected_counts={'info': 1, 'warn': 0, 'error': 0}
-    #   self.check_results(report, expected_counts)
-    # Verify counts of warn and error types
-    #   expected_counts={'info': None, 'warn': 0, 'error': 0}
-    #   self.check_results(report, expected_counts)
-    # Verify exact messages:
-    #   expected = dict()
-    #   expected['info'] = dict()
-    #   expected['warn'] = dict()
-    #   expected['warn']['skeleton_baz'] = "TODO"
-    #   expected['error'] = dict()
-    #   self.check_results(r, expected=expected)
-    #
     def check_results(self, report,
                       expected_counts={'info': 1, 'warn': 0, 'error': 0},
                       expected=None):
-        if expected is not None:
-            for t in expected.keys():
-                for r in expected[t]:
-                    self.assertTrue(r in report[t],
-                                    "Could not find '%s' (%s) in:\n%s" %
-                                    (r, t, json.dumps(report, indent=2)))
-                    for k in expected[t][r]:
-                        self.assertTrue(k in report[t][r],
-                                        "Could not find '%s' (%s) in:\n%s" %
-                                        (k, r, json.dumps(report, indent=2)))
-                    self.assertEqual(expected[t][r][k], report[t][r][k])
-        else:
-            for k in expected_counts.keys():
-                if expected_counts[k] is None:
-                    continue
-                self.assertEqual(len(report[k]), expected_counts[k],
-                                 "(%s not equal)\n%s" %
-                                 (k, json.dumps(report, indent=2)))
+        common_check_results(self, report, expected_counts, expected)
 
     def check_manual_review(self, report, check_name,
                             result_type='error', manual_review=True):
@@ -221,6 +199,10 @@ class TestSnapReview(TestCase):
         TEST_PKGFMT_TYPE = t
         TEST_PKGFMT_VERSION = v
 
+    def set_test_unpack_dir(self, d):
+        global TEST_UNPACK_DIR
+        TEST_UNPACK_DIR = d
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         patches = create_patches()
@@ -236,5 +218,7 @@ class TestSnapReview(TestCase):
         TEST_PKGFMT_TYPE = "snap"
         global TEST_PKGFMT_VERSION
         TEST_PKGFMT_VERSION = "16.04"
+        global TEST_UNPACK_DIR
+        TEST_UNPACK_DIR = "/fake"
 
         self._reset_test_data()

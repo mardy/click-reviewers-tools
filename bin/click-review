@@ -32,7 +32,7 @@ class Results(object):
 
     def __init__(self, args):
         self.args = args
-        self.click_fn = self.args.filename
+        self.pkg_fn = self.args.filename
         self.modules = modules.get_modules()
 
     def _sumarise_results(self):
@@ -86,8 +86,9 @@ class Results(object):
         #     review.do_checks()
         #     rc = review.do_report()
         #
-        section = module.replace('cr_', '')
-        review = modules.init_main_class(module, self.click_fn)
+        section = module.replace('cr_', 'click,snap.v1_')
+        section = section.replace('sr_', 'snap.v2_')
+        review = modules.init_main_class(module, self.pkg_fn)
         if review:
             review.do_checks()
             self.results[section] = review.click_report

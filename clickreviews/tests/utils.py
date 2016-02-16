@@ -1,6 +1,6 @@
 '''utils.py: test utils for click reviewer tools'''
 #
-# Copyright (C) 2013-2015 Canonical Ltd.
+# Copyright (C) 2013-2016 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import glob
+from clickreviews.common import (
+    MKSQUASHFS_OPTS
+)
 import json
 import os
 import shutil
@@ -22,17 +24,44 @@ import subprocess
 import tempfile
 
 
-def make_package(name='test', pkgfmt_type='click', pkgfmt_version='0.4',
-                 package_types=None, version='1.0', title="An application",
-                 framework='ubuntu-sdk-15.04', extra_files=None,
-                 output_dir=None):
+def make_snap2(name='test', pkgfmt_type='snap', pkgfmt_version='16.04',
+               version='1.0', summary="An application", extra_files=None,
+               output_dir=None):
+    '''Return the path to a snap v2 package with the given data.
+
+    Caller is responsible for deleting the output_dir afterwards.
+    '''
+    assert(pkgfmt_type == "snap" and pkgfmt_version != "15.04")
+
+    build_dir = tempfile.mkdtemp()
+
+    try:
+        make_dir_structure(build_dir, pkgfmt_type=pkgfmt_type,
+                           pkgfmt_version=pkgfmt_version,
+                           extra_files=extra_files)
+        write_icon(build_dir)
+        description = summary
+        write_meta_data2(build_dir, name, version, summary, description)
+        pkg_path = build_package(build_dir, name, version, pkgfmt_type,
+                                 pkgfmt_version, output_dir=output_dir)
+    finally:
+        shutil.rmtree(build_dir)
+
+    return pkg_path
+
+
+def make_click(name='test', pkgfmt_type='click', pkgfmt_version='0.4',
+               package_types=None, version='1.0', title="An application",
+               framework='ubuntu-sdk-15.04', extra_files=None,
+               output_dir=None):
     """Return the path to a click/snap package with the given data.
 
     Caller is responsible for deleting the output_dir afterwards.
     """
-    is_snap1 = (pkgfmt_type == "snap" and pkgfmt_version == "15.04")
-    # TODO: implement writing snap2 packages
-    # is_snap2 = (pkgfmt_type == "snap" and not pkgfmt_version == "15.04")
+    assert(pkgfmt_type == "click" or (pkgfmt_type == "snap" and
+                                      pkgfmt_version == "15.04"))
+
+    is_snap1 = (pkgfmt_type == "snap")
     build_dir = tempfile.mkdtemp()
     package_types = package_types or []
 
@@ -42,19 +71,19 @@ def make_package(name='test', pkgfmt_type='click', pkgfmt_version='0.4',
                            extra_files=extra_files)
         write_icon(build_dir)
 
-        if pkgfmt_type == 'click' or pkgfmt_version == 15.04:
-            write_manifest(build_dir, name, version,
-                           title, framework, package_types,
-                           is_snap1)
-            write_control(build_dir, name, version, title, pkgfmt_version)
-            write_preinst(build_dir)
-            write_apparmor_profile(build_dir, name)
-            write_other_files(build_dir)
-        else:
+        write_manifest(build_dir, name, version,
+                       title, framework, package_types,
+                       is_snap1)
+        write_control(build_dir, name, version, title, pkgfmt_version)
+        write_preinst(build_dir)
+        write_apparmor_profile(build_dir, name)
+        write_other_files(build_dir)
+
+        if pkgfmt_type == 'snap':
             write_meta_data(build_dir, name, version, title, framework)
 
         pkg_path = build_package(build_dir, name, version, pkgfmt_type,
-                                 output_dir=output_dir)
+                                 pkgfmt_version, output_dir=output_dir)
     finally:
         shutil.rmtree(build_dir)
 
@@ -62,33 +91,81 @@ def make_package(name='test', pkgfmt_type='click', pkgfmt_version='0.4',
 
 
 def make_dir_structure(path, pkgfmt_type, pkgfmt_version, extra_files=None):
+    '''Create the mandatory dir structure and extra_files. Format for
+       extra_files:
+         path/to/file                   create empty file in path
+         path/to/dir/                   create empty dir in path
+         path/to/source,path/to/link    create symlink in path
+         path/to/source:path/to/link    copy source to path
+
+         For symlink and copy, source can be an absolute path for pointing
+         outside of the dir (for symlinks) or copying into the package.
+    '''
     extra_files = extra_files or []
-    directories = ['meta']
+
+    directories = ['meta']  # write_icon() and write_manifest() assume this
     if pkgfmt_type == 'click' or pkgfmt_version == 15.04:
         directories.append('DEBIAN')
 
-    directories.extend(
-        [os.path.dirname(extra_file) for extra_file in extra_files])
+    # enumerate the directories to create
+    for extra_file in extra_files:
+        if ',' in extra_file:
+            extra = extra_file.split(',', 1)[1]
+        elif ':' in extra_file:
+            extra = extra_file.split(':', 1)[1]
+        else:
+            extra = extra_file
 
+        if extra.startswith('/'):
+            extra = extra[1:]
+
+        if extra.endswith('/'):
+            directories.append(extra)
+        else:
+            directories.append(os.path.dirname(extra))
+
+    # make the enumerated directories
     for directory in directories:
         directory = os.path.join(path, directory)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
     for extra_file in extra_files:
-        dirname, basename = os.path.split(extra_file)
+        if extra_file.endswith('/'):  # nothing more to do for directories
+            continue
+
+        source_link = None
+        source_path = None
+        if ',' in extra_file:
+            (source_link, target_path) = extra_file.split(',', 1)
+        elif ':' in extra_file:
+            (source_path, target_path) = extra_file.split(':', 1)
+        else:
+            target_path = extra_file
+
+        dirname, basename = os.path.split(target_path)
         if basename != '':
-            with open(os.path.join(path, extra_file), 'wb'):
-                pass
+            if source_path:
+                if not source_path.startswith('/'):
+                    source_path = os.path.join(path, source_path)
+                shutil.copyfile(source_path, os.path.join(path, target_path))
+            elif source_link:
+                cur = os.getcwd()
+                if target_path.startswith('/'):
+                    target_path = os.path.join(path, target_path[1:])
+                else:
+                    os.chdir(path)
+                os.symlink(source_link, target_path)
+                os.chdir(cur)
+            else:
+                with open(os.path.join(path, target_path), 'wb'):
+                    pass
 
 
 def write_icon(path):
-    # XXX: Update to use a test icon in the branch to guarantee an icon.
-    icons = glob.glob('/usr/share/icons/hicolor/256x256/apps/*.png')
-    if len(icons) > 0:
-        source_path = icons[0]
-        target_path = os.path.join(path, 'meta', 'icon.png')
-        shutil.copyfile(source_path, target_path)
+    source_path = os.path.join(os.getcwd(), 'clickreviews/data/icon.png')
+    target_path = os.path.join(path, 'meta', 'icon.png')
+    shutil.copyfile(source_path, target_path)
 
 
 def write_manifest(path, name, version, title, framework, types, is_snap):
@@ -127,15 +204,35 @@ def write_meta_data(path, name, version, title, framework):
     content = """architectures:
 icon: meta/icon.png
 name: {}
-version: "{}",
-framework: {},
+version: {}
+framework: {}
 vendor: 'Someone <someone@example.com>',
 """.format(name, version, framework)
 
-    with open(yaml_path, 'w') as f:
-        f.write(content)
+    # don't overwrite 'copy' via make_dir_structure()
+    if not os.path.exists(yaml_path):
+        with open(yaml_path, 'w') as f:
+            f.write(content)
     with open(os.path.join(path, 'meta', 'readme.md'), 'w') as f:
         f.write(title)
+
+
+def write_meta_data2(path, name, version, summary, description, yaml=None):
+    yaml_path = os.path.join(path, 'meta', 'snap.yaml')
+    if yaml:
+        content = yaml
+    else:
+        content = """architectures: [ all ]
+name: {}
+version: {}
+summary: {}
+description: {}
+""".format(name, version, summary, description)
+
+    # don't overwrite 'copy' via make_dir_structure()
+    if not os.path.exists(yaml_path):
+        with open(yaml_path, 'w') as f:
+            f.write(content)
 
 
 def write_control(path, name, version, title, pkgfmt_version):
@@ -182,15 +279,23 @@ def write_other_files(path):
     write_empty_file(os.path.join(path, 'DEBIAN', 'md5sums'))
 
 
-def build_package(path, name, version, format, output_dir=None):
-    filename = "{}_{}_all.{}".format(name, version, format)
+def build_package(path, name, version, pkgfmt_type, pkgfmt_version,
+                  output_dir=None):
+    filename = "{}_{}_all.{}".format(name, version, pkgfmt_type)
     output_dir = output_dir or tempfile.mkdtemp()
     output_path = os.path.join(output_dir, filename)
 
-    # Note: We're not using 'click build' here as it corrects errors (such
-    # as filtering out a .click directory present in the build). We want
-    # to test with manually constructed, potentially tampered-with
-    # clicks/snaps. Ideally, we'd be using click rather than dpkg to
-    # construct the click without filtering any files in the build dir.
-    subprocess.check_call(['dpkg-deb', '-b', path, output_path])
+    if pkgfmt_type == "snap" and pkgfmt_version != "15.04":
+        args = ['mksquashfs', path, output_path] + MKSQUASHFS_OPTS
+        # debugging
+        # subprocess.check_call(args)
+        # subprocess.check_call(['unsquashfs', '-lls', output_path])
+        subprocess.check_call(args, stdout=open(os.devnull, 'w'))
+    else:  # click and snap v1
+        # Note: We're not using 'click build' here as it corrects errors (such
+        # as filtering out a .click directory present in the build). We want
+        # to test with manually constructed, potentially tampered-with
+        # clicks/snaps. Ideally, we'd be using click rather than dpkg to
+        # construct the click without filtering any files in the build dir.
+        subprocess.check_call(['dpkg-deb', '-b', path, output_path])
     return output_path
