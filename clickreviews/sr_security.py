@@ -233,9 +233,31 @@ class SnapReviewSecurity(SnapReview):
                 self._add_result(t, n, s, l, manual_review=m)
 
     def check_security_override(self):
-        '''TODO: Check security-override'''
+        '''Check security-override'''
         if not self.is_snap2:
             return
+
+        allowed_fields = ['read-paths', 'write-paths', 'abstractions',
+                          'syscalls']
+
+        for slot in self.policies['uses']:
+            key = 'security-override'
+            if key not in self.policies['uses'][slot]:
+                continue
+
+            t = 'info'
+            n = self._get_check_name(key, extra=slot)
+            s = "OK"
+            if len(self.policies['uses'][slot][key].keys()) == 0:
+                t = 'error'
+                s = "nothing specified in '%s' for '%s'" % (key, slot)
+            else:
+                for f in self.policies['uses'][slot][key].keys():
+                    if f not in allowed_fields:
+                        t = 'error'
+                        s = "unknown field '%s' in " % f + \
+                            "'%s' for '%s'" % (key, slot)
+            self._add_result(t, n, s)
 
     def check_security_policy(self):
         '''TODO: Check security-policy'''
