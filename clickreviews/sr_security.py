@@ -322,9 +322,21 @@ class SnapReviewSecurity(SnapReview):
             self._add_result(t, n, s, manual_review=m)
 
     def check_security_combinations(self):
-        '''TODO: Verify security yaml uses valid combinations'''
+        '''Verify security yaml uses valid combinations'''
         if not self.is_snap2:
             return
+
+        for slot in self.policies['uses']:
+            t = 'info'
+            n = self._get_check_name('yaml_combinations', extra=slot)
+            s = "OK"
+            if "security-policy" in self.policies['uses'][slot]:
+                for i in ['security-override', 'security-template', 'caps']:
+                    if i in self.policies['uses'][slot]:
+                        t = 'error'
+                        s = "found '%s' with 'security-policy'" % i
+                        break
+            self._add_result(t, n, s)
 
     def check_uses_redflag(self):
         '''Check uses redflag fields'''
