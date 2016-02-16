@@ -58,15 +58,15 @@ class SnapReviewSecurity(SnapReview):
         framework_overrides = self.overrides.get('framework', {})
         self._override_framework_policies(framework_overrides)
 
-        # snappy
         self.sec_skipped_types = ['oem',
                                   'os',
                                   'kernel']  # these don't need security items
 
-        # Note: 16.04 employs migration skills for security policy and these
-        # skills declarations are currently only in the toplevel 'uses' field.
-        # When native security skills are supported, this will need to be
-        # adjusted.
+        self.policies = self._extract_security_yaml()
+
+        # TODO: may need updating for ubuntu-personal, etc
+        self.policy_vendor = "ubuntu-core"
+        self.policy_version = str(self._pkgfmt_version())
 
     def _override_framework_policies(self, overrides):
         # override major framework policies
@@ -84,6 +84,40 @@ class SnapReviewSecurity(SnapReview):
                 # just ensure the version is defined
                 # TODO: add support to override templates and policy groups
                 self.aa_policy[vendor][version] = {}
+
+    def _extract_security_yaml(self):
+        '''Extract security bits from snap.yaml in a way that can be easily
+           used in these tests.
+        '''
+        sec = {}
+
+        if 'uses' in self.snap_yaml:
+            sec['uses'] = {}
+            # TODO: need to adjust for native security skills
+            for slot in self.snap_yaml['uses']:
+                if 'type' not in self.snap_yaml['uses'][slot] or \
+                        self.snap_yaml['uses'][slot]['type'] != \
+                        'migration-skill':
+                    continue
+                for k in self.skill_types['migration-skill']:
+                    if k in self.snap_yaml['uses'][slot]:
+                        if not isinstance(self.snap_yaml['uses'][slot][k],
+                                          type(self.skill_types['migration-skill'][k])):
+                            error("Invalid yaml for uses/%s/%s" % (slot, k))
+                        if slot not in sec['uses']:
+                            sec['uses'][slot] = {}
+                        sec['uses'][slot][k] = self.snap_yaml['uses'][slot][k]
+
+        if 'apps' in self.snap_yaml:
+            sec['apps'] = {}
+            for app in self.snap_yaml['apps']:
+                if 'uses' not in self.snap_yaml['apps'][app]:
+                    continue
+                if app not in sec['apps']:
+                    sec['apps'][app] = {}
+                sec['apps'][app]['uses'] = self.snap_yaml['apps'][app]['uses']
+
+        return sec
 
     def _extract_security_profile(self, app):
         '''Extract security profile'''
@@ -105,126 +139,98 @@ class SnapReviewSecurity(SnapReview):
 
         return contents
 
-    def _get_policy_versions(self, vendor):
-        '''Get the supported AppArmor policy versions'''
-        if vendor not in self.aa_policy:
-            error("Could not find vendor '%s'" % vendor, do_exit=False)
-            return None
-
-        supported_policy_versions = []
-        for i in self.aa_policy[vendor].keys():
-            supported_policy_versions.append("%.1f" % float(i))
-
-        return sorted(supported_policy_versions)
-
-    def _get_templates(self, vendor, version, aa_type="all"):
-        '''Get templates by type'''
-        templates = []
-        if aa_type == "all":
-            for k in self.aa_policy[vendor][version]['templates'].keys():
-                templates += self.aa_policy[vendor][version]['templates'][k]
-        else:
-            templates = self.aa_policy[vendor][version]['templates'][aa_type]
-
-        return sorted(templates)
-
-    def _get_policy_groups(self, vendor, version, aa_type="all"):
-        '''Get policy groups by type'''
-        groups = []
-        if vendor not in self.aa_policy:
-            error("Could not find vendor '%s'" % vendor, do_exit=False)
-            return groups
-
-        if not self._has_policy_version(vendor, version):
-            error("Could not find version '%s'" % version, do_exit=False)
-            return groups
-
-        v = str(version)
-        if aa_type == "all":
-            for k in self.aa_policy[vendor][v]['policy_groups'].keys():
-                groups += self.aa_policy[vendor][v]['policy_groups'][k]
-        else:
-            groups = self.aa_policy[vendor][v]['policy_groups'][aa_type]
-
-        return sorted(groups)
-
-    def _get_policy_group_type(self, vendor, version, policy_group):
-        '''Return policy group type'''
-        for t in self.aa_policy[vendor][version]['policy_groups']:
-            if policy_group in self.aa_policy[vendor][version]['policy_groups'][t]:
-                return t
-
-    # FIXME: finish
-    def check_uses_redflag(self):
-        '''Check uses redflag fields'''
-        if not self.is_snap2 or 'uses' not in self.snap_yaml:
-            return
-
-        for slot in self.snap_yaml['uses']:
-            t = 'info'
-            n = self._get_check_name('redflag_fields', extra=slot)
-            s = 'OK'
-            m = False
-            if 'type' not in self.snap_yaml['uses'][slot] or \
-                    self.snap_yaml['uses'][slot]['type'] != 'migration-skill':
-                    skill_type = slot
-                    if 'type' in self.snap_yaml['uses'][slot]:
-                        skill_type = self.snap_yaml['uses'][slot]['type']
-                    t = 'error'
-                    s = "unknown skill type: %s" % skill_type
-            else:
-                attrib = None
-                if 'security-override' in self.snap_yaml['uses'][slot]:
-                    attrib = 'security-override'
-                elif 'security-policy' in self.snap_yaml['uses'][slot]:
-                    attrib = 'security-policy'
-                if attrib:
-                    t = 'error'
-                    s = "found redflagged attribute: %s" % attrib
-                    m = True
-            self._add_result(t, n, s, m)
-
-    # FIXME: finish
-    def check_apps_uses_redflag(self):
-        '''Check apps uses redflag fields'''
-        if not self.is_snap2 or 'apps' not in self.snap_yaml:
-            return
-
-        for app in self.snap_yaml['apps']:
-            if 'uses' not in self.snap_yaml['apps'][app]:
-                continue
-
-            # Note: Snappy 16.04 doesn't require a mapping for skills in the
-            # toplevel 'uses' if the skill 'type' is the same as the skill
-            # slot name, which means that apps may not have a mapping.
-            # Currently only 'migration-skill' is supported for security
-            # policies, so any other 'uses' that aren't a migration skill are
-            # unknown. This will need to be adjusted as skills matures
-            if not isinstance(self.snap_yaml['apps'][app]['uses'], list) or \
-                    len(self.snap_yaml['apps'][app]['uses']) < 1:
-                continue  # checked via sr_lint.py
-
-            for slot_ref in self.snap_yaml['apps'][app]['uses']:
-                t = 'info'
-                n = self._get_check_name("app_uses", app=app, extra=slot_ref)
-                s = 'OK'
-                if not isinstance(slot_ref, str):
-                    continue  # checked via sr_lint.py
-                elif (slot_ref in self.skill_types and
-                        slot_ref != 'migration-skill'):
-                    t = 'error'
-                    s = "unknown slot skill '%s'" % slot_ref
-                # elif 'uses' in self.snap_yaml and \
-                #        slot_ref in self.snap_yaml['uses'] and \
-                #        'type' in
-                #     t = 'error'
-                #     s = "unknown slot skill name reference '%s'" % slot_ref
-                self._add_result(t, n, s)
-
-    def check_security_caps(self):
-        '''TODO: Check security-caps'''
+    def check_security_policy_vendor(self):
+        '''Check policy-vendor'''
         if not self.is_snap2:
             return
+
+        t = 'info'
+        n = self._get_check_name('policy-vendor')
+        s = 'OK'
+        if self.policy_vendor not in self.aa_policy:
+            t = 'error'
+            s = "unknown policy-vendor '%s'" % self.policy_vendor
+        self._add_result(t, n, s)
+
+    def check_security_policy_version(self):
+        '''Check policy-version'''
+        if not self.is_snap2 or self.policy_vendor not in self.aa_policy:
+            return
+
+        t = 'info'
+        n = self._get_check_name('policy-version')
+        s = 'OK'
+        if self.policy_version not in self.aa_policy[self.policy_vendor]:
+            t = 'error'
+            s = "unknown policy-version '%s'" % self.policy_version
+        self._add_result(t, n, s)
+
+    def check_security_caps(self):
+        '''Check security-caps'''
+        if not self.is_snap2:
+            return
+
+        caps = self._get_policy_groups(version=self.policy_version,
+                                       vendor=self.policy_vendor)
+
+        frameworks = []
+        if 'frameworks' in self.snap_yaml:
+            frameworks = self.snap_yaml['frameworks']
+        elif 'type' in self.snap_yaml and \
+                self.snap_yaml['type'] == 'framework':
+            # frameworks may reference their own caps
+            frameworks.append(self.snap_yaml['name'])
+
+        for slot in self.policies['uses']:
+            if 'caps' not in self.policies['uses'][slot]:
+                continue
+
+            dupes = []
+            for cap in self.policies['uses'][slot]['caps']:
+                # TODO: this will go away when frameworks are gone
+                framework_cap = False
+                for f in frameworks:
+                    if cap.startswith("%s_" % f):
+                        framework_cap = True
+
+                t = 'info'
+                n = self._get_check_name('cap_exists', app=slot, extra=cap)
+                s = "OK"
+                if framework_cap:
+                    s = "OK (matches '%s' framework)" % cap.split('_')[0]
+                elif cap not in caps:
+                    t = 'error'
+                    s = "unsupported cap '%s'" % cap
+                elif self.policies['uses'][slot]['caps'].count(cap) > 1 and \
+                        cap not in dupes:
+                    dupes.append(cap)
+                    t = 'error'
+                    s = "'%s' specified multiple times" % cap
+                self._add_result(t, n, s)
+                if t == 'error':
+                    continue
+
+                t = 'info'
+                n = self._get_check_name('cap_safe', app=slot, extra=cap)
+                s = "OK"
+                m = False
+                l = None
+                sec_type = self._get_policy_group_type(self.policy_vendor,
+                                                       self.policy_version,
+                                                       cap)
+                if cap == "debug":
+                    t = 'error'
+                    s = "'%s' not for production use" % cap
+                    l = 'http://askubuntu.com/a/562123/94326'
+                elif sec_type == "reserved":
+                    t = 'error'
+                    s = "%s cap '%s' for vetted applications only" % (sec_type,
+                                                                      cap)
+                    m = True
+                elif sec_type != "common":
+                    t = 'error'
+                    s = "unknown type '%s' for cap '%s'" % (sec_type, cap)
+                self._add_result(t, n, s, l, manual_review=m)
 
     def check_security_override(self):
         '''TODO: Check security-override'''
@@ -245,6 +251,45 @@ class SnapReviewSecurity(SnapReview):
         '''TODO: Verify security yaml uses valid combinations'''
         if not self.is_snap2:
             return
+
+    def check_uses_redflag(self):
+        '''Check uses redflag fields'''
+        if not self.is_snap2:
+            return
+
+        for slot in self.policies['uses']:
+            t = 'info'
+            n = self._get_check_name('redflag_fields', extra=slot)
+            s = 'OK'
+            m = False
+
+            attrib = None
+            if 'security-override' in self.policies['uses'][slot]:
+                attrib = 'security-override'
+            elif 'security-policy' in self.policies['uses'][slot]:
+                attrib = 'security-policy'
+            if attrib:
+                t = 'error'
+                s = "found redflagged attribute: %s" % attrib
+                m = True
+            self._add_result(t, n, s, m)
+
+    def check_apps_uses_mapped_migration(self):
+        '''Check apps uses mapped migration skill'''
+        if not self.is_snap2:
+            return
+
+        for app in self.policies['apps']:
+            for slot_ref in self.policies['apps'][app]['uses']:
+                t = 'info'
+                n = self._get_check_name("app_uses", app=app, extra=slot_ref)
+                s = 'OK'
+                if not isinstance(slot_ref, str):
+                    continue  # checked via sr_lint.py
+                elif slot_ref not in self.policies['uses']:
+                    t = 'error'
+                    s = "slot reference '%s' not in toplevel 'uses'" % slot_ref
+                self._add_result(t, n, s)
 
     def check_apparmor_profile_name_length(self):
         '''TODO: Check AppArmor profile name length'''
