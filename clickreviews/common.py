@@ -279,6 +279,17 @@ class Review(object):
         for t in self.aa_policy[vendor][version]['policy_groups']:
             if policy_group in self.aa_policy[vendor][version]['policy_groups'][t]:
                 return t
+        return None
+
+    def _get_template_type(self, vendor, version, template):
+        '''Return template type'''
+        if not self.aa_policy:
+            return None
+
+        for t in self.aa_policy[vendor][version]['templates']:
+            if template in self.aa_policy[vendor][version]['templates'][t]:
+                return t
+        return None
 
     # click_report[<result_type>][<review_name>] = <result>
     #   result_type: info, warn, error

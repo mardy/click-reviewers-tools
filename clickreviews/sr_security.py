@@ -243,9 +243,61 @@ class SnapReviewSecurity(SnapReview):
             return
 
     def check_security_template(self):
-        '''TODO: Check security-template'''
+        '''Check security-template'''
         if not self.is_snap2:
             return
+
+        templates = self._get_templates(version=self.policy_version,
+                                        vendor=self.policy_vendor)
+
+        frameworks = []
+        if 'frameworks' in self.snap_yaml:
+            frameworks = self.snap_yaml['frameworks']
+        elif 'type' in self.snap_yaml and \
+                self.snap_yaml['type'] == 'framework':
+            # frameworks may reference their own caps
+            frameworks.append(self.snap_yaml['name'])
+
+        for slot in self.policies['uses']:
+            if 'security-template' not in self.policies['uses'][slot]:
+                continue
+
+            template = self.policies['uses'][slot]['security-template']
+
+            # TODO: this will go away when frameworks are gone
+            framework_template = False
+            for f in frameworks:
+                if template.startswith("%s_" % f):
+                    framework_template = True
+
+            t = 'info'
+            n = self._get_check_name('template_exists', app=slot, extra=template)
+            s = "OK"
+            if framework_template:
+                s = "OK (matches '%s' framework)" % template.split('_')[0]
+            elif template not in templates:
+                t = 'error'
+                s = "unsupported template '%s'" % template
+            self._add_result(t, n, s)
+            if t == 'error':
+                continue
+
+            t = 'info'
+            n = self._get_check_name('template_safe', app=slot, extra=template)
+            s = "OK"
+            m = False
+            sec_type = self._get_template_type(self.policy_vendor,
+                                               self.policy_version,
+                                               template)
+            if sec_type == "reserved":
+                t = 'error'
+                s = "%s template '%s' for vetted applications only" % (
+                    sec_type, template)
+                m = True
+            elif sec_type != "common":
+                t = 'error'
+                s = "unknown type '%s' for template '%s'" % (sec_type, template)
+            self._add_result(t, n, s, manual_review=m)
 
     def check_security_combinations(self):
         '''TODO: Verify security yaml uses valid combinations'''
