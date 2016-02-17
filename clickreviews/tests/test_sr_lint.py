@@ -150,6 +150,17 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_frameworks_with_framework(self):
+        '''Test check_frameworks() - with framework'''
+        self.set_test_snap_yaml("type", "framework")
+        self.patch_frameworks()
+        self.set_test_snap_yaml("frameworks", ['docker'])
+        c = SnapReviewLint(self.test_name)
+        c.check_frameworks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_frameworks_nonexistent(self):
         '''Test check_frameworks() - nonexistent'''
         self.patch_frameworks()
