@@ -378,7 +378,7 @@ class SnapReviewSecurity(SnapReview):
                 self._add_result(t, n, s)
 
     def check_apparmor_profile_name_length(self):
-        '''TODO: Check AppArmor profile name length'''
+        '''Check AppArmor profile name length'''
         if not self.is_snap2:
             return
 
@@ -393,5 +393,29 @@ class SnapReviewSecurity(SnapReview):
         # that compound labels are sometimes logged and so a snappy system
         # running an app in a snappy container or a QA testbed running apps
         # under LXC
-#         maxlen = 230  # 245 minus a bit for child profiles
-#         advlen = 100
+        maxlen = 230  # 245 minus a bit for child profiles
+        advlen = 100
+
+        for app in self.policies['apps']:
+            t = 'info'
+            n = self._get_check_name('profile_name_length', app=app)
+            s = "OK"
+            profile = "%s_%s_%s" % (self.snap_yaml['name'],
+                                    app,
+                                    self.snap_yaml['version'])
+            if len(profile) > maxlen:
+                t = 'error'
+                s = ("'%s' too long (exceeds %d characters). Please shorten "
+                     "'%s', '%s' and/or '%s'" % (profile, maxlen,
+                                                 self.snap_yaml['name'],
+                                                 app,
+                                                 self.snap_yaml['version']))
+            elif len(profile) > advlen:
+                t = 'warn'
+                s = ("'%s' is long (exceeds %d characters) and thus could be "
+                     "problematic in certain environments. Please consider "
+                     "shortening '%s', '%s' and/or '%s'" % (profile, advlen,
+                                                            self.snap_yaml['name'],
+                                                            app,
+                                                            self.snap_yaml['version']))
+            self._add_result(t, n, s)
