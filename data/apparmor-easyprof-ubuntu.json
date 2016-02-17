@@ -403,6 +403,8 @@
           "networking"
         ],
         "reserved": [
+	  "bluez_client",
+	  "docker_client",
           "network-admin",
           "network-firewall",
           "network-status",
@@ -426,6 +428,8 @@
           "networking"
         ],
         "reserved": [
+	  "bluez_client",
+	  "docker_client",
           "network-admin",
           "network-firewall",
           "network-status",
@@ -451,9 +455,11 @@
           "unix-listener"
         ],
         "reserved": [
+	  "bluez5_client",
 	  "container-management",
 	  "desktop",
 	  "display-server",
+	  "docker_client",
 	  "firewall-management",
 	  "locale-management",
 	  "network-admin",
