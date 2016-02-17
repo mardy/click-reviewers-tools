@@ -444,14 +444,31 @@
       },
       "policy_groups": {
         "common": [
+	  "mir-client",
           "network-client",
-          "network-service"
+          "network-service",
+          "network-listener",
+          "unix-listener"
         ],
         "reserved": [
-          "network-admin",
-          "network-firewall",
-          "network-status",
-          "snapd"
+	  "container-management",
+	  "desktop",
+	  "display-server",
+	  "firewall-management",
+	  "locale-management",
+	  "network-admin",
+	  "network-firewall",
+	  "network-management",
+	  "network-monitor",
+	  "network-status",
+	  "physical-memory-access",
+	  "read-system-logs",
+	  "snapd",
+	  "snap-management",
+	  "system-monitor",
+	  "timeserver-management",
+	  "timezone-management",
+	  "update-schedule-management"
 	]
       }
     }
