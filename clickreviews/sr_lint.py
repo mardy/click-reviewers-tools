@@ -162,6 +162,14 @@ class SnapReviewLint(SnapReview):
             self._add_result(t, n, s)
             return
 
+        t = 'info'
+        n = self._get_check_name('framework_uses_%s' % key)
+        s = "OK"
+        if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'framework':
+            t = 'error'
+            s = "framework may not specify '%s'" % key
+        self._add_result(t, n, s)
+
         framework_overrides = self.overrides.get('framework', {})
         frameworks = Frameworks(overrides=framework_overrides)
 
