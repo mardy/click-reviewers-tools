@@ -170,29 +170,114 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_2'"}
         self.check_results(report, expected=expected)
 
-    def test_check_security_caps_is_framework_with_frameworks(self):
-        '''Test check_security_caps() - is framework with framework'''
+    def test_check_security_caps_is_framework_with_framework_cap(self):
+        '''Test check_security_caps() - is framework with framework cap'''
         pkgname = self.test_name.split('_')[0].split('.')[0]
+        cap = '%s_1' % pkgname
         uses = self._create_top_uses()
         self.set_test_snap_yaml("uses", uses)
-        uses['myfwk'] = {'type': 'migration-skill', 'caps': ['%s_1' % pkgname]}
+        uses['myfwk'] = {'type': 'migration-skill', 'caps': [cap]}
         self.set_test_snap_yaml("type", "framework")
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
         report = c.click_report
         # the errors here are because we don't know the framework policy
         # 'type'. This needs support from the store
-        expected_counts = {'info': 4, 'warn': 0, 'error': 2}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
         expected = dict()
         expected['error'] = dict()
         expected['warn'] = dict()
         expected['info'] = dict()
-        name = 'security-snap-v2:cap_safe:myfwk:fwk_1'
-        expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_1'"}
-        name = 'security-snap-v2:cap_safe:myfwk:fwk_2'
-        expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_2'"}
+        name = 'security-snap-v2:cap_safe:myfwk:%s' % cap
+        expected['error'][name] = {"text":
+                                   "unknown type 'None' for cap '%s'" % cap}
         self.check_results(report, expected=expected)
+
+    def test_check_security_caps_nonexistent(self):
+        '''Test check_security_caps() - nonexistent'''
+        uses = self._create_top_uses()
+        uses['skill-caps']['caps'] = ['nonexistent']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_nonexistent2(self):
+        '''Test check_security_caps() - nonexistent with others'''
+        uses = self._create_top_uses()
+        uses['skill-caps']['caps'] = ['network-client', 'nonexistent']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_repeated(self):
+        '''Test check_security_caps() - repeated cap'''
+        uses = self._create_top_uses()
+        uses['skill-caps']['caps'] = ['network-client', 'network-client']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_common(self):
+        '''Test check_security_caps() - common'''
+        cap = "safe"
+        uses = self._create_top_uses()
+        uses['skill-caps']['caps'] = [cap]
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["common"].append(cap)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_debug(self):
+        '''Test check_security_caps() - debug'''
+        cap = "debug"
+        uses = self._create_top_uses()
+        uses['skill-caps']['caps'].append(cap)
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append(cap)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_reserved(self):
+        '''Test check_security_caps() - reserved'''
+        cap = "unsafe"
+        uses = self._create_top_uses()
+        uses['skill-caps']['caps'].append(cap)
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append(cap)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_unknown_type(self):
+        '''Test check_security_caps() - unknown type'''
+        cap = "bad-type"
+        uses = self._create_top_uses()
+        uses['skill-caps']['caps'].append(cap)
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["nonexistent"] = [cap]
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
 
     def test_check_uses_redflag(self):
         '''Test check_uses_redflag()'''
