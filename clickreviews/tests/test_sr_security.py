@@ -30,8 +30,10 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         uses = {'skill-caps': {'type': 'migration-skill',
                                'caps': ['network-client']},
                 'skill-override': {'type': 'migration-skill',
-                                   'security-override': {"read_path": "/foo/",
-                                                         "seccomp": "abc"}},
+                                   'security-override': {"read-paths": ["/a"],
+                                                         "write-paths": ["/b"],
+                                                         "abstractions": ["cd"],
+                                                         "syscalls": ["ef"]}},
                 'skill-policy': {'type': 'migration-skill',
                                  'security-policy': {"apparmor": "meta/aa",
                                                      "seccomp": "meta/sc"}},
@@ -275,6 +277,196 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["nonexistent"] = [cap]
         c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override(self):
+        '''Test check_security_override()'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_empty(self):
+        '''Test check_security_override() - empty'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override'] = {}
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_unknown(self):
+        '''Test check_security_override() - unknown'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['nonexistent'] = ['foo']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_syscall_dict(self):
+        '''Test check_security_override() - bad'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['syscalls'] = {}
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_syscall(self):
+        '''Test check_security_override() - bad syscall (illegal)'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['syscalls'] = ['BAD#%^']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_syscall_short(self):
+        '''Test check_security_override() - bad syscall (short)'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['syscalls'] = ['a']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_syscall_long(self):
+        '''Test check_security_override() - bad syscall (long)'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['syscalls'] = ['a' * 65]
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_abstraction_dict(self):
+        '''Test check_security_override() - bad'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['abstractions'] = {}
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_abstraction(self):
+        '''Test check_security_override() - bad abstraction (illegal)'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['abstractions'] = ['BAD#%^']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_abstraction_short(self):
+        '''Test check_security_override() - bad abstraction (short)'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['abstractions'] = ['a']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_abstraction_long(self):
+        '''Test check_security_override() - bad abstraction (long)'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['abstractions'] = ['a' * 65]
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_read_path_var(self):
+        '''Test check_security_override() - @{HOME}/foo'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['read-paths'] = \
+            ["@{HOME}/foo"]
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_read_path_dict(self):
+        '''Test check_security_override() - bad'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['read-paths'] = {}
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_read_path(self):
+        '''Test check_security_override() - bad (relative)'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['read-paths'] = \
+            ['relative/path']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_write_path_var(self):
+        '''Test check_security_override() - @{HOME}/foo'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['write-paths'] = \
+            ["@{HOME}/foo"]
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_write_path_dict(self):
+        '''Test check_security_override() - bad'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['write-paths'] = {}
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_bad_write_path(self):
+        '''Test check_security_override() - bad (relative)'''
+        uses = self._create_top_uses()
+        uses['skill-override']['security-override']['write-paths'] = \
+            ['relative/path']
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)

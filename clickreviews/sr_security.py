@@ -25,6 +25,7 @@ from clickreviews.common import (
 )
 import clickreviews.apparmor_policy as apparmor_policy
 import os
+import re
 
 
 class SnapReviewSecurity(SnapReview):
@@ -208,8 +209,13 @@ class SnapReviewSecurity(SnapReview):
         if not self.is_snap2:
             return
 
-        allowed_fields = ['read-paths', 'write-paths', 'abstractions',
-                          'syscalls']
+        # These regexes are pretty strict, but lets try to guard against
+        # any malfeasance
+        allowed_fields = {'read-paths': re.compile(r'^[/@]'),
+                          'write-paths': re.compile(r'^[/@]'),
+                          'abstractions': re.compile(r'^[a-zA-Z0-9_]{2,64}$'),
+                          'syscalls': re.compile(r'^[a-z0-9_]{2,64}$'),
+                          }
 
         for slot in self.policies['uses']:
             key = 'security-override'
@@ -228,6 +234,20 @@ class SnapReviewSecurity(SnapReview):
                         t = 'error'
                         s = "unknown field '%s' in " % f + \
                             "'%s' for '%s'" % (key, slot)
+                    elif not isinstance(self.policies['uses'][slot][key][f],
+                                        list):
+                        t = 'error'
+                        s = "invalid %s entry: %s (not a list)" % \
+                            (f, self.policies['uses'][slot][key][f])
+                    else:
+                        errors = []
+                        for v in self.policies['uses'][slot][key][f]:
+                            if not allowed_fields[f].search(v):
+                                errors.append(v)
+                        if len(errors) > 0:
+                            t = 'error'
+                            s = "malformed '%s' in '%s'" % (",".join(errors),
+                                                            f)
             self._add_result(t, n, s)
 
     def check_security_policy(self):
@@ -306,6 +326,34 @@ class SnapReviewSecurity(SnapReview):
                     if i in self.policies['uses'][slot]:
                         t = 'error'
                         s = "found '%s' with 'security-policy'" % i
+                        break
+            self._add_result(t, n, s)
+
+        # Make sure that a particular app doesn't list conflicting combinations
+        # (ie, security-policy with anything else)
+        for app in self.policies['apps']:
+            if 'uses' not in self.policies['apps'][app]:
+                continue
+
+            t = 'info'
+            n = self._get_check_name('yaml_combinations_apps', app=app)
+            s = "OK"
+            has_decl = []
+            for slot_ref in self.policies['apps'][app]['uses']:
+                if slot_ref not in self.policies['uses']:
+                    continue
+
+                for i in ['security-override', 'security-template', 'caps',
+                          'security-policy']:
+                    if i in self.policies['uses'][slot_ref] and \
+                            i not in has_decl:
+                        has_decl.append(i)
+
+            if "security-policy" in has_decl:
+                for i in ['security-override', 'security-template', 'caps']:
+                    if i in has_decl:
+                        t = 'error'
+                        s = "'%s' uses 'security-policy' with '%s'" % (app, i)
                         break
             self._add_result(t, n, s)
 
