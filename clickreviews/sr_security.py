@@ -46,18 +46,6 @@ class SnapReviewSecurity(SnapReview):
         p = apparmor_policy.ApparmorPolicy(local_copy)
         self.aa_policy = p.policy
 
-        # FIXME
-        # framework policy is based on major framework version. Snappy doesn't
-        # use these any more.
-        self.major_framework_policy = {
-            'ubuntu-core-16.04': {
-                'policy_vendor': 'ubuntu-core',
-                'policy_version': 16.04,
-            },
-        }
-        framework_overrides = self.overrides.get('framework', {})
-        self._override_framework_policies(framework_overrides)
-
         self.sec_skipped_types = ['oem',
                                   'os',
                                   'kernel']  # these don't need security items
@@ -67,23 +55,6 @@ class SnapReviewSecurity(SnapReview):
         # TODO: may need updating for ubuntu-personal, etc
         self.policy_vendor = "ubuntu-core"
         self.policy_version = str(self._pkgfmt_version())
-
-    def _override_framework_policies(self, overrides):
-        # override major framework policies
-        self.major_framework_policy.update(overrides)
-
-        # override apparmor policies
-        for name, data in overrides.items():
-            vendor = data.get('policy_vendor')
-            version = str(data.get('policy_version'))
-
-            if vendor not in self.aa_policy:
-                self.aa_policy[vendor] = {}
-
-            if version not in self.aa_policy[vendor]:
-                # just ensure the version is defined
-                # TODO: add support to override templates and policy groups
-                self.aa_policy[vendor][version] = {}
 
     def _extract_security_yaml(self):
         '''Extract security bits from snap.yaml in a way that can be easily
@@ -103,7 +74,7 @@ class SnapReviewSecurity(SnapReview):
                     if k in self.snap_yaml['uses'][slot]:
                         if not isinstance(self.snap_yaml['uses'][slot][k],
                                           type(self.skill_types['migration-skill'][k])):
-                            error("Invalid yaml for uses/%s/%s" % (slot, k))
+                            error("Invalid yaml for uses/%s/%s" % (slot, k))  # pragma: nocover
                         if slot not in sec['uses']:
                             sec['uses'][slot] = {}
                         sec['uses'][slot][k] = self.snap_yaml['uses'][slot][k]

@@ -124,6 +124,76 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_caps_with_nonmigration(self):
+        '''Test check_security_caps() - with non-migration'''
+        uses = self._create_top_uses()
+        uses['bool'] = {'type': 'bool-file', 'path': '/sys/devices/gpio1'}
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_with_apps(self):
+        '''Test check_security_caps()'''
+        uses = self._create_top_uses()
+        apps = self._create_apps_uses()
+        self.set_test_snap_yaml("uses", uses)
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_caps_with_frameworks(self):
+        '''Test check_security_caps() - with framework'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        uses['myfwk'] = {'type': 'migration-skill', 'caps': ['fwk_1', 'fwk_2']}
+        self.set_test_snap_yaml("frameworks", ["fwk"])
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        # the errors here are because we don't know the framework policy
+        # 'type'. This needs support from the store
+        expected_counts = {'info': 4, 'warn': 0, 'error': 2}
+        self.check_results(report, expected_counts)
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:cap_safe:myfwk:fwk_1'
+        expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_1'"}
+        name = 'security-snap-v2:cap_safe:myfwk:fwk_2'
+        expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_2'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_security_caps_is_framework_with_frameworks(self):
+        '''Test check_security_caps() - is framework with framework'''
+        pkgname = self.test_name.split('_')[0].split('.')[0]
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        uses['myfwk'] = {'type': 'migration-skill', 'caps': ['%s_1' % pkgname]}
+        self.set_test_snap_yaml("type", "framework")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        # the errors here are because we don't know the framework policy
+        # 'type'. This needs support from the store
+        expected_counts = {'info': 4, 'warn': 0, 'error': 2}
+        self.check_results(report, expected_counts)
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:cap_safe:myfwk:fwk_1'
+        expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_1'"}
+        name = 'security-snap-v2:cap_safe:myfwk:fwk_2'
+        expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_2'"}
+        self.check_results(report, expected=expected)
+
     def test_check_uses_redflag(self):
         '''Test check_uses_redflag()'''
         uses = self._create_top_uses()
