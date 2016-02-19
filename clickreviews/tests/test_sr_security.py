@@ -38,7 +38,7 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
                                  'security-policy': {"apparmor": "meta/aa",
                                                      "seccomp": "meta/sc"}},
                 'skill-template': {'type': 'migration-skill',
-                                   'security-template': "unconfined"}
+                                   'security-template': "default"}
                 }
         return uses
 
@@ -467,6 +467,139 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         self.set_test_snap_yaml("uses", uses)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template(self):
+        '''Test check_security_template()'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_with_nonmigration(self):
+        '''Test check_security_template() - with non-migration'''
+        uses = self._create_top_uses()
+        uses['bool'] = {'type': 'bool-file', 'path': '/sys/devices/gpio1'}
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_with_apps(self):
+        '''Test check_security_template()'''
+        uses = self._create_top_uses()
+        apps = self._create_apps_uses()
+        self.set_test_snap_yaml("uses", uses)
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_with_frameworks(self):
+        '''Test check_security_template() - with framework'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        uses['myfwk'] = {'type': 'migration-skill',
+                         'security-template': 'fwk_1'}
+        self.set_test_snap_yaml("frameworks", ["fwk"])
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        # the errors here are because we don't know the framework policy
+        # 'type'. This needs support from the store
+        expected_counts = {'info': 3, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:template_safe:myfwk:fwk_1'
+        expected['error'][name] = {"text": "unknown type 'None' for template 'fwk_1'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_security_template_is_framework_with_framework_template(self):
+        '''Test check_security_template() - is framework with framework template'''
+        pkgname = self.test_name.split('_')[0].split('.')[0]
+        template = '%s_1' % pkgname
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        uses['myfwk'] = {'type': 'migration-skill',
+                         'security-template': template}
+        self.set_test_snap_yaml("type", "framework")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        # the errors here are because we don't know the framework policy
+        # 'type'. This needs support from the store
+        expected_counts = {'info': 3, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:template_safe:myfwk:%s' % template
+        expected['error'][name] = {"text":
+                                   "unknown type 'None' for template '%s'" % template}
+        self.check_results(report, expected=expected)
+
+    def test_check_security_template_nonexistent(self):
+        '''Test check_security_template() - nonexistent'''
+        uses = self._create_top_uses()
+        uses['skill-template']['security-template'] = 'nonexistent'
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_common(self):
+        '''Test check_security_template() - common'''
+        template = "safe"
+        uses = self._create_top_uses()
+        uses['skill-template']['security-template'] = template
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["templates"]["common"].append(
+            template)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_reserved(self):
+        '''Test check_security_template() - reserved'''
+        template = "unsafe"
+        uses = self._create_top_uses()
+        uses['skill-template']['security-template'] = template
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["templates"]["reserved"].append(
+            template)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_template_unknown_type(self):
+        '''Test check_security_template() - unknown type'''
+        template = "bad-type"
+        uses = self._create_top_uses()
+        uses['skill-template']['security-template'] = template
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["templates"]["nonexistent"] = \
+            template
+        c.check_security_template()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)

@@ -73,6 +73,8 @@ class SnapReviewSecurity(SnapReview):
                     continue
                 for k in self.skill_types['migration-skill']:
                     if k in self.snap_yaml['uses'][slot]:
+                        # This check means we don't have to verify in the
+                        # individual tests
                         if not isinstance(self.snap_yaml['uses'][slot][k],
                                           type(self.skill_types['migration-skill'][k])):
                             error("Invalid yaml for uses/%s/%s" % (slot, k))  # pragma: nocover
@@ -284,7 +286,8 @@ class SnapReviewSecurity(SnapReview):
                     framework_template = True
 
             t = 'info'
-            n = self._get_check_name('template_exists', app=slot, extra=template)
+            n = self._get_check_name('template_exists', app=slot,
+                                     extra=template)
             s = "OK"
             if framework_template:
                 s = "OK (matches '%s' framework)" % template.split('_')[0]
@@ -309,7 +312,8 @@ class SnapReviewSecurity(SnapReview):
                 m = True
             elif sec_type != "common":
                 t = 'error'
-                s = "unknown type '%s' for template '%s'" % (sec_type, template)
+                s = "unknown type '%s' for template '%s'" % (sec_type,
+                                                             template)
             self._add_result(t, n, s, manual_review=m)
 
     def check_security_combinations(self):
