@@ -760,6 +760,20 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_uses_redflag_none(self):
+        '''Test check_uses_redflag() - none'''
+        uses = {'skill-caps': {'type': 'migration-skill',
+                               'caps': ['network-client']},
+                'skill-template': {'type': 'migration-skill',
+                                   'security-template': "default"}
+                }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_uses_redflag()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_uses_redflag(self):
         '''Test check_uses_redflag()'''
         uses = self._create_top_uses()
