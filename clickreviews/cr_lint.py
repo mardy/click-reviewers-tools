@@ -540,8 +540,8 @@ exit 1
         if not self.is_click and not self.is_snap1:
             return
 
-        if self.is_snap1 and 'type' in self.snap_yaml and \
-                self.snap_yaml['type'] not in ['app', 'framework']:
+        if self.is_snap1 and 'type' in self.pkg_yaml and \
+                self.pkg_yaml['type'] not in ['app', 'framework']:
             return
 
         t = 'info'
