@@ -1,6 +1,6 @@
 '''cr_security.py: click security checks'''
 #
-# Copyright (C) 2013-2015 Canonical Ltd.
+# Copyright (C) 2013-2016 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,6 +16,10 @@
 
 from __future__ import print_function
 
+from clickreviews.common import (
+    AA_PROFILE_NAME_MAXLEN,
+    AA_PROFILE_NAME_ADVLEN,
+)
 from clickreviews.cr_common import ClickReview, error, open_file_read
 import clickreviews.cr_common as cr_common
 import clickreviews.apparmor_policy as apparmor_policy
@@ -1454,19 +1458,9 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_click and not self.is_snap1:
             return
 
-        # There are quite a few kernel interfaces that can cause problems with
-        # long profile names. These are outlined in
-        # https://launchpad.net/bugs/1499544. The big issue is that the audit
-        # message must fit within PAGE_SIZE (at least 4096 on supported archs),
-        # so long names could push the audit message to be too big, which would
-        # result in a denial for that rule (but, only if the rule would've
-        # allowed it). Giving a hard-error on maxlen since we know that this
-        # will be a problem. The advisory length is what it is since we know
-        # that compound labels are sometimes logged and so a snappy system
-        # running an app in a snappy container or a QA testbed running apps
-        # under LXC
-        maxlen = 230  # 245 minus a bit for child profiles
-        advlen = 100
+        maxlen = AA_PROFILE_NAME_MAXLEN
+        advlen = AA_PROFILE_NAME_ADVLEN
+
         for app in sorted(self.security_apps):
             (f, m) = self._get_security_manifest(app)
             t = 'info'

@@ -21,7 +21,9 @@ from clickreviews.sr_common import (
 )
 from clickreviews.common import (
     error,
-    open_file_read
+    open_file_read,
+    AA_PROFILE_NAME_MAXLEN,
+    AA_PROFILE_NAME_ADVLEN,
 )
 import clickreviews.apparmor_policy as apparmor_policy
 import os
@@ -411,19 +413,8 @@ class SnapReviewSecurity(SnapReview):
         if not self.is_snap2 or 'apps' not in self.snap_yaml:
             return
 
-        # There are quite a few kernel interfaces that can cause problems with
-        # long profile names. These are outlined in
-        # https://launchpad.net/bugs/1499544. The big issue is that the audit
-        # message must fit within PAGE_SIZE (at least 4096 on supported archs),
-        # so long names could push the audit message to be too big, which would
-        # result in a denial for that rule (but, only if the rule would've
-        # allowed it). Giving a hard-error on maxlen since we know that this
-        # will be a problem. The advisory length is what it is since we know
-        # that compound labels are sometimes logged and so a snappy system
-        # running an app in a snappy container or a QA testbed running apps
-        # under LXC
-        maxlen = 230  # 245 minus a bit for child profiles
-        advlen = 100
+        maxlen = AA_PROFILE_NAME_MAXLEN
+        advlen = AA_PROFILE_NAME_ADVLEN
 
         for app in self.snap_yaml['apps']:
             t = 'info'

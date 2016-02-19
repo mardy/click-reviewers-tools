@@ -35,6 +35,19 @@ UNPACK_DIR = None
 RAW_UNPACK_DIR = None
 # This needs to match up with snapcraft
 MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
+# There are quite a few kernel interfaces that can cause problems with
+# long profile names. These are outlined in
+# https://launchpad.net/bugs/1499544. The big issue is that the audit
+# message must fit within PAGE_SIZE (at least 4096 on supported archs),
+# so long names could push the audit message to be too big, which would
+# result in a denial for that rule (but, only if the rule would've
+# allowed it). Giving a hard-error on maxlen since we know that this
+# will be a problem. The advisory length is what it is since we know
+# that compound labels are sometimes logged and so a snappy system
+# running an app in a snappy container or a QA testbed running apps
+# under LXC
+AA_PROFILE_NAME_MAXLEN = 230  # 245 minus a bit for child profiles
+AA_PROFILE_NAME_ADVLEN = 100
 
 
 def cleanup_unpack():
