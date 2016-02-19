@@ -408,7 +408,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_apparmor_profile_name_length(self):
         '''Check AppArmor profile name length'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
             return
 
         # There are quite a few kernel interfaces that can cause problems with
@@ -425,7 +425,7 @@ class SnapReviewSecurity(SnapReview):
         maxlen = 230  # 245 minus a bit for child profiles
         advlen = 100
 
-        for app in self.policies['apps']:
+        for app in self.snap_yaml['apps']:
             t = 'info'
             n = self._get_check_name('profile_name_length', app=app)
             s = "OK"

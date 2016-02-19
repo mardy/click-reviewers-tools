@@ -821,3 +821,45 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_name_length(self):
+        '''Test check_apparmor_profile_name_length()'''
+        apps = {'app1': {'uses': ['skill-caps']}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_apparmor_profile_name_length()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_name_length_no_uses(self):
+        '''Test check_apparmor_profile_name_length()'''
+        apps = {'app1': {}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_apparmor_profile_name_length()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_name_length_bad(self):
+        '''Test check_apparmor_profile_name_length() - too long'''
+        self.set_test_snap_yaml('name', 'A' * 253)
+        apps = {'app1': {'uses': ['skill-caps']}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_apparmor_profile_name_length()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_apparmor_profile_name_length_bad2(self):
+        '''Test check_apparmor_profile_name_length() - longer than advised'''
+        self.set_test_snap_yaml('name', 'A' * 100)
+        apps = {'app1': {'uses': ['skill-caps']}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_apparmor_profile_name_length()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
