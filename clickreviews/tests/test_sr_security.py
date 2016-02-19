@@ -783,3 +783,41 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(report, expected_counts)
+
+    def test_check_apps_uses_mapped_migration(self):
+        '''Test check_apps_uses_mapped_migration()'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_apps_uses_mapped_migration()
+        report = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apps_uses_mapped_migration_bad(self):
+        '''Test check_apps_uses_mapped_migration() - bad'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        apps = {'app1': {'uses': [{}]}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_apps_uses_mapped_migration()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apps_uses_mapped_migration_nonexistent(self):
+        '''Test check_apps_uses_mapped_migration() - nonexistent'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        apps = {'app1': {'uses': ['nonexistent']}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_apps_uses_mapped_migration()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
