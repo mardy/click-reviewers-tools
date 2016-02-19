@@ -604,6 +604,162 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_security_combinations(self):
+        '''Test check_security_combinations()'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_apps(self):
+        '''Test check_security_combinations() - apps'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': 8, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_apps_uses_nonsecurity(self):
+        '''Test check_security_combinations() - uses non-security'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        apps = {'app5': {'uses': ['other']}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_apps_caps_with_security_policy(self):
+        '''Test check_security_combinations() - apps caps with security-policy'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        apps['app1'] = {'uses': ['skill-caps', 'skill-policy']}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_apps_template_with_security_policy(self):
+        '''Test check_security_combinations() - apps security-template with security-policy'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        apps['app1'] = {'uses': ['skill-template', 'skill-policy']}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_apps_override_with_security_policy(self):
+        '''Test check_security_combinations() - apps security-override with security-policy'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        apps['app1'] = {'uses': ['skill-override', 'skill-policy']}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_apps_all_with_security_policy(self):
+        '''Test check_security_combinations() - apps all with security-policy'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        apps = self._create_apps_uses()
+        apps['app1'] = {'uses': ['skill-override', 'skill-policy',
+                                 'skill-caps', 'skill-template']}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_caps_with_security_policy(self):
+        '''Test check_security_combinations() - caps with security-policy'''
+        uses = self._create_top_uses()
+        uses['skill-other'] = {'type': 'migration-skill',
+                               'caps': ['network-client'],
+                               'security-policy': {"apparmor": "meta/aa",
+                                                   "seccomp": "meta/sc"}
+                               }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_template_with_security_policy(self):
+        '''Test check_security_combinations() - template with security-policy'''
+        uses = self._create_top_uses()
+        uses['skill-other'] = {'type': 'migration-skill',
+                               'security-policy': {"apparmor": "meta/aa",
+                                                   "seccomp": "meta/sc"},
+                               'security-template': "default"
+                               }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_override_with_security_policy(self):
+        '''Test check_security_combinations() - override with security-policy'''
+        uses = self._create_top_uses()
+        uses['skill-other'] = {'type': 'migration-skill',
+                               'security-override': {"read-paths": ["/a"],
+                                                     "write-paths": ["/b"],
+                                                     "abstractions": ["cd"],
+                                                     "syscalls": ["ef"]},
+                               'security-policy': {"apparmor": "meta/aa",
+                                                   "seccomp": "meta/sc"}
+                               }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_all_with_security_policy(self):
+        '''Test check_security_combinations() - all with security-policy'''
+        uses = self._create_top_uses()
+        uses['skill-other'] = {'type': 'migration-skill',
+                               'caps': ['network-client'],
+                               'security-override': {"read-paths": ["/a"],
+                                                     "write-paths": ["/b"],
+                                                     "abstractions": ["cd"],
+                                                     "syscalls": ["ef"]},
+                               'security-policy': {"apparmor": "meta/aa",
+                                                   "seccomp": "meta/sc"},
+                               'security-template': "default"
+                               }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
     def test_check_uses_redflag(self):
         '''Test check_uses_redflag()'''
         uses = self._create_top_uses()

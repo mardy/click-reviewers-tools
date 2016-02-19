@@ -218,6 +218,7 @@ security-snap-v2:security-override|
 security-snap-v2:template_exists|
 security-snap-v2:template_safe|
 security-snap-v2:yaml_combinations|
+security-snap-v2:yaml_combinations_apps|
 security:template_account_provider|
 security:template_account_qml_plugin|
 security:template_exists|

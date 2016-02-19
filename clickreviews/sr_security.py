@@ -87,6 +87,10 @@ class SnapReviewSecurity(SnapReview):
             for app in self.snap_yaml['apps']:
                 if 'uses' not in self.snap_yaml['apps'][app]:
                     continue
+                # This check means we don't have to verify in the individual
+                # tests
+                elif not isinstance(self.snap_yaml['apps'][app]['uses'], list):
+                    error("Invalid yaml for %s/uses" % app)  # pragma: nocover
                 if app not in sec['apps']:
                     sec['apps'][app] = {}
                 sec['apps'][app]['uses'] = self.snap_yaml['apps'][app]['uses']
@@ -328,17 +332,17 @@ class SnapReviewSecurity(SnapReview):
             if "security-policy" in self.policies['uses'][slot]:
                 for i in ['security-override', 'security-template', 'caps']:
                     if i in self.policies['uses'][slot]:
+                        tmp = list(self.policies['uses'][slot].keys())
+                        tmp.remove("security-policy")
                         t = 'error'
-                        s = "found '%s' with 'security-policy'" % i
+                        s = "found '%s' with 'security-policy'" % \
+                            ",".join(sorted(tmp))
                         break
             self._add_result(t, n, s)
 
         # Make sure that a particular app doesn't list conflicting combinations
         # (ie, security-policy with anything else)
         for app in self.policies['apps']:
-            if 'uses' not in self.policies['apps'][app]:
-                continue
-
             t = 'info'
             n = self._get_check_name('yaml_combinations_apps', app=app)
             s = "OK"
@@ -356,8 +360,10 @@ class SnapReviewSecurity(SnapReview):
             if "security-policy" in has_decl:
                 for i in ['security-override', 'security-template', 'caps']:
                     if i in has_decl:
+                        has_decl.remove("security-policy")
                         t = 'error'
-                        s = "'%s' uses 'security-policy' with '%s'" % (app, i)
+                        s = "'%s' uses 'security-policy' with '%s'" % (
+                            app, ",".join(sorted(has_decl)))
                         break
             self._add_result(t, n, s)
 
