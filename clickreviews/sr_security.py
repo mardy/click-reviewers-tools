@@ -275,7 +275,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_policy(self):
         '''Check security-policy'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'uses' not in self.policies:
             return
 
         allowed_fields = ['apparmor', 'seccomp']
