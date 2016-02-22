@@ -43,7 +43,6 @@ deny add_key
 alarm
 usr32
 
- 
 _exit
 '''
 
@@ -515,6 +514,222 @@ _exit
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_security_policy(self):
+        '''Test check_security_policy()'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_policy_no_uses(self):
+        '''Test check_security_policy() - no uses'''
+        self.set_test_snap_yaml("uses", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_policy_unknown(self):
+        '''Test check_security_policy() - unknown'''
+        self.set_test_security_profile('skill-other', 'apparmor',
+                                       self._create_aa_raw())
+        self.set_test_security_profile('skill-other', 'seccomp',
+                                       self._create_sc_raw())
+        uses = {'skill-other': {'type': 'migration-skill',
+                                'security-policy': {"apparmor": "meta/aa",
+                                                    "seccomp": "meta/sc",
+                                                    "nonexistent": "bad"},
+                                }
+                }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_policy_empty(self):
+        '''Test check_security_policy() - empty'''
+        self.set_test_security_profile('skill-other', 'apparmor',
+                                       self._create_aa_raw())
+        self.set_test_security_profile('skill-other', 'seccomp',
+                                       self._create_sc_raw())
+        uses = {'skill-other': {'type': 'migration-skill',
+                                'security-policy': {}}}
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_policy_bad(self):
+        '''Test check_security_policy() - bad (list)'''
+        self.set_test_security_profile('skill-other', 'apparmor',
+                                       self._create_aa_raw())
+        self.set_test_security_profile('skill-other', 'seccomp',
+                                       self._create_sc_raw())
+        uses = {'skill-other': {'type': 'migration-skill',
+                                'security-policy': {"apparmor": "meta/aa",
+                                                    "seccomp": []}
+                                }
+                }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def _test_check_security_policy_tmpl(self):
+        '''Test check_security_policy() - tmpl'''
+        self.set_test_security_profile('skill-other', 'apparmor',
+                                       self._create_aa_raw())
+        self.set_test_security_profile('skill-other', 'seccomp',
+                                       self._create_sc_raw())
+        uses = {'skill-other': {'type': 'migration-skill',
+                                'security-policy': {"apparmor": "meta/aa",
+                                                    "seccomp": "meta/sc",
+                                                    }
+                                }
+                }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': -1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_policy_missing_apparmor(self):
+        '''Test check_security_policy() - missing apparmor'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.raw_profiles['skill-policy'].pop('apparmor')
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_policy_missing_seccomp(self):
+        '''Test check_security_policy() - missing seccomp'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.raw_profiles['skill-policy'].pop('seccomp')
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_policy_apparmor_boiler1(self):
+        '''Test check_security_policy() - boilerplate text #1'''
+        contents = '''
+###VAR###
+###PROFILEATTACH### (attach_disconnected) {}
+# Unrestricted AppArmor policy
+'''
+        self.set_test_security_profile('skill-other', 'apparmor', contents)
+        self.set_test_security_profile('skill-other', 'seccomp',
+                                       self._create_sc_raw())
+        uses = {'skill-other': {'type': 'migration-skill',
+                                'security-policy': {"apparmor": "meta/aa",
+                                                    "seccomp": "meta/sc",
+                                                    }
+                                }
+                }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:security-policy_apparmor_var:skill-other'
+        expected['info'][name] = {"text": "SKIPPED for '@{INSTALL_DIR}' (boilerplate)"}
+        self.check_results(report, expected=expected)
+
+    def test_check_security_policy_apparmor_boiler2(self):
+        '''Test check_security_policy() - boilerplate text #2'''
+        contents = '''
+###VAR###
+###PROFILEATTACH### (attach_disconnected) {}
+# This profile offers no protection
+'''
+        self.set_test_security_profile('skill-other', 'apparmor', contents)
+        self.set_test_security_profile('skill-other', 'seccomp',
+                                       self._create_sc_raw())
+        uses = {'skill-other': {'type': 'migration-skill',
+                                'security-policy': {"apparmor": "meta/aa",
+                                                    "seccomp": "meta/sc",
+                                                    }
+                                }
+                }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:security-policy_apparmor_var:skill-other'
+        expected['info'][name] = {"text": "SKIPPED for '@{INSTALL_DIR}' (boilerplate)"}
+        self.check_results(report, expected=expected)
+
+    def test_check_security_policy_missing_apparmor_var(self):
+        '''Test check_security_policy() - missing apparmor var'''
+        contents = '''
+###PROFILEATTACH### (attach_disconnected) {
+  @{INSTALL_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
+}
+'''
+        self.set_test_security_profile('skill-other', 'apparmor', contents)
+        self.set_test_security_profile('skill-other', 'seccomp',
+                                       self._create_sc_raw())
+        uses = {'skill-other': {'type': 'migration-skill',
+                                'security-policy': {"apparmor": "meta/aa",
+                                                    "seccomp": "meta/sc",
+                                                    }
+                                }
+                }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        print(c.raw_profiles)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_policy_bad_seccomp(self):
+        '''Test check_security_policy() - bad seccomp'''
+        contents = self._create_sc_raw() + "\nBAD%$\n"
+        self.set_test_security_profile('skill-other', 'apparmor',
+                                       self._create_aa_raw())
+        self.set_test_security_profile('skill-other', 'seccomp', contents)
+        uses = {'skill-other': {'type': 'migration-skill',
+                                'security-policy': {"apparmor": "meta/aa",
+                                                    "seccomp": "meta/sc",
+                                                    }
+                                }
+                }
+        self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        print(c.raw_profiles)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
     def test_check_security_template(self):
         '''Test check_security_template()'''
         uses = self._create_top_uses()
@@ -971,221 +1186,4 @@ _exit
         c.check_apparmor_profile_name_length()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
-        self.check_results(report, expected_counts)
-
-
-    def test_check_security_policy(self):
-        '''Test check_security_policy()'''
-        uses = self._create_top_uses()
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_no_uses(self):
-        '''Test check_security_policy() - no uses'''
-        self.set_test_snap_yaml("uses", None)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_unknown(self):
-        '''Test check_security_policy() - unknown'''
-        self.set_test_security_profile('skill-other', 'apparmor',
-                                       self._create_aa_raw())
-        self.set_test_security_profile('skill-other', 'seccomp',
-                                       self._create_sc_raw())
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {"apparmor": "meta/aa",
-                                                    "seccomp": "meta/sc",
-                                                    "nonexistent": "bad"},
-                                }
-                }
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_empty(self):
-        '''Test check_security_policy() - empty'''
-        self.set_test_security_profile('skill-other', 'apparmor',
-                                       self._create_aa_raw())
-        self.set_test_security_profile('skill-other', 'seccomp',
-                                       self._create_sc_raw())
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {}}}
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 2}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_bad(self):
-        '''Test check_security_policy() - bad (list)'''
-        self.set_test_security_profile('skill-other', 'apparmor',
-                                       self._create_aa_raw())
-        self.set_test_security_profile('skill-other', 'seccomp',
-                                       self._create_sc_raw())
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {"apparmor": "meta/aa",
-                                                    "seccomp": []}
-                                }
-                }
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def _test_check_security_policy_tmpl(self):
-        '''Test check_security_policy() - tmpl'''
-        self.set_test_security_profile('skill-other', 'apparmor',
-                                       self._create_aa_raw())
-        self.set_test_security_profile('skill-other', 'seccomp',
-                                       self._create_sc_raw())
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {"apparmor": "meta/aa",
-                                                    "seccomp": "meta/sc",
-                                                    }
-                                }
-                }
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': -1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_missing_apparmor(self):
-        '''Test check_security_policy() - missing apparmor'''
-        uses = self._create_top_uses()
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.raw_profiles['skill-policy'].pop('apparmor')
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_missing_seccomp(self):
-        '''Test check_security_policy() - missing seccomp'''
-        uses = self._create_top_uses()
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.raw_profiles['skill-policy'].pop('seccomp')
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_apparmor_boiler1(self):
-        '''Test check_security_policy() - boilerplate text #1'''
-        contents = '''
-###VAR###
-###PROFILEATTACH### (attach_disconnected) {}
-# Unrestricted AppArmor policy
-'''
-        self.set_test_security_profile('skill-other', 'apparmor', contents)
-        self.set_test_security_profile('skill-other', 'seccomp',
-                                       self._create_sc_raw())
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {"apparmor": "meta/aa",
-                                                    "seccomp": "meta/sc",
-                                                    }
-                                }
-                }
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-        expected = dict()
-        expected['error'] = dict()
-        expected['warn'] = dict()
-        expected['info'] = dict()
-        name = 'security-snap-v2:security-policy_apparmor_var:skill-other'
-        expected['info'][name] = {"text": "SKIPPED for '@{INSTALL_DIR}' (boilerplate)"}
-        self.check_results(report, expected=expected)
-
-    def test_check_security_policy_apparmor_boiler2(self):
-        '''Test check_security_policy() - boilerplate text #2'''
-        contents = '''
-###VAR###
-###PROFILEATTACH### (attach_disconnected) {}
-# This profile offers no protection
-'''
-        self.set_test_security_profile('skill-other', 'apparmor', contents)
-        self.set_test_security_profile('skill-other', 'seccomp',
-                                       self._create_sc_raw())
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {"apparmor": "meta/aa",
-                                                    "seccomp": "meta/sc",
-                                                    }
-                                }
-                }
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-        expected = dict()
-        expected['error'] = dict()
-        expected['warn'] = dict()
-        expected['info'] = dict()
-        name = 'security-snap-v2:security-policy_apparmor_var:skill-other'
-        expected['info'][name] = {"text": "SKIPPED for '@{INSTALL_DIR}' (boilerplate)"}
-        self.check_results(report, expected=expected)
-
-    def test_check_security_policy_missing_apparmor_var(self):
-        '''Test check_security_policy() - missing apparmor var'''
-        contents = '''
-###PROFILEATTACH### (attach_disconnected) {
-  @{INSTALL_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
-}
-'''
-        self.set_test_security_profile('skill-other', 'apparmor', contents)
-        self.set_test_security_profile('skill-other', 'seccomp',
-                                       self._create_sc_raw())
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {"apparmor": "meta/aa",
-                                                    "seccomp": "meta/sc",
-                                                    }
-                                }
-                }
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        print(c.raw_profiles)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 1, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_bad_seccomp(self):
-        '''Test check_security_policy() - bad seccomp'''
-        contents = self._create_sc_raw() + "\nBAD%$\n"
-        self.set_test_security_profile('skill-other', 'apparmor',
-                                       self._create_aa_raw())
-        self.set_test_security_profile('skill-other', 'seccomp', contents)
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {"apparmor": "meta/aa",
-                                                    "seccomp": "meta/sc",
-                                                    }
-                                }
-                }
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        print(c.raw_profiles)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)

@@ -123,7 +123,7 @@ def create_patches():
 
     # sr_security
     patches.append(patch('clickreviews.sr_security.SnapReviewSecurity._extract_security_profile',
-        _extract_security_profile))
+                   _extract_security_profile))
 
     return patches
 
@@ -167,8 +167,8 @@ class TestSnapReview(TestCase):
             TEST_SECURITY_PROFILES = dict()
         else:
             for slot in self.test_security_profiles.keys():
-                TEST_SECURITY_PROFILES[slot] =\
-                        self.test_security_profiles[slot]
+                TEST_SECURITY_PROFILES[slot] = \
+                    self.test_security_profiles[slot]
 
     def _update_test_name(self):
         self.test_name = "%s.origin_%s_%s.snap" % (
@@ -213,7 +213,6 @@ class TestSnapReview(TestCase):
             self.test_security_profiles[slot][key] = policy
 
         self._update_test_security_profiles()
-
 
     def set_test_pkgfmt(self, t, v):
         global TEST_PKGFMT_TYPE
