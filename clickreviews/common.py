@@ -33,7 +33,21 @@ import types
 DEBUGGING = False
 UNPACK_DIR = None
 RAW_UNPACK_DIR = None
+# This needs to match up with snapcraft
 MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
+# There are quite a few kernel interfaces that can cause problems with
+# long profile names. These are outlined in
+# https://launchpad.net/bugs/1499544. The big issue is that the audit
+# message must fit within PAGE_SIZE (at least 4096 on supported archs),
+# so long names could push the audit message to be too big, which would
+# result in a denial for that rule (but, only if the rule would've
+# allowed it). Giving a hard-error on maxlen since we know that this
+# will be a problem. The advisory length is what it is since we know
+# that compound labels are sometimes logged and so a snappy system
+# running an app in a snappy container or a QA testbed running apps
+# under LXC
+AA_PROFILE_NAME_MAXLEN = 230  # 245 minus a bit for child profiles
+AA_PROFILE_NAME_ADVLEN = 100
 
 
 def cleanup_unpack():
@@ -204,6 +218,91 @@ class Review(object):
         if re_valid_version.match(str(v)):
             return True
         return False
+
+    def _get_policy_versions(self, vendor):
+        '''Get the supported AppArmor policy versions'''
+        if not self.aa_policy:
+            return None
+
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return None
+
+        supported_policy_versions = []
+        for i in self.aa_policy[vendor].keys():
+            supported_policy_versions.append("%.1f" % float(i))
+
+        return sorted(supported_policy_versions)
+
+    def _get_templates(self, vendor, version, aa_type="all"):
+        '''Get templates by type'''
+        if not self.aa_policy:
+            return None
+
+        templates = []
+        if aa_type == "all":
+            for k in self.aa_policy[vendor][version]['templates'].keys():
+                templates += self.aa_policy[vendor][version]['templates'][k]
+        else:
+            templates = self.aa_policy[vendor][version]['templates'][aa_type]
+
+        return sorted(templates)
+
+    def _has_policy_version(self, vendor, version):
+        '''Determine if has specified policy version'''
+        if not self.aa_policy:
+            return None
+
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return False
+
+        if str(version) not in self.aa_policy[vendor]:
+            return False
+        return True
+
+    def _get_policy_groups(self, vendor, version, aa_type="all"):
+        '''Get policy groups by type'''
+        if not self.aa_policy:
+            return None
+
+        groups = []
+        if vendor not in self.aa_policy:
+            error("Could not find vendor '%s'" % vendor, do_exit=False)
+            return groups
+
+        if not self._has_policy_version(vendor, version):
+            error("Could not find version '%s'" % version, do_exit=False)
+            return groups
+
+        v = str(version)
+        if aa_type == "all":
+            for k in self.aa_policy[vendor][v]['policy_groups'].keys():
+                groups += self.aa_policy[vendor][v]['policy_groups'][k]
+        else:
+            groups = self.aa_policy[vendor][v]['policy_groups'][aa_type]
+
+        return sorted(groups)
+
+    def _get_policy_group_type(self, vendor, version, policy_group):
+        '''Return policy group type'''
+        if not self.aa_policy:
+            return None
+
+        for t in self.aa_policy[vendor][version]['policy_groups']:
+            if policy_group in self.aa_policy[vendor][version]['policy_groups'][t]:
+                return t
+        return None
+
+    def _get_template_type(self, vendor, version, template):
+        '''Return template type'''
+        if not self.aa_policy:
+            return None
+
+        for t in self.aa_policy[vendor][version]['templates']:
+            if template in self.aa_policy[vendor][version]['templates'][t]:
+                return t
+        return None
 
     # click_report[<result_type>][<review_name>] = <result>
     #   result_type: info, warn, error

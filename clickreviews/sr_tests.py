@@ -49,11 +49,6 @@ def _path_join(self, d, fn):
     return os.path.join("/fake", fn)
 
 
-def _extract_statinfo(self, fn):
-    '''Pretend we found performed an os.stat()'''
-    return os.stat(os.path.realpath(__file__))
-
-
 def _check_innerpath_executable(self, fn):
     '''Pretend we a file'''
     if '.nonexec' in fn:
@@ -64,16 +59,6 @@ def _check_innerpath_executable(self, fn):
 def _pkgfmt_type(self):
     '''Pretend we found the pkgfmt type'''
     return TEST_PKGFMT_TYPE
-
-
-def _pkgfmt_version(self):
-    '''Pretend we found the pkgfmt version'''
-    return TEST_PKGFMT_VERSION
-
-
-def _is_squashfs(self):
-    '''Pretend we discovered if it is a squashfs or not'''
-    return (TEST_PKGFMT_TYPE == "snap" and float(TEST_PKGFMT_VERSION) > 15.04)
 
 
 def _detect_package(self, fn):
@@ -102,9 +87,6 @@ def create_patches():
     patches.append(patch(
         'clickreviews.sr_common.SnapReview._path_join',
         _path_join))
-    patches.append(patch(
-        'clickreviews.sr_common.SnapReview._extract_statinfo',
-        _extract_statinfo))
     patches.append(patch('clickreviews.common.unpack_pkg', _mock_func))
     patches.append(patch('clickreviews.common.raw_unpack_pkg', _mock_func))
     patches.append(patch('clickreviews.common.detect_package',
@@ -131,9 +113,6 @@ def create_patches():
     # pkgfmt
     patches.append(patch("clickreviews.sr_common.SnapReview._pkgfmt_type",
                    _pkgfmt_type))
-    patches.append(patch("clickreviews.sr_common.SnapReview._pkgfmt_version",
-                   _pkgfmt_version))
-    patches.append(patch("clickreviews.common.is_squashfs", _is_squashfs))
 
     return patches
 

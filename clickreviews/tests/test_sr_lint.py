@@ -424,6 +424,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        name = c._get_check_name('snap_type_redflag')
+        self.check_manual_review(r, name)
 
     def test_check_type_redflagged_kernel(self):
         '''Test check_type_redflagged - kernel'''
@@ -433,6 +435,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        name = c._get_check_name('snap_type_redflag')
+        self.check_manual_review(r, name)
 
     def test_check_type_redflagged_os(self):
         '''Test check_type_redflagged - os'''
@@ -442,6 +446,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
+        name = c._get_check_name('snap_type_redflag')
+        self.check_manual_review(r, name)
 
     def test_check_type_unknown(self):
         '''Test check_type - unknown'''
