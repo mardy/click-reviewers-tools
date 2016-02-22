@@ -33,6 +33,7 @@ import types
 DEBUGGING = False
 UNPACK_DIR = None
 RAW_UNPACK_DIR = None
+VALID_SYSCALL = r'^[a-z0-9_]{2,64}$'
 # This needs to match up with snapcraft
 MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
 # There are quite a few kernel interfaces that can cause problems with
@@ -49,7 +50,6 @@ MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
 AA_PROFILE_NAME_MAXLEN = 230  # 245 minus a bit for child profiles
 AA_PROFILE_NAME_ADVLEN = 100
 
-VALID_SYSCALL = r'^[a-z0-9_]{2,64}$'
 
 def cleanup_unpack():
     global UNPACK_DIR

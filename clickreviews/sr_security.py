@@ -129,8 +129,8 @@ class SnapReviewSecurity(SnapReview):
 
             for k in ['apparmor', 'seccomp']:
                 if k in self.policies['uses'][slot]['security-policy']:
-                    raw_profiles[slot][k] = self._extract_security_profile(
-                            slot, k)
+                    raw_profiles[slot][k] = \
+                        self._extract_security_profile(slot, k)
 
         return raw_profiles
 
@@ -337,11 +337,11 @@ class SnapReviewSecurity(SnapReview):
                                     ("# Unrestricted AppArmor policy" in p or
                                      "# This profile offers no protection" in
                                      p):
-                                self._add_result('info', n,
-                                        "SKIPPED for '%s' (boilerplate)" % v)
+                                self._add_result('info', n, "SKIPPED for '%s' "
+                                                 "(boilerplate)" % v)
                             else:
-                                self._add_result('warn', n,
-                                        "could not find '%s' in profile" % v)
+                                self._add_result('warn', n, "could not find "
+                                                 "'%s' in profile" % v)
                             continue
                     self._add_result(t, n, s)
                 elif f == 'seccomp':
