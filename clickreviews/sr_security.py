@@ -162,7 +162,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_caps(self):
         '''Check security-caps'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'uses' not in self.policies:
             return
 
         caps = self._get_policy_groups(version=self.policy_version,
@@ -229,7 +229,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_override(self):
         '''Check security-override'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'uses' not in self.policies:
             return
 
         # These regexes are pretty strict, but lets try to guard against
@@ -368,7 +368,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_template(self):
         '''Check security-template'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'uses' not in self.policies:
             return
 
         templates = self._get_templates(version=self.policy_version,
@@ -427,7 +427,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_combinations(self):
         '''Verify security yaml uses valid combinations'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'uses' not in self.policies:
             return
 
         for slot in self.policies['uses']:
@@ -447,6 +447,8 @@ class SnapReviewSecurity(SnapReview):
 
         # Make sure that a particular app doesn't list conflicting combinations
         # (ie, security-policy with anything else)
+        if 'apps' not in self.policies:
+            return
         for app in self.policies['apps']:
             t = 'info'
             n = self._get_check_name('yaml_combinations_apps', app=app)
@@ -474,7 +476,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_uses_redflag(self):
         '''Check uses redflag fields'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'uses' not in self.policies:
             return
 
         for slot in self.policies['uses']:
@@ -496,7 +498,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_apps_uses_mapped_migration(self):
         '''Check apps uses mapped migration skill'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'apps' not in self.policies:
             return
 
         for app in self.policies['apps']:

@@ -126,6 +126,15 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_caps_no_uses(self):
+        '''Test check_security_caps() - no uses'''
+        self.set_test_snap_yaml("uses", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_caps()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_caps_with_nonmigration(self):
         '''Test check_security_caps() - with non-migration'''
         uses = self._create_top_uses()
@@ -289,6 +298,15 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         c.check_security_override()
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_override_no_uses(self):
+        '''Test check_security_override() - no uses'''
+        self.set_test_snap_yaml("uses", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_override()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_security_override_empty(self):
@@ -481,6 +499,15 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_template_no_uses(self):
+        '''Test check_security_template()'''
+        self.set_test_snap_yaml("uses", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_template()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_template_with_nonmigration(self):
         '''Test check_security_template() - with non-migration'''
         uses = self._create_top_uses()
@@ -608,6 +635,26 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         '''Test check_security_combinations()'''
         uses = self._create_top_uses()
         self.set_test_snap_yaml("uses", uses)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_no_uses(self):
+        '''Test check_security_combinations() - no uses'''
+        self.set_test_snap_yaml("uses", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_combinations()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_combinations_no_apps(self):
+        '''Test check_security_combinations()'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        self.set_test_snap_yaml("apps", None)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
         report = c.click_report
@@ -760,8 +807,8 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
-    def test_check_uses_redflag_none(self):
-        '''Test check_uses_redflag() - none'''
+    def test_check_uses_redflag_no_redflagged(self):
+        '''Test check_uses_redflag() - no redflaggede'''
         uses = {'skill-caps': {'type': 'migration-skill',
                                'caps': ['network-client']},
                 'skill-template': {'type': 'migration-skill',
@@ -784,6 +831,15 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(report, expected_counts)
 
+    def test_check_uses_redflag_no_uses(self):
+        '''Test check_uses_redflag() - no uses'''
+        self.set_test_snap_yaml("uses", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_uses_redflag()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_apps_uses_mapped_migration(self):
         '''Test check_apps_uses_mapped_migration()'''
         uses = self._create_top_uses()
@@ -794,6 +850,17 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         c.check_apps_uses_mapped_migration()
         report = c.click_report
         expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_apps_uses_mapped_migration_none(self):
+        '''Test check_apps_uses_mapped_migration() - no apps'''
+        uses = self._create_top_uses()
+        self.set_test_snap_yaml("uses", uses)
+        self.set_test_snap_yaml("apps", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_apps_uses_mapped_migration()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_apps_uses_mapped_migration_bad(self):
