@@ -660,7 +660,7 @@ def find_external_symlinks(unpack_dir, pkg_files):
                                               os.path.basename(link)),
                              pkg_files))
 
-    return external_symlinks
+    return [os.path.relpath(i, unpack_dir) for i in external_symlinks]
 
 
 # check_results(report, expected_counts, expected)
