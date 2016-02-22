@@ -99,6 +99,8 @@ lint-snap-v2:apps_entry|
 lint-snap-v2:apps_present|
 lint-snap-v2:apps_required|
 lint-snap-v2:apps_unknown|
+lint-snap-v2:app_uses|
+lint-snap-v2:app_uses_slot_reference|
 lint-snap-v2:architecture_specified_needed|
 lint-snap-v2:architecture_valid|
 lint-snap-v2:attributes|
@@ -153,8 +155,6 @@ lint-snap-v2:summary|
 lint-snap-v2:summary_present|
 lint-snap-v2:type|
 lint-snap-v2:unknown_field|
-lint-snap-v2:uses|
-lint-snap-v2:uses_slot_reference|
 lint-snap-v2:valid_contents_for_architecture|
 lint-snap-v2:vcs_files|
 lint-snap-v2:version_valid|
