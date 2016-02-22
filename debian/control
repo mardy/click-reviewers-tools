@@ -13,7 +13,8 @@ Build-Depends: debhelper (>= 9~),
                python3-setuptools,
                python3-simplejson,
                python3-xdg,
-               python3-yaml
+               python3-yaml,
+               squashfs-tools
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/click-reviewers-tools
 Vcs-Bzr: lp:click-reviewers-tools
@@ -31,8 +32,8 @@ Depends: binutils,
          python3-xdg,
          python3-yaml,
          ${misc:Depends},
-         ${python3:Depends}
-Recommends: squashfs-tools
+         ${python3:Depends},
+         squashfs-tools
 Description: tools to review click packages
  These scripts can be used to review click packages both manually and in a
  programmatic fashion.
