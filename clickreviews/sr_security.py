@@ -107,7 +107,7 @@ class SnapReviewSecurity(SnapReview):
 
         fn = os.path.join(self.unpack_dir, rel_fn)
         if not os.path.exists(fn):
-            error("Could not find '%s'" % rel_fn)
+            error("Could not find '%s'" % rel_fn)  # pragma: nocover
 
         fh = open_file_read(fn)
         contents = ""

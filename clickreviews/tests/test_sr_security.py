@@ -15,9 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+from unittest import TestCase
+import os
+import shutil
+import tempfile
 
+from clickreviews.common import cleanup_unpack
+from clickreviews.common import check_results as common_check_results
 from clickreviews.sr_security import SnapReviewSecurity
 import clickreviews.sr_tests as sr_tests
+from clickreviews.tests import utils
 
 
 class TestSnapReviewSecurity(sr_tests.TestSnapReview):
@@ -583,25 +590,6 @@ _exit
         c.check_security_policy()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def _test_check_security_policy_tmpl(self):
-        '''Test check_security_policy() - tmpl'''
-        self.set_test_security_profile('skill-other', 'apparmor',
-                                       self._create_aa_raw())
-        self.set_test_security_profile('skill-other', 'seccomp',
-                                       self._create_sc_raw())
-        uses = {'skill-other': {'type': 'migration-skill',
-                                'security-policy': {"apparmor": "meta/aa",
-                                                    "seccomp": "meta/sc",
-                                                    }
-                                }
-                }
-        self.set_test_snap_yaml("uses", uses)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': -1}
         self.check_results(report, expected_counts)
 
     def test_check_security_policy_missing_apparmor(self):
@@ -1186,4 +1174,86 @@ _exit
         c.check_apparmor_profile_name_length()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+
+class TestSnapReviewSecurityNoMock(TestCase):
+    """Tests without mocks where they are not needed."""
+    def setUp(self):
+        # XXX cleanup_unpack() is required because global variables
+        # UNPACK_DIR, RAW_UNPACK_DIR are initialised to None at module
+        # load time, but updated when a real (non-Mock) test runs, such as
+        # here. While, at the same time, two of the existing tests using
+        # mocks depend on both global vars being None. Ideally, those
+        # global vars should be refactored away.
+        self.addCleanup(cleanup_unpack)
+        super().setUp()
+
+    def mkdtemp(self):
+        """Create a temp dir which is cleaned up after test."""
+        tmp_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp_dir)
+        return tmp_dir
+
+    def check_results(self, report,
+                      expected_counts={'info': 1, 'warn': 0, 'error': 0},
+                      expected=None):
+        common_check_results(self, report, expected_counts, expected)
+
+    def test_check_security_policy_nomock(self):
+        '''Test check_security_policy() - no mock'''
+        output_dir = self.mkdtemp()
+
+        aa_path = os.path.join(output_dir, 'aa')
+        content = '''
+###VAR###
+###PROFILEATTACH### (attach_disconnected) {
+  @{INSTALL_DIR}/@{APP_PKGNAME}/@{APP_VERSION}/**  mrklix,
+}
+'''
+
+        with open(aa_path, 'w') as f:
+            f.write(content)
+
+        sc_path = os.path.join(output_dir, 'sc')
+        content = '''
+# test comment
+ # test comment2
+deny ptrace
+deny add_key
+alarm
+usr32
+
+_exit
+'''
+        with open(sc_path, 'w') as f:
+            f.write(content)
+
+        sy_path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+architectures: [ amd64 ]
+uses:
+    skill-other:
+        type: migration-skill
+        security-policy:
+            apparmor: meta/aa
+            seccomp: meta/sc
+'''
+        with open(sy_path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % sy_path,
+                                                '%s:meta/aa' % aa_path,
+                                                '%s:meta/sc' % sc_path]
+                                   )
+
+        c = SnapReviewSecurity(package)
+        c.check_security_policy()
+        report = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
