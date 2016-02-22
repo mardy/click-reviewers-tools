@@ -120,6 +120,10 @@ class SnapReviewSecurity(SnapReview):
     def _extract_raw_profiles(self):
         '''Get 'security-policy' policies'''
         raw_profiles = {}
+
+        if 'uses' not in self.policies:
+            return raw_profiles
+
         for slot in self.policies['uses']:
             if 'security-policy' not in self.policies['uses'][slot]:
                 continue
@@ -296,20 +300,16 @@ class SnapReviewSecurity(SnapReview):
             t = 'info'
             n = self._get_check_name(key, extra=slot)
             s = "OK"
-            if len(self.policies['uses'][slot][key].keys()) == 0:
-                t = 'error'
-                s = "nothing specified in '%s' for '%s'" % (key, slot)
-            else:
-                for f in self.policies['uses'][slot][key].keys():
-                    if f not in allowed_fields:
-                        t = 'error'
-                        s = "unknown field '%s' in " % f + \
-                            "'%s' for '%s'" % (key, slot)
-                    elif not isinstance(self.policies['uses'][slot][key][f],
-                                        str):
-                        t = 'error'
-                        s = "invalid %s entry: %s (not a str)" % \
-                            (f, self.policies['uses'][slot][key][f])
+            for f in self.policies['uses'][slot][key].keys():
+                if f not in allowed_fields:
+                    t = 'error'
+                    s = "unknown field '%s' in " % f + \
+                        "'%s' for '%s'" % (key, slot)
+                elif not isinstance(self.policies['uses'][slot][key][f],
+                                    str):
+                    t = 'error'
+                    s = "invalid %s entry: %s (not a str)" % \
+                        (f, self.policies['uses'][slot][key][f])
             self._add_result(t, n, s)
 
         for slot in self.raw_profiles:
@@ -337,12 +337,11 @@ class SnapReviewSecurity(SnapReview):
                                     ("# Unrestricted AppArmor policy" in p or
                                      "# This profile offers no protection" in
                                      p):
-                                self._add_result('info', n, "SKIPPED for '%s' "
-                                                 "(boilerplate)" % v)
+                                s = "SKIPPED for '%s' (boilerplate)" % v
                             else:
-                                self._add_result('warn', n, "could not find "
-                                                 "'%s' in profile" % v)
-                            continue
+                                t = 'warn'
+                                s = "could not find '%s' in profile" % v
+                            break
                     self._add_result(t, n, s)
                 elif f == 'seccomp':
                     if t == 'error':
