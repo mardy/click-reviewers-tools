@@ -439,18 +439,6 @@ class SnapReviewLint(SnapReview):
                 (",".join(sorted(unknown)))
         self._add_result(t, n, s)
 
-    def check_is_squashfs(self):
-        '''Check snapfs'''
-        if not self.is_snap2:
-            return
-
-        # Manual review until have squashfs tests
-        t = 'error'
-        n = self._get_check_name('is_squashfs')
-        s = "(NEEDS REVIEW) squashfs pkg"
-        manual_review = True
-        self._add_result(t, n, s, manual_review=manual_review)
-
     def check_apps(self):
         '''Check apps'''
         if not self.is_snap2:

@@ -11,6 +11,7 @@ click-reviewers-tools (0.37) UNRELEASED; urgency=medium
   * rename unpack-click as unpack-package
   * add snap v2 lint checks
   * add snap v2 security checks
+  * squashfs snaps no longer require manual review
 
   [ James Tait ]
   * cr_lint.py: Don't check for the presence of readme.md if the package is a
