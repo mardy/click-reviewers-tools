@@ -1173,11 +1173,10 @@ class SnapReviewLint(SnapReview):
 
     def check_architecture_specified_needed(self):
         '''Check if the specified architecture is actually needed'''
-        if not self.is_snap2:
+        if not self.is_snap2 or 'architectures' not in self.snap_yaml:
             return
 
-        if 'architectures' in self.snap_yaml and \
-                'all' in self.snap_yaml['architectures']:
+        if 'all' in self.snap_yaml['architectures']:
             return
 
         for arch in self.snap_yaml['architectures']:

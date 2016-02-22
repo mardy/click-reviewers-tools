@@ -113,7 +113,8 @@ lint-snap-v2:daemon_required|
 lint-snap-v2:description|
 lint-snap-v2:description_present|
 lint-snap-v2:external_symlinks|
-lint-snap-v2:frameworks|http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file
+lint-snap-v2:frameworks|
+lint-snap-v2:framework_uses_frameworks|http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file
 lint-snap-v2:icon_absolute_path|
 lint-snap-v2:icon_empty|
 lint-snap-v2:icon_exists|
