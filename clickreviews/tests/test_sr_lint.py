@@ -2307,6 +2307,41 @@ class TestSnapReviewLintNoMock(TestCase):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_external_symlinks_has_symlink(self):
+        '''Test check_external_symlinks() - has symlink'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['/some/where,outside']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_external_symlinks_has_symlink_framework(self):
+        '''Test check_external_symlinks() - has symlink (framework)'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+type: framework
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path,
+                                                '/some/where,outside']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_external_symlinks_type_kernel(self):
         '''Test check_external_symlinks() - type kernel'''
         output_dir = self.mkdtemp()
@@ -2323,23 +2358,60 @@ type: kernel
             f.write(content)
 
         package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path,
+                                                '/some/where,outside']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_external_symlinks_has_symlink_gadget(self):
+        '''Test check_external_symlinks() - has symlink (gadget)'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+type: gadget
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path,
+                                                '/some/where,outside']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_external_symlinks_os(self):
+        '''Test check_external_symlinks() - os'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+type: os
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
                                    extra_files=['%s:meta/snap.yaml' % path]
                                    )
         c = SnapReviewLint(package)
         c.check_external_symlinks()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_external_symlinks_has_symlink(self):
-        '''Test check_external_symlinks() - has symlink'''
-        package = utils.make_snap2(output_dir=self.mkdtemp(),
-                                   extra_files=['/some/where,outside']
-                                   )
-        c = SnapReviewLint(package)
-        c.check_external_symlinks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_architecture_all(self):
