@@ -29,6 +29,7 @@ TEST_SNAP_YAML = ""
 TEST_PKGFMT_TYPE = "snap"
 TEST_PKGFMT_VERSION = "16.04"
 TEST_UNPACK_DIR = "/fake"
+TEST_SECURITY_PROFILES = dict()
 
 
 #
@@ -42,6 +43,12 @@ def _mock_func(self):
 def _extract_snap_yaml(self):
     '''Pretend we read the package.yaml file'''
     return io.StringIO(TEST_SNAP_YAML)
+
+
+def _extract_security_profile(self, slot, key):
+    '''Pretend we read the security profile'''
+    # return io.StringIO(TEST_SECURITY_PROFILES[slot][key])
+    return TEST_SECURITY_PROFILES[slot][key]
 
 
 def _path_join(self, d, fn):
@@ -106,13 +113,17 @@ def create_patches():
         'clickreviews.common.Review._check_innerpath_executable',
         _check_innerpath_executable))
 
-    #  sr_common
+    # sr_common
     patches.append(patch('clickreviews.sr_common.SnapReview._get_unpack_dir',
                    __get_unpack_dir))
 
     # pkgfmt
     patches.append(patch("clickreviews.sr_common.SnapReview._pkgfmt_type",
                    _pkgfmt_type))
+
+    # sr_security
+    patches.append(patch('clickreviews.sr_security.SnapReviewSecurity._extract_security_profile',
+                   _extract_security_profile))
 
     return patches
 
@@ -140,11 +151,24 @@ class TestSnapReview(TestCase):
         # mockup a package name
         self._update_test_name()
 
+        # reset the security profiles
+        self.test_security_profiles = dict()
+
     def _update_test_snap_yaml(self):
         global TEST_SNAP_YAML
         TEST_SNAP_YAML = yaml.dump(self.test_snap_yaml,
                                    default_flow_style=False,
                                    indent=4)
+
+    def _update_test_security_profiles(self):
+        global TEST_SECURITY_PROFILES
+        TEST_SECURITY_PROFILES = dict()
+        if len(self.test_security_profiles.keys()) == 0:
+            TEST_SECURITY_PROFILES = dict()
+        else:
+            for slot in self.test_security_profiles.keys():
+                TEST_SECURITY_PROFILES[slot] = \
+                    self.test_security_profiles[slot]
 
     def _update_test_name(self):
         self.test_name = "%s.origin_%s_%s.snap" % (
@@ -172,6 +196,24 @@ class TestSnapReview(TestCase):
             self.test_snap_yaml[key] = value
         self._update_test_snap_yaml()
 
+    def set_test_security_profile(self, slot, key, policy):
+        '''Set policy in security profile for key'''
+        if policy is None:
+            if slot in self.test_security_profiles and \
+                    key in self.test_security_profiles[slot]:
+                self.test_security_profiles[slot].pop(key)
+        elif key is None:
+            if slot in self.test_security_profiles:
+                self.test_security_profiles.pop(slot)
+        elif slot is None:
+            self.test_security_profiles = dict()
+        else:
+            if slot not in self.test_security_profiles:
+                self.test_security_profiles[slot] = dict()
+            self.test_security_profiles[slot][key] = policy
+
+        self._update_test_security_profiles()
+
     def set_test_pkgfmt(self, t, v):
         global TEST_PKGFMT_TYPE
         global TEST_PKGFMT_VERSION
@@ -193,6 +235,8 @@ class TestSnapReview(TestCase):
         '''Make sure we reset everything to known good values'''
         global TEST_SNAP_YAML
         TEST_SNAP_YAML = ""
+        global TEST_SECURITY_PROFILES
+        TEST_SECURITY_PROFILES = dict()
         global TEST_PKGFMT_TYPE
         TEST_PKGFMT_TYPE = "snap"
         global TEST_PKGFMT_VERSION

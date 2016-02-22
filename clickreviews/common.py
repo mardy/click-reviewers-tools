@@ -33,6 +33,7 @@ import types
 DEBUGGING = False
 UNPACK_DIR = None
 RAW_UNPACK_DIR = None
+VALID_SYSCALL = r'^[a-z0-9_]{2,64}$'
 # This needs to match up with snapcraft
 MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
 # There are quite a few kernel interfaces that can cause problems with

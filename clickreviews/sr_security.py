@@ -24,6 +24,7 @@ from clickreviews.common import (
     open_file_read,
     AA_PROFILE_NAME_MAXLEN,
     AA_PROFILE_NAME_ADVLEN,
+    VALID_SYSCALL,
 )
 import clickreviews.apparmor_policy as apparmor_policy
 import os
@@ -54,6 +55,7 @@ class SnapReviewSecurity(SnapReview):
                                   'kernel']  # these don't need security items
 
         self.policies = self._extract_security_yaml()
+        self.raw_profiles = self._extract_raw_profiles()
 
         # TODO: may need updating for ubuntu-personal, etc
         self.policy_vendor = "ubuntu-core"
@@ -99,13 +101,13 @@ class SnapReviewSecurity(SnapReview):
 
         return sec
 
-    def _extract_security_profile(self, app):
+    def _extract_security_profile(self, slot, key):
         '''Extract security profile'''
-        rel_fn = self.manifest['hooks'][app]['apparmor-profile']
+        rel_fn = self.policies['uses'][slot]['security-policy'][key]
 
         fn = os.path.join(self.unpack_dir, rel_fn)
         if not os.path.exists(fn):
-            error("Could not find '%s'" % rel_fn)
+            error("Could not find '%s'" % rel_fn)  # pragma: nocover
 
         fh = open_file_read(fn)
         contents = ""
@@ -113,11 +115,28 @@ class SnapReviewSecurity(SnapReview):
             contents += line
         fh.close()
 
-        # We could try to run this through apparmor_parser, but that is going
-        # to be system dependent (eg, a profile may reference features on a
-        # new parser and fail here on the local parser)
-
         return contents
+
+    def _extract_raw_profiles(self):
+        '''Get 'security-policy' policies'''
+        raw_profiles = {}
+
+        if 'uses' not in self.policies:
+            return raw_profiles
+
+        for slot in self.policies['uses']:
+            if 'security-policy' not in self.policies['uses'][slot]:
+                continue
+
+            if slot not in raw_profiles:
+                raw_profiles[slot] = {}
+
+            for k in ['apparmor', 'seccomp']:
+                if k in self.policies['uses'][slot]['security-policy']:
+                    raw_profiles[slot][k] = \
+                        self._extract_security_profile(slot, k)
+
+        return raw_profiles
 
     def check_security_policy_vendor(self):
         '''Check policy-vendor'''
@@ -222,7 +241,7 @@ class SnapReviewSecurity(SnapReview):
         allowed_fields = {'read-paths': re.compile(r'^[/@]'),
                           'write-paths': re.compile(r'^[/@]'),
                           'abstractions': re.compile(r'^[a-zA-Z0-9_]{2,64}$'),
-                          'syscalls': re.compile(r'^[a-z0-9_]{2,64}$'),
+                          'syscalls': re.compile(VALID_SYSCALL),
                           }
 
         for slot in self.policies['uses']:
@@ -259,9 +278,92 @@ class SnapReviewSecurity(SnapReview):
             self._add_result(t, n, s)
 
     def check_security_policy(self):
-        '''TODO: Check security-policy'''
-        if not self.is_snap2:
+        '''Check security-policy'''
+        if not self.is_snap2 or 'uses' not in self.policies:
             return
+
+        allowed_fields = ['apparmor', 'seccomp']
+        aa_searches = ['###VAR###',
+                       '###PROFILEATTACH###',
+                       '@{INSTALL_DIR}',
+                       '@{APP_PKGNAME}',
+                       '@{APP_VERSION}',
+                       ]
+        sc_skip_pat = re.compile(r'^(\s*#|\s*$)')
+        sc_valid_pat = re.compile(VALID_SYSCALL)
+
+        for slot in self.policies['uses']:
+            key = 'security-policy'
+            if key not in self.policies['uses'][slot]:
+                continue
+
+            t = 'info'
+            n = self._get_check_name(key, extra=slot)
+            s = "OK"
+            for f in self.policies['uses'][slot][key].keys():
+                if f not in allowed_fields:
+                    t = 'error'
+                    s = "unknown field '%s' in " % f + \
+                        "'%s' for '%s'" % (key, slot)
+                elif not isinstance(self.policies['uses'][slot][key][f],
+                                    str):
+                    t = 'error'
+                    s = "invalid %s entry: %s (not a str)" % \
+                        (f, self.policies['uses'][slot][key][f])
+            self._add_result(t, n, s)
+
+        for slot in self.raw_profiles:
+            for f in allowed_fields:
+                t = 'info'
+                n = self._get_check_name('%s_%s' % (key, f), extra=slot)
+                s = "OK"
+                if f not in self.raw_profiles[slot]:
+                    t = 'error'
+                    s = "required field '%s' not present" % f
+                self._add_result(t, n, s)
+
+                if f == 'apparmor':
+                    if t == 'error':
+                        continue
+
+                    p = self.raw_profiles[slot]['apparmor']
+                    t = 'info'
+                    n = self._get_check_name('%s_%s_var' % (key, f),
+                                             extra=slot)
+                    s = "OK"
+                    for v in aa_searches:
+                        if v not in p:
+                            if v.startswith('@') and \
+                                    ("# Unrestricted AppArmor policy" in p or
+                                     "# This profile offers no protection" in
+                                     p):
+                                s = "SKIPPED for '%s' (boilerplate)" % v
+                            else:
+                                t = 'warn'
+                                s = "could not find '%s' in profile" % v
+                            break
+                    self._add_result(t, n, s)
+                elif f == 'seccomp':
+                    if t == 'error':
+                        continue
+
+                    invalid = []
+                    for line in self.raw_profiles[slot]['seccomp'].splitlines():
+                        if line.startswith('deny '):
+                            line = line.replace('deny ', '')
+                        if sc_skip_pat.search(line):
+                            continue
+                        if not sc_valid_pat.search(line):
+                            invalid.append(line)
+
+                    t = 'info'
+                    n = self._get_check_name('%s_%s_valid' % (key, f),
+                                             extra=slot)
+                    s = "OK"
+                    if len(invalid) > 0:
+                        t = 'error'
+                        s = "invalid syscalls: %s" % ",".join(invalid)
+                    self._add_result(t, n, s)
 
     def check_security_template(self):
         '''Check security-template'''

@@ -217,6 +217,11 @@ security-snap-v2:policy-version|
 security-snap-v2:profile_name_length|
 security-snap-v2:redflag_fields|True
 security-snap-v2:security-override|
+security-snap-v2:security-policy|
+security-snap-v2:security-policy_apparmor|
+security-snap-v2:security-policy_apparmor_var|
+security-snap-v2:security-policy_seccomp|
+security-snap-v2:security-policy_seccomp_valid|
 security-snap-v2:template_exists|
 security-snap-v2:template_safe|
 security-snap-v2:yaml_combinations|
