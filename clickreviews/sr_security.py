@@ -493,7 +493,7 @@ class SnapReviewSecurity(SnapReview):
                 t = 'error'
                 s = "found redflagged attribute: %s" % attrib
                 m = True
-            self._add_result(t, n, s, m)
+            self._add_result(t, n, s, manual_review=m)
 
     def check_apps_uses_mapped_migration(self):
         '''Check apps uses mapped migration skill'''
