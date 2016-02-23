@@ -36,7 +36,7 @@ RAW_UNPACK_DIR = None
 TMP_DIR = None
 VALID_SYSCALL = r'^[a-z0-9_]{2,64}$'
 # This needs to match up with snapcraft
-MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
+MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root', '-no-xattrs']
 # There are quite a few kernel interfaces that can cause problems with
 # long profile names. These are outlined in
 # https://launchpad.net/bugs/1499544. The big issue is that the audit
