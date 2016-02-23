@@ -221,6 +221,9 @@ security-snap-v2:security-policy_apparmor|
 security-snap-v2:security-policy_apparmor_var|
 security-snap-v2:security-policy_seccomp|
 security-snap-v2:security-policy_seccomp_valid|
+security-snap-v2:squashfs_repack_checksum|
+security-snap-v2:squashfs_resquash|
+security-snap-v2:squashfs_supports_fstime|
 security-snap-v2:template_exists|
 security-snap-v2:template_safe|
 security-snap-v2:yaml_combinations|

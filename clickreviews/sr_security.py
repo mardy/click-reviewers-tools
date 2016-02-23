@@ -20,10 +20,14 @@ from clickreviews.sr_common import (
     SnapReview,
 )
 from clickreviews.common import (
+    cmd,
+    create_tempdir,
     error,
     open_file_read,
+    ReviewException,
     AA_PROFILE_NAME_MAXLEN,
     AA_PROFILE_NAME_ADVLEN,
+    MKSQUASHFS_OPTS,
     VALID_SYSCALL,
 )
 import clickreviews.apparmor_policy as apparmor_policy
@@ -543,3 +547,79 @@ class SnapReviewSecurity(SnapReview):
                                                             app,
                                                             self.snap_yaml['version']))
             self._add_result(t, n, s)
+
+    def check_squashfs_resquash(self):
+        '''Check resquash of squashfs'''
+        if not self.is_snap2:
+            return
+
+        fn = os.path.abspath(self.pkg_filename)
+
+        # Verify squashfs supports the -fstime option, if not, warn (which
+        # blocks in store)
+        (rc, out) = cmd(['unsquashfs', '-fstime', fn])
+        if rc != 0:
+            t = 'warn'
+            n = self._get_check_name('squashfs_supports_fstime')
+            s = 'could not determine fstime of squashfs'
+            self._add_result(t, n, s)
+            return
+        fstime = out.strip()
+
+        tmpdir = create_tempdir()  # this is autocleaned
+        tmp_unpack = os.path.join(tmpdir, 'squashfs-root')
+        tmp_repack = os.path.join(tmpdir, 'repack.snap')
+
+        curdir = os.getcwd()
+        os.chdir(tmpdir)
+        # ensure we don't alter the permissions from the unsquashfs
+        old_umask = os.umask(000)
+
+        try:
+            (rc, out) = cmd(['unsquashfs', '-d', tmp_unpack, fn])
+            if rc != 0:
+                raise ReviewException("could not unsquash '%s': %s" %
+                                      (os.path.basename(fn), out))
+            (rc, out) = cmd(['mksquashfs', tmp_unpack, tmp_repack,
+                             '-fstime', fstime] + MKSQUASHFS_OPTS)
+            if rc != 0:
+                raise ReviewException("could not mksquashfs '%s': %s" %
+                                      (os.path.relpath(tmp_unpack, tmpdir),
+                                       out))
+        except ReviewException as e:
+            t = 'error'
+            n = self._get_check_name('squashfs_resquash')
+            self._add_result(t, n, str(e))
+            return
+        finally:
+            os.umask(old_umask)
+            os.chdir(curdir)
+
+        # Now calculate the hashes
+        t = 'info'
+        n = self._get_check_name('squashfs_repack_checksum')
+        s = "OK"
+
+        (rc, out) = cmd(['sha512sum', fn])
+        if rc != 0:
+            t = 'error'
+            s = "could not determine checksum of '%s'" % os.path.basename(fn)
+            self._add_result(t, n, s)
+            return
+        orig_sum = out.split()[0]
+
+        (rc, out) = cmd(['sha512sum', tmp_repack])
+        if rc != 0:
+            t = 'error'
+            s = "could not determine checksum of '%s'" % \
+                os.path.relpath(tmp_repack, tmpdir)
+            self._add_result(t, n, s)
+            return
+        repack_sum = out.split()[0]
+
+        if orig_sum != repack_sum:
+            t = 'error'
+            s = "checksums do not match. Please ensure the snap is " + \
+                "created with 'mksquashfs <dir> <snap> %s'" % \
+                " ".join(MKSQUASHFS_OPTS)
+        self._add_result(t, n, s)

@@ -1257,3 +1257,197 @@ uses:
         report = c.click_report
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
+
+    def test_check_squashfs_resquash(self):
+        '''Test check_squashfs_resquash()'''
+        package = utils.make_snap2(output_dir=self.mkdtemp())
+        c = SnapReviewSecurity(package)
+        c.check_squashfs_resquash()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_resquash_no_fstime(self):
+        '''Test check_squashfs_resquash() - no -fstime'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        # fake unsquashfs
+        unsquashfs = os.path.join(output_dir, 'unsquashfs')
+        content = '''#!/bin/sh
+echo test error: -fstime failure
+exit 1
+'''
+        with open(unsquashfs, 'w') as f:
+            f.write(content)
+        os.chmod(unsquashfs, 0o775)
+
+        old_path = os.environ['PATH']
+        if old_path:
+            os.environ['PATH'] = "%s:%s" % (output_dir, os.environ['PATH'])
+        else:
+            os.environ['PATH'] = output_dir
+
+        c.check_squashfs_resquash()
+        os.environ['PATH'] = old_path
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_resquash_unsquashfs_fail(self):
+        '''Test check_squashfs_resquash() - unsquashfs failure'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        # fake unsquashfs
+        unsquashfs = os.path.join(output_dir, 'unsquashfs')
+        content = '''#!/bin/sh
+if [ "$1" = "-fstime" ]; then
+    exit 0
+fi
+echo test error: unsquashfs failure
+exit 1
+'''
+        with open(unsquashfs, 'w') as f:
+            f.write(content)
+        os.chmod(unsquashfs, 0o775)
+
+        old_path = os.environ['PATH']
+        if old_path:
+            os.environ['PATH'] = "%s:%s" % (output_dir, os.environ['PATH'])
+        else:
+            os.environ['PATH'] = output_dir
+
+        c.check_squashfs_resquash()
+        os.environ['PATH'] = old_path
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_resquash_mksquashfs_fail(self):
+        '''Test check_squashfs_resquash() - mksquashfs failure'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        # fake mksquashfs
+        mksquashfs = os.path.join(output_dir, 'mksquashfs')
+        content = '''#!/bin/sh
+echo test error: mksquashfs failure
+exit 1
+'''
+        with open(mksquashfs, 'w') as f:
+            f.write(content)
+        os.chmod(mksquashfs, 0o775)
+
+        old_path = os.environ['PATH']
+        if old_path:
+            os.environ['PATH'] = "%s:%s" % (output_dir, os.environ['PATH'])
+        else:
+            os.environ['PATH'] = output_dir
+
+        c.check_squashfs_resquash()
+        os.environ['PATH'] = old_path
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_resquash_sha512sum_fail(self):
+        '''Test check_squashfs_resquash() - sha512sum failure'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        # fake sha512sum
+        sha512sum = os.path.join(output_dir, 'sha512sum')
+        content = '''#!/bin/sh
+bn=`basename "$1"`
+if [ "$bn" = "test_1.0_all.snap" ]; then
+    echo test error: sha512sum failure
+    exit 1
+fi
+exit 0
+'''
+        with open(sha512sum, 'w') as f:
+            f.write(content)
+        os.chmod(sha512sum, 0o775)
+
+        old_path = os.environ['PATH']
+        if old_path:
+            os.environ['PATH'] = "%s:%s" % (output_dir, os.environ['PATH'])
+        else:
+            os.environ['PATH'] = output_dir
+
+        c.check_squashfs_resquash()
+        os.environ['PATH'] = old_path
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_resquash_sha512sum_fail_repacked(self):
+        '''Test check_squashfs_resquash() - sha512sum failure (repacked)'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        # fake sha512sum
+        sha512sum = os.path.join(output_dir, 'sha512sum')
+        content = '''#!/bin/sh
+bn=`basename "$1"`
+if [ "$bn" != "test_1.0_all.snap" ]; then
+    echo test error: sha512sum failure
+    exit 1
+fi
+echo deadbeef $1
+exit 0
+'''
+        with open(sha512sum, 'w') as f:
+            f.write(content)
+        os.chmod(sha512sum, 0o775)
+
+        old_path = os.environ['PATH']
+        if old_path:
+            os.environ['PATH'] = "%s:%s" % (output_dir, os.environ['PATH'])
+        else:
+            os.environ['PATH'] = output_dir
+
+        c.check_squashfs_resquash()
+        os.environ['PATH'] = old_path
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_resquash_sha512sum_mismatch(self):
+        '''Test check_squashfs_resquash() - sha512sum mismatch'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        # fake sha512sum
+        sha512sum = os.path.join(output_dir, 'sha512sum')
+        content = '''#!/bin/sh
+bn=`basename "$1"`
+if [ "$bn" = "test_1.0_all.snap" ]; then
+    echo beefeeee $1
+else
+    echo deadbeef $1
+fi
+exit 0
+'''
+        with open(sha512sum, 'w') as f:
+            f.write(content)
+        os.chmod(sha512sum, 0o775)
+
+        old_path = os.environ['PATH']
+        if old_path:
+            os.environ['PATH'] = "%s:%s" % (output_dir, os.environ['PATH'])
+        else:
+            os.environ['PATH'] = output_dir
+
+        c.check_squashfs_resquash()
+        os.environ['PATH'] = old_path
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
