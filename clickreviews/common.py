@@ -33,6 +33,7 @@ import types
 DEBUGGING = False
 UNPACK_DIR = None
 RAW_UNPACK_DIR = None
+TMP_DIR = None
 VALID_SYSCALL = r'^[a-z0-9_]{2,64}$'
 # This needs to match up with snapcraft
 MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root']
@@ -60,6 +61,10 @@ def cleanup_unpack():
     if RAW_UNPACK_DIR is not None and os.path.isdir(RAW_UNPACK_DIR):
         recursive_rm(RAW_UNPACK_DIR)
         RAW_UNPACK_DIR = None
+    global TMP_DIR
+    if TMP_DIR is not None and os.path.isdir(TMP_DIR):
+        recursive_rm(TMP_DIR)
+        TMP_DIR = None
 atexit.register(cleanup_unpack)
 
 
@@ -466,13 +471,13 @@ def _unpack_cmd(cmd_args, d, dest):
 
 def _unpack_snap_squashfs(snap_pkg, dest):
     '''Unpack a squashfs based snap package to dest'''
-    d = tempfile.mkdtemp(prefix='clickreview-')
+    d = tempfile.mkdtemp(prefix='review-')
     return _unpack_cmd(['unsquashfs', '-f', '-d', d,
                         os.path.abspath(snap_pkg)], d, dest)
 
 
 def _unpack_click_deb(pkg, dest):
-    d = tempfile.mkdtemp(prefix='clickreview-')
+    d = tempfile.mkdtemp(prefix='review-')
     return _unpack_cmd(['dpkg-deb', '-R',
                         os.path.abspath(pkg), d], d, dest)
 
@@ -534,6 +539,14 @@ def raw_unpack_pkg(fn, dest=None):
         shutil.move(d, dest)
 
     return dest
+
+
+def create_tempdir():
+    '''Create/reuse a temporary directory that is automatically cleaned up'''
+    global TMP_DIR
+    if TMP_DIR is None:
+        TMP_DIR = tempfile.mkdtemp(prefix='review-')
+    return TMP_DIR
 
 
 def open_file_read(path):
