@@ -1124,6 +1124,8 @@ class SnapReviewLint(SnapReview):
         if not self.is_snap2 or 'plugs' not in self.snap_yaml:
             return
 
+        # FIXME: we should be able to reuse the lint checking code for slots
+        # here
         t = 'warn'
         n = self._get_check_name('plugs')
         s = 'TODO: check unimplemented'
@@ -1134,6 +1136,8 @@ class SnapReviewLint(SnapReview):
         if not self.is_snap2 or 'apps' not in self.snap_yaml:
             return
 
+        # FIXME: we should be able to reuse the lint checking code for slots
+        # here
         for app in self.snap_yaml['apps']:
             key = 'plugs'
             if key not in self.snap_yaml['apps'][app]:

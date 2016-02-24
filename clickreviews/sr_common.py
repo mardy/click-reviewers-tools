@@ -49,7 +49,8 @@ class SnapReview(Review):
                        "license-version",
                        "summary",
                        "type",
-                       "uses",
+                       "slots",
+                       "plugs",
                        ]
 
     apps_required = ['command']
@@ -58,7 +59,8 @@ class SnapReview(Review):
                      'stop-timeout',
                      'restart-condition',
                      'poststop',
-                     'uses',
+                     'slots',
+                     'plugs',
                      'ports',
                      'bus-name',
                      'socket',
