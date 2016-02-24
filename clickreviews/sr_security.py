@@ -71,43 +71,43 @@ class SnapReviewSecurity(SnapReview):
         '''
         sec = {}
 
-        if 'uses' in self.snap_yaml:
-            sec['uses'] = {}
-            # TODO: need to adjust for native security skills
-            for slot in self.snap_yaml['uses']:
-                if 'type' not in self.snap_yaml['uses'][slot] or \
-                        self.snap_yaml['uses'][slot]['type'] != \
-                        'migration-skill':
+        if 'slots' in self.snap_yaml:
+            sec['slots'] = {}
+            # TODO: need to adjust for native security interfaces
+            for slot in self.snap_yaml['slots']:
+                if 'interface' not in self.snap_yaml['slots'][slot] or \
+                        self.snap_yaml['slots'][slot]['interface'] != \
+                        'old-security':
                     continue
-                for k in self.skill_types['migration-skill']:
-                    if k in self.snap_yaml['uses'][slot]:
+                for k in self.interfaces['old-security']:
+                    if k in self.snap_yaml['slots'][slot]:
                         # This check means we don't have to verify in the
                         # individual tests
-                        if not isinstance(self.snap_yaml['uses'][slot][k],
-                                          type(self.skill_types['migration-skill'][k])):
-                            error("Invalid yaml for uses/%s/%s" % (slot, k))  # pragma: nocover
-                        if slot not in sec['uses']:
-                            sec['uses'][slot] = {}
-                        sec['uses'][slot][k] = self.snap_yaml['uses'][slot][k]
+                        if not isinstance(self.snap_yaml['slots'][slot][k],
+                                          type(self.interfaces['old-security'][k])):
+                            error("Invalid yaml for slots/%s/%s" % (slot, k))  # pragma: nocover
+                        if slot not in sec['slots']:
+                            sec['slots'][slot] = {}
+                        sec['slots'][slot][k] = self.snap_yaml['slots'][slot][k]
 
         if 'apps' in self.snap_yaml:
             sec['apps'] = {}
             for app in self.snap_yaml['apps']:
-                if 'uses' not in self.snap_yaml['apps'][app]:
+                if 'slots' not in self.snap_yaml['apps'][app]:
                     continue
                 # This check means we don't have to verify in the individual
                 # tests
-                elif not isinstance(self.snap_yaml['apps'][app]['uses'], list):
-                    error("Invalid yaml for %s/uses" % app)  # pragma: nocover
+                elif not isinstance(self.snap_yaml['apps'][app]['slots'], list):
+                    error("Invalid yaml for %s/slots" % app)  # pragma: nocover
                 if app not in sec['apps']:
                     sec['apps'][app] = {}
-                sec['apps'][app]['uses'] = self.snap_yaml['apps'][app]['uses']
+                sec['apps'][app]['slots'] = self.snap_yaml['apps'][app]['slots']
 
         return sec
 
     def _extract_security_profile(self, slot, key):
         '''Extract security profile'''
-        rel_fn = self.policies['uses'][slot]['security-policy'][key]
+        rel_fn = self.policies['slots'][slot]['security-policy'][key]
 
         fn = os.path.join(self.unpack_dir, rel_fn)
         if not os.path.exists(fn):
@@ -125,18 +125,18 @@ class SnapReviewSecurity(SnapReview):
         '''Get 'security-policy' policies'''
         raw_profiles = {}
 
-        if 'uses' not in self.policies:
+        if 'slots' not in self.policies:
             return raw_profiles
 
-        for slot in self.policies['uses']:
-            if 'security-policy' not in self.policies['uses'][slot]:
+        for slot in self.policies['slots']:
+            if 'security-policy' not in self.policies['slots'][slot]:
                 continue
 
             if slot not in raw_profiles:
                 raw_profiles[slot] = {}
 
             for k in ['apparmor', 'seccomp']:
-                if k in self.policies['uses'][slot]['security-policy']:
+                if k in self.policies['slots'][slot]['security-policy']:
                     raw_profiles[slot][k] = \
                         self._extract_security_profile(slot, k)
 
@@ -170,7 +170,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_caps(self):
         '''Check security-caps'''
-        if not self.is_snap2 or 'uses' not in self.policies:
+        if not self.is_snap2 or 'slots' not in self.policies:
             return
 
         caps = self._get_policy_groups(version=self.policy_version,
@@ -184,12 +184,12 @@ class SnapReviewSecurity(SnapReview):
             # frameworks may reference their own caps
             frameworks.append(self.snap_yaml['name'])
 
-        for slot in self.policies['uses']:
-            if 'caps' not in self.policies['uses'][slot]:
+        for slot in self.policies['slots']:
+            if 'caps' not in self.policies['slots'][slot]:
                 continue
 
             dupes = []
-            for cap in self.policies['uses'][slot]['caps']:
+            for cap in self.policies['slots'][slot]['caps']:
                 # TODO: this will go away when frameworks are gone
                 framework_cap = False
                 for f in frameworks:
@@ -204,7 +204,7 @@ class SnapReviewSecurity(SnapReview):
                 elif cap not in caps:
                     t = 'error'
                     s = "unsupported cap '%s'" % cap
-                elif self.policies['uses'][slot]['caps'].count(cap) > 1 and \
+                elif self.policies['slots'][slot]['caps'].count(cap) > 1 and \
                         cap not in dupes:
                     dupes.append(cap)
                     t = 'error'
@@ -237,7 +237,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_override(self):
         '''Check security-override'''
-        if not self.is_snap2 or 'uses' not in self.policies:
+        if not self.is_snap2 or 'slots' not in self.policies:
             return
 
         # These regexes are pretty strict, but lets try to guard against
@@ -248,31 +248,31 @@ class SnapReviewSecurity(SnapReview):
                           'syscalls': re.compile(VALID_SYSCALL),
                           }
 
-        for slot in self.policies['uses']:
+        for slot in self.policies['slots']:
             key = 'security-override'
-            if key not in self.policies['uses'][slot]:
+            if key not in self.policies['slots'][slot]:
                 continue
 
             t = 'info'
             n = self._get_check_name(key, extra=slot)
             s = "OK"
-            if len(self.policies['uses'][slot][key].keys()) == 0:
+            if len(self.policies['slots'][slot][key].keys()) == 0:
                 t = 'error'
                 s = "nothing specified in '%s' for '%s'" % (key, slot)
             else:
-                for f in self.policies['uses'][slot][key].keys():
+                for f in self.policies['slots'][slot][key].keys():
                     if f not in allowed_fields:
                         t = 'error'
                         s = "unknown field '%s' in " % f + \
                             "'%s' for '%s'" % (key, slot)
-                    elif not isinstance(self.policies['uses'][slot][key][f],
+                    elif not isinstance(self.policies['slots'][slot][key][f],
                                         list):
                         t = 'error'
                         s = "invalid %s entry: %s (not a list)" % \
-                            (f, self.policies['uses'][slot][key][f])
+                            (f, self.policies['slots'][slot][key][f])
                     else:
                         errors = []
-                        for v in self.policies['uses'][slot][key][f]:
+                        for v in self.policies['slots'][slot][key][f]:
                             if not allowed_fields[f].search(v):
                                 errors.append(v)
                         if len(errors) > 0:
@@ -283,7 +283,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_policy(self):
         '''Check security-policy'''
-        if not self.is_snap2 or 'uses' not in self.policies:
+        if not self.is_snap2 or 'slots' not in self.policies:
             return
 
         allowed_fields = ['apparmor', 'seccomp']
@@ -296,24 +296,24 @@ class SnapReviewSecurity(SnapReview):
         sc_skip_pat = re.compile(r'^(\s*#|\s*$)')
         sc_valid_pat = re.compile(VALID_SYSCALL)
 
-        for slot in self.policies['uses']:
+        for slot in self.policies['slots']:
             key = 'security-policy'
-            if key not in self.policies['uses'][slot]:
+            if key not in self.policies['slots'][slot]:
                 continue
 
             t = 'info'
             n = self._get_check_name(key, extra=slot)
             s = "OK"
-            for f in self.policies['uses'][slot][key].keys():
+            for f in self.policies['slots'][slot][key].keys():
                 if f not in allowed_fields:
                     t = 'error'
                     s = "unknown field '%s' in " % f + \
                         "'%s' for '%s'" % (key, slot)
-                elif not isinstance(self.policies['uses'][slot][key][f],
+                elif not isinstance(self.policies['slots'][slot][key][f],
                                     str):
                     t = 'error'
                     s = "invalid %s entry: %s (not a str)" % \
-                        (f, self.policies['uses'][slot][key][f])
+                        (f, self.policies['slots'][slot][key][f])
             self._add_result(t, n, s)
 
         for slot in self.raw_profiles:
@@ -371,7 +371,7 @@ class SnapReviewSecurity(SnapReview):
 
     def check_security_template(self):
         '''Check security-template'''
-        if not self.is_snap2 or 'uses' not in self.policies:
+        if not self.is_snap2 or 'slots' not in self.policies:
             return
 
         templates = self._get_templates(version=self.policy_version,
@@ -385,11 +385,11 @@ class SnapReviewSecurity(SnapReview):
             # frameworks may reference their own caps
             frameworks.append(self.snap_yaml['name'])
 
-        for slot in self.policies['uses']:
-            if 'security-template' not in self.policies['uses'][slot]:
+        for slot in self.policies['slots']:
+            if 'security-template' not in self.policies['slots'][slot]:
                 continue
 
-            template = self.policies['uses'][slot]['security-template']
+            template = self.policies['slots'][slot]['security-template']
 
             # TODO: this will go away when frameworks are gone
             framework_template = False
@@ -429,18 +429,18 @@ class SnapReviewSecurity(SnapReview):
             self._add_result(t, n, s, manual_review=m)
 
     def check_security_combinations(self):
-        '''Verify security yaml uses valid combinations'''
-        if not self.is_snap2 or 'uses' not in self.policies:
+        '''Verify security yaml slots valid combinations'''
+        if not self.is_snap2 or 'slots' not in self.policies:
             return
 
-        for slot in self.policies['uses']:
+        for slot in self.policies['slots']:
             t = 'info'
             n = self._get_check_name('yaml_combinations', extra=slot)
             s = "OK"
-            if "security-policy" in self.policies['uses'][slot]:
+            if "security-policy" in self.policies['slots'][slot]:
                 for i in ['security-override', 'security-template', 'caps']:
-                    if i in self.policies['uses'][slot]:
-                        tmp = list(self.policies['uses'][slot].keys())
+                    if i in self.policies['slots'][slot]:
+                        tmp = list(self.policies['slots'][slot].keys())
                         tmp.remove("security-policy")
                         t = 'error'
                         s = "found '%s' with 'security-policy'" % \
@@ -457,13 +457,13 @@ class SnapReviewSecurity(SnapReview):
             n = self._get_check_name('yaml_combinations_apps', app=app)
             s = "OK"
             has_decl = []
-            for slot_ref in self.policies['apps'][app]['uses']:
-                if slot_ref not in self.policies['uses']:
+            for slot_ref in self.policies['apps'][app]['slots']:
+                if slot_ref not in self.policies['slots']:
                     continue
 
                 for i in ['security-override', 'security-template', 'caps',
                           'security-policy']:
-                    if i in self.policies['uses'][slot_ref] and \
+                    if i in self.policies['slots'][slot_ref] and \
                             i not in has_decl:
                         has_decl.append(i)
 
@@ -472,26 +472,26 @@ class SnapReviewSecurity(SnapReview):
                     if i in has_decl:
                         has_decl.remove("security-policy")
                         t = 'error'
-                        s = "'%s' uses 'security-policy' with '%s'" % (
+                        s = "'%s' slots 'security-policy' with '%s'" % (
                             app, ",".join(sorted(has_decl)))
                         break
             self._add_result(t, n, s)
 
-    def check_uses_redflag(self):
-        '''Check uses redflag fields'''
-        if not self.is_snap2 or 'uses' not in self.policies:
+    def check_slots_redflag(self):
+        '''Check slots redflag fields'''
+        if not self.is_snap2 or 'slots' not in self.policies:
             return
 
-        for slot in self.policies['uses']:
+        for slot in self.policies['slots']:
             t = 'info'
             n = self._get_check_name('redflag_fields', extra=slot)
             s = 'OK'
             m = False
 
             attrib = None
-            if 'security-override' in self.policies['uses'][slot]:
+            if 'security-override' in self.policies['slots'][slot]:
                 attrib = 'security-override'
-            elif 'security-policy' in self.policies['uses'][slot]:
+            elif 'security-policy' in self.policies['slots'][slot]:
                 attrib = 'security-policy'
             if attrib:
                 t = 'error'
@@ -499,21 +499,21 @@ class SnapReviewSecurity(SnapReview):
                 m = True
             self._add_result(t, n, s, manual_review=m)
 
-    def check_apps_uses_mapped_migration(self):
-        '''Check apps uses mapped migration skill'''
+    def check_apps_slots_mapped_oldsecurity(self):
+        '''Check apps slots mapped old-security interface'''
         if not self.is_snap2 or 'apps' not in self.policies:
             return
 
         for app in self.policies['apps']:
-            for slot_ref in self.policies['apps'][app]['uses']:
+            for slot_ref in self.policies['apps'][app]['slots']:
                 t = 'info'
-                n = self._get_check_name("app_uses", app=app, extra=slot_ref)
+                n = self._get_check_name("app_slots", app=app, extra=slot_ref)
                 s = 'OK'
                 if not isinstance(slot_ref, str):
                     continue  # checked via sr_lint.py
-                elif slot_ref not in self.policies['uses']:
+                elif slot_ref not in self.policies['slots']:
                     t = 'error'
-                    s = "slot reference '%s' not in toplevel 'uses'" % slot_ref
+                    s = "slot reference '%s' not in toplevel 'slots'" % slot_ref
                 self._add_result(t, n, s)
 
     def check_apparmor_profile_name_length(self):

@@ -654,7 +654,7 @@ class SnapReviewLint(SnapReview):
 
         # Certain options require 'daemon' so list the keys that are shared
         # by services and binaries
-        ok_keys = ['command', 'uses']
+        ok_keys = ['command', 'slots']
 
         for app in self.snap_yaml['apps']:
             needs_daemon = []
@@ -1005,27 +1005,28 @@ class SnapReviewLint(SnapReview):
 
             self._verify_valid_socket(app, key)
 
-    def check_uses(self):
-        '''Check uses'''
-        if not self.is_snap2 or 'uses' not in self.snap_yaml:
+    def check_slots(self):
+        '''Check slots'''
+        if not self.is_snap2 or 'slots' not in self.snap_yaml:
             return
 
-        for slot in self.snap_yaml['uses']:
-            # If the 'type' name is the same as the 'slot' name, then 'type'
-            # is optional since the type name and the slot name are the same
-            skill_type = slot
-            if 'type' in self.snap_yaml['uses'][slot]:
-                skill_type = self.snap_yaml['uses'][slot]['type']
+        for slot in self.snap_yaml['slots']:
+            # If the 'interface' name is the same as the 'slot' name, then
+            # 'interface' is optional since the interface name and the slot
+            # name are the same
+            interface = slot
+            if 'interface' in self.snap_yaml['slots'][slot]:
+                interface = self.snap_yaml['slots'][slot]['interface']
 
-                key = 'type'
+                key = 'interface'
                 t = 'info'
                 n = self._get_check_name(key, extra=slot)
                 s = 'OK'
-                if not isinstance(self.snap_yaml['uses'][slot][key], str):
+                if not isinstance(self.snap_yaml['slots'][slot][key], str):
                     t = 'error'
                     s = "invalid %s: %s (not a str)" % \
-                        (key, self.snap_yaml['uses'][slot][key])
-                elif len(self.snap_yaml['uses'][slot][key]) == 0:
+                        (key, self.snap_yaml['slots'][slot][key])
+                elif len(self.snap_yaml['slots'][slot][key]) == 0:
                     t = 'error'
                     s = "'%s' is empty" % key
                 self._add_result(t, n, s)
@@ -1033,53 +1034,53 @@ class SnapReviewLint(SnapReview):
                     continue
 
             t = 'info'
-            n = self._get_check_name(skill_type, extra=slot)
+            n = self._get_check_name(interface, extra=slot)
             s = 'OK'
-            if skill_type not in self.skill_types:
+            if interface not in self.interfaces:
                 t = 'error'
-                s = "unknown skill type '%s'" % skill_type
+                s = "unknown interface '%s'" % interface
             self._add_result(t, n, s)
             if t == 'error':
                 continue
 
             min = 1
-            if 'type' in self.snap_yaml['uses'][slot]:
+            if 'interface' in self.snap_yaml['slots'][slot]:
                 min = 2
             t = 'info'
             n = self._get_check_name('attributes')
             s = 'OK'
-            if len(self.snap_yaml['uses'][slot]) < min:
+            if len(self.snap_yaml['slots'][slot]) < min:
                 t = 'error'
                 s = "'%s' has no attributes" % slot
             self._add_result(t, n, s)
             if t == 'error':
                 continue
 
-            for attrib in self.snap_yaml['uses'][slot]:
-                if attrib == 'type':
+            for attrib in self.snap_yaml['slots'][slot]:
+                if attrib == 'interface':
                     continue
                 t = 'info'
                 n = self._get_check_name('attributes', app=slot, extra=attrib)
                 s = "OK"
-                if attrib not in self.skill_types[skill_type]:
+                if attrib not in self.interfaces[interface]:
                     t = 'error'
-                    s = "unknown attribute '%s' for type '%s'" % (attrib,
-                                                                  skill_type)
-                elif not isinstance(self.snap_yaml['uses'][slot][attrib],
-                                    type(self.skill_types[skill_type][attrib])):
+                    s = "unknown attribute '%s' for interface '%s'" % (
+                        attrib, interface)
+                elif not isinstance(self.snap_yaml['slots'][slot][attrib],
+                                    type(self.interfaces[interface][attrib])):
                     t = 'error'
                     s = "'%s' is not '%s'" % \
                         (attrib,
-                         type(self.skill_types[skill_type][attrib]).__name__)
+                         type(self.interfaces[interface][attrib]).__name__)
                 self._add_result(t, n, s)
 
-    def check_apps_uses(self):
-        '''Check uses'''
+    def check_apps_slots(self):
+        '''Check apps slots'''
         if not self.is_snap2 or 'apps' not in self.snap_yaml:
             return
 
         for app in self.snap_yaml['apps']:
-            key = 'uses'
+            key = 'slots'
             if key not in self.snap_yaml['apps'][app]:
                 continue
 
@@ -1097,26 +1098,51 @@ class SnapReviewLint(SnapReview):
             if t == 'error':
                 continue
 
-            # The skill referenced in the app's 'uses' field can either be a
-            # known skill type (when the type name and the name of the skill is
-            # the same) or can reference a name in the snap's toplevel 'uses'
-            # mapping
+            # The interface referenced in the app's 'slots' field can either be
+            # a known interface (when the interface name reference and the
+            # interface is the same) or can reference a name in the snap's
+            # toplevel 'slots' mapping
             for slot_ref in self.snap_yaml['apps'][app][key]:
                 t = 'info'
-                n = self._get_check_name('app_uses_slot_reference',
+                n = self._get_check_name('app_slots_slot_reference',
                                          app=app,
                                          extra=slot_ref)
                 s = "OK"
                 if not isinstance(slot_ref, str):
                     t = 'error'
-                    s = "invalid slot skill name reference: '%s' (not a str)" \
+                    s = "invalid slot interface name reference: '%s' (not a str)" \
                         % slot_ref
-                elif slot_ref not in self.skill_types and \
-                        'uses' not in self.snap_yaml or \
-                        slot_ref not in self.snap_yaml['uses']:
+                elif slot_ref not in self.interfaces and \
+                        'slots' not in self.snap_yaml or \
+                        slot_ref not in self.snap_yaml['slots']:
                     t = 'error'
-                    s = "unknown slot skill name reference '%s'" % slot_ref
+                    s = "unknown slot interface name reference '%s'" % slot_ref
                 self._add_result(t, n, s)
+
+    def check_plugs(self):
+        '''TODO: Check plugs'''
+        if not self.is_snap2 or 'plugs' not in self.snap_yaml:
+            return
+
+        t = 'warn'
+        n = self._get_check_name('plugs')
+        s = 'TODO: check unimplemented'
+        self._add_result(t, n, s)
+
+    def check_apps_plugs(self):
+        '''TODO: Check apps plugs'''
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
+            return
+
+        for app in self.snap_yaml['apps']:
+            key = 'plugs'
+            if key not in self.snap_yaml['apps'][app]:
+                continue
+
+            t = 'warn'
+            n = self._get_check_name("app_%s" % key, app=app)
+            s = 'TODO: check unimplemented'
+            self._add_result(t, n, s)
 
     def check_external_symlinks(self):
         '''Check snap for external symlinks'''
