@@ -80,7 +80,7 @@ class Results(object):
         if output['error'] or output['warn']:
             self.rc = 1
 
-    def _run_module_checks(self, module):
+    def _run_module_checks(self, module, overrides):
         # What we are doing here is basically what all the
         # ./bin/click-check-* scripts do as well, so for
         # example something like:
@@ -91,22 +91,23 @@ class Results(object):
         #
         section = module.replace('cr_', 'click,snap.v1_')
         section = section.replace('sr_', 'snap.v2_')
-        review = modules.init_main_class(module, self.pkg_fn)
+        review = modules.init_main_class(module, self.pkg_fn,
+                                         overrides=overrides)
         if review:
             review.do_checks()
             self.results[section] = review.click_report
             return section
         return None
 
-    def run_all_checks(self):
+    def run_all_checks(self, overrides):
         if self.args.sdk:
             for module in self.modules:
-                section = self._run_module_checks(module)
+                section = self._run_module_checks(module, overrides)
                 if section:
                     self._report_module(section)
         else:
             for module in self.modules:
-                self._run_module_checks(module)
+                self._run_module_checks(module, overrides)
             self._complete_report()
 
 
@@ -124,6 +125,10 @@ def main():
         '''))
     parser.add_argument('filename', type=str,
                         help='file to be inspected')
+    parser.add_argument('overrides', type=str,
+                        nargs='?',
+                        help='framework overrides to apply',
+                        default=None)
     parser.add_argument('-v', '--verbose',
                         help='increase output verbosity',
                         action='store_true')
@@ -143,7 +148,11 @@ def main():
         print("No 'clickreviews' modules found.")
         sys.exit(1)
 
-    results.run_all_checks()
+    overrides = None
+    if args.overrides:
+        overrides = json.loads(args.overrides)
+
+    results.run_all_checks(overrides)
     sys.exit(results.rc)
 
 
