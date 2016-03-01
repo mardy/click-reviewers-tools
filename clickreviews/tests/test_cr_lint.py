@@ -750,6 +750,36 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     @patch('clickreviews.remote.read_cr_file')
+    def test_check_framework_with_overrides_obsolete(self, mock_read_cr_file):
+        '''Test check_framework() - using override obsoletes available'''
+        fwk = 'ubuntu-sdk-14.10-qml-dev2'
+        mock_read_cr_file.return_value = {
+            '%s' % fwk: 'available',
+        }
+        self.set_test_manifest("framework", fwk)
+        overrides = {'framework': {'%s' % fwk: {'state': 'obsolete'}}}
+        c = ClickReviewLint(self.test_name, overrides=overrides)
+        c.check_framework()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    @patch('clickreviews.remote.read_cr_file')
+    def test_check_framework_with_overrides_deprecated(self, mock_read_cr_file):
+        '''Test check_framework() - using override deprecates available'''
+        fwk = 'ubuntu-sdk-14.10-qml-dev2'
+        mock_read_cr_file.return_value = {
+            '%s' % fwk: 'available',
+        }
+        self.set_test_manifest("framework", fwk)
+        overrides = {'framework': {'%s' % fwk: {'state': 'deprecated'}}}
+        c = ClickReviewLint(self.test_name, overrides=overrides)
+        c.check_framework()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    @patch('clickreviews.remote.read_cr_file')
     def test_check_framework_with_malformed_overrides(self, mock_read_cr_file):
         '''Test check_framework() - using overrides'''
         mock_read_cr_file.return_value = {

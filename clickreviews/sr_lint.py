@@ -170,15 +170,17 @@ class SnapReviewLint(SnapReview):
             s = "framework may not specify '%s'" % key
         self._add_result(t, n, s)
 
+        # Can check with:
+        # snap-check-lint <path> '{"framework": {"docker": { "state": "obsolete", "policy_vendor": "ubuntu-core", "policy_version": "16.04"}}}'
         framework_overrides = self.overrides.get('framework', {})
         frameworks = Frameworks(overrides=framework_overrides)
 
         for framework in self.snap_yaml[key]:
-            if framework in frameworks.AVAILABLE_FRAMEWORKS:
-                t = 'info'
-                s = 'OK'
-                self._add_result(t, n, s)
-                # If it's an available framework, we're done checking
+            if framework in frameworks.OBSOLETE_FRAMEWORKS:
+                t = 'error'
+                s = "'%s' is obsolete. Please use a newer framework" % \
+                    framework
+                self._add_result(t, n, s, l)
                 return
             elif framework in frameworks.DEPRECATED_FRAMEWORKS:
                 t = 'warn'
@@ -186,11 +188,10 @@ class SnapReviewLint(SnapReview):
                     framework
                 self._add_result(t, n, s, l)
                 return
-            elif framework in frameworks.OBSOLETE_FRAMEWORKS:
-                t = 'error'
-                s = "'%s' is obsolete. Please use a newer framework" % \
-                    framework
-                self._add_result(t, n, s, l)
+            if framework in frameworks.AVAILABLE_FRAMEWORKS:
+                t = 'info'
+                s = 'OK'
+                self._add_result(t, n, s)
                 return
             else:
                 # None of the above checks triggered, this is an unknown

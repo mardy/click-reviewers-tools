@@ -1,5 +1,12 @@
 click-reviewers-tools (0.38) UNRELEASED; urgency=medium
 
+  * bin/click-review:
+    - exit 1 if fatal error, 2 if found errors/warnings and 3 if found
+      warnings (LP: #1523255)
+    - make help output more verbose (including return codes)
+    - add overrides as optional positional argument
+  * [cs]r_lint.py: change the order of the checks so that an obsolete or
+    deprecated in the override takes precedence over 'available'
   * migrate from skills to interfaces (LP: #1549427)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 22 Feb 2016 17:21:01 -0600
