@@ -63,7 +63,7 @@ def find_main_class(module_name):
     return init_object
 
 
-def init_main_class(module_name, click_file):
+def init_main_class(module_name, click_file, overrides=None):
     '''
     This function will instantiate the main Click*Review
     class of a given module and instantiate it with the
@@ -74,7 +74,7 @@ def init_main_class(module_name, click_file):
     if not init_object:
         return None
     try:
-        ob = init_object(click_file)
+        ob = init_object(click_file, overrides)
     except TypeError as e:
         print('Could not init %s: %s' % (init_object, str(e)))
         return None

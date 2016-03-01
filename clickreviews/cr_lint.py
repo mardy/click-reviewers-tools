@@ -741,6 +741,10 @@ exit 1
         if not self.is_click and not self.is_snap1:
             return
 
+        # Can check with:
+        # click-check-lint <path> '{"framework": {"ubuntu-sdk-15.04": {
+        # "state": "obsolete", "policy_vendor": "ubuntu-core",
+        # "policy_version": "16.04"}}}'
         n = self._get_check_name('framework')
         l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
         framework_overrides = self.overrides.get('framework', {})
@@ -755,11 +759,11 @@ exit 1
 
         for framework in self.manifest['framework'].split(','):
             framework = framework.strip()
-            if framework in frameworks.AVAILABLE_FRAMEWORKS:
-                t = 'info'
-                s = 'OK'
-                self._add_result(t, n, s)
-                # If it's an available framework, we're done checking
+            if framework in frameworks.OBSOLETE_FRAMEWORKS:
+                t = 'error'
+                s = "'%s' is obsolete. Please use a newer framework" % \
+                    framework
+                self._add_result(t, n, s, l)
                 return
             elif framework in frameworks.DEPRECATED_FRAMEWORKS:
                 t = 'warn'
@@ -767,11 +771,10 @@ exit 1
                     framework
                 self._add_result(t, n, s, l)
                 return
-            elif framework in frameworks.OBSOLETE_FRAMEWORKS:
-                t = 'error'
-                s = "'%s' is obsolete. Please use a newer framework" % \
-                    framework
-                self._add_result(t, n, s, l)
+            elif framework in frameworks.AVAILABLE_FRAMEWORKS:
+                t = 'info'
+                s = 'OK'
+                self._add_result(t, n, s)
                 return
             else:
                 # None of the above checks triggered, this is an unknown framework

@@ -191,6 +191,36 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    @patch('clickreviews.remote.read_cr_file')
+    def test_check_frameworks_override_obsolete(self, mock_read_cr_file):
+        '''Test check_frameworks() - using override obsoletes available'''
+        fwk = 'something'
+        mock_read_cr_file.return_value = {
+            '%s' % fwk: 'available',
+        }
+        self.set_test_snap_yaml("frameworks", [fwk])
+        overrides = {'framework': {'%s' % fwk: {'state': 'obsolete'}}}
+        c = SnapReviewLint(self.test_name, overrides=overrides)
+        c.check_frameworks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    @patch('clickreviews.remote.read_cr_file')
+    def test_check_frameworks_override_deprecated(self, mock_read_cr_file):
+        '''Test check_frameworks() - using override deprecates available'''
+        fwk = 'something'
+        mock_read_cr_file.return_value = {
+            '%s' % fwk: 'available',
+        }
+        self.set_test_snap_yaml("frameworks", [fwk])
+        overrides = {'framework': {'%s' % fwk: {'state': 'deprecated'}}}
+        c = SnapReviewLint(self.test_name, overrides=overrides)
+        c.check_frameworks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_name_toplevel(self):
         '''Test check_name - toplevel'''
         self.set_test_snap_yaml("name", "foo")
