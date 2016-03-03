@@ -620,6 +620,6 @@ class SnapReviewSecurity(SnapReview):
         if orig_sum != repack_sum:
             t = 'error'
             s = "checksums do not match. Please ensure the snap is " + \
-                "created with 'mksquashfs <dir> <snap> %s'" % \
-                " ".join(MKSQUASHFS_OPTS)
+                "created with either 'snapcraft snap <DIR>' or" + \
+                "'mksquashfs <dir> <snap> %s'" % " ".join(MKSQUASHFS_OPTS)
         self._add_result(t, n, s)
