@@ -7,6 +7,7 @@ click-reviewers-tools (0.38) UNRELEASED; urgency=medium
     - add overrides as optional positional argument
   * [cs]r_lint.py: change the order of the checks so that an obsolete or
     deprecated in the override takes precedence over 'available'
+  * migrate from skills to interfaces (LP: #1549427)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 22 Feb 2016 17:21:01 -0600
 

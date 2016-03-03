@@ -49,7 +49,8 @@ class SnapReview(Review):
                        "license-version",
                        "summary",
                        "type",
-                       "uses",
+                       "slots",
+                       "plugs",
                        ]
 
     apps_required = ['command']
@@ -58,7 +59,8 @@ class SnapReview(Review):
                      'stop-timeout',
                      'restart-condition',
                      'poststop',
-                     'uses',
+                     'slots',
+                     'plugs',
                      'ports',
                      'bus-name',
                      'socket',
@@ -67,20 +69,20 @@ class SnapReview(Review):
                      'socket-group',
                      ]
 
-    # https://docs.google.com/document/d/14kTzvPL8WchnzDpKbuxSKlHklzofRGl2g_2iNfIStJU/edit#heading=h.smqdkiy9hs81
-    # 'uses':
-    #    'type': name
+    # https://docs.google.com/document/d/1Q5_T00yTq0wobm_nHzCV-KV8R4jdk-PXcrtm80ETTLU/edit#
+    # 'slots':
+    #    'interface': name
     #    'attrib-name': <type>
-    # skill_types lists types and the valid attribute names for the type with
-    # the valid python type for the attribute (eg, [], '', {}, etc).
-    # These skill_types are likely going to change based on release, but for
-    # now, this is fine.
-    skill_types = {'migration-skill': {'caps': [],
-                                       'security-override': {},
-                                       'security-policy': {},
-                                       'security-template': "",
-                                       }
-                   }
+    # interfaces lists interfaces and the valid attribute names for the
+    # interface with the valid python type for the attribute (eg, [], '', {},
+    # etc). These interfaces are likely going to change based on release, but
+    # for now, this is fine.
+    interfaces = {'old-security': {'caps': [],
+                                   'security-override': {},
+                                   'security-policy': {},
+                                   'security-template': "",
+                                   }
+                  }
 
     def __init__(self, fn, review_type, overrides=None):
         Review.__init__(self, fn, review_type, overrides=overrides)
