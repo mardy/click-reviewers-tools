@@ -95,10 +95,10 @@ lint:snappy_type_valid|
 lint:snappy_unknown|
 lint:snappy_version_valid|
 lint-snap-v2:app_plugs|
+lint-snap-v2:app_plugs_plug_reference|
 lint-snap-v2:apps|
 lint-snap-v2:apps_entry|
 lint-snap-v2:app_slots|
-lint-snap-v2:app_slots_slot_reference|
 lint-snap-v2:apps_present|
 lint-snap-v2:apps_required|
 lint-snap-v2:apps_unknown|
@@ -132,7 +132,6 @@ lint-snap-v2:listen-stream_matches_name|
 lint-snap-v2:name_valid|
 lint-snap-v2:nonexistent|
 lint-snap-v2:old-security|
-lint-snap-v2:plugs|
 lint-snap-v2:ports|
 lint-snap-v2:ports_ext1_format|
 lint-snap-v2:ports_ext2_format|
@@ -141,6 +140,7 @@ lint-snap-v2:ports_unknown_key|
 lint-snap-v2:ports_unknown_subkey|
 lint-snap-v2:poststop|
 lint-snap-v2:restart-condition|
+lint-snap-v2:slots|
 lint-snap-v2:snap_type_redflag|https://developer.ubuntu.com/en/snappy/guides/frameworks/
 lint-snap-v2:snap_type_valid|
 lint-snap-v2:socket|
@@ -210,7 +210,7 @@ security:policy_version_matches_framework|http://askubuntu.com/q/686347
 security:profile_name_length|
 security:redflag_fields|
 security:required_policy_groups_ubuntu_account_plugin|
-security-snap-v2:app_slots|
+security-snap-v2:app_plugs|
 security-snap-v2:cap_exists|
 security-snap-v2:cap_safe|http://askubuntu.com/a/562123/94326
 security-snap-v2:policy-vendor|

@@ -49,8 +49,8 @@ class SnapReview(Review):
                        "license-version",
                        "summary",
                        "type",
-                       "slots",
                        "plugs",
+                       "slots",
                        ]
 
     apps_required = ['command']
@@ -59,8 +59,8 @@ class SnapReview(Review):
                      'stop-timeout',
                      'restart-condition',
                      'poststop',
-                     'slots',
                      'plugs',
+                     'slots',
                      'ports',
                      'bus-name',
                      'socket',
@@ -70,7 +70,7 @@ class SnapReview(Review):
                      ]
 
     # https://docs.google.com/document/d/1Q5_T00yTq0wobm_nHzCV-KV8R4jdk-PXcrtm80ETTLU/edit#
-    # 'slots':
+    # 'plugs':
     #    'interface': name
     #    'attrib-name': <type>
     # interfaces lists interfaces and the valid attribute names for the

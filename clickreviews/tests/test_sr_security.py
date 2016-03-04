@@ -53,13 +53,13 @@ usr32
 _exit
 '''
 
-    def _create_top_slots(self):
+    def _create_top_plugs(self):
         self.set_test_security_profile('iface-policy', 'apparmor',
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-policy', 'seccomp',
                                        self._create_sc_raw())
 
-        slots = {'iface-caps': {'interface': 'old-security',
+        plugs = {'iface-caps': {'interface': 'old-security',
                                 'caps': ['network-client']},
                  'iface-override': {'interface': 'old-security',
                                     'security-override': {"read-paths": ["/a"],
@@ -72,21 +72,21 @@ _exit
                  'iface-template': {'interface': 'old-security',
                                     'security-template': "default"}
                  }
-        return slots
+        return plugs
 
-    def _create_apps_slots(self):
-        slots = {'app1': {'slots': ['iface-caps']},
-                 'app2': {'slots': ['iface-caps', 'iface-template']},
-                 'app3': {'slots': ['iface-template', 'iface-override']},
-                 'app4': {'slots': ['iface-policy']},
+    def _create_apps_plugs(self):
+        plugs = {'app1': {'plugs': ['iface-caps']},
+                 'app2': {'plugs': ['iface-caps', 'iface-template']},
+                 'app3': {'plugs': ['iface-template', 'iface-override']},
+                 'app4': {'plugs': ['iface-policy']},
                  }
-        return slots
+        return plugs
 
     def test_all_checks_as_v2(self):
         '''Test snap v2 has checks'''
         self.set_test_pkgfmt("snap", "16.04")
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.do_checks()
         sum = 0
@@ -150,17 +150,17 @@ _exit
 
     def test_check_security_caps(self):
         '''Test check_security_caps()'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_caps_no_slots(self):
-        '''Test check_security_caps() - no slots'''
-        self.set_test_snap_yaml("slots", None)
+    def test_check_security_caps_no_plugs(self):
+        '''Test check_security_caps() - no plugs'''
+        self.set_test_snap_yaml("plugs", None)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
         report = c.click_report
@@ -169,9 +169,9 @@ _exit
 
     def test_check_security_caps_with_non_oldsecurity(self):
         '''Test check_security_caps() - with non-old-security'''
-        slots = self._create_top_slots()
-        slots['bool'] = {'interface': 'bool-file', 'path': '/sys/devices/gpio1'}
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['bool'] = {'interface': 'bool-file', 'path': '/sys/devices/gpio1'}
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
         report = c.click_report
@@ -180,9 +180,9 @@ _exit
 
     def test_check_security_caps_with_apps(self):
         '''Test check_security_caps()'''
-        slots = self._create_top_slots()
-        apps = self._create_apps_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        apps = self._create_apps_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
@@ -192,9 +192,9 @@ _exit
 
     def test_check_security_caps_with_frameworks(self):
         '''Test check_security_caps() - with framework'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        slots['myfwk'] = {'interface': 'old-security', 'caps': ['fwk_1', 'fwk_2']}
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        plugs['myfwk'] = {'interface': 'old-security', 'caps': ['fwk_1', 'fwk_2']}
         self.set_test_snap_yaml("frameworks", ["fwk"])
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
@@ -217,9 +217,9 @@ _exit
         '''Test check_security_caps() - is framework with framework cap'''
         pkgname = self.test_name.split('_')[0].split('.')[0]
         cap = '%s_1' % pkgname
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        slots['myfwk'] = {'interface': 'old-security', 'caps': [cap]}
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        plugs['myfwk'] = {'interface': 'old-security', 'caps': [cap]}
         self.set_test_snap_yaml("type", "framework")
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
@@ -239,9 +239,9 @@ _exit
 
     def test_check_security_caps_nonexistent(self):
         '''Test check_security_caps() - nonexistent'''
-        slots = self._create_top_slots()
-        slots['iface-caps']['caps'] = ['nonexistent']
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-caps']['caps'] = ['nonexistent']
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
         report = c.click_report
@@ -250,9 +250,9 @@ _exit
 
     def test_check_security_caps_nonexistent2(self):
         '''Test check_security_caps() - nonexistent with others'''
-        slots = self._create_top_slots()
-        slots['iface-caps']['caps'] = ['network-client', 'nonexistent']
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-caps']['caps'] = ['network-client', 'nonexistent']
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
         report = c.click_report
@@ -261,9 +261,9 @@ _exit
 
     def test_check_security_caps_repeated(self):
         '''Test check_security_caps() - repeated cap'''
-        slots = self._create_top_slots()
-        slots['iface-caps']['caps'] = ['network-client', 'network-client']
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-caps']['caps'] = ['network-client', 'network-client']
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
         report = c.click_report
@@ -273,9 +273,9 @@ _exit
     def test_check_security_caps_common(self):
         '''Test check_security_caps() - common'''
         cap = "safe"
-        slots = self._create_top_slots()
-        slots['iface-caps']['caps'] = [cap]
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-caps']['caps'] = [cap]
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["common"].append(cap)
         c.check_security_caps()
@@ -286,9 +286,9 @@ _exit
     def test_check_security_caps_debug(self):
         '''Test check_security_caps() - debug'''
         cap = "debug"
-        slots = self._create_top_slots()
-        slots['iface-caps']['caps'].append(cap)
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-caps']['caps'].append(cap)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append(cap)
         c.check_security_caps()
@@ -299,9 +299,9 @@ _exit
     def test_check_security_caps_reserved(self):
         '''Test check_security_caps() - reserved'''
         cap = "unsafe"
-        slots = self._create_top_slots()
-        slots['iface-caps']['caps'].append(cap)
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-caps']['caps'].append(cap)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append(cap)
         c.check_security_caps()
@@ -312,9 +312,9 @@ _exit
     def test_check_security_caps_unknown_type(self):
         '''Test check_security_caps() - unknown type'''
         cap = "bad-type"
-        slots = self._create_top_slots()
-        slots['iface-caps']['caps'].append(cap)
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-caps']['caps'].append(cap)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["nonexistent"] = [cap]
         c.check_security_caps()
@@ -324,17 +324,17 @@ _exit
 
     def test_check_security_override(self):
         '''Test check_security_override()'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_override_no_slots(self):
-        '''Test check_security_override() - no slots'''
-        self.set_test_snap_yaml("slots", None)
+    def test_check_security_override_no_plugs(self):
+        '''Test check_security_override() - no plugs'''
+        self.set_test_snap_yaml("plugs", None)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -343,9 +343,9 @@ _exit
 
     def test_check_security_override_empty(self):
         '''Test check_security_override() - empty'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override'] = {}
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -354,9 +354,9 @@ _exit
 
     def test_check_security_override_unknown(self):
         '''Test check_security_override() - unknown'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['nonexistent'] = ['foo']
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['nonexistent'] = ['foo']
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -365,9 +365,9 @@ _exit
 
     def test_check_security_override_bad_syscall_dict(self):
         '''Test check_security_override() - bad'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['syscalls'] = {}
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['syscalls'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -376,9 +376,9 @@ _exit
 
     def test_check_security_override_bad_syscall(self):
         '''Test check_security_override() - bad syscall (illegal)'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['syscalls'] = ['BAD#%^']
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['syscalls'] = ['BAD#%^']
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -387,9 +387,9 @@ _exit
 
     def test_check_security_override_bad_syscall_short(self):
         '''Test check_security_override() - bad syscall (short)'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['syscalls'] = ['a']
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['syscalls'] = ['a']
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -398,9 +398,9 @@ _exit
 
     def test_check_security_override_bad_syscall_long(self):
         '''Test check_security_override() - bad syscall (long)'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['syscalls'] = ['a' * 65]
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['syscalls'] = ['a' * 65]
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -409,9 +409,9 @@ _exit
 
     def test_check_security_override_bad_abstraction_dict(self):
         '''Test check_security_override() - bad'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['abstractions'] = {}
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['abstractions'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -420,9 +420,9 @@ _exit
 
     def test_check_security_override_bad_abstraction(self):
         '''Test check_security_override() - bad abstraction (illegal)'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['abstractions'] = ['BAD#%^']
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['abstractions'] = ['BAD#%^']
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -431,9 +431,9 @@ _exit
 
     def test_check_security_override_bad_abstraction_short(self):
         '''Test check_security_override() - bad abstraction (short)'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['abstractions'] = ['a']
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['abstractions'] = ['a']
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -442,9 +442,9 @@ _exit
 
     def test_check_security_override_bad_abstraction_long(self):
         '''Test check_security_override() - bad abstraction (long)'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['abstractions'] = ['a' * 65]
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['abstractions'] = ['a' * 65]
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -453,10 +453,10 @@ _exit
 
     def test_check_security_override_read_path_var(self):
         '''Test check_security_override() - @{HOME}/foo'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['read-paths'] = \
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['read-paths'] = \
             ["@{HOME}/foo"]
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -465,9 +465,9 @@ _exit
 
     def test_check_security_override_bad_read_path_dict(self):
         '''Test check_security_override() - bad'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['read-paths'] = {}
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['read-paths'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -476,10 +476,10 @@ _exit
 
     def test_check_security_override_bad_read_path(self):
         '''Test check_security_override() - bad (relative)'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['read-paths'] = \
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['read-paths'] = \
             ['relative/path']
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -488,10 +488,10 @@ _exit
 
     def test_check_security_override_write_path_var(self):
         '''Test check_security_override() - @{HOME}/foo'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['write-paths'] = \
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['write-paths'] = \
             ["@{HOME}/foo"]
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -500,9 +500,9 @@ _exit
 
     def test_check_security_override_bad_write_path_dict(self):
         '''Test check_security_override() - bad'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['write-paths'] = {}
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['write-paths'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -511,10 +511,10 @@ _exit
 
     def test_check_security_override_bad_write_path(self):
         '''Test check_security_override() - bad (relative)'''
-        slots = self._create_top_slots()
-        slots['iface-override']['security-override']['write-paths'] = \
+        plugs = self._create_top_plugs()
+        plugs['iface-override']['security-override']['write-paths'] = \
             ['relative/path']
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_override()
         report = c.click_report
@@ -523,17 +523,17 @@ _exit
 
     def test_check_security_policy(self):
         '''Test check_security_policy()'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_policy()
         report = c.click_report
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_policy_no_slots(self):
-        '''Test check_security_policy() - no slots'''
-        self.set_test_snap_yaml("slots", None)
+    def test_check_security_policy_no_plugs(self):
+        '''Test check_security_policy() - no plugs'''
+        self.set_test_snap_yaml("plugs", None)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_policy()
         report = c.click_report
@@ -546,13 +546,13 @@ _exit
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = {'iface-other': {'interface': 'old-security',
+        plugs = {'iface-other': {'interface': 'old-security',
                                  'security-policy': {"apparmor": "meta/aa",
                                                      "seccomp": "meta/sc",
                                                      "nonexistent": "bad"},
                                  }
                  }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_policy()
         report = c.click_report
@@ -565,9 +565,9 @@ _exit
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = {'iface-other': {'interface': 'old-security',
+        plugs = {'iface-other': {'interface': 'old-security',
                                  'security-policy': {}}}
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_policy()
         report = c.click_report
@@ -580,12 +580,12 @@ _exit
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = {'iface-other': {'interface': 'old-security',
+        plugs = {'iface-other': {'interface': 'old-security',
                                  'security-policy': {"apparmor": "meta/aa",
                                                      "seccomp": []}
                                  }
                  }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_policy()
         report = c.click_report
@@ -594,8 +594,8 @@ _exit
 
     def test_check_security_policy_missing_apparmor(self):
         '''Test check_security_policy() - missing apparmor'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.raw_profiles['iface-policy'].pop('apparmor')
         c.check_security_policy()
@@ -605,8 +605,8 @@ _exit
 
     def test_check_security_policy_missing_seccomp(self):
         '''Test check_security_policy() - missing seccomp'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.raw_profiles['iface-policy'].pop('seccomp')
         c.check_security_policy()
@@ -624,13 +624,13 @@ _exit
         self.set_test_security_profile('iface-other', 'apparmor', contents)
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = {'iface-other': {'interface': 'old-security',
+        plugs = {'iface-other': {'interface': 'old-security',
                                  'security-policy': {"apparmor": "meta/aa",
                                                      "seccomp": "meta/sc",
                                                      }
                                  }
                  }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_policy()
         report = c.click_report
@@ -654,13 +654,13 @@ _exit
         self.set_test_security_profile('iface-other', 'apparmor', contents)
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = {'iface-other': {'interface': 'old-security',
+        plugs = {'iface-other': {'interface': 'old-security',
                                  'security-policy': {"apparmor": "meta/aa",
                                                      "seccomp": "meta/sc",
                                                      }
                                  }
                  }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_policy()
         report = c.click_report
@@ -684,13 +684,13 @@ _exit
         self.set_test_security_profile('iface-other', 'apparmor', contents)
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = {'iface-other': {'interface': 'old-security',
+        plugs = {'iface-other': {'interface': 'old-security',
                                  'security-policy': {"apparmor": "meta/aa",
                                                      "seccomp": "meta/sc",
                                                      }
                                  }
                  }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         print(c.raw_profiles)
         c.check_security_policy()
@@ -704,13 +704,13 @@ _exit
         self.set_test_security_profile('iface-other', 'apparmor',
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-other', 'seccomp', contents)
-        slots = {'iface-other': {'interface': 'old-security',
+        plugs = {'iface-other': {'interface': 'old-security',
                                  'security-policy': {"apparmor": "meta/aa",
                                                      "seccomp": "meta/sc",
                                                      }
                                  }
                  }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         print(c.raw_profiles)
         c.check_security_policy()
@@ -720,17 +720,17 @@ _exit
 
     def test_check_security_template(self):
         '''Test check_security_template()'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_template()
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_template_no_slots(self):
+    def test_check_security_template_no_plugs(self):
         '''Test check_security_template()'''
-        self.set_test_snap_yaml("slots", None)
+        self.set_test_snap_yaml("plugs", None)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_template()
         report = c.click_report
@@ -739,9 +739,9 @@ _exit
 
     def test_check_security_template_with_non_oldsecurity(self):
         '''Test check_security_template() - with non-old-security'''
-        slots = self._create_top_slots()
-        slots['bool'] = {'interface': 'bool-file', 'path': '/sys/devices/gpio1'}
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['bool'] = {'interface': 'bool-file', 'path': '/sys/devices/gpio1'}
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_template()
         report = c.click_report
@@ -750,9 +750,9 @@ _exit
 
     def test_check_security_template_with_apps(self):
         '''Test check_security_template()'''
-        slots = self._create_top_slots()
-        apps = self._create_apps_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        apps = self._create_apps_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_template()
@@ -762,9 +762,9 @@ _exit
 
     def test_check_security_template_with_frameworks(self):
         '''Test check_security_template() - with framework'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        slots['myfwk'] = {'interface': 'old-security',
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        plugs['myfwk'] = {'interface': 'old-security',
                           'security-template': 'fwk_1'}
         self.set_test_snap_yaml("frameworks", ["fwk"])
         c = SnapReviewSecurity(self.test_name)
@@ -786,9 +786,9 @@ _exit
         '''Test check_security_template() - is framework with framework template'''
         pkgname = self.test_name.split('_')[0].split('.')[0]
         template = '%s_1' % pkgname
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        slots['myfwk'] = {'interface': 'old-security',
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        plugs['myfwk'] = {'interface': 'old-security',
                           'security-template': template}
         self.set_test_snap_yaml("type", "framework")
         c = SnapReviewSecurity(self.test_name)
@@ -809,9 +809,9 @@ _exit
 
     def test_check_security_template_nonexistent(self):
         '''Test check_security_template() - nonexistent'''
-        slots = self._create_top_slots()
-        slots['iface-template']['security-template'] = 'nonexistent'
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-template']['security-template'] = 'nonexistent'
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_template()
         report = c.click_report
@@ -821,9 +821,9 @@ _exit
     def test_check_security_template_common(self):
         '''Test check_security_template() - common'''
         template = "safe"
-        slots = self._create_top_slots()
-        slots['iface-template']['security-template'] = template
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-template']['security-template'] = template
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["templates"]["common"].append(
             template)
@@ -835,9 +835,9 @@ _exit
     def test_check_security_template_reserved(self):
         '''Test check_security_template() - reserved'''
         template = "unsafe"
-        slots = self._create_top_slots()
-        slots['iface-template']['security-template'] = template
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-template']['security-template'] = template
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["templates"]["reserved"].append(
             template)
@@ -849,9 +849,9 @@ _exit
     def test_check_security_template_unknown_type(self):
         '''Test check_security_template() - unknown type'''
         template = "bad-type"
-        slots = self._create_top_slots()
-        slots['iface-template']['security-template'] = template
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        plugs['iface-template']['security-template'] = template
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["templates"]["nonexistent"] = \
             template
@@ -862,17 +862,17 @@ _exit
 
     def test_check_security_combinations(self):
         '''Test check_security_combinations()'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
         report = c.click_report
         expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_combinations_no_slots(self):
-        '''Test check_security_combinations() - no slots'''
-        self.set_test_snap_yaml("slots", None)
+    def test_check_security_combinations_no_plugs(self):
+        '''Test check_security_combinations() - no plugs'''
+        self.set_test_snap_yaml("plugs", None)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
         report = c.click_report
@@ -881,8 +881,8 @@ _exit
 
     def test_check_security_combinations_no_apps(self):
         '''Test check_security_combinations()'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         self.set_test_snap_yaml("apps", None)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
@@ -892,9 +892,9 @@ _exit
 
     def test_check_security_combinations_apps(self):
         '''Test check_security_combinations() - apps'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
@@ -902,12 +902,12 @@ _exit
         expected_counts = {'info': 8, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_combinations_apps_slots_nonsecurity(self):
-        '''Test check_security_combinations() - slots non-security'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
-        apps = {'app5': {'slots': ['other']}}
+    def test_check_security_combinations_apps_plugs_nonsecurity(self):
+        '''Test check_security_combinations() - plugs non-security'''
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
+        apps = {'app5': {'plugs': ['other']}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
@@ -917,10 +917,10 @@ _exit
 
     def test_check_security_combinations_apps_caps_with_security_policy(self):
         '''Test check_security_combinations() - apps caps with security-policy'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
-        apps['app1'] = {'slots': ['iface-caps', 'iface-policy']}
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
+        apps['app1'] = {'plugs': ['iface-caps', 'iface-policy']}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
@@ -930,10 +930,10 @@ _exit
 
     def test_check_security_combinations_apps_template_with_security_policy(self):
         '''Test check_security_combinations() - apps security-template with security-policy'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
-        apps['app1'] = {'slots': ['iface-template', 'iface-policy']}
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
+        apps['app1'] = {'plugs': ['iface-template', 'iface-policy']}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
@@ -943,10 +943,10 @@ _exit
 
     def test_check_security_combinations_apps_override_with_security_policy(self):
         '''Test check_security_combinations() - apps security-override with security-policy'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
-        apps['app1'] = {'slots': ['iface-override', 'iface-policy']}
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
+        apps['app1'] = {'plugs': ['iface-override', 'iface-policy']}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
@@ -956,10 +956,10 @@ _exit
 
     def test_check_security_combinations_apps_all_with_security_policy(self):
         '''Test check_security_combinations() - apps all with security-policy'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
-        apps['app1'] = {'slots': ['iface-override', 'iface-policy',
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
+        apps['app1'] = {'plugs': ['iface-override', 'iface-policy',
                                   'iface-caps', 'iface-template']}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
@@ -974,13 +974,13 @@ _exit
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = self._create_top_slots()
-        slots['iface-other'] = {'interface': 'old-security',
+        plugs = self._create_top_plugs()
+        plugs['iface-other'] = {'interface': 'old-security',
                                 'caps': ['network-client'],
                                 'security-policy': {"apparmor": "meta/aa",
                                                     "seccomp": "meta/sc"}
                                 }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
         report = c.click_report
@@ -993,13 +993,13 @@ _exit
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = self._create_top_slots()
-        slots['iface-other'] = {'interface': 'old-security',
+        plugs = self._create_top_plugs()
+        plugs['iface-other'] = {'interface': 'old-security',
                                 'security-policy': {"apparmor": "meta/aa",
                                                     "seccomp": "meta/sc"},
                                 'security-template': "default"
                                 }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
         report = c.click_report
@@ -1012,8 +1012,8 @@ _exit
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = self._create_top_slots()
-        slots['iface-other'] = {'interface': 'old-security',
+        plugs = self._create_top_plugs()
+        plugs['iface-other'] = {'interface': 'old-security',
                                 'security-override': {"read-paths": ["/a"],
                                                       "write-paths": ["/b"],
                                                       "abstractions": ["cd"],
@@ -1021,7 +1021,7 @@ _exit
                                 'security-policy': {"apparmor": "meta/aa",
                                                     "seccomp": "meta/sc"}
                                 }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
         report = c.click_report
@@ -1034,8 +1034,8 @@ _exit
                                        self._create_aa_raw())
         self.set_test_security_profile('iface-other', 'seccomp',
                                        self._create_sc_raw())
-        slots = self._create_top_slots()
-        slots['iface-other'] = {'interface': 'old-security',
+        plugs = self._create_top_plugs()
+        plugs['iface-other'] = {'interface': 'old-security',
                                 'caps': ['network-client'],
                                 'security-override': {"read-paths": ["/a"],
                                                       "write-paths": ["/b"],
@@ -1045,98 +1045,98 @@ _exit
                                                     "seccomp": "meta/sc"},
                                 'security-template': "default"
                                 }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_combinations()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
-    def test_check_slots_redflag_no_redflagged(self):
-        '''Test check_slots_redflag() - no redflaggede'''
-        slots = {'iface-caps': {'interface': 'old-security',
+    def test_check_plugs_redflag_no_redflagged(self):
+        '''Test check_plugs_redflag() - no redflaggede'''
+        plugs = {'iface-caps': {'interface': 'old-security',
                                 'caps': ['network-client']},
                  'iface-template': {'interface': 'old-security',
                                     'security-template': "default"}
                  }
-        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
-        c.check_slots_redflag()
+        c.check_plugs_redflag()
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_slots_redflag(self):
-        '''Test check_slots_redflag()'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+    def test_check_plugs_redflag(self):
+        '''Test check_plugs_redflag()'''
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
-        c.check_slots_redflag()
+        c.check_plugs_redflag()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 2}
         self.check_results(report, expected_counts)
 
-    def test_check_slots_redflag_no_slots(self):
-        '''Test check_slots_redflag() - no slots'''
-        self.set_test_snap_yaml("slots", None)
+    def test_check_plugs_redflag_no_plugs(self):
+        '''Test check_plugs_redflag() - no plugs'''
+        self.set_test_snap_yaml("plugs", None)
         c = SnapReviewSecurity(self.test_name)
-        c.check_slots_redflag()
+        c.check_plugs_redflag()
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_apps_slots_mapped_oldsecurity(self):
-        '''Test check_apps_slots_mapped_oldsecurity()'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
+    def test_check_apps_plugs_mapped_oldsecurity(self):
+        '''Test check_apps_plugs_mapped_oldsecurity()'''
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
-        c.check_apps_slots_mapped_oldsecurity()
+        c.check_apps_plugs_mapped_oldsecurity()
         report = c.click_report
         expected_counts = {'info': 6, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_apps_slots_mapped_oldsecurity_none(self):
-        '''Test check_apps_slots_mapped_oldsecurity() - no apps'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
+    def test_check_apps_plugs_mapped_oldsecurity_none(self):
+        '''Test check_apps_plugs_mapped_oldsecurity() - no apps'''
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
         self.set_test_snap_yaml("apps", None)
         c = SnapReviewSecurity(self.test_name)
-        c.check_apps_slots_mapped_oldsecurity()
+        c.check_apps_plugs_mapped_oldsecurity()
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_apps_slots_mapped_oldsecurity_bad(self):
-        '''Test check_apps_slots_mapped_oldsecurity() - bad'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
-        apps = {'app1': {'slots': [{}]}}
+    def test_check_apps_plugs_mapped_oldsecurity_bad(self):
+        '''Test check_apps_plugs_mapped_oldsecurity() - bad'''
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
+        apps = {'app1': {'plugs': [{}]}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
-        c.check_apps_slots_mapped_oldsecurity()
+        c.check_apps_plugs_mapped_oldsecurity()
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_apps_slots_mapped_oldsecurity_nonexistent(self):
-        '''Test check_apps_slots_mapped_oldsecurity() - nonexistent'''
-        slots = self._create_top_slots()
-        self.set_test_snap_yaml("slots", slots)
-        apps = self._create_apps_slots()
-        apps = {'app1': {'slots': ['nonexistent']}}
+    def test_check_apps_plugs_mapped_oldsecurity_nonexistent(self):
+        '''Test check_apps_plugs_mapped_oldsecurity() - nonexistent'''
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = self._create_apps_plugs()
+        apps = {'app1': {'plugs': ['nonexistent']}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
-        c.check_apps_slots_mapped_oldsecurity()
+        c.check_apps_plugs_mapped_oldsecurity()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_apparmor_profile_name_length(self):
         '''Test check_apparmor_profile_name_length()'''
-        apps = {'app1': {'slots': ['iface-caps']}}
+        apps = {'app1': {'plugs': ['iface-caps']}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_apparmor_profile_name_length()
@@ -1144,7 +1144,7 @@ _exit
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_apparmor_profile_name_length_no_slots(self):
+    def test_check_apparmor_profile_name_length_no_plugs(self):
         '''Test check_apparmor_profile_name_length()'''
         apps = {'app1': {}}
         self.set_test_snap_yaml("apps", apps)
@@ -1157,7 +1157,7 @@ _exit
     def test_check_apparmor_profile_name_length_bad(self):
         '''Test check_apparmor_profile_name_length() - too long'''
         self.set_test_snap_yaml('name', 'A' * 253)
-        apps = {'app1': {'slots': ['iface-caps']}}
+        apps = {'app1': {'plugs': ['iface-caps']}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_apparmor_profile_name_length()
@@ -1168,7 +1168,7 @@ _exit
     def test_check_apparmor_profile_name_length_bad2(self):
         '''Test check_apparmor_profile_name_length() - longer than advised'''
         self.set_test_snap_yaml('name', 'A' * 100)
-        apps = {'app1': {'slots': ['iface-caps']}}
+        apps = {'app1': {'plugs': ['iface-caps']}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_apparmor_profile_name_length()
@@ -1236,7 +1236,7 @@ version: 0.1
 summary: some thing
 description: some desc
 architectures: [ amd64 ]
-slots:
+plugs:
     iface-other:
         interface: old-security
         security-policy:

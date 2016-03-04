@@ -45,10 +45,10 @@ def _extract_snap_yaml(self):
     return io.StringIO(TEST_SNAP_YAML)
 
 
-def _extract_security_profile(self, slot, key):
+def _extract_security_profile(self, plug, key):
     '''Pretend we read the security profile'''
-    # return io.StringIO(TEST_SECURITY_PROFILES[slot][key])
-    return TEST_SECURITY_PROFILES[slot][key]
+    # return io.StringIO(TEST_SECURITY_PROFILES[plug][key])
+    return TEST_SECURITY_PROFILES[plug][key]
 
 
 def _path_join(self, d, fn):
@@ -166,9 +166,9 @@ class TestSnapReview(TestCase):
         if len(self.test_security_profiles.keys()) == 0:
             TEST_SECURITY_PROFILES = dict()
         else:
-            for slot in self.test_security_profiles.keys():
-                TEST_SECURITY_PROFILES[slot] = \
-                    self.test_security_profiles[slot]
+            for plug in self.test_security_profiles.keys():
+                TEST_SECURITY_PROFILES[plug] = \
+                    self.test_security_profiles[plug]
 
     def _update_test_name(self):
         self.test_name = "%s.origin_%s_%s.snap" % (
@@ -196,21 +196,21 @@ class TestSnapReview(TestCase):
             self.test_snap_yaml[key] = value
         self._update_test_snap_yaml()
 
-    def set_test_security_profile(self, slot, key, policy):
+    def set_test_security_profile(self, plug, key, policy):
         '''Set policy in security profile for key'''
         if policy is None:
-            if slot in self.test_security_profiles and \
-                    key in self.test_security_profiles[slot]:
-                self.test_security_profiles[slot].pop(key)
+            if plug in self.test_security_profiles and \
+                    key in self.test_security_profiles[plug]:
+                self.test_security_profiles[plug].pop(key)
         elif key is None:
-            if slot in self.test_security_profiles:
-                self.test_security_profiles.pop(slot)
-        elif slot is None:
+            if plug in self.test_security_profiles:
+                self.test_security_profiles.pop(plug)
+        elif plug is None:
             self.test_security_profiles = dict()
         else:
-            if slot not in self.test_security_profiles:
-                self.test_security_profiles[slot] = dict()
-            self.test_security_profiles[slot][key] = policy
+            if plug not in self.test_security_profiles:
+                self.test_security_profiles[plug] = dict()
+            self.test_security_profiles[plug][key] = policy
 
         self._update_test_security_profiles()
 
