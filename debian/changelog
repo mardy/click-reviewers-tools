@@ -9,6 +9,7 @@ click-reviewers-tools (0.38) UNRELEASED; urgency=medium
     deprecated in the override takes precedence over 'available'
   * migrate from skills to interfaces (LP: #1549427)
   * sr_security.py: improve requash failure error message
+  * cr_security.py: webapps may now use camera, microphone and connectivity
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 22 Feb 2016 17:21:01 -0600
 

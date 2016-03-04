@@ -90,11 +90,13 @@ class ClickReviewSecurity(ClickReview):
                                'write_path']
         self.allowed_webapp_policy_groups = ['accounts',
                                              'audio',
-                                             # 'camera', non-functional ATM
+                                             'camera',
+                                             'connectivity',
                                              'content_exchange',
                                              'content_exchange_source',
                                              'keep-display-on',
                                              'location',
+                                             'microphone',
                                              'networking',
                                              'video',
                                              'webview']
