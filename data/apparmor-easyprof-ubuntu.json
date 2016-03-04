@@ -442,39 +442,25 @@
         "common": [
           "default"
         ],
-        "reserved": [
-          "unconfined"
-        ]
+        "reserved": []
       },
       "policy_groups": {
         "common": [
-	  "mir-client",
-          "network-client",
-          "network-service",
-          "network-listener",
-          "unix-listener"
+          "network",
+          "network-bind"
         ],
         "reserved": [
-	  "bluez5_client",
-	  "container-management",
-	  "desktop",
-	  "display-server",
-	  "docker_client",
-	  "firewall-management",
-	  "locale-management",
-	  "network-admin",
-	  "network-firewall",
-	  "network-management",
-	  "network-monitor",
-	  "network-status",
-	  "physical-memory-access",
-	  "read-system-logs",
-	  "snapd",
-	  "snap-management",
-	  "system-monitor",
-	  "timeserver-management",
-	  "timezone-management",
-	  "update-schedule-management"
+	  "firewall-control",
+	  "home",
+	  "locale-control",
+	  "log-observe",
+	  "mount-observe",
+	  "network-control",
+	  "network-observe",
+	  "snap-control",
+	  "system-observe",
+	  "timeserver-control",
+	  "timezone-control"
 	]
       }
     }

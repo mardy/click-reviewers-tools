@@ -44,7 +44,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def _create_top_plugs(self):
         plugs = {'iface-caps': {'interface': 'old-security',
-                                'caps': ['network-client']},
+                                'caps': ['network']},
                  'iface-override': {'interface': 'old-security',
                                     'security-override': {"read_path": "/foo/",
                                                           "seccomp": "abc"}},
@@ -2121,7 +2121,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_plugs_bad_interface(self):
         '''Test check_plugs() - bad interface (list)'''
         plugs = {'iface-caps': {'interface': [],
-                                'caps': ['network-client']}}
+                                'caps': ['network']}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -2132,7 +2132,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_plugs_empty_interface(self):
         '''Test check_plugs() - empty interface'''
         plugs = {'iface-caps': {'interface': "",
-                                'caps': ['network-client']}}
+                                'caps': ['network']}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -2142,7 +2142,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_unspecified_interface(self):
         '''Test check_plugs() - unspecified interface'''
-        plugs = {'old-security': {'caps': ['network-client']}}
+        plugs = {'old-security': {'caps': ['network']}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -2153,7 +2153,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_plugs_unknown_interface(self):
         '''Test check_plugs() - interface (unknown)'''
         plugs = {'iface-caps': {'interface': 'nonexistent',
-                                'caps': ['network-client']}}
+                                'caps': ['network']}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -2163,7 +2163,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_unspecified_unknown_interface(self):
         '''Test check_plugs() - unspecified interface (unknown)'''
-        plugs = {'nonexistent': {'caps': ['network-client']}}
+        plugs = {'nonexistent': {'caps': ['network']}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()

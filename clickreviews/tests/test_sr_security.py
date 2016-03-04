@@ -60,7 +60,7 @@ _exit
                                        self._create_sc_raw())
 
         plugs = {'iface-caps': {'interface': 'old-security',
-                                'caps': ['network-client']},
+                                'caps': ['network']},
                  'iface-override': {'interface': 'old-security',
                                     'security-override': {"read-paths": ["/a"],
                                                           "write-paths": ["/b"],
@@ -251,7 +251,7 @@ _exit
     def test_check_security_caps_nonexistent2(self):
         '''Test check_security_caps() - nonexistent with others'''
         plugs = self._create_top_plugs()
-        plugs['iface-caps']['caps'] = ['network-client', 'nonexistent']
+        plugs['iface-caps']['caps'] = ['network', 'nonexistent']
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
@@ -262,7 +262,7 @@ _exit
     def test_check_security_caps_repeated(self):
         '''Test check_security_caps() - repeated cap'''
         plugs = self._create_top_plugs()
-        plugs['iface-caps']['caps'] = ['network-client', 'network-client']
+        plugs['iface-caps']['caps'] = ['network', 'network']
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_caps()
@@ -976,7 +976,7 @@ _exit
                                        self._create_sc_raw())
         plugs = self._create_top_plugs()
         plugs['iface-other'] = {'interface': 'old-security',
-                                'caps': ['network-client'],
+                                'caps': ['network'],
                                 'security-policy': {"apparmor": "meta/aa",
                                                     "seccomp": "meta/sc"}
                                 }
@@ -1036,7 +1036,7 @@ _exit
                                        self._create_sc_raw())
         plugs = self._create_top_plugs()
         plugs['iface-other'] = {'interface': 'old-security',
-                                'caps': ['network-client'],
+                                'caps': ['network'],
                                 'security-override': {"read-paths": ["/a"],
                                                       "write-paths": ["/b"],
                                                       "abstractions": ["cd"],
@@ -1055,7 +1055,7 @@ _exit
     def test_check_plugs_redflag_no_redflagged(self):
         '''Test check_plugs_redflag() - no redflaggede'''
         plugs = {'iface-caps': {'interface': 'old-security',
-                                'caps': ['network-client']},
+                                'caps': ['network']},
                  'iface-template': {'interface': 'old-security',
                                     'security-template': "default"}
                  }
