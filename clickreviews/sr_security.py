@@ -566,6 +566,23 @@ class SnapReviewSecurity(SnapReview):
             return
         fstime = out.strip()
 
+        # For now, skip the checks on if have symlinks due to LP: #1555305
+        (rc, out) = cmd(['unsquashfs', '-lls', fn])
+        if rc != 0:
+            t = 'error'
+            n = self._get_check_name('squashfs_lls')
+            s = 'could not list contents of squashfs'
+            self._add_result(t, n, s)
+            return
+        elif 'lrwxrwxrwx' in out:
+            t = 'info'
+            n = self._get_check_name('squashfs_resquash_1555305')
+            s = 'cannot reproduce squashfs'
+            l = 'https://launchpad.net/bugs/1555305'
+            self._add_result(t, n, s, link=l)
+            return
+        # end LP: #1555305 workaround
+
         tmpdir = create_tempdir()  # this is autocleaned
         tmp_unpack = os.path.join(tmpdir, 'squashfs-root')
         tmp_repack = os.path.join(tmpdir, 'repack.snap')
@@ -620,6 +637,6 @@ class SnapReviewSecurity(SnapReview):
         if orig_sum != repack_sum:
             t = 'error'
             s = "checksums do not match. Please ensure the snap is " + \
-                "created with either 'snapcraft snap <DIR>' or" + \
+                "created with either 'snapcraft snap <DIR>' or " + \
                 "'mksquashfs <dir> <snap> %s'" % " ".join(MKSQUASHFS_OPTS)
         self._add_result(t, n, s)

@@ -8,7 +8,9 @@ click-reviewers-tools (0.38) UNRELEASED; urgency=medium
   * [cs]r_lint.py: change the order of the checks so that an obsolete or
     deprecated in the override takes precedence over 'available'
   * migrate from skills to interfaces (LP: #1549427)
-  * sr_security.py: improve requash failure error message
+  * sr_security.py:
+    - improve requash failure error message
+    - short-circuit if squashfs has symlinks (LP: 1555305)
   * cr_security.py: webapps may now use camera, microphone and connectivity
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 22 Feb 2016 17:21:01 -0600
