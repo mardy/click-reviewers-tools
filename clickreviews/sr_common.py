@@ -55,10 +55,10 @@ class SnapReview(Review):
 
     apps_required = ['command']
     apps_optional = ['daemon',
-                     'stop',
+                     'stop-command',
                      'stop-timeout',
                      'restart-condition',
-                     'poststop',
+                     'post-stop-command',
                      'plugs',
                      'slots',
                      'ports',

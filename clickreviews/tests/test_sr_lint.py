@@ -1031,106 +1031,106 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_stop(self):
-        '''Test check_apps_stop()'''
+    def test_check_apps_stop_command(self):
+        '''Test check_apps_stop_command()'''
         cmd = "bin/foo"
-        self.set_test_snap_yaml("apps", {"foo": {"stop": cmd},
+        self.set_test_snap_yaml("apps", {"foo": {"stop-command": cmd},
                                          })
         c = SnapReviewLint(self.test_name)
         c.pkg_files.append(os.path.join('/fake', cmd))
-        c.check_apps_stop()
+        c.check_apps_stop_command()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_stop_missing(self):
-        '''Test check_apps_stop() - missing'''
+    def test_check_apps_stop_command_missing(self):
+        '''Test check_apps_stop_command() - missing'''
         self.set_test_snap_yaml("apps", {"foo": {}})
         c = SnapReviewLint(self.test_name)
-        c.check_apps_stop()
+        c.check_apps_stop_command()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_stop_empty(self):
-        '''Test check_apps_stop() - empty'''
-        self.set_test_snap_yaml("apps", {"foo": {"stop": ""},
+    def test_check_apps_stop_command_empty(self):
+        '''Test check_apps_stop_command() - empty'''
+        self.set_test_snap_yaml("apps", {"foo": {"stop-command": ""},
                                          })
         c = SnapReviewLint(self.test_name)
-        c.check_apps_stop()
+        c.check_apps_stop_command()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_stop_invalid(self):
-        '''Test check_apps_stop() - list'''
-        self.set_test_snap_yaml("apps", {"foo": {"stop": []},
+    def test_check_apps_stop_command_invalid(self):
+        '''Test check_apps_stop_command() - list'''
+        self.set_test_snap_yaml("apps", {"foo": {"stop-command": []},
                                          })
         c = SnapReviewLint(self.test_name)
-        c.check_apps_stop()
+        c.check_apps_stop_command()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_stop_nonexistent(self):
-        '''Test check_apps_stop() - nonexistent'''
+    def test_check_apps_stop_command_nonexistent(self):
+        '''Test check_apps_stop_command() - nonexistent'''
         cmd = "bin/foo"
-        self.set_test_snap_yaml("apps", {"foo": {"stop": cmd},
+        self.set_test_snap_yaml("apps", {"foo": {"stop-command": cmd},
                                          })
         c = SnapReviewLint(self.test_name)
-        c.check_apps_stop()
+        c.check_apps_stop_command()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_poststop(self):
-        '''Test check_apps_poststop()'''
+    def test_check_apps_post_stop_command(self):
+        '''Test check_apps_post_stop_command()'''
         cmd = "bin/foo"
-        self.set_test_snap_yaml("apps", {"foo": {"poststop": cmd},
+        self.set_test_snap_yaml("apps", {"foo": {"post-stop-command": cmd},
                                          })
         c = SnapReviewLint(self.test_name)
         c.pkg_files.append(os.path.join('/fake', cmd))
-        c.check_apps_poststop()
+        c.check_apps_post_stop_command()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_poststop_missing(self):
-        '''Test check_apps_poststop() - missing'''
+    def test_check_apps_post_stop_command_missing(self):
+        '''Test check_apps_post_stop_command() - missing'''
         self.set_test_snap_yaml("apps", {"foo": {}})
         c = SnapReviewLint(self.test_name)
-        c.check_apps_poststop()
+        c.check_apps_post_stop_command()
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_poststop_empty(self):
-        '''Test check_apps_poststop() - empty'''
-        self.set_test_snap_yaml("apps", {"foo": {"poststop": ""},
+    def test_check_apps_post_stop_command_empty(self):
+        '''Test check_apps_post_stop_command() - empty'''
+        self.set_test_snap_yaml("apps", {"foo": {"post-stop-command": ""},
                                          })
         c = SnapReviewLint(self.test_name)
-        c.check_apps_poststop()
+        c.check_apps_post_stop_command()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_poststop_invalid(self):
-        '''Test check_apps_poststop() - list'''
-        self.set_test_snap_yaml("apps", {"foo": {"poststop": []},
+    def test_check_apps_post_stop_command_invalid(self):
+        '''Test check_apps_post_stop_command() - list'''
+        self.set_test_snap_yaml("apps", {"foo": {"post-stop-command": []},
                                          })
         c = SnapReviewLint(self.test_name)
-        c.check_apps_poststop()
+        c.check_apps_post_stop_command()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_poststop_nonexistent(self):
-        '''Test check_apps_poststop() - nonexistent'''
+    def test_check_apps_post_stop_command_nonexistent(self):
+        '''Test check_apps_post_stop_command() - nonexistent'''
         cmd = "bin/foo"
-        self.set_test_snap_yaml("apps", {"foo": {"poststop": cmd},
+        self.set_test_snap_yaml("apps", {"foo": {"post-stop-command": cmd},
                                          })
         c = SnapReviewLint(self.test_name)
-        c.check_apps_poststop()
+        c.check_apps_post_stop_command()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
@@ -1218,7 +1218,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         '''Test check_apps_nondaemon()'''
         entry = "simple"
         self.set_test_snap_yaml("apps", {"foo": {"daemon": entry,
-                                                 "stop": "bin/bar"}})
+                                                 "stop-command": "bin/bar"}})
         c = SnapReviewLint(self.test_name)
         c.check_apps_nondaemon()
         r = c.click_report
@@ -1247,7 +1247,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_apps_nondaemon_stop(self):
         '''Test check_apps_nondaemon() - stop'''
         self.set_test_snap_yaml("apps", {"foo": {"command": "bin/bar",
-                                                 "stop": "bin/bar"}})
+                                                 "stop-command": "bin/bar"}})
         c = SnapReviewLint(self.test_name)
         c.check_apps_nondaemon()
         r = c.click_report
@@ -1275,10 +1275,10 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_nondaemon_poststop(self):
-        '''Test check_apps_nondaemon() - poststop'''
+    def test_check_apps_nondaemon_post_stop_command(self):
+        '''Test check_apps_nondaemon() - post-stop-command'''
         self.set_test_snap_yaml("apps", {"foo": {"command": "bin/bar",
-                                                 "poststop": "bin/bar"}})
+                                                 "post-stop-command": "bin/bar"}})
         c = SnapReviewLint(self.test_name)
         c.check_apps_nondaemon()
         r = c.click_report

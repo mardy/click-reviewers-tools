@@ -546,26 +546,26 @@ class SnapReviewLint(SnapReview):
 
             self._verify_value_is_file(app, key)
 
-    def check_apps_stop(self):
-        '''Check apps - stop'''
+    def check_apps_stop_command(self):
+        '''Check apps - stop-command'''
         if not self.is_snap2 or 'apps' not in self.snap_yaml:
             return
 
         for app in self.snap_yaml['apps']:
-            key = 'stop'
+            key = 'stop-command'
             if key not in self.snap_yaml['apps'][app]:
                 # We check for required elsewhere
                 continue
 
             self._verify_value_is_file(app, key)
 
-    def check_apps_poststop(self):
-        '''Check apps - poststop'''
+    def check_apps_post_stop_command(self):
+        '''Check apps - post-stop-command'''
         if not self.is_snap2 or 'apps' not in self.snap_yaml:
             return
 
         for app in self.snap_yaml['apps']:
-            key = 'poststop'
+            key = 'post-stop-command'
             if key not in self.snap_yaml['apps'][app]:
                 # We check for required elsewhere
                 continue

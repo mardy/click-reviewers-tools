@@ -138,7 +138,7 @@ lint-snap-v2:ports_ext2_format|
 lint-snap-v2:ports_int1_format|
 lint-snap-v2:ports_unknown_key|
 lint-snap-v2:ports_unknown_subkey|
-lint-snap-v2:poststop|
+lint-snap-v2:post-stop-command|
 lint-snap-v2:restart-condition|
 lint-snap-v2:slots|
 lint-snap-v2:snap_type_redflag|https://developer.ubuntu.com/en/snappy/guides/frameworks/
@@ -150,7 +150,7 @@ lint-snap-v2:socket-group_reserved|
 lint-snap-v2:socket-user|
 lint-snap-v2:socket-user_matches_name|
 lint-snap-v2:socket-user_reserved|
-lint-snap-v2:stop|
+lint-snap-v2:stop-command|
 lint-snap-v2:stop-timeout|
 lint-snap-v2:stop-timeout_range|
 lint-snap-v2:summary|
@@ -223,6 +223,7 @@ security-snap-v2:security-policy_apparmor|
 security-snap-v2:security-policy_apparmor_var|
 security-snap-v2:security-policy_seccomp|
 security-snap-v2:security-policy_seccomp_valid|
+security-snap-v2:squashfs_lls|
 security-snap-v2:squashfs_repack_checksum|
 security-snap-v2:squashfs_resquash|
 security-snap-v2:squashfs_supports_fstime|
