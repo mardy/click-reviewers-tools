@@ -508,7 +508,8 @@ class SnapReviewLint(SnapReview):
                     unknown.append(field)
             if len(unknown) > 0:
                 t = 'warn'
-                s = "unknown fields: '%s'" % (",".join(sorted(unknown)))
+                s = "unknown fields for app '%s': '%s'" % (
+                    app, ",".join(sorted(unknown)))
             self._add_result(t, n, s)
 
     def _verify_value_is_file(self, app, key):
