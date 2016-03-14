@@ -384,6 +384,9 @@ class SnapReviewLint(SnapReview):
         if not self.is_snap2 or 'icon' not in self.snap_yaml:
             return
 
+        # Snappy icons may be specified in the gadget snap.yaml, but not in
+        # app snap.yaml. With apps, the icon may be in meta/gui/icon.png and
+        # this file is optional. Therefore, for apps, there is nothing to do.
         t = 'info'
         n = self._get_check_name('icon_present')
         s = 'OK'
