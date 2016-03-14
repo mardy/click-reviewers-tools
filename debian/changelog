@@ -16,6 +16,8 @@ click-reviewers-tools (0.38) UNRELEASED; urgency=medium
     - adjust for stop -> stop-command and poststop -> post-stop-command
     - make unknown field warning for apps more clear
     - normalize path specified in snap.yaml for command
+  * remove type framework, frameworks and bus-name checks since frameworks
+    aren't supported on 16.04 (LP: #1557126)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 14 Mar 2016 12:42:18 -0500
 

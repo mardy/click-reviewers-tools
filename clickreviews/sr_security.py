@@ -176,32 +176,16 @@ class SnapReviewSecurity(SnapReview):
         caps = self._get_policy_groups(version=self.policy_version,
                                        vendor=self.policy_vendor)
 
-        frameworks = []
-        if 'frameworks' in self.snap_yaml:
-            frameworks = self.snap_yaml['frameworks']
-        elif 'type' in self.snap_yaml and \
-                self.snap_yaml['type'] == 'framework':
-            # frameworks may reference their own caps
-            frameworks.append(self.snap_yaml['name'])
-
         for plug in self.policies['plugs']:
             if 'caps' not in self.policies['plugs'][plug]:
                 continue
 
             dupes = []
             for cap in self.policies['plugs'][plug]['caps']:
-                # TODO: this will go away when frameworks are gone
-                framework_cap = False
-                for f in frameworks:
-                    if cap.startswith("%s_" % f):
-                        framework_cap = True
-
                 t = 'info'
                 n = self._get_check_name('cap_exists', app=plug, extra=cap)
                 s = "OK"
-                if framework_cap:
-                    s = "OK (matches '%s' framework)" % cap.split('_')[0]
-                elif cap not in caps:
+                if cap not in caps:
                     t = 'error'
                     s = "unsupported cap '%s'" % cap
                 elif self.policies['plugs'][plug]['caps'].count(cap) > 1 and \
@@ -377,33 +361,17 @@ class SnapReviewSecurity(SnapReview):
         templates = self._get_templates(version=self.policy_version,
                                         vendor=self.policy_vendor)
 
-        frameworks = []
-        if 'frameworks' in self.snap_yaml:
-            frameworks = self.snap_yaml['frameworks']
-        elif 'type' in self.snap_yaml and \
-                self.snap_yaml['type'] == 'framework':
-            # frameworks may reference their own caps
-            frameworks.append(self.snap_yaml['name'])
-
         for plug in self.policies['plugs']:
             if 'security-template' not in self.policies['plugs'][plug]:
                 continue
 
             template = self.policies['plugs'][plug]['security-template']
 
-            # TODO: this will go away when frameworks are gone
-            framework_template = False
-            for f in frameworks:
-                if template.startswith("%s_" % f):
-                    framework_template = True
-
             t = 'info'
             n = self._get_check_name('template_exists', app=plug,
                                      extra=template)
             s = "OK"
-            if framework_template:
-                s = "OK (matches '%s' framework)" % template.split('_')[0]
-            elif template not in templates:
+            if template not in templates:
                 t = 'error'
                 s = "unsupported template '%s'" % template
             self._add_result(t, n, s)

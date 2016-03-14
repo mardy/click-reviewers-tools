@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest.mock import patch
 from unittest import TestCase
 import os
 import shutil
@@ -72,22 +71,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         slots = {'app1': {'slots': ['iface-slot1']}}  # TODO
         return slots
 
-    def patch_frameworks(self):
-        def _mock_frameworks(self, overrides=None):
-            self.FRAMEWORKS = {
-                'docker-1.3': 'obsolete',
-                'docker': 'available',
-                'hello-dbus-fwk': 'available',
-                'some-fwk': 'deprecated',
-            }
-            self.AVAILABLE_FRAMEWORKS = ['docker', 'hello-dbus-fwk']
-            self.OBSOLETE_FRAMEWORKS = ['docker-1.3']
-            self.DEPRECATED_FRAMEWORKS = ['some-fwk']
-        p = patch('clickreviews.frameworks.Frameworks.__init__',
-                  _mock_frameworks)
-        p.start()
-        self.addCleanup(p.stop)
-
     def test_all_checks_as_v2(self):
         '''Test snap v2 has checks'''
         self.set_test_pkgfmt("snap", "16.04")
@@ -117,117 +100,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         for i in c.click_report:
             sum += len(c.click_report[i])
         self.assertTrue(sum == 0)
-
-    def test_check_frameworks_none(self):
-        '''Test check_frameworks() - none'''
-        self.patch_frameworks()
-        self.set_test_snap_yaml("frameworks", None)
-        c = SnapReviewLint(self.test_name)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_frameworks_empty(self):
-        '''Test check_frameworks() - empty'''
-        self.patch_frameworks()
-        self.set_test_snap_yaml("frameworks", [])
-        c = SnapReviewLint(self.test_name)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_frameworks_multiple(self):
-        '''Test check_frameworks() - multiple'''
-        self.patch_frameworks()
-        self.set_test_snap_yaml("frameworks", ['docker', 'hello-dbus-fwk'])
-        c = SnapReviewLint(self.test_name)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_frameworks_bad(self):
-        '''Test check_frameworks() - bad'''
-        self.patch_frameworks()
-        self.set_test_snap_yaml("frameworks", "bad")
-        c = SnapReviewLint(self.test_name)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_frameworks_with_framework(self):
-        '''Test check_frameworks() - with framework'''
-        self.set_test_snap_yaml("type", "framework")
-        self.patch_frameworks()
-        self.set_test_snap_yaml("frameworks", ['docker'])
-        c = SnapReviewLint(self.test_name)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_frameworks_nonexistent(self):
-        '''Test check_frameworks() - nonexistent'''
-        self.patch_frameworks()
-        self.set_test_snap_yaml("frameworks", ["nonexistent"])
-        c = SnapReviewLint(self.test_name)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_frameworks_deprecated(self):
-        '''Test check_frameworks() - deprecated'''
-        self.patch_frameworks()
-        self.set_test_snap_yaml("frameworks", ["some-fwk"])
-        c = SnapReviewLint(self.test_name)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 1, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_frameworks_obsolete(self):
-        '''Test check_frameworks() - obsolete'''
-        self.patch_frameworks()
-        self.set_test_snap_yaml("frameworks", ["docker-1.3"])
-        c = SnapReviewLint(self.test_name)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    @patch('clickreviews.remote.read_cr_file')
-    def test_check_frameworks_override_obsolete(self, mock_read_cr_file):
-        '''Test check_frameworks() - using override obsoletes available'''
-        fwk = 'something'
-        mock_read_cr_file.return_value = {
-            '%s' % fwk: 'available',
-        }
-        self.set_test_snap_yaml("frameworks", [fwk])
-        overrides = {'framework': {'%s' % fwk: {'state': 'obsolete'}}}
-        c = SnapReviewLint(self.test_name, overrides=overrides)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    @patch('clickreviews.remote.read_cr_file')
-    def test_check_frameworks_override_deprecated(self, mock_read_cr_file):
-        '''Test check_frameworks() - using override deprecates available'''
-        fwk = 'something'
-        mock_read_cr_file.return_value = {
-            '%s' % fwk: 'available',
-        }
-        self.set_test_snap_yaml("frameworks", [fwk])
-        overrides = {'framework': {'%s' % fwk: {'state': 'deprecated'}}}
-        c = SnapReviewLint(self.test_name, overrides=overrides)
-        c.check_frameworks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 1, 'error': 0}
-        self.check_results(r, expected_counts)
 
     def test_check_name_toplevel(self):
         '''Test check_name - toplevel'''
@@ -424,7 +296,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_type()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_type_redflagged(self):
@@ -443,15 +315,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c.check_type_redflagged()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_type_redflagged_framework(self):
-        '''Test check_type_redflagged - framework'''
-        self.set_test_snap_yaml("type", "framework")
-        c = SnapReviewLint(self.test_name)
-        c.check_type_redflagged()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_type_redflagged_gadget(self):
@@ -979,6 +842,17 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_apps_bad7(self):
+        '''Test check_apps() - unknown field (bus-name)'''
+        self.set_test_snap_yaml("apps", {"foo": {"command": "bin/foo",
+                                                 "bus-name": "foo"},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.check_apps()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_apps_command(self):
         '''Test check_apps_command()'''
         cmd = "bin/foo"
@@ -1308,16 +1182,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_nondaemon_bus_name(self):
-        '''Test check_apps_nondaemon() - bus-name'''
-        self.set_test_snap_yaml("apps", {"foo": {"command": "bin/bar",
-                                                 "bus-name": "tld.foo"}})
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_nondaemon()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
     def test_check_apps_nondaemon_socket(self):
         '''Test check_apps_nondaemon() - socket'''
         self.set_test_snap_yaml("apps", {"foo": {"command": "bin/bar",
@@ -1453,114 +1317,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.set_test_snap_yaml("apps", {"foo": {"restart-condition": entry}})
         c = SnapReviewLint(self.test_name)
         c.check_apps_restart_condition()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_pkgname(self):
-        '''Test check_apps_busname() - pkgname'''
-        name = "tld.%s" % self.test_name.split('_')[0].split('.')[0]
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": name}})
-        self.set_test_snap_yaml("type", 'framework')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_appname(self):
-        '''Test check_apps_busname() - appname'''
-        name = "tld.%s" % self.test_name.split('_')[0].split('.')[0]
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": "%s.bar" % name}})
-        self.set_test_snap_yaml("type", 'framework')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_missing_framework_app(self):
-        '''Test check_apps_busname() - missing framework (app)'''
-        name = "tld.%s" % self.test_name.split('_')[0].split('.')[0]
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": "%s.bar" % name}})
-        self.set_test_snap_yaml("type", 'app')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_missing_framework_gadget(self):
-        '''Test check_apps_busname() - missing framework (gadget)'''
-        name = "tld.%s" % self.test_name.split('_')[0].split('.')[0]
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": "%s.bar" % name}})
-        self.set_test_snap_yaml("type", 'gadget')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_missing_framework_kernel(self):
-        '''Test check_apps_busname() - missing framework (kernel)'''
-        name = "tld.%s" % self.test_name.split('_')[0].split('.')[0]
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": name}})
-        self.set_test_snap_yaml("type", 'kernel')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_pkgname_bad(self):
-        '''Test check_apps_busname() - bad pkgname'''
-        name = "tld.%s" % self.test_name.split('_')[0].split('.')[0]
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": "%s-bad" % name}})
-        self.set_test_snap_yaml("type", 'framework')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_appname_bad(self):
-        '''Test check_apps_busname() - bad appname'''
-        name = "tld.%s" % self.test_name.split('_')[0].split('.')[0]
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name":
-                                "%s.bar-bad" % name}})
-        self.set_test_snap_yaml("type", 'framework')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_empty(self):
-        '''Test check_apps_busname() - bad (empty)'''
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": ""}})
-        self.set_test_snap_yaml("type", 'framework')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_invalid(self):
-        '''Test check_apps_busname() - bad (invalid)'''
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": []}})
-        self.set_test_snap_yaml("type", 'framework')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_busname_bad_regex(self):
-        '''Test check_apps_busname() - bad (regex)'''
-        self.set_test_snap_yaml("apps", {"bar": {"bus-name": "name$"}})
-        self.set_test_snap_yaml("type", 'framework')
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_busname()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
@@ -2389,30 +2145,6 @@ class TestSnapReviewLintNoMock(TestCase):
         '''Test check_external_symlinks() - has symlink'''
         package = utils.make_snap2(output_dir=self.mkdtemp(),
                                    extra_files=['/some/where,outside']
-                                   )
-        c = SnapReviewLint(package)
-        c.check_external_symlinks()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_external_symlinks_has_symlink_framework(self):
-        '''Test check_external_symlinks() - has symlink (framework)'''
-        output_dir = self.mkdtemp()
-        path = os.path.join(output_dir, 'snap.yaml')
-        content = '''
-name: test
-version: 0.1
-summary: some thing
-description: some desc
-type: framework
-'''
-        with open(path, 'w') as f:
-            f.write(content)
-
-        package = utils.make_snap2(output_dir=output_dir,
-                                   extra_files=['%s:meta/snap.yaml' % path,
-                                                '/some/where,outside']
                                    )
         c = SnapReviewLint(package)
         c.check_external_symlinks()

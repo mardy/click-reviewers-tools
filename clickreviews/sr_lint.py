@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
-from clickreviews.frameworks import Frameworks
 from clickreviews.sr_common import (
     SnapReview,
 )
@@ -57,18 +56,15 @@ class SnapReviewLint(SnapReview):
 
         # Valid values for 'type' in packaging yaml
         # - app
-        # - framework
         # - kernel
         # - gadget
         # - os
         self.valid_snap_types = ['app',
-                                 'framework',
                                  'kernel',
                                  'gadget',
                                  'os',
                                  ]
-        self.redflagged_snap_types = ['framework',
-                                      'kernel',
+        self.redflagged_snap_types = ['kernel',
                                       'gadget',
                                       'os',
                                       ]
@@ -133,73 +129,6 @@ class SnapReviewLint(SnapReview):
             t = 'info'
             s = "%s is too short: '%s'" % (key, self.snap_yaml[key])
         self._add_result(t, n, s)
-
-    def check_frameworks(self):
-        '''Check framework'''
-        if not self.is_snap2:
-            return
-
-        key = 'frameworks'
-
-        t = 'info'
-        n = self._get_check_name(key)
-        l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
-
-        if key not in self.snap_yaml:
-            s = 'OK (%s not specified)' % key
-            self._add_result(t, n, s)
-            return
-
-        if not isinstance(self.snap_yaml[key], list):
-            t = 'error'
-            s = "invalid %s entry: %s (not a list)" % (key,
-                                                       self.snap_yaml[key])
-            self._add_result(t, n, s)
-            return
-        elif len(self.snap_yaml[key]) < 1:
-            t = 'error'
-            s = "invalid %s entry (empty)" % (key)
-            self._add_result(t, n, s)
-            return
-
-        t = 'info'
-        n = self._get_check_name('framework_uses_%s' % key)
-        s = "OK"
-        if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'framework':
-            t = 'error'
-            s = "framework may not specify '%s'" % key
-        self._add_result(t, n, s)
-
-        # Can check with:
-        # snap-check-lint <path> '{"framework": {"docker": { "state": "obsolete", "policy_vendor": "ubuntu-core", "policy_version": "16.04"}}}'
-        framework_overrides = self.overrides.get('framework', {})
-        frameworks = Frameworks(overrides=framework_overrides)
-
-        for framework in self.snap_yaml[key]:
-            if framework in frameworks.OBSOLETE_FRAMEWORKS:
-                t = 'error'
-                s = "'%s' is obsolete. Please use a newer framework" % \
-                    framework
-                self._add_result(t, n, s, l)
-                return
-            elif framework in frameworks.DEPRECATED_FRAMEWORKS:
-                t = 'warn'
-                s = "'%s' is deprecated. Please use a newer framework" % \
-                    framework
-                self._add_result(t, n, s, l)
-                return
-            if framework in frameworks.AVAILABLE_FRAMEWORKS:
-                t = 'info'
-                s = 'OK'
-                self._add_result(t, n, s)
-                return
-            else:
-                # None of the above checks triggered, this is an unknown
-                # framework
-                t = 'error'
-                s = "'%s' is not a supported framework" % \
-                    framework
-                self._add_result(t, n, s, l)
 
     # TODO: verify this is a field
     def check_license_agreement(self):
@@ -335,15 +264,12 @@ class SnapReviewLint(SnapReview):
         t = 'info'
         n = self._get_check_name('snap_type_redflag')
         s = "OK"
-        l = None
         manual_review = False
         if self.snap_yaml['type'] in self.redflagged_snap_types:
             t = 'error'
             s = "(NEEDS REVIEW) type '%s' not allowed" % self.snap_yaml['type']
             manual_review = True
-            if self.snap_yaml['type'] == "framework":
-                l = "https://developer.ubuntu.com/en/snappy/guides/frameworks/"
-        self._add_result(t, n, s, link=l, manual_review=manual_review)
+        self._add_result(t, n, s, manual_review=manual_review)
 
     def check_version(self):
         '''Check package version'''
@@ -702,65 +628,6 @@ class SnapReviewLint(SnapReview):
                 continue
 
             self._verify_valid_values(app, key, valid)
-
-    def check_apps_busname(self):
-        '''Check apps - bus-name'''
-        if not self.is_snap2 or 'apps' not in self.snap_yaml:
-            return
-
-        for app in self.snap_yaml['apps']:
-            key = 'bus-name'
-            if key not in self.snap_yaml['apps'][app]:
-                # We check for required elsewhere
-                continue
-
-            t = 'info'
-            n = self._get_check_name('%s_framework' % key, app=app)
-            s = 'OK'
-            if 'type' in self.snap_yaml and \
-                    self.snap_yaml['type'] != 'framework':
-                t = 'error'
-                s = "Use of bus-name requires package be of 'type: framework'"
-            self._add_result(t, n, s)
-
-            t = 'info'
-            n = self._get_check_name('%s' % key, app=app)
-            s = 'OK'
-            l = None
-            if not isinstance(self.snap_yaml['apps'][app][key], str):
-                t = 'error'
-                s = "%s '%s' (not a str)" % (key,
-                                             self.snap_yaml['apps'][app][key])
-            elif len(self.snap_yaml['apps'][app][key]) < 1:
-                t = 'error'
-                s = "invalid %s (empty)" % (key)
-            elif not re.search(
-                    r'^[A-Za-z0-9][A-Za-z0-9_-]*(\.[A-Za-z0-9][A-Za-z0-9_-]*)+$',
-                    self.snap_yaml['apps'][app][key]):
-                t = 'error'
-                l = 'http://dbus.freedesktop.org/doc/dbus-specification.html'
-                s = "'%s' is not of form '^[A-Za-z0-9][A-Za-z0-9_-]*(\\.[A-Za-z0-9][A-Za-z0-9_-]*)+$'" % \
-                    (self.snap_yaml['apps'][app][key])
-            self._add_result(t, n, s, l)
-            if t == 'error':
-                continue
-
-            t = 'info'
-            n = self._get_check_name('%s_matches_name' % key, app=app)
-            s = 'OK'
-            suggested = [self.snap_yaml['name'],
-                         "%s.%s" % (self.snap_yaml['name'], app)
-                         ]
-            found = False
-            for name in suggested:
-                if self.snap_yaml['apps'][app][key].endswith(name):
-                    found = True
-                    break
-            if not found:
-                t = 'error'
-                s = "'%s' doesn't end with one of: %s" % \
-                    (self.snap_yaml['apps'][app][key], ", ".join(suggested))
-            self._add_result(t, n, s)
 
     def check_apps_ports(self):
         '''Check apps - ports'''

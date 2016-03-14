@@ -105,10 +105,6 @@ lint-snap-v2:apps_unknown|
 lint-snap-v2:architecture_specified_needed|
 lint-snap-v2:architecture_valid|
 lint-snap-v2:attributes|
-lint-snap-v2:bus-name|
-lint-snap-v2:bus-name_framework|
-lint-snap-v2:bus-name|http://dbus.freedesktop.org/doc/dbus-specification.html
-lint-snap-v2:bus-name_matches_name|
 lint-snap-v2:command|
 lint-snap-v2:config_hook_executable|
 lint-snap-v2:daemon|
@@ -116,8 +112,6 @@ lint-snap-v2:daemon_required|
 lint-snap-v2:description|
 lint-snap-v2:description_present|
 lint-snap-v2:external_symlinks|
-lint-snap-v2:frameworks|
-lint-snap-v2:framework_uses_frameworks|http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file
 lint-snap-v2:icon_absolute_path|
 lint-snap-v2:icon_empty|
 lint-snap-v2:icon_exists|
@@ -141,7 +135,7 @@ lint-snap-v2:ports_unknown_subkey|
 lint-snap-v2:post-stop-command|
 lint-snap-v2:restart-condition|
 lint-snap-v2:slots|
-lint-snap-v2:snap_type_redflag|https://developer.ubuntu.com/en/snappy/guides/frameworks/
+lint-snap-v2:snap_type_redflag|
 lint-snap-v2:snap_type_valid|
 lint-snap-v2:socket|
 lint-snap-v2:socket-group|

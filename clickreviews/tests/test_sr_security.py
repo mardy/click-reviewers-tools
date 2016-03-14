@@ -190,53 +190,6 @@ _exit
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_caps_with_frameworks(self):
-        '''Test check_security_caps() - with framework'''
-        plugs = self._create_top_plugs()
-        self.set_test_snap_yaml("plugs", plugs)
-        plugs['myfwk'] = {'interface': 'old-security', 'caps': ['fwk_1', 'fwk_2']}
-        self.set_test_snap_yaml("frameworks", ["fwk"])
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_caps()
-        report = c.click_report
-        # the errors here are because we don't know the framework policy
-        # 'type'. This needs support from the store
-        expected_counts = {'info': 4, 'warn': 0, 'error': 2}
-        self.check_results(report, expected_counts)
-        expected = dict()
-        expected['error'] = dict()
-        expected['warn'] = dict()
-        expected['info'] = dict()
-        name = 'security-snap-v2:cap_safe:myfwk:fwk_1'
-        expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_1'"}
-        name = 'security-snap-v2:cap_safe:myfwk:fwk_2'
-        expected['error'][name] = {"text": "unknown type 'None' for cap 'fwk_2'"}
-        self.check_results(report, expected=expected)
-
-    def test_check_security_caps_is_framework_with_framework_cap(self):
-        '''Test check_security_caps() - is framework with framework cap'''
-        pkgname = self.test_name.split('_')[0].split('.')[0]
-        cap = '%s_1' % pkgname
-        plugs = self._create_top_plugs()
-        self.set_test_snap_yaml("plugs", plugs)
-        plugs['myfwk'] = {'interface': 'old-security', 'caps': [cap]}
-        self.set_test_snap_yaml("type", "framework")
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_caps()
-        report = c.click_report
-        # the errors here are because we don't know the framework policy
-        # 'type'. This needs support from the store
-        expected_counts = {'info': 3, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-        expected = dict()
-        expected['error'] = dict()
-        expected['warn'] = dict()
-        expected['info'] = dict()
-        name = 'security-snap-v2:cap_safe:myfwk:%s' % cap
-        expected['error'][name] = {"text":
-                                   "unknown type 'None' for cap '%s'" % cap}
-        self.check_results(report, expected=expected)
-
     def test_check_security_caps_nonexistent(self):
         '''Test check_security_caps() - nonexistent'''
         plugs = self._create_top_plugs()
@@ -759,53 +712,6 @@ _exit
         report = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
-
-    def test_check_security_template_with_frameworks(self):
-        '''Test check_security_template() - with framework'''
-        plugs = self._create_top_plugs()
-        self.set_test_snap_yaml("plugs", plugs)
-        plugs['myfwk'] = {'interface': 'old-security',
-                          'security-template': 'fwk_1'}
-        self.set_test_snap_yaml("frameworks", ["fwk"])
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_template()
-        report = c.click_report
-        # the errors here are because we don't know the framework policy
-        # 'type'. This needs support from the store
-        expected_counts = {'info': 3, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-        expected = dict()
-        expected['error'] = dict()
-        expected['warn'] = dict()
-        expected['info'] = dict()
-        name = 'security-snap-v2:template_safe:myfwk:fwk_1'
-        expected['error'][name] = {"text": "unknown type 'None' for template 'fwk_1'"}
-        self.check_results(report, expected=expected)
-
-    def test_check_security_template_is_framework_with_framework_template(self):
-        '''Test check_security_template() - is framework with framework template'''
-        pkgname = self.test_name.split('_')[0].split('.')[0]
-        template = '%s_1' % pkgname
-        plugs = self._create_top_plugs()
-        self.set_test_snap_yaml("plugs", plugs)
-        plugs['myfwk'] = {'interface': 'old-security',
-                          'security-template': template}
-        self.set_test_snap_yaml("type", "framework")
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_template()
-        report = c.click_report
-        # the errors here are because we don't know the framework policy
-        # 'type'. This needs support from the store
-        expected_counts = {'info': 3, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-        expected = dict()
-        expected['error'] = dict()
-        expected['warn'] = dict()
-        expected['info'] = dict()
-        name = 'security-snap-v2:template_safe:myfwk:%s' % template
-        expected['error'][name] = {"text":
-                                   "unknown type 'None' for template '%s'" % template}
-        self.check_results(report, expected=expected)
 
     def test_check_security_template_nonexistent(self):
         '''Test check_security_template() - nonexistent'''
