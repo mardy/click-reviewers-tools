@@ -991,6 +991,18 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_apps_command_dotslash(self):
+        '''Test check_apps_command() - starts with ./'''
+        cmd = "bin/foo"
+        self.set_test_snap_yaml("apps", {"foo": {"command": "./" + cmd},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.pkg_files.append(os.path.join('/fake', cmd))
+        c.check_apps_command()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_apps_command_missing(self):
         '''Test check_apps_command() - missing'''
         self.set_test_snap_yaml("apps", {"foo": {}})

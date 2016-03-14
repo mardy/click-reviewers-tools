@@ -527,8 +527,11 @@ class SnapReviewLint(SnapReview):
                 self._add_result(t, n, s)
             else:
                 fn = self._path_join(self._get_unpack_dir(),
-                                     self.snap_yaml['apps'][app][key])
+                                     os.path.normpath(
+                                         self.snap_yaml['apps'][app][key]))
                 if fn not in self.pkg_files:
+                    print("does not exist")
+                    print(self.pkg_files)
                     t = 'error'
                     s = "%s does not exist" % (
                         self.snap_yaml['apps'][app][key])
