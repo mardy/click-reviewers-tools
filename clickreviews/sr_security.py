@@ -603,8 +603,12 @@ class SnapReviewSecurity(SnapReview):
         repack_sum = out.split()[0]
 
         if orig_sum != repack_sum:
-            t = 'error'
-            s = "checksums do not match. Please ensure the snap is " + \
-                "created with either 'snapcraft snap <DIR>' or " + \
-                "'mksquashfs <dir> <snap> %s'" % " ".join(MKSQUASHFS_OPTS)
+            if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'os':
+                t = 'info'
+                s = 'checksums do not match (expected for os snap)'
+            else:
+                t = 'error'
+                s = "checksums do not match. Please ensure the snap is " + \
+                    "created with either 'snapcraft snap <DIR>' or " + \
+                    "'mksquashfs <dir> <snap> %s'" % " ".join(MKSQUASHFS_OPTS)
         self._add_result(t, n, s)

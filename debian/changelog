@@ -11,6 +11,7 @@ click-reviewers-tools (0.38) UNRELEASED; urgency=medium
   * sr_security.py:
     - improve requash failure error message
     - short-circuit if squashfs has symlinks (LP: 1555305)
+    - os snap is not built with -all-root, ignore checksum mismatch
   * cr_security.py: webapps may now use camera, microphone and connectivity
   * sr_lint.py:
     - adjust for stop -> stop-command and poststop -> post-stop-command
