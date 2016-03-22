@@ -1,4 +1,4 @@
-click-reviewers-tools (0.39) UNRELEASED; urgency=medium
+click-reviewers-tools (0.39) xenial; urgency=medium
 
   * bin/click-review:
     - exit 1 if fatal error, 2 if found errors/warnings and 3 if found
@@ -19,8 +19,9 @@ click-reviewers-tools (0.39) UNRELEASED; urgency=medium
     - normalize path specified in snap.yaml for command
   * remove type framework, frameworks and bus-name checks since frameworks
     aren't supported on 16.04 (LP: #1557126)
+  * debian/control: Build-Depends on pyflakes3 instead of pyflakes
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 14 Mar 2016 12:42:18 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 22 Mar 2016 10:37:09 -0500
 
 click-reviewers-tools (0.38) xenial; urgency=medium
 
