@@ -761,7 +761,7 @@ _exit
         c = SnapReviewSecurity(self.test_name)
         c.aa_policy["ubuntu-core"]["16.04"]["templates"]["nonexistent"] = []
         c.aa_policy["ubuntu-core"]["16.04"]["templates"]["nonexistent"].append(
-                 template)
+            template)
         c.check_security_template()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
