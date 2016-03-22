@@ -1,4 +1,4 @@
-click-reviewers-tools (0.38) UNRELEASED; urgency=medium
+click-reviewers-tools (0.39) UNRELEASED; urgency=medium
 
   * bin/click-review:
     - exit 1 if fatal error, 2 if found errors/warnings and 3 if found
@@ -21,6 +21,12 @@ click-reviewers-tools (0.38) UNRELEASED; urgency=medium
     aren't supported on 16.04 (LP: #1557126)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 14 Mar 2016 12:42:18 -0500
+
+click-reviewers-tools (0.38) xenial; urgency=medium
+
+  * sr_security.py: add check_squashfs_resquash()
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 26 Feb 2016 08:41:28 -0600
 
 click-reviewers-tools (0.37) xenial; urgency=medium
 
