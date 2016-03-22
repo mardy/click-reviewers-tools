@@ -759,8 +759,9 @@ _exit
         plugs['iface-template']['security-template'] = template
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
-        c.aa_policy["ubuntu-core"]["16.04"]["templates"]["nonexistent"] = \
-            template
+        c.aa_policy["ubuntu-core"]["16.04"]["templates"]["nonexistent"] = []
+        c.aa_policy["ubuntu-core"]["16.04"]["templates"]["nonexistent"].append(
+                 template)
         c.check_security_template()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
@@ -1406,4 +1407,53 @@ exit 0
         os.environ['PATH'] = old_path
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_resquash_1555305(self):
+        '''Test check_squashfs_resquash()'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['/some/where,outside'])
+        c = SnapReviewSecurity(package)
+        c.check_squashfs_resquash()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_resquash_1555305'
+        expected['info'][name] = {"link": "https://launchpad.net/bugs/1555305"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_resquash_unsquashfs_fail_1555305(self):
+        '''Test check_squashfs_resquash() - unsquashfs failure'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        # fake unsquashfs
+        unsquashfs = os.path.join(output_dir, 'unsquashfs')
+        content = '''#!/bin/sh
+if [ "$1" = "-fstime" ] || [ "$1" = "-lls" ]; then
+    exit 0
+fi
+echo test error: unsquashfs failure
+exit 1
+'''
+        with open(unsquashfs, 'w') as f:
+            f.write(content)
+        os.chmod(unsquashfs, 0o775)
+
+        old_path = os.environ['PATH']
+        if old_path:
+            os.environ['PATH'] = "%s:%s" % (output_dir, os.environ['PATH'])
+        else:
+            os.environ['PATH'] = output_dir  # pragma: nocover
+
+        c.check_squashfs_resquash()
+        os.environ['PATH'] = old_path
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
