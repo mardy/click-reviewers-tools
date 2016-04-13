@@ -76,6 +76,13 @@ class SnapReviewSecurity(SnapReview):
         if sec_type is None:
             return  # not in aa_policy
 
+        # Note: snappy doesn't autoconnect by default except for known
+        # safe interfaces like network and network-bind. As such, these tests
+        # add extra maintenance overhead since the store and snappy would
+        # ideally agree. However, until assertions are implemented, keep these
+        # checks and mark the autoconnect ones as 'common' and the
+        # non-autoconnect as 'reserved'. Eventually we will probably move all
+        # of these to 'common'.
         t = 'info'
         n = self._get_check_name('%s_safe' % name, app=plug, extra=interface)
         s = "OK"

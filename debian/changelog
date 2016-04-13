@@ -4,6 +4,7 @@ click-reviewers-tools (0.40) UNRELEASED; urgency=medium
   * add bool-file interface tests
   * remove obsoleted old-security interface checks
   * properly handle app 'plugs' without toplevel 'plugs' (LP: #1569226)
+  * implement native plugs and app plugs checks
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 13 Apr 2016 08:52:59 -0500
 

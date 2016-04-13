@@ -353,7 +353,9 @@
       "policy_groups": {
         "common": [
           "network",
-          "network-bind"
+          "network-bind",
+	  "unity7",
+	  "x11"
         ],
         "reserved": [
 	  "firewall-control",
@@ -366,9 +368,7 @@
 	  "snap-control",
 	  "system-observe",
 	  "timeserver-control",
-	  "timezone-control",
-	  "unity7",
-	  "x11"
+	  "timezone-control"
 	]
       }
     }
