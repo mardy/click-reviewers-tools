@@ -1,3 +1,9 @@
+click-reviewers-tools (0.40) UNRELEASED; urgency=medium
+
+  * sr_lint.py: ppc64el and s390x are valid architectures
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 13 Apr 2016 08:52:59 -0500
+
 click-reviewers-tools (0.39) xenial; urgency=medium
 
   * bin/click-review:

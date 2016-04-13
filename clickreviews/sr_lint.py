@@ -39,6 +39,8 @@ class SnapReviewLint(SnapReview):
                                              'i386',
                                              'amd64',
                                              'arm64',
+                                             'ppc64el',
+                                             's390x',
                                              ]
         self.valid_architectures = ['all'] + self.valid_compiled_architectures
         self.vcs_files = ['.bzr*',
