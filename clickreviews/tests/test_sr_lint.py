@@ -1966,7 +1966,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_missing_attrib(self):
         '''Test check_plugs() - missing attrib'''
-        plugs = {'old-security': {}}
+        plugs = {'bool-file': {}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -1976,7 +1976,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_missing_attrib_explicit_interface(self):
         '''Test check_plugs() - missing attrib'''
-        plugs = {'iface-caps': {'interface': 'old-security'}}
+        plugs = {'test': {'interface': 'bool-file'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -1986,8 +1986,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_unknown_attrib(self):
         '''Test check_plugs() - unknown attrib'''
-        plugs = {'iface-caps': {'interface': 'old-security',
-                                'nonexistent': 'abc'}}
+        plugs = {'test': {'interface': 'bool-file',
+                          'nonexistent': 'abc'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -1996,42 +1996,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.check_results(r, expected_counts)
 
     def test_check_plugs_bad_attrib_caps(self):
-        '''Test check_plugs() - bad attrib - caps'''
-        plugs = {'iface-caps': {'interface': 'old-security',
-                                'caps': 'bad'}}
-        self.set_test_snap_yaml("plugs", plugs)
-        c = SnapReviewLint(self.test_name)
-        c.check_plugs()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_plugs_bad_attrib_security_override(self):
-        '''Test check_plugs() - bad attrib - security-override'''
-        plugs = {'iface-caps': {'interface': 'old-security',
-                                'security-override': 'bad'}}
-        self.set_test_snap_yaml("plugs", plugs)
-        c = SnapReviewLint(self.test_name)
-        c.check_plugs()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_plugs_bad_attrib_security_policy(self):
-        '''Test check_plugs() - bad attrib - security-policy'''
-        plugs = {'iface-caps': {'interface': 'old-security',
-                                'security-policy': 'bad'}}
-        self.set_test_snap_yaml("plugs", plugs)
-        c = SnapReviewLint(self.test_name)
-        c.check_plugs()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_plugs_bad_attrib_security_template(self):
-        '''Test check_plugs() - bad attrib - security-template'''
-        plugs = {'iface-caps': {'interface': 'old-security',
-                                'security-template': []}}
+        '''Test check_plugs() - bad attrib - bool-file'''
+        plugs = {'test': {'interface': 'bool-file',
+                          'path': ['invalid']}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
