@@ -54,8 +54,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def _create_apps_plugs(self):
         plugs = {'app1': {'plugs': ['iface-network']},
                  'app2': {'plugs': ['iface-network-bind']},
-                 # 'app3': {'plugs': ['network-control']},
-                 # 'app4': {'plugs': ['iface-bool-file']},
+                 'app3': {'plugs': ['network-control']},
+                 'app4': {'plugs': ['iface-bool-file']},
                  }
         return plugs
 
@@ -2048,7 +2048,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_apps_plugs()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 8, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_no_plugs(self):

@@ -992,8 +992,8 @@ class SnapReviewLint(SnapReview):
                     s = "invalid plug interface name reference: '%s' (not a str)" \
                         % plug_ref
                 elif plug_ref not in self.interfaces and \
-                        'plugs' not in self.snap_yaml or \
-                        plug_ref not in self.snap_yaml['plugs']:
+                        ('plugs' not in self.snap_yaml or
+                         plug_ref not in self.snap_yaml['plugs']):
                     t = 'error'
                     s = "unknown plug interface name reference '%s'" % plug_ref
                 self._add_result(t, n, s)
