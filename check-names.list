@@ -220,6 +220,7 @@ security-snap-v2:security-policy_seccomp_valid|
 security-snap-v2:squashfs_lls|
 security-snap-v2:squashfs_repack_checksum|
 security-snap-v2:squashfs_resquash|
+security-snap-v2:squashfs_resquash_1555305|https://launchpad.net/bugs/1555305
 security-snap-v2:squashfs_supports_fstime|
 security-snap-v2:template_exists|
 security-snap-v2:template_safe|
