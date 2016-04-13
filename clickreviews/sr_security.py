@@ -22,7 +22,6 @@ from clickreviews.sr_common import (
 from clickreviews.common import (
     cmd,
     create_tempdir,
-    error,
     ReviewException,
     AA_PROFILE_NAME_MAXLEN,
     AA_PROFILE_NAME_ADVLEN,
@@ -42,36 +41,6 @@ class SnapReviewSecurity(SnapReview):
         self.sec_skipped_types = ['oem',
                                   'os',
                                   'kernel']  # these don't need security items
-
-        self.policies = self._extract_security_yaml()
-
-    def _extract_security_yaml(self):
-        '''Extract security bits from snap.yaml in a way that can be easily
-           used in these tests.
-        '''
-        sec = {}
-
-        if 'plugs' in self.snap_yaml:
-            sec['plugs'] = {}
-            # TODO: need to adjust for native security interfaces
-            for plug in self.snap_yaml['plugs']:
-                if 'interface' not in self.snap_yaml['plugs'][plug]:
-                    continue
-
-        if 'apps' in self.snap_yaml:
-            sec['apps'] = {}
-            for app in self.snap_yaml['apps']:
-                if 'plugs' not in self.snap_yaml['apps'][app]:
-                    continue
-                # This check means we don't have to verify in the individual
-                # tests
-                elif not isinstance(self.snap_yaml['apps'][app]['plugs'], list):
-                    error("Invalid yaml for %s/plugs" % app)  # pragma: nocover
-                if app not in sec['apps']:
-                    sec['apps'][app] = {}
-                sec['apps'][app]['plugs'] = self.snap_yaml['apps'][app]['plugs']
-
-        return sec
 
     def check_security_policy_vendor(self):
         '''Check policy-vendor'''
@@ -98,6 +67,69 @@ class SnapReviewSecurity(SnapReview):
             t = 'error'
             s = "unknown policy-version '%s'" % self.policy_version
         self._add_result(t, n, s)
+
+    def _verify_plug(self, name, plug, interface):
+
+        sec_type = self._get_policy_group_type(self.policy_vendor,
+                                               self.policy_version,
+                                               interface)
+        if sec_type is None:
+            return  # not in aa_policy
+
+        t = 'info'
+        n = self._get_check_name('%s_safe' % name, app=plug, extra=interface)
+        s = "OK"
+        m = False
+        l = None
+        if interface == "debug":
+            t = 'error'
+            s = "'%s' not for production use" % interface
+            l = 'http://askubuntu.com/a/562123/94326'
+        elif sec_type == "reserved":
+            t = 'error'
+            s = "%s cap '%s' for vetted applications only" % (sec_type,
+                                                              interface)
+            m = True
+        elif sec_type != "common":
+            t = 'error'
+            s = "unknown type '%s' for cap '%s'" % (sec_type, interface)
+        self._add_result(t, n, s, l, manual_review=m)
+
+    def check_security_plugs(self):
+        '''Check security plugs'''
+        if not self.is_snap2 or 'plugs' not in self.snap_yaml:
+            return
+
+        for plug in self.snap_yaml['plugs']:
+            # If the 'interface' name is the same as the 'plug' name, then
+            # 'interface' is optional since the interface name and the plug
+            # name are the same
+            interface = plug
+            if 'interface' in self.snap_yaml['plugs'][plug]:
+                interface = self.snap_yaml['plugs'][plug]['interface']
+
+            self._verify_plug('plug', plug, interface)
+
+    def check_security_apps_plugs(self):
+        '''Check security app plugs'''
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
+            return
+
+        for app in self.snap_yaml['apps']:
+            if 'plugs' not in self.snap_yaml['apps'][app]:
+                continue
+
+            # The interface referenced in the app's 'plugs' field can either be
+            # a known interface (when the interface name reference and the
+            # interface is the same) or can reference a name in the snap's
+            # toplevel 'plugs' mapping
+            for plug_ref in self.snap_yaml['apps'][app]['plugs']:
+                if not isinstance(plug_ref, str):
+                    continue  # checked elsewhere
+                elif plug_ref not in self.interfaces:
+                    continue  # check_security_plugs() verifies these
+
+                self._verify_plug('app_plug', app, plug_ref)
 
     def check_apparmor_profile_name_length(self):
         '''Check AppArmor profile name length'''

@@ -35,16 +35,14 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
 
     def _create_top_plugs(self):
         plugs = {'iface-network': {'interface': 'network'},
-                 'iface-network-bind': {'interface': 'network-bind'},
-                 # intentionally omitted
-                 # 'iface-network-control': {'interface': 'network-control')},
+                 'network-bind': {},
                  }
         return plugs
 
     def _create_apps_plugs(self):
         plugs = {'app1': {'plugs': ['iface-network']},
-                 'app2': {'plugs': ['iface-network-bind']},
-                 'app3': {'plugs': ['network-control']},  # reference directly
+                 'app2': {'plugs': ['network-bind']},
+                 'app3': {'plugs': ['iface-network', 'network-bind']},
                  }
         return plugs
 
@@ -112,6 +110,136 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         c.check_security_policy_version()
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs(self):
+        ''' Test check_security_plugs()'''
+        plugs = self._create_top_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_none(self):
+        ''' Test check_security_plugs() - None'''
+        self.set_test_snap_yaml("plugs", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_empty(self):
+        ''' Test check_security_plugs() - empty'''
+        self.set_test_snap_yaml("plugs", {})
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_debug(self):
+        ''' Test check_security_plugs() - debug'''
+        plugs = self._create_top_plugs()
+        plugs['debug'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append("debug")
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_reserved(self):
+        ''' Test check_security_plugs() - reserved'''
+        plugs = self._create_top_plugs()
+        plugs['rsrved'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append("rsrved")
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_unknown_type(self):
+        ''' Test check_security_plugs() - unknown type'''
+        plugs = self._create_top_plugs()
+        plugs['bad-type'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["nonexistent"] = ["bad-type"]
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_nonexistent(self):
+        ''' Test check_security_plugs() - nonexistent'''
+        plugs = dict()
+        plugs['nonexistent'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_plugs(self):
+        ''' Test check_security_apps_plugs()'''
+        plugs = self._create_top_plugs()
+        apps = self._create_apps_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_plugs()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+        # Note: c.check_security_apps_plugs() only checks plugs that are not
+        # referenced in the toplevel plugs so while self._create_apps_plugs()
+        # has four apps, only two of the apps reference plugs not in the
+        # toplevel plugs.
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:app_plug_safe:app2:network-bind'
+        expected['info'][name] = {"text": "OK"}
+        name = 'security-snap-v2:app_plug_safe:app3:network-bind'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(report, expected=expected)
+
+    def test_check_security_apps_plugs_none(self):
+        ''' Test check_security_apps_plugs() - None'''
+        self.set_test_snap_yaml("apps", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_plugs_bad(self):
+        ''' Test check_security_apps_plugs() - bad'''
+        apps = {'app1': {'plugs': [{}]}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_plugs_empty(self):
+        ''' Test check_security_apps_plugs() - empty'''
+        apps = {'app1': {'plugs': []}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_apparmor_profile_name_length(self):
