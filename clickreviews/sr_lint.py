@@ -921,7 +921,9 @@ class SnapReviewLint(SnapReview):
                 continue
 
             min = 1
-            if 'interface' in self.snap_yaml['plugs'][plug]:
+            if 'interface' in self.snap_yaml['plugs'][plug] and \
+                    interface in self.interfaces and \
+                    len(self.interfaces[interface]) > 0:
                 min = 2
             t = 'info'
             n = self._get_check_name('attributes')

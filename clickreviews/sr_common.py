@@ -27,6 +27,8 @@ from clickreviews.common import(
     open_file_read,
 )
 
+import clickreviews.apparmor_policy as apparmor_policy
+
 
 #
 # Utility classes
@@ -75,6 +77,7 @@ class SnapReview(Review):
     # interface with the valid python type for the attribute (eg, [], '', {},
     # etc). These interfaces are likely going to change based on release, but
     # for now, this is fine.
+    # We will add interfaces from apparmor-easyprof-ubuntu.json in __init__()
     interfaces = {'old-security': {'caps': [],
                                    'security-override': {},
                                    'security-policy': {},
@@ -94,6 +97,30 @@ class SnapReview(Review):
             self.snap_yaml = yaml.safe_load(snap_yaml)
         except Exception:  # pragma: nocover
             error("Could not load snap.yaml. Is it properly formatted?")
+
+        # If local_copy is None, then this will check the server to see if
+        # we are up to date. However, if we are working within the development
+        # tree, use it unconditionally.
+        local_copy = None
+        branch_fn = os.path.join(os.path.dirname(__file__),
+                                 '../data/apparmor-easyprof-ubuntu.json')
+        if os.path.exists(branch_fn):
+            local_copy = branch_fn
+        p = apparmor_policy.ApparmorPolicy(local_copy)
+        self.aa_policy = p.policy
+
+        # TODO: may need updating for ubuntu-personal, etc
+        self.policy_vendor = "ubuntu-core"
+        self.policy_version = str(self._pkgfmt_version())
+
+        if self.policy_vendor in self.aa_policy and \
+                self.policy_version in self.aa_policy[self.policy_vendor] and \
+                'policy_groups' in self.aa_policy[self.policy_vendor][self.policy_version]:
+            for t in ['common', 'reserved']:
+                if t not in self.aa_policy[self.policy_vendor][self.policy_version]['policy_groups']:
+                    continue
+                for p in self.aa_policy[self.policy_vendor][self.policy_version]['policy_groups'][t]:
+                    self.interfaces[p] = {}
 
         # default to 'app'
         if 'type' not in self.snap_yaml:

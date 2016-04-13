@@ -54,6 +54,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
                                     'security-template': "unconfined"},
                  'iface-bool-file': {'interface': 'bool-file',
                                      'path': '/path/to/something'},
+                 'iface-network': {'interface': 'network'},
                  }
         return plugs
 
@@ -62,6 +63,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
                  'app2': {'plugs': ['iface-caps', 'iface-template']},
                  'app3': {'plugs': ['iface-template', 'iface-override']},
                  'app4': {'plugs': ['iface-policy']},
+                 'app5': {'plugs': ['iface-network']},
                  }
         return plugs
 
@@ -1903,7 +1905,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 16, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 18, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_bad_interface(self):
@@ -2043,7 +2045,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_apps_plugs()
         r = c.click_report
-        expected_counts = {'info': 10, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 12, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_no_plugs(self):

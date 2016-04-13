@@ -30,7 +30,6 @@ from clickreviews.common import (
     MKSQUASHFS_OPTS,
     VALID_SYSCALL,
 )
-import clickreviews.apparmor_policy as apparmor_policy
 import os
 import re
 
@@ -43,27 +42,12 @@ class SnapReviewSecurity(SnapReview):
         if not self.is_snap2:
             return
 
-        # If local_copy is None, then this will check the server to see if
-        # we are up to date. However, if we are working within the development
-        # tree, use it unconditionally.
-        local_copy = None
-        branch_fn = os.path.join(os.path.dirname(__file__),
-                                 '../data/apparmor-easyprof-ubuntu.json')
-        if os.path.exists(branch_fn):
-            local_copy = branch_fn
-        p = apparmor_policy.ApparmorPolicy(local_copy)
-        self.aa_policy = p.policy
-
         self.sec_skipped_types = ['oem',
                                   'os',
                                   'kernel']  # these don't need security items
 
         self.policies = self._extract_security_yaml()
         self.raw_profiles = self._extract_raw_profiles()
-
-        # TODO: may need updating for ubuntu-personal, etc
-        self.policy_vendor = "ubuntu-core"
-        self.policy_version = str(self._pkgfmt_version())
 
     def _extract_security_yaml(self):
         '''Extract security bits from snap.yaml in a way that can be easily
