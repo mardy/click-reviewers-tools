@@ -1,4 +1,4 @@
-click-reviewers-tools (0.40) UNRELEASED; urgency=medium
+click-reviewers-tools (0.40) xenial; urgency=medium
 
   * sr_lint.py: ppc64el and s390x are valid architectures
   * add bool-file interface tests
@@ -6,7 +6,7 @@ click-reviewers-tools (0.40) UNRELEASED; urgency=medium
   * properly handle app 'plugs' without toplevel 'plugs' (LP: #1569226)
   * implement native plugs and app plugs checks
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 13 Apr 2016 08:52:59 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 13 Apr 2016 15:19:47 -0500
 
 click-reviewers-tools (0.39) xenial; urgency=medium
 
