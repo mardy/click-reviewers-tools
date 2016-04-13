@@ -272,6 +272,26 @@
       }
     }
   },
+  "ubuntu-snappy": {
+    "1.3": {
+      "templates": {
+        "common": [
+          "default"
+        ],
+        "reserved": [
+          "unconfined"
+        ]
+      },
+      "policy_groups": {
+        "common": [
+          "networking",
+          "network-service",
+          "network-client"
+        ],
+        "reserved": []
+      }
+    }
+  },
   "ubuntu-core": {
     "15.04": {
       "templates": {
