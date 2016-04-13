@@ -23,15 +23,12 @@ from clickreviews.common import (
     cmd,
     create_tempdir,
     error,
-    open_file_read,
     ReviewException,
     AA_PROFILE_NAME_MAXLEN,
     AA_PROFILE_NAME_ADVLEN,
     MKSQUASHFS_OPTS,
-    VALID_SYSCALL,
 )
 import os
-import re
 
 
 class SnapReviewSecurity(SnapReview):
@@ -47,7 +44,6 @@ class SnapReviewSecurity(SnapReview):
                                   'kernel']  # these don't need security items
 
         self.policies = self._extract_security_yaml()
-        self.raw_profiles = self._extract_raw_profiles()
 
     def _extract_security_yaml(self):
         '''Extract security bits from snap.yaml in a way that can be easily
@@ -59,20 +55,8 @@ class SnapReviewSecurity(SnapReview):
             sec['plugs'] = {}
             # TODO: need to adjust for native security interfaces
             for plug in self.snap_yaml['plugs']:
-                if 'interface' not in self.snap_yaml['plugs'][plug] or \
-                        self.snap_yaml['plugs'][plug]['interface'] != \
-                        'old-security':
+                if 'interface' not in self.snap_yaml['plugs'][plug]:
                     continue
-                for k in self.interfaces['old-security']:
-                    if k in self.snap_yaml['plugs'][plug]:
-                        # This check means we don't have to verify in the
-                        # individual tests
-                        if not isinstance(self.snap_yaml['plugs'][plug][k],
-                                          type(self.interfaces['old-security'][k])):
-                            error("Invalid yaml for plugs/%s/%s" % (plug, k))  # pragma: nocover
-                        if plug not in sec['plugs']:
-                            sec['plugs'][plug] = {}
-                        sec['plugs'][plug][k] = self.snap_yaml['plugs'][plug][k]
 
         if 'apps' in self.snap_yaml:
             sec['apps'] = {}
@@ -88,43 +72,6 @@ class SnapReviewSecurity(SnapReview):
                 sec['apps'][app]['plugs'] = self.snap_yaml['apps'][app]['plugs']
 
         return sec
-
-    def _extract_security_profile(self, plug, key):
-        '''Extract security profile'''
-        rel_fn = self.policies['plugs'][plug]['security-policy'][key]
-
-        fn = os.path.join(self.unpack_dir, rel_fn)
-        if not os.path.exists(fn):
-            error("Could not find '%s'" % rel_fn)  # pragma: nocover
-
-        fh = open_file_read(fn)
-        contents = ""
-        for line in fh.readlines():
-            contents += line
-        fh.close()
-
-        return contents
-
-    def _extract_raw_profiles(self):
-        '''Get 'security-policy' policies'''
-        raw_profiles = {}
-
-        if 'plugs' not in self.policies:
-            return raw_profiles
-
-        for plug in self.policies['plugs']:
-            if 'security-policy' not in self.policies['plugs'][plug]:
-                continue
-
-            if plug not in raw_profiles:
-                raw_profiles[plug] = {}
-
-            for k in ['apparmor', 'seccomp']:
-                if k in self.policies['plugs'][plug]['security-policy']:
-                    raw_profiles[plug][k] = \
-                        self._extract_security_profile(plug, k)
-
-        return raw_profiles
 
     def check_security_policy_vendor(self):
         '''Check policy-vendor'''
@@ -151,322 +98,6 @@ class SnapReviewSecurity(SnapReview):
             t = 'error'
             s = "unknown policy-version '%s'" % self.policy_version
         self._add_result(t, n, s)
-
-    def check_security_caps(self):
-        '''Check security-caps'''
-        if not self.is_snap2 or 'plugs' not in self.policies:
-            return
-
-        caps = self._get_policy_groups(version=self.policy_version,
-                                       vendor=self.policy_vendor)
-
-        for plug in self.policies['plugs']:
-            if 'caps' not in self.policies['plugs'][plug]:
-                continue
-
-            dupes = []
-            for cap in self.policies['plugs'][plug]['caps']:
-                t = 'info'
-                n = self._get_check_name('cap_exists', app=plug, extra=cap)
-                s = "OK"
-                if cap not in caps:
-                    t = 'error'
-                    s = "unsupported cap '%s'" % cap
-                elif self.policies['plugs'][plug]['caps'].count(cap) > 1 and \
-                        cap not in dupes:
-                    dupes.append(cap)
-                    t = 'error'
-                    s = "'%s' specified multiple times" % cap
-                self._add_result(t, n, s)
-                if t == 'error':
-                    continue
-
-                t = 'info'
-                n = self._get_check_name('cap_safe', app=plug, extra=cap)
-                s = "OK"
-                m = False
-                l = None
-                sec_type = self._get_policy_group_type(self.policy_vendor,
-                                                       self.policy_version,
-                                                       cap)
-                if cap == "debug":
-                    t = 'error'
-                    s = "'%s' not for production use" % cap
-                    l = 'http://askubuntu.com/a/562123/94326'
-                elif sec_type == "reserved":
-                    t = 'error'
-                    s = "%s cap '%s' for vetted applications only" % (sec_type,
-                                                                      cap)
-                    m = True
-                elif sec_type != "common":
-                    t = 'error'
-                    s = "unknown type '%s' for cap '%s'" % (sec_type, cap)
-                self._add_result(t, n, s, l, manual_review=m)
-
-    def check_security_override(self):
-        '''Check security-override'''
-        if not self.is_snap2 or 'plugs' not in self.policies:
-            return
-
-        # These regexes are pretty strict, but lets try to guard against
-        # any malfeasance
-        allowed_fields = {'read-paths': re.compile(r'^[/@]'),
-                          'write-paths': re.compile(r'^[/@]'),
-                          'abstractions': re.compile(r'^[a-zA-Z0-9_]{2,64}$'),
-                          'syscalls': re.compile(VALID_SYSCALL),
-                          }
-
-        for plug in self.policies['plugs']:
-            key = 'security-override'
-            if key not in self.policies['plugs'][plug]:
-                continue
-
-            t = 'info'
-            n = self._get_check_name(key, extra=plug)
-            s = "OK"
-            if len(self.policies['plugs'][plug][key].keys()) == 0:
-                t = 'error'
-                s = "nothing specified in '%s' for '%s'" % (key, plug)
-            else:
-                for f in self.policies['plugs'][plug][key].keys():
-                    if f not in allowed_fields:
-                        t = 'error'
-                        s = "unknown field '%s' in " % f + \
-                            "'%s' for '%s'" % (key, plug)
-                    elif not isinstance(self.policies['plugs'][plug][key][f],
-                                        list):
-                        t = 'error'
-                        s = "invalid %s entry: %s (not a list)" % \
-                            (f, self.policies['plugs'][plug][key][f])
-                    else:
-                        errors = []
-                        for v in self.policies['plugs'][plug][key][f]:
-                            if not allowed_fields[f].search(v):
-                                errors.append(v)
-                        if len(errors) > 0:
-                            t = 'error'
-                            s = "malformed '%s' in '%s'" % (",".join(errors),
-                                                            f)
-            self._add_result(t, n, s)
-
-    def check_security_policy(self):
-        '''Check security-policy'''
-        if not self.is_snap2 or 'plugs' not in self.policies:
-            return
-
-        allowed_fields = ['apparmor', 'seccomp']
-        aa_searches = ['###VAR###',
-                       '###PROFILEATTACH###',
-                       '@{INSTALL_DIR}',
-                       '@{APP_PKGNAME}',
-                       '@{APP_VERSION}',
-                       ]
-        sc_skip_pat = re.compile(r'^(\s*#|\s*$)')
-        sc_valid_pat = re.compile(VALID_SYSCALL)
-
-        for plug in self.policies['plugs']:
-            key = 'security-policy'
-            if key not in self.policies['plugs'][plug]:
-                continue
-
-            t = 'info'
-            n = self._get_check_name(key, extra=plug)
-            s = "OK"
-            for f in self.policies['plugs'][plug][key].keys():
-                if f not in allowed_fields:
-                    t = 'error'
-                    s = "unknown field '%s' in " % f + \
-                        "'%s' for '%s'" % (key, plug)
-                elif not isinstance(self.policies['plugs'][plug][key][f],
-                                    str):
-                    t = 'error'
-                    s = "invalid %s entry: %s (not a str)" % \
-                        (f, self.policies['plugs'][plug][key][f])
-            self._add_result(t, n, s)
-
-        for plug in self.raw_profiles:
-            for f in allowed_fields:
-                t = 'info'
-                n = self._get_check_name('%s_%s' % (key, f), extra=plug)
-                s = "OK"
-                if f not in self.raw_profiles[plug]:
-                    t = 'error'
-                    s = "required field '%s' not present" % f
-                self._add_result(t, n, s)
-
-                if f == 'apparmor':
-                    if t == 'error':
-                        continue
-
-                    p = self.raw_profiles[plug]['apparmor']
-                    t = 'info'
-                    n = self._get_check_name('%s_%s_var' % (key, f),
-                                             extra=plug)
-                    s = "OK"
-                    for v in aa_searches:
-                        if v not in p:
-                            if v.startswith('@') and \
-                                    ("# Unrestricted AppArmor policy" in p or
-                                     "# This profile offers no protection" in
-                                     p):
-                                s = "SKIPPED for '%s' (boilerplate)" % v
-                            else:
-                                t = 'warn'
-                                s = "could not find '%s' in profile" % v
-                            break
-                    self._add_result(t, n, s)
-                elif f == 'seccomp':
-                    if t == 'error':
-                        continue
-
-                    invalid = []
-                    for line in self.raw_profiles[plug]['seccomp'].splitlines():
-                        if line.startswith('deny '):
-                            line = line.replace('deny ', '')
-                        if sc_skip_pat.search(line):
-                            continue
-                        if not sc_valid_pat.search(line):
-                            invalid.append(line)
-
-                    t = 'info'
-                    n = self._get_check_name('%s_%s_valid' % (key, f),
-                                             extra=plug)
-                    s = "OK"
-                    if len(invalid) > 0:
-                        t = 'error'
-                        s = "invalid syscalls: %s" % ",".join(invalid)
-                    self._add_result(t, n, s)
-
-    def check_security_template(self):
-        '''Check security-template'''
-        if not self.is_snap2 or 'plugs' not in self.policies:
-            return
-
-        templates = self._get_templates(version=self.policy_version,
-                                        vendor=self.policy_vendor)
-
-        for plug in self.policies['plugs']:
-            if 'security-template' not in self.policies['plugs'][plug]:
-                continue
-
-            template = self.policies['plugs'][plug]['security-template']
-
-            t = 'info'
-            n = self._get_check_name('template_exists', app=plug,
-                                     extra=template)
-            s = "OK"
-            if template not in templates:
-                t = 'error'
-                s = "unsupported template '%s'" % template
-            self._add_result(t, n, s)
-            if t == 'error':
-                continue
-
-            t = 'info'
-            n = self._get_check_name('template_safe', app=plug, extra=template)
-            s = "OK"
-            m = False
-            sec_type = self._get_template_type(self.policy_vendor,
-                                               self.policy_version,
-                                               template)
-            if sec_type == "reserved":
-                t = 'error'
-                s = "%s template '%s' for vetted applications only" % (
-                    sec_type, template)
-                m = True
-            elif sec_type != "common":
-                t = 'error'
-                s = "unknown type '%s' for template '%s'" % (sec_type,
-                                                             template)
-            self._add_result(t, n, s, manual_review=m)
-
-    def check_security_combinations(self):
-        '''Verify security yaml plugs valid combinations'''
-        if not self.is_snap2 or 'plugs' not in self.policies:
-            return
-
-        for plug in self.policies['plugs']:
-            t = 'info'
-            n = self._get_check_name('yaml_combinations', extra=plug)
-            s = "OK"
-            if "security-policy" in self.policies['plugs'][plug]:
-                for i in ['security-override', 'security-template', 'caps']:
-                    if i in self.policies['plugs'][plug]:
-                        tmp = list(self.policies['plugs'][plug].keys())
-                        tmp.remove("security-policy")
-                        t = 'error'
-                        s = "found '%s' with 'security-policy'" % \
-                            ",".join(sorted(tmp))
-                        break
-            self._add_result(t, n, s)
-
-        # Make sure that a particular app doesn't list conflicting combinations
-        # (ie, security-policy with anything else)
-        if 'apps' not in self.policies:
-            return
-        for app in self.policies['apps']:
-            t = 'info'
-            n = self._get_check_name('yaml_combinations_apps', app=app)
-            s = "OK"
-            has_decl = []
-            for plug_ref in self.policies['apps'][app]['plugs']:
-                if plug_ref not in self.policies['plugs']:
-                    continue
-
-                for i in ['security-override', 'security-template', 'caps',
-                          'security-policy']:
-                    if i in self.policies['plugs'][plug_ref] and \
-                            i not in has_decl:
-                        has_decl.append(i)
-
-            if "security-policy" in has_decl:
-                for i in ['security-override', 'security-template', 'caps']:
-                    if i in has_decl:
-                        has_decl.remove("security-policy")
-                        t = 'error'
-                        s = "'%s' plugs 'security-policy' with '%s'" % (
-                            app, ",".join(sorted(has_decl)))
-                        break
-            self._add_result(t, n, s)
-
-    def check_plugs_redflag(self):
-        '''Check plugs redflag fields'''
-        if not self.is_snap2 or 'plugs' not in self.policies:
-            return
-
-        for plug in self.policies['plugs']:
-            t = 'info'
-            n = self._get_check_name('redflag_fields', extra=plug)
-            s = 'OK'
-            m = False
-
-            attrib = None
-            if 'security-override' in self.policies['plugs'][plug]:
-                attrib = 'security-override'
-            elif 'security-policy' in self.policies['plugs'][plug]:
-                attrib = 'security-policy'
-            if attrib:
-                t = 'error'
-                s = "found redflagged attribute: %s" % attrib
-                m = True
-            self._add_result(t, n, s, manual_review=m)
-
-    def check_apps_plugs_mapped_oldsecurity(self):
-        '''Check apps plugs mapped old-security interface'''
-        if not self.is_snap2 or 'apps' not in self.policies:
-            return
-
-        for app in self.policies['apps']:
-            for plug_ref in self.policies['apps'][app]['plugs']:
-                t = 'info'
-                n = self._get_check_name("app_plugs", app=app, extra=plug_ref)
-                s = 'OK'
-                if not isinstance(plug_ref, str):
-                    continue  # checked via sr_lint.py
-                elif plug_ref not in self.policies['plugs']:
-                    t = 'error'
-                    s = "plug reference '%s' not in toplevel 'plugs'" % plug_ref
-                self._add_result(t, n, s)
 
     def check_apparmor_profile_name_length(self):
         '''Check AppArmor profile name length'''

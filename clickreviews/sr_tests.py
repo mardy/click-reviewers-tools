@@ -45,12 +45,6 @@ def _extract_snap_yaml(self):
     return io.StringIO(TEST_SNAP_YAML)
 
 
-def _extract_security_profile(self, plug, key):
-    '''Pretend we read the security profile'''
-    # return io.StringIO(TEST_SECURITY_PROFILES[plug][key])
-    return TEST_SECURITY_PROFILES[plug][key]
-
-
 def _path_join(self, d, fn):
     '''Pretend we have a tempdir'''
     return os.path.join("/fake", fn)
@@ -120,10 +114,6 @@ def create_patches():
     # pkgfmt
     patches.append(patch("clickreviews.sr_common.SnapReview._pkgfmt_type",
                    _pkgfmt_type))
-
-    # sr_security
-    patches.append(patch('clickreviews.sr_security.SnapReviewSecurity._extract_security_profile',
-                   _extract_security_profile))
 
     return patches
 

@@ -76,14 +76,12 @@ class SnapReview(Review):
     # interfaces lists interfaces and the valid attribute names for the
     # interface with the valid python type for the attribute (eg, [], '', {},
     # etc). These interfaces are likely going to change based on release, but
-    # for now, this is fine.
-    # We will add interfaces from apparmor-easyprof-ubuntu.json in __init__()
-    interfaces = {'old-security': {'caps': [],
-                                   'security-override': {},
-                                   'security-policy': {},
-                                   'security-template': "",
-                                   },
-                  'bool-file': {'path': ""},
+    # for now, this is fine. Interfaces with no attributes should specify an
+    # empty dictionary.
+    #
+    # Interfaces from apparmor-easyprof-ubuntu.json in __init__() so they don't
+    # have to be added here
+    interfaces = {'bool-file': {'path': ""},
                   }
 
     def __init__(self, fn, review_type, overrides=None):

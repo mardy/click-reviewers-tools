@@ -42,28 +42,20 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         return ports
 
     def _create_top_plugs(self):
-        plugs = {'iface-caps': {'interface': 'old-security',
-                                'caps': ['network']},
-                 'iface-override': {'interface': 'old-security',
-                                    'security-override': {"read_path": "/foo/",
-                                                          "seccomp": "abc"}},
-                 'iface-policy': {'interface': 'old-security',
-                                  'security-policy': {"apparmor": "meta/aa",
-                                                      "seccomp": "meta/sc"}},
-                 'iface-template': {'interface': 'old-security',
-                                    'security-template': "unconfined"},
-                 'iface-bool-file': {'interface': 'bool-file',
+        plugs = {'iface-bool-file': {'interface': 'bool-file',
                                      'path': '/path/to/something'},
                  'iface-network': {'interface': 'network'},
+                 'iface-network-bind': {'interface': 'network-bind'},
+                 # intentionally omitted
+                 # 'iface-network-control': {'interface': 'network-control'},
                  }
         return plugs
 
     def _create_apps_plugs(self):
-        plugs = {'app1': {'plugs': ['iface-caps']},
-                 'app2': {'plugs': ['iface-caps', 'iface-template']},
-                 'app3': {'plugs': ['iface-template', 'iface-override']},
-                 'app4': {'plugs': ['iface-policy']},
-                 'app5': {'plugs': ['iface-network']},
+        plugs = {'app1': {'plugs': ['iface-network']},
+                 'app2': {'plugs': ['iface-network-bind']},
+                 # 'app3': {'plugs': ['network-control']},
+                 # 'app4': {'plugs': ['iface-bool-file']},
                  }
         return plugs
 
@@ -1905,7 +1897,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 18, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 8, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_bad_interface(self):
@@ -1932,7 +1924,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_unspecified_interface(self):
         '''Test check_plugs() - unspecified interface'''
-        plugs = {'old-security': {'caps': ['network']}}
+        plugs = {'bool-file': {'path': '/path/to/some/where'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -1943,6 +1935,17 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_plugs_unknown_interface(self):
         '''Test check_plugs() - interface (unknown)'''
         plugs = {'iface-caps': {'interface': 'nonexistent',
+                                'caps': ['network']}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_plugs_unknown_interface_old_security(self):
+        '''Test check_plugs() - interface (old-security)'''
+        plugs = {'iface-caps': {'interface': 'old-security',
                                 'caps': ['network']}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
@@ -2045,7 +2048,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_apps_plugs()
         r = c.click_report
-        expected_counts = {'info': 12, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_no_plugs(self):

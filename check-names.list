@@ -125,6 +125,7 @@ lint-snap-v2:license-version_present|
 lint-snap-v2:listen-stream|
 lint-snap-v2:listen-stream_matches_name|
 lint-snap-v2:name_valid|
+lint-snap-v2:network|
 lint-snap-v2:nonexistent|
 lint-snap-v2:old-security|
 lint-snap-v2:ports|
