@@ -79,7 +79,8 @@ class SnapReview(Review):
                                    'security-override': {},
                                    'security-policy': {},
                                    'security-template': "",
-                                   }
+                                   },
+                  'bool-file': {'path': ""},
                   }
 
     def __init__(self, fn, review_type, overrides=None):

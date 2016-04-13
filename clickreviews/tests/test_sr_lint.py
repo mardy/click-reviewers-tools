@@ -51,7 +51,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
                                   'security-policy': {"apparmor": "meta/aa",
                                                       "seccomp": "meta/sc"}},
                  'iface-template': {'interface': 'old-security',
-                                    'security-template': "unconfined"}
+                                    'security-template': "unconfined"},
+                 'iface-bool-file': {'interface': 'bool-file',
+                                     'path': '/path/to/something'},
                  }
         return plugs
 
@@ -1901,7 +1903,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 13, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 16, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_bad_interface(self):

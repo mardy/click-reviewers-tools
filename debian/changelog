@@ -1,6 +1,7 @@
 click-reviewers-tools (0.40) UNRELEASED; urgency=medium
 
   * sr_lint.py: ppc64el and s390x are valid architectures
+  * add bool-file interface tests
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 13 Apr 2016 08:52:59 -0500
 

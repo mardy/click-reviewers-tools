@@ -105,6 +105,7 @@ lint-snap-v2:apps_unknown|
 lint-snap-v2:architecture_specified_needed|
 lint-snap-v2:architecture_valid|
 lint-snap-v2:attributes|
+lint-snap-v2:bool-file|
 lint-snap-v2:command|
 lint-snap-v2:config_hook_executable|
 lint-snap-v2:daemon|
