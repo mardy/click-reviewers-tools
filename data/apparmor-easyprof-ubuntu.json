@@ -447,12 +447,7 @@
       "policy_groups": {
         "common": [
           "network",
-          "network-bind",
-	  "mir-client",
-	  "network-client",
-	  "network-listener",
-	  "network-service",
-	  "unix-listener"
+          "network-bind"
         ],
         "reserved": [
 	  "firewall-control",
@@ -466,24 +461,8 @@
 	  "system-observe",
 	  "timeserver-control",
 	  "timezone-control",
-	  "container-management",
-	  "desktop",
-	  "display-server",
-	  "firewall-management",
-	  "locale-management",
-	  "network-admin",
-	  "network-firewall",
-	  "network-management",
-	  "network-monitor",
-	  "network-status",
-	  "physical-memory-access",
-	  "read-system-logs",
-	  "snapd",
-	  "snap-management",
-	  "system-monitor",
-	  "timeserver-management",
-	  "timezone-management",
-	  "update-schedule-management"
+	  "unity7",
+	  "x11"
 	]
       }
     }
