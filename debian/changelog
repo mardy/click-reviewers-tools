@@ -1,3 +1,9 @@
+click-reviewers-tools (0.41) UNRELEASED; urgency=medium
+
+  * sr_lint.py: verify key name in the apps dictionary (LP: #1570914)
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 15 Apr 2016 10:17:56 -0500
+
 click-reviewers-tools (0.40) xenial; urgency=medium
 
   * sr_lint.py: ppc64el and s390x are valid architectures

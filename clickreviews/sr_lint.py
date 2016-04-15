@@ -419,6 +419,11 @@ class SnapReviewLint(SnapReview):
                 s = "invalid entry for '%s' (empty)" % (app)
                 self._add_result(t, n, s)
                 continue
+            elif not self._verify_appname(app):
+                t = 'error'
+                s = "malformed app name: '%s'" % app
+                self._add_result(t, n, s)
+                continue
             self._add_result(t, n, s)
 
             for field in self.apps_required:

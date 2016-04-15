@@ -735,8 +735,16 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_apps_one_command(self):
         '''Test check_apps() - one command'''
-        self.set_test_snap_yaml("apps", {"foo": {"command": "bin/foo"},
-                                         })
+        self.set_test_snap_yaml("apps", {"foo": {"command": "bin/foo"}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps()
+        r = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_one_command_with_caps(self):
+        '''Test check_apps() - one command'''
+        self.set_test_snap_yaml("apps", {"Fo0-Bar": {"command": "bin/foo"}})
         c = SnapReviewLint(self.test_name)
         c.check_apps()
         r = c.click_report
@@ -865,6 +873,24 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c.check_apps()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_bad8(self):
+        '''Test check_apps() - bad name with .'''
+        self.set_test_snap_yaml("apps", {"foo.bar": {"command": "bin/foo"}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_bad9(self):
+        '''Test check_apps() - bad name with _'''
+        self.set_test_snap_yaml("apps", {"foo_bar": {"command": "bin/foo"}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_apps_command(self):
