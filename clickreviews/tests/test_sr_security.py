@@ -164,6 +164,17 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_security_plugs_reserved_snapd_control(self):
+        ''' Test check_security_plugs() - reserved (snapd-control)'''
+        plugs = self._create_top_plugs()
+        plugs['snapd-control'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
     def test_check_security_plugs_unknown_type(self):
         ''' Test check_security_plugs() - unknown type'''
         plugs = self._create_top_plugs()

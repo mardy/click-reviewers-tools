@@ -365,7 +365,7 @@
 	  "mount-observe",
 	  "network-control",
 	  "network-observe",
-	  "snap-control",
+	  "snapd-control",
 	  "system-observe",
 	  "timeserver-control",
 	  "timezone-control"

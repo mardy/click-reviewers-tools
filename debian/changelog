@@ -1,3 +1,9 @@
+click-reviewers-tools (0.42) UNRELEASED; urgency=medium
+
+  * add test to verify snapd-control is reserved
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 18 Apr 2016 11:15:28 -0500
+
 click-reviewers-tools (0.41) xenial; urgency=medium
 
   * sr_lint.py: verify key name in the apps dictionary (LP: #1570914)
