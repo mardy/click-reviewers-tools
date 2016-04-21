@@ -1036,9 +1036,13 @@ class SnapReviewLint(SnapReview):
         if not self.is_snap2:
             return
 
-        # Note: unclear if kernel and gadget snaps can legitimately have
-        # external symlinks, but err on side of caution
-        if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'os':
+        # Note: unclear if gadget snaps can legitimately have external
+        # symlinks, but err on side of caution. kernel snaps for reference
+        # kernels ship a dangling lib/modules/.../build (like on desktop) but
+        # also may have legitimate symlinks in lib/firmware, so just allow
+        # them.
+        if 'type' in self.snap_yaml and (self.snap_yaml['type'] == 'os' or
+                                         self.snap_yaml['type'] == 'kernel'):
             return
 
         t = 'info'

@@ -2359,7 +2359,7 @@ type: kernel
         c = SnapReviewLint(package)
         c.check_external_symlinks()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_external_symlinks_has_symlink_gadget(self):
