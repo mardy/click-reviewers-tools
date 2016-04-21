@@ -887,28 +887,24 @@ class SnapReviewLint(SnapReview):
 
             self._verify_valid_socket(app, key)
 
-    def check_plugs(self):
-        '''Check plugs'''
-        if not self.is_snap2 or 'plugs' not in self.snap_yaml:
-            return
-
-        for plug in self.snap_yaml['plugs']:
-            # If the 'interface' name is the same as the 'plug' name, then
-            # 'interface' is optional since the interface name and the plug
+    def _verify_interfaces(self, iface_type):
+        for iface in self.snap_yaml[iface_type]:
+            # If the 'interface' name is the same as the 'iface' name, then
+            # 'interface' is optional since the interface name and the iface
             # name are the same
-            interface = plug
-            if 'interface' in self.snap_yaml['plugs'][plug]:
-                interface = self.snap_yaml['plugs'][plug]['interface']
+            interface = iface
+            if 'interface' in self.snap_yaml[iface_type][iface]:
+                interface = self.snap_yaml[iface_type][iface]['interface']
 
                 key = 'interface'
                 t = 'info'
-                n = self._get_check_name(key, extra=plug)
+                n = self._get_check_name(iface_type, app=key, extra=iface)
                 s = 'OK'
-                if not isinstance(self.snap_yaml['plugs'][plug][key], str):
+                if not isinstance(self.snap_yaml[iface_type][iface][key], str):
                     t = 'error'
                     s = "invalid %s: %s (not a str)" % \
-                        (key, self.snap_yaml['plugs'][plug][key])
-                elif len(self.snap_yaml['plugs'][plug][key]) == 0:
+                        (key, self.snap_yaml[iface_type][iface][key])
+                elif len(self.snap_yaml[iface_type][iface][key]) == 0:
                     t = 'error'
                     s = "'%s' is empty" % key
                 self._add_result(t, n, s)
@@ -916,7 +912,7 @@ class SnapReviewLint(SnapReview):
                     continue
 
             t = 'info'
-            n = self._get_check_name(interface, extra=plug)
+            n = self._get_check_name(iface_type, app=interface, extra=iface)
             s = 'OK'
             if interface not in self.interfaces:
                 t = 'error'
@@ -926,37 +922,82 @@ class SnapReviewLint(SnapReview):
                 continue
 
             min = 1
-            if 'interface' in self.snap_yaml['plugs'][plug] and \
+            if 'interface' in self.snap_yaml[iface_type][iface] and \
                     interface in self.interfaces and \
                     len(self.interfaces[interface]) > 0:
                 min = 2
             t = 'info'
-            n = self._get_check_name('attributes')
+            n = self._get_check_name(iface_type, extra='attributes')
             s = 'OK'
-            if len(self.snap_yaml['plugs'][plug]) < min:
+            if len(self.snap_yaml[iface_type][iface]) < min:
                 t = 'error'
-                s = "'%s' has no attributes" % plug
+                s = "'%s' has no attributes" % iface
             self._add_result(t, n, s)
             if t == 'error':
                 continue
 
-            for attrib in self.snap_yaml['plugs'][plug]:
+            for attrib in self.snap_yaml[iface_type][iface]:
                 if attrib == 'interface':
                     continue
                 t = 'info'
-                n = self._get_check_name('attributes', app=plug, extra=attrib)
+                n = self._get_check_name('%s_attributes' % iface_type,
+                                         app=iface, extra=attrib)
                 s = "OK"
                 if attrib not in self.interfaces[interface]:
                     t = 'error'
                     s = "unknown attribute '%s' for interface '%s'" % (
                         attrib, interface)
-                elif not isinstance(self.snap_yaml['plugs'][plug][attrib],
+                elif not isinstance(self.snap_yaml[iface_type][iface][attrib],
                                     type(self.interfaces[interface][attrib])):
                     t = 'error'
                     s = "'%s' is not '%s'" % \
                         (attrib,
                          type(self.interfaces[interface][attrib]).__name__)
                 self._add_result(t, n, s)
+
+    def check_plugs(self):
+        '''Check plugs'''
+        iface_type = 'plugs'
+        if not self.is_snap2 or iface_type not in self.snap_yaml:
+            return
+
+        self._verify_interfaces(iface_type)
+
+    def _verify_app_interfaces(self, app, key):
+        t = 'info'
+        n = self._get_check_name("app_%s" % key, app=app)
+        s = "OK"
+        if not isinstance(self.snap_yaml['apps'][app][key], list):
+            t = 'error'
+            s = "invalid '%s' entry: '%s' (not a list)" % (
+                key, self.snap_yaml['apps'][app][key])
+        elif len(self.snap_yaml['apps'][app][key]) < 1:
+            t = 'error'
+            s = "invalid %s entry (empty)" % (key)
+        self._add_result(t, n, s)
+        if t == 'error':
+            return
+
+        # The interface referenced in the app's 'key' field (plugs/slots) can
+        # either be a known interface (when the interface name reference and
+        # the interface is the same) or can reference a name in the snap's
+        # toplevel 'key' (plugs/slots) mapping
+        for ref in self.snap_yaml['apps'][app][key]:
+            t = 'info'
+            n = self._get_check_name('app_%s_plug_reference' % key,
+                                     app=app,
+                                     extra=ref)
+            s = "OK"
+            if not isinstance(ref, str):
+                t = 'error'
+                s = "invalid %s interface name reference: '%s' (not a str)" \
+                    % (key, ref)
+            elif ref not in self.interfaces and \
+                    (key not in self.snap_yaml or
+                     ref not in self.snap_yaml[key]):
+                t = 'error'
+                s = "unknown %s interface name reference '%s'" % (key, ref)
+            self._add_result(t, n, s)
 
     def check_apps_plugs(self):
         '''Check apps plugs'''
@@ -968,69 +1009,27 @@ class SnapReviewLint(SnapReview):
             if key not in self.snap_yaml['apps'][app]:
                 continue
 
-            t = 'info'
-            n = self._get_check_name("app_%s" % key, app=app)
-            s = "OK"
-            if not isinstance(self.snap_yaml['apps'][app][key], list):
-                t = 'error'
-                s = "invalid '%s' entry: '%s' (not a list)" % (
-                    key, self.snap_yaml['apps'][app][key])
-            elif len(self.snap_yaml['apps'][app][key]) < 1:
-                t = 'error'
-                s = "invalid %s entry (empty)" % (key)
-            self._add_result(t, n, s)
-            if t == 'error':
-                continue
-
-            # The interface referenced in the app's 'plugs' field can either be
-            # a known interface (when the interface name reference and the
-            # interface is the same) or can reference a name in the snap's
-            # toplevel 'plugs' mapping
-            for plug_ref in self.snap_yaml['apps'][app][key]:
-                t = 'info'
-                n = self._get_check_name('app_plugs_plug_reference',
-                                         app=app,
-                                         extra=plug_ref)
-                s = "OK"
-                if not isinstance(plug_ref, str):
-                    t = 'error'
-                    s = "invalid plug interface name reference: '%s' (not a str)" \
-                        % plug_ref
-                elif plug_ref not in self.interfaces and \
-                        ('plugs' not in self.snap_yaml or
-                         plug_ref not in self.snap_yaml['plugs']):
-                    t = 'error'
-                    s = "unknown plug interface name reference '%s'" % plug_ref
-                self._add_result(t, n, s)
+            self._verify_app_interfaces(app, key)
 
     def check_slots(self):
-        '''TODO: Check slots'''
-        if not self.is_snap2 or 'slots' not in self.snap_yaml:
+        '''Check slots'''
+        iface_type = 'slots'
+        if not self.is_snap2 or iface_type not in self.snap_yaml:
             return
 
-        # FIXME: we should be able to reuse the lint checking code for plugs
-        # here
-        t = 'warn'
-        n = self._get_check_name('slots')
-        s = 'TODO: check unimplemented'
-        self._add_result(t, n, s)
+        self._verify_interfaces(iface_type)
 
     def check_apps_slots(self):
-        '''TODO: Check apps slots'''
+        '''Check apps slots'''
         if not self.is_snap2 or 'apps' not in self.snap_yaml:
             return
 
-        # FIXME: we should be able to reuse the lint checking code for plugs
-        # here
         for app in self.snap_yaml['apps']:
             key = 'slots'
             if key not in self.snap_yaml['apps'][app]:
                 continue
 
-            t = 'warn'
-            n = self._get_check_name("app_%s" % key, app=app)
-            s = 'TODO: check unimplemented'
-            self._add_result(t, n, s)
+            self._verify_app_interfaces(app, key)
 
     def check_external_symlinks(self):
         '''Check snap for external symlinks'''

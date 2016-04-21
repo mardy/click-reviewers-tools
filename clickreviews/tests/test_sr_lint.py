@@ -60,11 +60,12 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         return plugs
 
     def _create_top_slots(self):
-        slots = {'iface-slot1': {'interface': 'bool-type'}}  # TODO
+        slots = {'iface-slot1': {'interface': 'bool-file',
+                                 'path': '/path/to/something'}}
         return slots
 
     def _create_apps_slots(self):
-        slots = {'app1': {'slots': ['iface-slot1']}}  # TODO
+        slots = {'app1': {'slots': ['iface-slot1']}}
         return slots
 
     def test_all_checks_as_v2(self):
@@ -2111,7 +2112,113 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_slots()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_bad_interface(self):
+        '''Test check_slots() - bad interface (list)'''
+        slots = {'iface-caps': {'interface': [],
+                                'caps': ['network']}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_empty_interface(self):
+        '''Test check_slots() - empty interface'''
+        slots = {'iface-caps': {'interface': "",
+                                'caps': ['network']}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_unspecified_interface(self):
+        '''Test check_slots() - unspecified interface'''
+        slots = {'bool-file': {'path': '/path/to/some/where'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_unknown_interface(self):
+        '''Test check_slots() - interface (unknown)'''
+        slots = {'iface-caps': {'interface': 'nonexistent',
+                                'caps': ['network']}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_unknown_interface_old_security(self):
+        '''Test check_slots() - interface (old-security)'''
+        slots = {'iface-caps': {'interface': 'old-security',
+                                'caps': ['network']}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_unspecified_unknown_interface(self):
+        '''Test check_slots() - unspecified interface (unknown)'''
+        slots = {'nonexistent': {'caps': ['network']}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_missing_attrib(self):
+        '''Test check_slots() - missing attrib'''
+        slots = {'bool-file': {}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_missing_attrib_explicit_interface(self):
+        '''Test check_slots() - missing attrib'''
+        slots = {'test': {'interface': 'bool-file'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_unknown_attrib(self):
+        '''Test check_slots() - unknown attrib'''
+        slots = {'test': {'interface': 'bool-file',
+                          'nonexistent': 'abc'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_bad_attrib_caps(self):
+        '''Test check_slots() - bad attrib - bool-file'''
+        slots = {'test': {'interface': 'bool-file',
+                          'path': ['invalid']}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_apps_slots(self):
@@ -2123,7 +2230,67 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_apps_slots()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_no_slots(self):
+        '''Test check_apps_slots() - no slots'''
+        slots = self._create_top_slots()
+        apps_slots = {'bar': {'command': 'bin/bar'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("apps", apps_slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_slots()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_slots_bad(self):
+        '''Test check_apps_slots() - bad (dict)'''
+        slots = self._create_top_slots()
+        apps_slots = {'bar': {'slots': {}}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("apps", apps_slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_slots_empty(self):
+        '''Test check_apps_slots() - empty'''
+        slots = self._create_top_slots()
+        apps_slots = {'bar': {'slots': []}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("apps", apps_slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_slots_bad_entry(self):
+        '''Test check_apps_slots() - bad entry (dict)'''
+        slots = self._create_top_slots()
+        apps_slots = {'bar': {'slots': [{}]}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("apps", apps_slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_slots_unknown_entry(self):
+        '''Test check_apps_slots() - unknown'''
+        slots = self._create_top_slots()
+        apps_slots = {'bar': {'slots': ['nonexistent']}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("apps", apps_slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
 

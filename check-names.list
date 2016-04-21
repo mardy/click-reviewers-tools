@@ -99,13 +99,12 @@ lint-snap-v2:app_plugs_plug_reference|
 lint-snap-v2:apps|
 lint-snap-v2:apps_entry|
 lint-snap-v2:app_slots|
+lint-snap-v2:app_slots_plug_reference|
 lint-snap-v2:apps_present|
 lint-snap-v2:apps_required|
 lint-snap-v2:apps_unknown|
 lint-snap-v2:architecture_specified_needed|
 lint-snap-v2:architecture_valid|
-lint-snap-v2:attributes|
-lint-snap-v2:bool-file|
 lint-snap-v2:command|
 lint-snap-v2:config_hook_executable|
 lint-snap-v2:daemon|
@@ -117,7 +116,6 @@ lint-snap-v2:icon_absolute_path|
 lint-snap-v2:icon_empty|
 lint-snap-v2:icon_exists|
 lint-snap-v2:icon_present|
-lint-snap-v2:interface|
 lint-snap-v2:license-agreement|
 lint-snap-v2:license-agreement_present|
 lint-snap-v2:license-version|
@@ -125,10 +123,8 @@ lint-snap-v2:license-version_present|
 lint-snap-v2:listen-stream|
 lint-snap-v2:listen-stream_matches_name|
 lint-snap-v2:name_valid|
-lint-snap-v2:network|
-lint-snap-v2:network-bind|
-lint-snap-v2:nonexistent|
-lint-snap-v2:old-security|
+lint-snap-v2:plugs|
+lint-snap-v2:plugs_attributes|
 lint-snap-v2:ports|
 lint-snap-v2:ports_ext1_format|
 lint-snap-v2:ports_ext2_format|
@@ -138,6 +134,7 @@ lint-snap-v2:ports_unknown_subkey|
 lint-snap-v2:post-stop-command|
 lint-snap-v2:restart-condition|
 lint-snap-v2:slots|
+lint-snap-v2:slots_attributes|
 lint-snap-v2:snap_type_redflag|
 lint-snap-v2:snap_type_valid|
 lint-snap-v2:socket|
