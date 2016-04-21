@@ -1,7 +1,9 @@
 click-reviewers-tools (0.42) UNRELEASED; urgency=medium
 
   * add test to verify snapd-control is reserved
-  * implement interface slots checks
+  * sr_lint.py: implement interface slots checks
+  * sr_security.py: implement interface slots checks (force manual review for
+    now when specifying slots)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 21 Apr 2016 08:29:39 -0500
 

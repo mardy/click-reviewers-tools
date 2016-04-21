@@ -68,13 +68,20 @@ class SnapReviewSecurity(SnapReview):
             s = "unknown policy-version '%s'" % self.policy_version
         self._add_result(t, n, s)
 
-    def _verify_plug(self, name, plug, interface):
-
+    def _verify_iface(self, name, iface, interface):
         sec_type = self._get_policy_group_type(self.policy_vendor,
                                                self.policy_version,
                                                interface)
         if sec_type is None:
             return  # not in aa_policy
+
+        if name.endswith('slot'):
+            t = 'warn'
+            n = self._get_check_name('is_slot', app=iface,
+                                     extra=interface)
+            s = "(NEEDS REVIEW) slots requires approval"
+            m = True
+            self._add_result(t, n, s, manual_review=m)
 
         # Note: snappy doesn't autoconnect by default except for known
         # safe interfaces like network and network-bind. As such, these tests
@@ -84,7 +91,7 @@ class SnapReviewSecurity(SnapReview):
         # non-autoconnect as 'reserved'. Eventually we will probably move all
         # of these to 'common'.
         t = 'info'
-        n = self._get_check_name('%s_safe' % name, app=plug, extra=interface)
+        n = self._get_check_name('%s_safe' % name, app=iface, extra=interface)
         s = "OK"
         m = False
         l = None
@@ -99,7 +106,7 @@ class SnapReviewSecurity(SnapReview):
             m = True
         elif sec_type != "common":
             t = 'error'
-            s = "unknown type '%s' for cap '%s'" % (sec_type, interface)
+            s = "unknown type '%s' for interface '%s'" % (sec_type, interface)
         self._add_result(t, n, s, l, manual_review=m)
 
     def check_security_plugs(self):
@@ -115,7 +122,7 @@ class SnapReviewSecurity(SnapReview):
             if 'interface' in self.snap_yaml['plugs'][plug]:
                 interface = self.snap_yaml['plugs'][plug]['interface']
 
-            self._verify_plug('plug', plug, interface)
+            self._verify_iface('plug', plug, interface)
 
     def check_security_apps_plugs(self):
         '''Check security app plugs'''
@@ -136,7 +143,43 @@ class SnapReviewSecurity(SnapReview):
                 elif plug_ref not in self.interfaces:
                     continue  # check_security_plugs() verifies these
 
-                self._verify_plug('app_plug', app, plug_ref)
+                self._verify_iface('app_plug', app, plug_ref)
+
+    def check_security_slots(self):
+        '''Check security slots'''
+        if not self.is_snap2 or 'slots' not in self.snap_yaml:
+            return
+
+        for slot in self.snap_yaml['slots']:
+            # If the 'interface' name is the same as the 'slot' name, then
+            # 'interface' is optional since the interface name and the slot
+            # name are the same
+            interface = slot
+            if 'interface' in self.snap_yaml['slots'][slot]:
+                interface = self.snap_yaml['slots'][slot]['interface']
+
+            self._verify_iface('slot', slot, interface)
+
+    def check_security_apps_slots(self):
+        '''Check security app slots'''
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
+            return
+
+        for app in self.snap_yaml['apps']:
+            if 'slots' not in self.snap_yaml['apps'][app]:
+                continue
+
+            # The interface referenced in the app's 'slots' field can either be
+            # a known interface (when the interface name reference and the
+            # interface is the same) or can reference a name in the snap's
+            # toplevel 'slots' mapping
+            for slot_ref in self.snap_yaml['apps'][app]['slots']:
+                if not isinstance(slot_ref, str):
+                    continue  # checked elsewhere
+                elif slot_ref not in self.interfaces:
+                    continue  # check_security_slots() verifies these
+
+                self._verify_iface('app_slot', app, slot_ref)
 
     def check_apparmor_profile_name_length(self):
         '''Check AppArmor profile name length'''

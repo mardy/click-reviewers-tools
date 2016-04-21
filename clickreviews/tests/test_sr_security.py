@@ -46,6 +46,18 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
                  }
         return plugs
 
+    def _create_top_slots(self):
+        slots = {'iface-slot1': {'interface': 'network'},
+                 'network-bind': {},
+                 }
+        return slots
+
+    def _create_apps_slots(self):
+        slots = {'app1': {'slots': ['iface-slot1']},
+                 'app2': {'slots': ['network-bind']},
+                 }
+        return slots
+
     def test_all_checks_as_v2(self):
         '''Test snap v2 has checks'''
         self.set_test_pkgfmt("snap", "16.04")
@@ -249,6 +261,135 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_apps_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots(self):
+        ''' Test check_security_slots()'''
+        slots = self._create_top_slots()
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_slots()
+        report = c.click_report
+        # specifying slots currently requires manual review
+        expected_counts = {'info': 2, 'warn': 2, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots_none(self):
+        ''' Test check_security_slots() - None'''
+        self.set_test_snap_yaml("slots", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_slots()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots_empty(self):
+        ''' Test check_security_slots() - empty'''
+        self.set_test_snap_yaml("slots", {})
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_slots()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots_debug(self):
+        ''' Test check_security_slots() - debug'''
+        slots = self._create_top_slots()
+        slots['debug'] = {}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append("debug")
+        c.check_security_slots()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': None, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots_reserved(self):
+        ''' Test check_security_slots() - reserved'''
+        slots = self._create_top_slots()
+        slots['rsrved'] = {}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append("rsrved")
+        c.check_security_slots()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': None, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots_unknown_type(self):
+        ''' Test check_security_slots() - unknown type'''
+        slots = self._create_top_slots()
+        slots['bad-type'] = {}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["nonexistent"] = ["bad-type"]
+        c.check_security_slots()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': None, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots_nonexistent(self):
+        ''' Test check_security_slots() - nonexistent'''
+        slots = dict()
+        slots['nonexistent'] = {}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_slots()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_slots(self):
+        ''' Test check_security_apps_slots()'''
+        slots = self._create_top_slots()
+        apps = self._create_apps_slots()
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_slots()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+        # Note: c.check_security_apps_slots() only checks slots that are not
+        # referenced in the toplevel slots so while self._create_apps_slots()
+        # has two apps, only one of the apps reference slots not in the
+        # toplevel slots.
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:app_slot_safe:app2:network-bind'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(report, expected=expected)
+
+    def test_check_security_apps_slots_none(self):
+        ''' Test check_security_apps_slots() - None'''
+        self.set_test_snap_yaml("apps", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_slots()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_slots_bad(self):
+        ''' Test check_security_apps_slots() - bad'''
+        apps = {'app1': {'slots': [{}]}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_slots()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_slots_empty(self):
+        ''' Test check_security_apps_slots() - empty'''
+        apps = {'app1': {'slots': []}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_slots()
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
