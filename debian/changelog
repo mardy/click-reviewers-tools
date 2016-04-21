@@ -1,11 +1,12 @@
-click-reviewers-tools (0.42) UNRELEASED; urgency=medium
+click-reviewers-tools (0.42) xenial; urgency=medium
 
   * add test to verify snapd-control is reserved
   * sr_lint.py: implement interface slots checks
   * sr_security.py: implement interface slots checks (force manual review for
     now when specifying slots)
+  * debian/links: create snap-review symlink to click-review
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 21 Apr 2016 08:29:39 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 21 Apr 2016 09:10:27 -0500
 
 click-reviewers-tools (0.41) xenial; urgency=medium
 
