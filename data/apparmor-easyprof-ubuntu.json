@@ -354,6 +354,7 @@
         "common": [
           "network",
           "network-bind",
+          "opengl",
 	  "unity7",
 	  "x11"
         ],

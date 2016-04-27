@@ -1,6 +1,7 @@
 click-reviewers-tools (0.43) UNRELEASED; urgency=medium
 
   * sr_lint.py: kernel snaps may have external symlinks
+  * add opengl interface as 'common'
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 21 Apr 2016 10:14:55 -0500
 
