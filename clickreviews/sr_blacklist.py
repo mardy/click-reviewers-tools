@@ -3,13 +3,18 @@ import pkgutil
 from clickreviews.sr_common import SnapReview
 
 
+def _load_blacklisted_names():
+    blacklisted_names = pkgutil.get_data(
+        'clickreviews', 'data/blacklist-snap-names')
+    return blacklisted_names.decode('utf-8').splitlines()
+
+
 class SnapReviewBlacklist(SnapReview):
+
+    blacklisted_names = _load_blacklisted_names()
 
     def __init__(self, fn, overrides=None):
         SnapReview.__init__(self, fn, 'blacklist-snap', overrides=overrides)
-        blacklisted_names = pkgutil.get_data(
-            'clickreviews', 'data/blacklist-snap-names')
-        self.blacklisted_names = blacklisted_names.decode('utf-8').splitlines()
 
     def check_package_name(self):
         '''Trigger a manual review if the package name is blacklisted'''
