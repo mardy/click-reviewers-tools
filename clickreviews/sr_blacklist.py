@@ -9,7 +9,6 @@ blacklist = set([
 class SnapReviewBlacklist(SnapReview):
 
     def __init__(self, fn, overrides=None):
-        # TODO(matt): is this a good name?
         SnapReview.__init__(self, fn, 'blacklist-snap', overrides=overrides)
 
     def check_package_name(self):
