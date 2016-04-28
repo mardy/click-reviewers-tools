@@ -1,15 +1,15 @@
+import pkgutil
+
 from clickreviews.sr_common import SnapReview
 
-# TODO(matt): where shall I load this list from? is it going to take a long
-# time and use a lot of memory?
-blacklist = set([
-    'blacklisted-name',
-])
 
 class SnapReviewBlacklist(SnapReview):
 
     def __init__(self, fn, overrides=None):
         SnapReview.__init__(self, fn, 'blacklist-snap', overrides=overrides)
+        blacklisted_names = pkgutil.get_data(
+            'clickreviews', 'data/blacklist-snap-names')
+        self.blacklisted_names = blacklisted_names.decode('utf-8').splitlines()
 
     def check_package_name(self):
         '''Trigger a manual review if the package name is blacklisted'''
@@ -19,7 +19,7 @@ class SnapReviewBlacklist(SnapReview):
 
         n = self._get_check_name('name')
         snap_name = self.snap_yaml['name']
-        if snap_name in blacklist:
+        if snap_name in self.blacklisted_names:
             # TODO(matt): is this correct?
             s = "blacklisted name: '{}'".format(snap_name)
             self._add_result('error', n, s, manual_review=True)
