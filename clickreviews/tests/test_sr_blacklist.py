@@ -26,7 +26,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.asserts_report_has_results(c.click_report, True)
 
     def test_package_name_blacklisted(self):
-        # TODO(matt): fix this name once we have a proper blacklist.
         self.set_test_snap_yaml("name", "0ad")
         c = SnapReviewBlacklist(self.test_name)
         c.check_package_name()
@@ -37,7 +36,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         )
 
     def test_package_name_manual_review(self):
-        # TODO(matt): fix this name once we have a proper blacklist.
         self.set_test_snap_yaml("name", "0ad")
         c = SnapReviewBlacklist(self.test_name)
         c.check_package_name()
