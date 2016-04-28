@@ -27,18 +27,18 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_package_name_blacklisted(self):
         # TODO(matt): fix this name once we have a proper blacklist.
-        self.set_test_snap_yaml("name", "blacklisted-name")
+        self.set_test_snap_yaml("name", "0ad")
         c = SnapReviewBlacklist(self.test_name)
         c.check_package_name()
         self.check_results(c.click_report, {'error': 1})
         self.assertEqual(
             c.click_report['error']['blacklist-snap:name']['text'],
-            "blacklisted name: 'blacklisted-name'",
+            "blacklisted name: '0ad'",
         )
 
     def test_package_name_manual_review(self):
         # TODO(matt): fix this name once we have a proper blacklist.
-        self.set_test_snap_yaml("name", "blacklisted-name")
+        self.set_test_snap_yaml("name", "0ad")
         c = SnapReviewBlacklist(self.test_name)
         c.check_package_name()
         self.check_manual_review(c.click_report, 'blacklist-snap:name')
