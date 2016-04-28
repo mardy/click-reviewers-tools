@@ -4,9 +4,6 @@ from clickreviews.sr_blacklist import SnapReviewBlacklist
 
 class TestSnapReviewLint(sr_tests.TestSnapReview):
 
-    def setUp(self):
-        super().setUp()
-
     def test_all_checks_as_click(self):
         '''Test click format has no checks'''
         self.set_test_pkgfmt("click", "0.4")
