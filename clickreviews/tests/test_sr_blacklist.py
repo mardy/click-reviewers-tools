@@ -9,30 +9,21 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.set_test_pkgfmt("click", "0.4")
         c = SnapReviewBlacklist(self.test_name)
         c.do_checks()
-        sum = 0
-        for i in c.click_report:
-            sum += len(c.click_report[i])
-        self.assertTrue(sum == 0)
+        self.asserts_report_has_results(c.click_report, False)
 
     def test_all_checks_as_v1(self):
         '''Test snap v1 has no checks'''
         self.set_test_pkgfmt("snap", "15.04")
         c = SnapReviewBlacklist(self.test_name)
         c.do_checks()
-        sum = 0
-        for i in c.click_report:
-            sum += len(c.click_report[i])
-        self.assertTrue(sum == 0)
+        self.asserts_report_has_results(c.click_report, False)
 
     def test_all_checks_as_v2(self):
         '''Test snap v2 has checks'''
         self.set_test_pkgfmt("snap", "16.04")
         c = SnapReviewBlacklist(self.test_name)
         c.do_checks()
-        sum = 0
-        for i in c.click_report:
-            sum += len(c.click_report[i])
-        self.assertTrue(sum != 0)
+        self.asserts_report_has_results(c.click_report, True)
 
     def test_package_name_blacklisted(self):
         # TODO(matt): fix this name once we have a proper blacklist.
@@ -57,3 +48,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewBlacklist(self.test_name)
         c.check_package_name()
         self.check_results(c.click_report, {'info': 1})
+
+    def asserts_report_has_results(self, report, expected):
+        sum = 0
+        for i in report:
+            sum += len(report[i])
+        self.assertEqual(sum != 0, expected)
