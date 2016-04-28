@@ -6,7 +6,7 @@ from clickreviews.sr_common import SnapReview
 def _load_blacklisted_names():
     blacklisted_names = pkgutil.get_data(
         'clickreviews', 'data/blacklist-snap-names')
-    return blacklisted_names.decode('utf-8').splitlines()
+    return set(blacklisted_names.decode('utf-8').splitlines())
 
 
 class SnapReviewBlacklist(SnapReview):
