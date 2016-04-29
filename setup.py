@@ -22,5 +22,6 @@ setup(
     version=version,
     scripts=scripts,
     packages=find_packages(),
+    package_data={'clickreviews': ['data/*']},
     test_suite='clickreviews.tests',
 )
