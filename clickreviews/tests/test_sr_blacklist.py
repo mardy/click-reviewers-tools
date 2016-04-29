@@ -4,6 +4,20 @@ from clickreviews.sr_blacklist import SnapReviewBlacklist
 
 class TestSnapReviewLint(sr_tests.TestSnapReview):
 
+    patched_blacklisted_names = [
+        'blacklisted-1',
+        'blacklisted-2',
+    ]
+
+    def make_patched_checker(self, test_name):
+        c = SnapReviewBlacklist(test_name)
+        c.blacklisted_names = self.patched_blacklisted_names
+        return c
+
+    def test_loads_default_list(self):
+        c = SnapReviewBlacklist(self.test_name)
+        self.assertNotEqual(len(c.blacklisted_names), 0)
+
     def test_all_checks_as_click(self):
         '''Test click format has no checks'''
         self.set_test_pkgfmt("click", "0.4")
@@ -26,26 +40,24 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.assert_report_has_results(c.click_report, True)
 
     def test_package_name_blacklisted(self):
-        # TODO(matt): fix this name once we have a proper blacklist.
-        self.set_test_snap_yaml("name", "blacklisted-name")
-        c = SnapReviewBlacklist(self.test_name)
+        self.set_test_snap_yaml("name", "blacklisted-1")
+        c = self.make_patched_checker(self.test_name)
         c.check_package_name()
         self.check_results(c.click_report, {'error': 1})
         self.assertEqual(
             c.click_report['error']['blacklist-snap:name']['text'],
-            "blacklisted name: 'blacklisted-name'",
+            "blacklisted name: 'blacklisted-1'",
         )
 
     def test_package_name_manual_review(self):
-        # TODO(matt): fix this name once we have a proper blacklist.
-        self.set_test_snap_yaml("name", "blacklisted-name")
-        c = SnapReviewBlacklist(self.test_name)
+        self.set_test_snap_yaml("name", "blacklisted-1")
+        c = self.make_patched_checker(self.test_name)
         c.check_package_name()
         self.check_manual_review(c.click_report, 'blacklist-snap:name')
 
     def test_package_name_whitelisted(self):
         self.set_test_snap_yaml("name", "not-blacklisted")
-        c = SnapReviewBlacklist(self.test_name)
+        c = self.make_patched_checker(self.test_name)
         c.check_package_name()
         self.check_results(c.click_report, {'info': 1})
 
