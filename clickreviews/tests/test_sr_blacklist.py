@@ -4,6 +4,12 @@ from clickreviews.sr_blacklist import SnapReviewBlacklist
 
 class TestSnapReviewLint(sr_tests.TestSnapReview):
 
+    def assert_report_has_results(self, report, expected):
+        sum = 0
+        for i in report:
+            sum += len(report[i])
+        self.assertEqual(sum != 0, expected)
+
     def make_patched_checker(self, test_name, blacklisted_names):
         c = SnapReviewBlacklist(test_name)
         c.blacklisted_names = blacklisted_names
@@ -36,7 +42,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_package_name_blacklisted(self):
         blacklisted_names = ['blacklisted-1', 'blacklisted-2']
-        for test_name in ['blacklisted-1', 'blacklisted-2']:
+        for test_name in blacklisted_names:
             self.set_test_snap_yaml("name", test_name)
             c = self.make_patched_checker(self.test_name, blacklisted_names)
             c.check_package_name()
@@ -57,9 +63,3 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = self.make_patched_checker(self.test_name, ['blacklisted-1'])
         c.check_package_name()
         self.check_results(c.click_report, {'info': 1})
-
-    def assert_report_has_results(self, report, expected):
-        sum = 0
-        for i in report:
-            sum += len(report[i])
-        self.assertEqual(sum != 0, expected)
