@@ -40,14 +40,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.assert_report_has_results(c.click_report, True)
 
     def test_package_name_blacklisted(self):
-        self.set_test_snap_yaml("name", "blacklisted-1")
-        c = self.make_patched_checker(self.test_name)
-        c.check_package_name()
-        self.check_results(c.click_report, {'error': 1})
-        self.assertEqual(
-            c.click_report['error']['blacklist-snap:name']['text'],
-            "blacklisted name: 'blacklisted-1'",
-        )
+        for test_name in ['blacklisted-1', 'blacklisted-2']:
+            self.set_test_snap_yaml("name", test_name)
+            c = self.make_patched_checker(self.test_name)
+            c.check_package_name()
+            self.check_results(c.click_report, {'error': 1})
+            self.assertEqual(
+                c.click_report['error']['blacklist-snap:name']['text'],
+                "blacklisted name: '{}'".format(test_name),
+            )
 
     def test_package_name_manual_review(self):
         self.set_test_snap_yaml("name", "blacklisted-1")
