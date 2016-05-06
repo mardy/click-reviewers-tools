@@ -2,8 +2,9 @@ click-reviewers-tools (0.43) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * sr_lint.py: kernel snaps may have external symlinks
-  * add opengl interface as 'common' (LP: #1572140)
+  * add opengl interface as 'reserved' (LP: #1572140)
   * add bin/snap-check-blacklist
+  * move 'unity7' and 'x11' interfaces to 'reserved'
 
   [ Matt Goodall ]
   * add sr_blacklist.py: trigger a manual review for blacklisted snap names
