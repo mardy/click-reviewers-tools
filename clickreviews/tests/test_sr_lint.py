@@ -743,8 +743,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_one_command_with_caps(self):
-        '''Test check_apps() - one command'''
+    def test_check_apps_one_command_capitalized(self):
+        '''Test check_apps() - one command (capitalized)'''
         self.set_test_snap_yaml("apps", {"Fo0-Bar": {"command": "bin/foo"}})
         c = SnapReviewLint(self.test_name)
         c.check_apps()
@@ -1929,8 +1929,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_bad_interface(self):
         '''Test check_plugs() - bad interface (list)'''
-        plugs = {'iface-caps': {'interface': [],
-                                'caps': ['network']}}
+        plugs = {'iface-bad': {'interface': []}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -1940,8 +1939,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_empty_interface(self):
         '''Test check_plugs() - empty interface'''
-        plugs = {'iface-caps': {'interface': "",
-                                'caps': ['network']}}
+        plugs = {'iface-empty': {'interface': ""}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -1961,8 +1959,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_unknown_interface(self):
         '''Test check_plugs() - interface (unknown)'''
-        plugs = {'iface-caps': {'interface': 'nonexistent',
-                                'caps': ['network']}}
+        plugs = {'iface-unknown': {'interface': 'nonexistent'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -2022,7 +2019,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_plugs_bad_attrib_caps(self):
+    def test_check_plugs_bad_attrib_boolfile(self):
         '''Test check_plugs() - bad attrib - bool-file'''
         plugs = {'test': {'interface': 'bool-file',
                           'path': ['invalid']}}
@@ -2117,8 +2114,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_slots_bad_interface(self):
         '''Test check_slots() - bad interface (list)'''
-        slots = {'iface-caps': {'interface': [],
-                                'caps': ['network']}}
+        slots = {'iface-bad': {'interface': []}}
         self.set_test_snap_yaml("slots", slots)
         c = SnapReviewLint(self.test_name)
         c.check_slots()
@@ -2128,8 +2124,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_slots_empty_interface(self):
         '''Test check_slots() - empty interface'''
-        slots = {'iface-caps': {'interface': "",
-                                'caps': ['network']}}
+        slots = {'iface-empty': {'interface': ""}}
         self.set_test_snap_yaml("slots", slots)
         c = SnapReviewLint(self.test_name)
         c.check_slots()
@@ -2149,8 +2144,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_slots_unknown_interface(self):
         '''Test check_slots() - interface (unknown)'''
-        slots = {'iface-caps': {'interface': 'nonexistent',
-                                'caps': ['network']}}
+        slots = {'iface-unknown': {'interface': 'nonexistent'}}
         self.set_test_snap_yaml("slots", slots)
         c = SnapReviewLint(self.test_name)
         c.check_slots()
@@ -2210,7 +2204,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_slots_bad_attrib_caps(self):
+    def test_check_slots_bad_attrib_boolfile(self):
         '''Test check_slots() - bad attrib - bool-file'''
         slots = {'test': {'interface': 'bool-file',
                           'path': ['invalid']}}
