@@ -133,6 +133,18 @@ class SnapReview(Review):
         if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'gadget':
             self.is_snap_gadget = True
 
+        # snapd understands:
+        #   plugs:
+        #     foo: null
+        # but yaml.safe_load() treats 'null' as 'None', but we need a {}, so
+        # we need to account for that.
+        for k in ['plugs', 'slots']:
+            if k not in self.snap_yaml:
+                continue
+            for iface in self.snap_yaml[k]:
+                if self.snap_yaml[k][iface] is None:
+                    self.snap_yaml[k][iface] = {}
+
     # Since coverage is looked at via the testsuite and the testsuite mocks
     # this out, don't cover this
     def _extract_snap_yaml(self):  # pragma: nocover

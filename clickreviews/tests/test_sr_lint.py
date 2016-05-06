@@ -1924,7 +1924,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 8, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 7, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_bad_interface(self):
@@ -1954,7 +1954,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_unknown_interface(self):
@@ -1981,26 +1981,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_plugs_unspecified_unknown_interface(self):
         '''Test check_plugs() - unspecified interface (unknown)'''
         plugs = {'nonexistent': {'caps': ['network']}}
-        self.set_test_snap_yaml("plugs", plugs)
-        c = SnapReviewLint(self.test_name)
-        c.check_plugs()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_plugs_missing_attrib(self):
-        '''Test check_plugs() - missing attrib'''
-        plugs = {'bool-file': {}}
-        self.set_test_snap_yaml("plugs", plugs)
-        c = SnapReviewLint(self.test_name)
-        c.check_plugs()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_plugs_missing_attrib_explicit_interface(self):
-        '''Test check_plugs() - missing attrib'''
-        plugs = {'test': {'interface': 'bool-file'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -2109,7 +2089,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_slots()
         r = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_slots_bad_interface(self):
@@ -2139,7 +2119,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_slots()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_slots_unknown_interface(self):
@@ -2166,26 +2146,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_slots_unspecified_unknown_interface(self):
         '''Test check_slots() - unspecified interface (unknown)'''
         slots = {'nonexistent': {'caps': ['network']}}
-        self.set_test_snap_yaml("slots", slots)
-        c = SnapReviewLint(self.test_name)
-        c.check_slots()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_slots_missing_attrib(self):
-        '''Test check_slots() - missing attrib'''
-        slots = {'bool-file': {}}
-        self.set_test_snap_yaml("slots", slots)
-        c = SnapReviewLint(self.test_name)
-        c.check_slots()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_slots_missing_attrib_explicit_interface(self):
-        '''Test check_slots() - missing attrib'''
-        slots = {'test': {'interface': 'bool-file'}}
         self.set_test_snap_yaml("slots", slots)
         c = SnapReviewLint(self.test_name)
         c.check_slots()
@@ -2512,4 +2472,29 @@ architectures: [ amd64 ]
         c.check_vcs()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_plugs_lp1579201(self):
+        '''Test check_architecture_all() - amd64'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+architectures: [ amd64 ]
+plugs:
+    network: null
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)

@@ -921,21 +921,6 @@ class SnapReviewLint(SnapReview):
             if t == 'error':
                 continue
 
-            min = 1
-            if 'interface' in self.snap_yaml[iface_type][iface] and \
-                    interface in self.interfaces and \
-                    len(self.interfaces[interface]) > 0:
-                min = 2
-            t = 'info'
-            n = self._get_check_name(iface_type, extra='attributes')
-            s = 'OK'
-            if len(self.snap_yaml[iface_type][iface]) < min:
-                t = 'error'
-                s = "'%s' has no attributes" % iface
-            self._add_result(t, n, s)
-            if t == 'error':
-                continue
-
             for attrib in self.snap_yaml[iface_type][iface]:
                 if attrib == 'interface':
                     continue
