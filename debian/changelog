@@ -5,10 +5,6 @@ click-reviewers-tools (0.43) UNRELEASED; urgency=medium
     - kernel snaps may have external symlinks
     - handle top-level plugs and slots with yaml data as 'null' (LP: #1579201)
   * add opengl interface as 'common' (LP: #1572140)
-  * add bin/snap-check-blacklist
-
-  [ Matt Goodall ]
-  * add sr_blacklist.py: trigger a manual review for blacklisted snap names
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 21 Apr 2016 10:14:55 -0500
 

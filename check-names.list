@@ -3,7 +3,6 @@ bin-path:package_yaml_description_present|
 bin-path:package_yaml_optional_key|
 bin-path:package_yaml_unknown_key|
 bin-path:path_executable|
-blacklist-snap:name|
 content_hub:peer_hooks_disallowed|
 content_hub:peer_hooks_required|
 content_hub:unknown|
