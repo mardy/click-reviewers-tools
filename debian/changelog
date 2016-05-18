@@ -4,9 +4,10 @@ click-reviewers-tools (0.43) UNRELEASED; urgency=medium
   * sr_lint.py:
     - kernel snaps may have external symlinks
     - handle top-level plugs and slots with yaml data as 'null' (LP: #1579201)
+    - add epoch checks (LP: #1583298)
   * add opengl interface as 'common' (LP: #1572140)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 21 Apr 2016 10:14:55 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 May 2016 16:12:33 -0500
 
 click-reviewers-tools (0.42) xenial; urgency=medium
 

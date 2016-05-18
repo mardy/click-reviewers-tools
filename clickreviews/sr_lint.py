@@ -1099,3 +1099,21 @@ class SnapReviewLint(SnapReview):
             t = 'warn'
             s = 'found VCS files in package: %s' % ", ".join(found)
         self._add_result(t, n, s)
+
+    def check_epoch(self):
+        '''Check epoch'''
+        if not self.is_snap2 or 'epoch' not in self.snap_yaml:
+            return
+
+        t = 'info'
+        n = self._get_check_name('epoch_valid')
+        s = 'OK'
+        if not isinstance(self.snap_yaml['epoch'], int):
+            t = 'error'
+            s = "malformed 'epoch': %s (not an int)" % (
+                self.snap_yaml['epoch'])
+        elif int(self.snap_yaml['epoch']) < 1:
+            t = 'error'
+            s = "malformed 'epoch': '%s' should be positive int" % (
+                self.snap_yaml['epoch'])
+        self._add_result(t, n, s)

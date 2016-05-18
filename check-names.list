@@ -111,6 +111,7 @@ lint-snap-v2:daemon|
 lint-snap-v2:daemon_required|
 lint-snap-v2:description|
 lint-snap-v2:description_present|
+lint-snap-v2:epoch_valid|
 lint-snap-v2:external_symlinks|
 lint-snap-v2:icon_absolute_path|
 lint-snap-v2:icon_empty|
