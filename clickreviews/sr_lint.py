@@ -1055,6 +1055,9 @@ class SnapReviewLint(SnapReview):
         # look for compiled code
         x_binaries = []
         for i in self.pkg_bin_files:
+            # .pyc files are arch-independent
+            if i.endswith(".pyc"):
+                continue
             x_binaries.append(os.path.relpath(i, self._get_unpack_dir()))
         if len(x_binaries) > 0:
             t = 'error'
