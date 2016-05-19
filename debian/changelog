@@ -5,7 +5,9 @@ click-reviewers-tools (0.43) UNRELEASED; urgency=medium
     - kernel snaps may have external symlinks
     - handle top-level plugs and slots with yaml data as 'null' (LP: #1579201)
     - add epoch checks (LP: #1583298)
+    - .pyc are arch-independent, so don't complain about them
   * add opengl interface as 'common' (LP: #1572140)
+  * sr_security.py: remove last reference to 'cap'
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 May 2016 16:12:33 -0500
 
