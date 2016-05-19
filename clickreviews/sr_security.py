@@ -101,8 +101,8 @@ class SnapReviewSecurity(SnapReview):
             l = 'http://askubuntu.com/a/562123/94326'
         elif sec_type == "reserved":
             t = 'error'
-            s = "%s cap '%s' for vetted applications only" % (sec_type,
-                                                              interface)
+            s = "%s interface '%s' for vetted applications only" % (sec_type,
+                                                                    interface)
             m = True
         elif sec_type != "common":
             t = 'error'
