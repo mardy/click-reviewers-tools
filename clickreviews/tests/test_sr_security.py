@@ -176,6 +176,43 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_security_plugs_reserved_strict(self):
+        ''' Test check_security_plugs() - reserved (strict)'''
+        plugs = self._create_top_plugs()
+        plugs['rsrved'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("confinement", "strict")
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append("rsrved")
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_reserved_devmode(self):
+        ''' Test check_security_plugs() - reserved (devmode)'''
+        plugs = self._create_top_plugs()
+        plugs['rsrved'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("confinement", "devmode")
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append("rsrved")
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:plug_safe:rsrved:rsrved'
+        expected['info'][name] = {"text": "[ERROR] reserved interface "
+                                          "'rsrved' for vetted applications "
+                                          "only",
+                                  "manual_review": False}
+        self.check_results(report, expected=expected)
+
     def test_check_security_plugs_reserved_snapd_control(self):
         ''' Test check_security_plugs() - reserved (snapd-control)'''
         plugs = self._create_top_plugs()
@@ -317,6 +354,47 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         report = c.click_report
         expected_counts = {'info': None, 'warn': None, 'error': 1}
         self.check_results(report, expected_counts)
+
+    def test_check_security_slots_reserved_strict(self):
+        ''' Test check_security_slots() - reserved (strict)'''
+        slots = self._create_top_slots()
+        slots['rsrved'] = {}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("confinement", "strict")
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append("rsrved")
+        c.check_security_slots()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 3, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots_reserved_devmode(self):
+        ''' Test check_security_plugs() - reserved (devmode)'''
+        slots = self._create_top_slots()
+        slots['rsrved'] = {}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("confinement", "devmode")
+        c = SnapReviewSecurity(self.test_name)
+        c.aa_policy["ubuntu-core"]["16.04"]["policy_groups"]["reserved"].append("rsrved")
+        c.check_security_slots()
+        report = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:slot_safe:rsrved:rsrved'
+        expected['info'][name] = {"text": "[ERROR] reserved interface "
+                                          "'rsrved' for vetted applications "
+                                          "only",
+                                  "manual_review": False}
+        name = 'security-snap-v2:is_slot:rsrved:rsrved'
+        expected['info'][name] = {"text": "[WARN] (NEEDS REVIEW) slots "
+                                          "requires approval",
+                                  "manual_review": False}
+        self.check_results(report, expected=expected)
 
     def test_check_security_slots_unknown_type(self):
         ''' Test check_security_slots() - unknown type'''

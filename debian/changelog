@@ -14,8 +14,11 @@ click-reviewers-tools (0.43) UNRELEASED; urgency=medium
     - remove last reference to 'cap'
     - turn resquash test into info for now until the squashfs-tools bugs are
       fixed and this is a reliable check
-  * common.py:
-    - add override_result_type to allow in support of 'confinement' overrides
+  * if confinement is 'devmode' override the result type to 'info'
+    - common.py: add override_result_type to allow in support of 'confinement'
+      overrides
+    - sr_common.py: add _devmode_override()
+    - sr_security.py: use override_result_type if in devmode
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 May 2016 16:12:33 -0500
 

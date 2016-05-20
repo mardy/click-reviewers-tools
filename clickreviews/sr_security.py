@@ -75,15 +75,18 @@ class SnapReviewSecurity(SnapReview):
         if sec_type is None:
             return  # not in aa_policy
 
+        o = self._devmode_override()
         if name.endswith('slot'):
             t = 'warn'
             n = self._get_check_name('is_slot', app=iface,
                                      extra=interface)
             s = "(NEEDS REVIEW) slots requires approval"
-            m = True
-            self._add_result(t, n, s, manual_review=m)
+            m = False
+            if o is None:
+                m = True
+            self._add_result(t, n, s, manual_review=m, override_result_type=o)
 
-        # Note: snappy doesn't autoconnect by default except for known
+        # Note: snapd typically doesn't autoconnect by default except for known
         # safe interfaces like network and network-bind. As such, these tests
         # add extra maintenance overhead since the store and snappy would
         # ideally agree. However, until assertions are implemented, keep these
@@ -99,15 +102,19 @@ class SnapReviewSecurity(SnapReview):
             t = 'error'
             s = "'%s' not for production use" % interface
             l = 'http://askubuntu.com/a/562123/94326'
+            if o is None:
+                m = True
         elif sec_type == "reserved":
             t = 'error'
             s = "%s interface '%s' for vetted applications only" % (sec_type,
                                                                     interface)
-            m = True
+            if o is None:
+                m = True
         elif sec_type != "common":
             t = 'error'
             s = "unknown type '%s' for interface '%s'" % (sec_type, interface)
-        self._add_result(t, n, s, l, manual_review=m)
+            o = None
+        self._add_result(t, n, s, l, manual_review=m, override_result_type=o)
 
     def check_security_plugs(self):
         '''Check security plugs'''
