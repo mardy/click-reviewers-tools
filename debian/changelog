@@ -7,7 +7,10 @@ click-reviewers-tools (0.43) UNRELEASED; urgency=medium
     - add epoch checks (LP: #1583298)
     - .pyc are arch-independent, so don't complain about them
   * add opengl interface as 'common' (LP: #1572140)
-  * sr_security.py: remove last reference to 'cap'
+  * sr_security.py:
+    - remove last reference to 'cap'
+    - turn resquash test into info for now until the squashfs-tools bugs are
+      fixed and this is a reliable check
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 18 May 2016 16:12:33 -0500
 

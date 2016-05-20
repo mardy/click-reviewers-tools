@@ -651,7 +651,10 @@ exit 0
         c.check_squashfs_resquash()
         os.environ['PATH'] = old_path
         report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        # FIXME: this should error but we've turned it into an info until the
+        # squashfs-tools bugs can be fixed
+        # expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
     def test_check_squashfs_resquash_sha512sum_mismatch_os(self):

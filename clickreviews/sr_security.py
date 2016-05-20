@@ -304,7 +304,10 @@ class SnapReviewSecurity(SnapReview):
                 t = 'info'
                 s = 'checksums do not match (expected for os snap)'
             else:
-                t = 'error'
+                # FIXME: turn this into an error once the squashfs-tools bugs
+                # are fixed
+                # t = 'error'
+                t = 'info'
                 s = "checksums do not match. Please ensure the snap is " + \
                     "created with either 'snapcraft snap <DIR>' or " + \
                     "'mksquashfs <dir> <snap> %s'" % " ".join(MKSQUASHFS_OPTS)
