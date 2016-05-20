@@ -1139,4 +1139,7 @@ class SnapReviewLint(SnapReview):
             t = 'error'
             s = "malformed 'confinement': '%s' should be one of '%s'" % (
                 self.snap_yaml['confinement'], ", ".join(allowed))
+        elif self.snap_yaml['type'] != 'app':
+            t = 'error'
+            s = "'confinement' should only be specified with 'type: app'"
         self._add_result(t, n, s)
