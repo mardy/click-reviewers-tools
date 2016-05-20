@@ -147,6 +147,8 @@ class Review(object):
 
         self.overrides = overrides if overrides is not None else {}
 
+        self.override_result_type = None
+
     def _check_innerpath_executable(self, fn):
         '''Check that the provided path exists and is executable'''
         return os.access(fn, os.X_OK)
@@ -314,11 +316,23 @@ class Review(object):
     #   result_type: info, warn, error
     #   review_name: name of the check (prefixed with self.review_type)
     #   result: contents of the review
+    #   link: url for more information
+    #   manual_review: force manual review
+    #   override_result_type: prefix results with [<result_type>] and set
+    #     result_type to override_result_type
     def _add_result(self, result_type, review_name, result, link=None,
-                    manual_review=False):
+                    manual_review=False, override_result_type=None):
         '''Add result to report'''
         if result_type not in self.result_types:
             error("Invalid result type '%s'" % result_type)
+
+        prefix = ""
+        if override_result_type is not None:
+            if override_result_type not in self.result_types:
+                error("Invalid override result type '%s'" %
+                      override_result_type)
+            prefix = "[%s] " % result_type.upper()
+            result_type = override_result_type
 
         if review_name not in self.click_report[result_type]:
             # log info about check so it can be collected into the
@@ -332,7 +346,7 @@ class Review(object):
             self.click_report[result_type][review_name] = dict()
 
         self.click_report[result_type][review_name].update({
-            'text': result,
+            'text': "%s%s" % (prefix, result),
             'manual_review': manual_review,
         })
         if link is not None:

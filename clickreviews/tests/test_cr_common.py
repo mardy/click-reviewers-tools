@@ -35,6 +35,48 @@ class ClickReviewTestCase(cr_tests.TestClickReview):
             'error': {},
         })
 
+    def test_add_result_override_result_type_warn(self):
+        self.review._add_result('warn', 'some-check', 'notok',
+                                override_result_type='info')
+        self.assertEqual(self.review.click_report, {
+            'info': {
+                'some-check': {
+                    'text': '[WARN] notok',
+                    'manual_review': False,
+                }
+            },
+            'warn': {},
+            'error': {},
+        })
+
+    def test_add_result_override_result_type_error(self):
+        self.review._add_result('error', 'some-check', 'notok',
+                                override_result_type='info')
+        self.assertEqual(self.review.click_report, {
+            'info': {
+                'some-check': {
+                    'text': '[ERROR] notok',
+                    'manual_review': False,
+                }
+            },
+            'warn': {},
+            'error': {},
+        })
+
+    def test_add_result_override_result_type_info(self):
+        self.review._add_result('info', 'some-check', 'ok',
+                                override_result_type='warn')
+        self.assertEqual(self.review.click_report, {
+            'warn': {
+                'some-check': {
+                    'text': '[INFO] ok',
+                    'manual_review': False,
+                }
+            },
+            'info': {},
+            'error': {},
+        })
+
     def test_verify_peer_hooks_empty(self):
         '''Check verify_peer_hooks() - empty'''
         peer_hooks = dict()
