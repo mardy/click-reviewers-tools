@@ -2256,6 +2256,24 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_epoch_negative(self):
+        '''Test check_epoch - negative'''
+        self.set_test_snap_yaml("epoch", -1)
+        c = SnapReviewLint(self.test_name)
+        c.check_epoch()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_epoch_decimal(self):
+        '''Test check_epoch - decimal'''
+        self.set_test_snap_yaml("epoch", 1.01)
+        c = SnapReviewLint(self.test_name)
+        c.check_epoch()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_epoch_missing(self):
         '''Test check_epoch - not present'''
         self.set_test_snap_yaml("epoch", None)

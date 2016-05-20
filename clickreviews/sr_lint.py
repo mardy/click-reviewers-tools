@@ -1115,7 +1115,7 @@ class SnapReviewLint(SnapReview):
             t = 'error'
             s = "malformed 'epoch': %s (not an int)" % (
                 self.snap_yaml['epoch'])
-        elif int(self.snap_yaml['epoch']) < 1:
+        elif int(self.snap_yaml['epoch']) < 0:
             t = 'error'
             s = "malformed 'epoch': '%s' should be positive int" % (
                 self.snap_yaml['epoch'])
