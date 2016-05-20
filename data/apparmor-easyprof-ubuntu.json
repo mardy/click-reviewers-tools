@@ -359,12 +359,15 @@
 	  "x11"
         ],
         "reserved": [
+	  "bluez",
 	  "firewall-control",
 	  "home",
 	  "locale-control",
+	  "locale-observe",
 	  "log-observe",
 	  "mount-observe",
 	  "network-control",
+	  "network-manager",
 	  "network-observe",
 	  "snapd-control",
 	  "system-observe",
