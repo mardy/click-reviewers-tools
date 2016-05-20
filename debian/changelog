@@ -6,6 +6,7 @@ click-reviewers-tools (0.43) UNRELEASED; urgency=medium
     - handle top-level plugs and slots with yaml data as 'null' (LP: #1579201)
     - add epoch checks (LP: #1583298)
     - .pyc are arch-independent, so don't complain about them
+    - add confinement checks (LP: #1580819)
   * add opengl interface as 'common' (LP: #1572140)
   * sr_security.py:
     - remove last reference to 'cap'

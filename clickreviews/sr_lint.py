@@ -1113,10 +1113,30 @@ class SnapReviewLint(SnapReview):
         s = 'OK'
         if not isinstance(self.snap_yaml['epoch'], int):
             t = 'error'
-            s = "malformed 'epoch': %s (not an int)" % (
+            s = "malformed 'epoch': %s (not an integer)" % (
                 self.snap_yaml['epoch'])
         elif int(self.snap_yaml['epoch']) < 0:
             t = 'error'
-            s = "malformed 'epoch': '%s' should be positive int" % (
+            s = "malformed 'epoch': '%s' should be positive integer" % (
                 self.snap_yaml['epoch'])
+        self._add_result(t, n, s)
+
+    def check_confinement(self):
+        '''Check confinement'''
+        if not self.is_snap2 or 'confinement' not in self.snap_yaml:
+            return
+
+        allowed = ['strict', 'devmode']
+
+        t = 'info'
+        n = self._get_check_name('confinement_valid')
+        s = 'OK'
+        if not isinstance(self.snap_yaml['confinement'], str):
+            t = 'error'
+            s = "malformed 'confinement': %s (not a string)" % (
+                self.snap_yaml['confinement'])
+        elif self.snap_yaml['confinement'] not in allowed:
+            t = 'error'
+            s = "malformed 'confinement': '%s' should be one of '%s'" % (
+                self.snap_yaml['confinement'], ", ".join(allowed))
         self._add_result(t, n, s)

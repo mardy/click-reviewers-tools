@@ -2292,6 +2292,60 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_confinement_strict(self):
+        '''Test check_confinement - strict'''
+        self.set_test_snap_yaml("confinement", "strict")
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_confinement_devmode(self):
+        '''Test check_confinement - devmode'''
+        self.set_test_snap_yaml("confinement", "devmode")
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_confinement_missing(self):
+        '''Test check_confinement - missing'''
+        self.set_test_snap_yaml("confinement", None)
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_confinement_nonexistent(self):
+        '''Test check_confinement - nonexistent'''
+        self.set_test_snap_yaml("confinement", "nonexistent")
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_confinement_bad(self):
+        '''Test check_confinement - bad (boolean)'''
+        self.set_test_snap_yaml("confinement", True)
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_confinement_bad2(self):
+        '''Test check_confinement - bad (yaml true)'''
+        self.set_test_snap_yaml("confinement", 'true')
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
 
 class TestSnapReviewLintNoMock(TestCase):
     """Tests without mocks where they are not needed."""
