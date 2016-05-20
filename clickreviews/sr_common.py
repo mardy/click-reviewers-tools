@@ -45,7 +45,9 @@ class SnapReview(Review):
     # optional snappy fields here (may be required by appstore)
     snappy_optional = ["apps",
                        "architectures",
+                       "confinement",
                        "description",
+                       "epoch",
                        "license-agreement",
                        "license-version",
                        "summary",
