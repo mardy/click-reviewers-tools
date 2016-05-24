@@ -1,6 +1,8 @@
 click-reviewers-tools (0.44) UNRELEASED; urgency=medium
 
   * data/apparmor-easyprof-ubuntu.json: add pulseaudio interface
+  * clickreviews/common.py: don't fail on libmvec.so since it comes from libc6
+    too (LP: #1584346)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 23 May 2016 14:22:33 -0500
 

@@ -654,6 +654,7 @@ def find_external_symlinks(unpack_dir, pkg_files):
                   'libdl',
                   'libmemusage',
                   'libm',
+                  'libmvec',
                   'libnsl',
                   'libnss_compat',
                   'libnss_dns',
