@@ -354,6 +354,7 @@
         "common": [
           "network",
           "network-bind",
+          "pulseaudio",
           "opengl",
 	  "unity7",
 	  "x11"
