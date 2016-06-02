@@ -7,6 +7,7 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
     - move all core interfaces to 'common'
   * clickreviews/common.py: don't fail on libmvec.so since it comes from libc6
     too (LP: #1584346)
+  * sr_security.py: home is ok if specified with unity7/x11
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 23 May 2016 14:22:33 -0500
 

@@ -224,6 +224,30 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
+    def test_check_security_plugs_reserved_home_unity7_override(self):
+        ''' Test check_security_plugs() - reserved overriden (home/unity7)'''
+        plugs = self._create_top_plugs()
+        plugs['home'] = {}
+        plugs['unity7'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_reserved_home_x11_override(self):
+        ''' Test check_security_plugs() - reserved overriden (home/x11)'''
+        plugs = self._create_top_plugs()
+        plugs['home'] = {}
+        plugs['x11'] = {}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_plugs_unknown_type(self):
         ''' Test check_security_plugs() - unknown type'''
         plugs = self._create_top_plugs()
