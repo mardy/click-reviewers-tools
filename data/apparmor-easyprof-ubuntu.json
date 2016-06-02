@@ -355,28 +355,31 @@
       },
       "policy_groups": {
         "common": [
+	  "cups-control",
+	  "firewall-control",
+	  "locale-control",
+	  "locale-observe",
+	  "log-observe",
+	  "mount-observe",
           "network",
           "network-bind",
+	  "network-control",
+	  "network-observe",
           "pulseaudio",
           "opengl",
+	  "snapd-control",
+	  "system-observe",
+	  "timeserver-control",
+	  "timezone-control",
 	  "unity7",
 	  "x11"
         ],
         "reserved": [
 	  "bluez",
-	  "firewall-control",
 	  "home",
-	  "locale-control",
-	  "locale-observe",
-	  "log-observe",
-	  "mount-observe",
-	  "network-control",
-	  "network-manager",
-	  "network-observe",
-	  "snapd-control",
-	  "system-observe",
-	  "timeserver-control",
-	  "timezone-control"
+	  "location-control",
+	  "location-observe",
+	  "network-manager"
 	]
       }
     }

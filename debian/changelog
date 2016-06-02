@@ -3,6 +3,8 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
   * data/apparmor-easyprof-ubuntu.json:
     - add pulseaudio interface
     - add bluetooth policy group for Touch for 15.04 and higher
+    - add location-observe and location-control
+    - move all core interfaces to 'common'
   * clickreviews/common.py: don't fail on libmvec.so since it comes from libc6
     too (LP: #1584346)
 

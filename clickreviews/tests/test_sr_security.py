@@ -213,10 +213,10 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
                                   "manual_review": False}
         self.check_results(report, expected=expected)
 
-    def test_check_security_plugs_reserved_snapd_control(self):
-        ''' Test check_security_plugs() - reserved (snapd-control)'''
+    def test_check_security_plugs_reserved_home(self):
+        ''' Test check_security_plugs() - reserved (home)'''
         plugs = self._create_top_plugs()
-        plugs['snapd-control'] = {}
+        plugs['home'] = {}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_plugs()
