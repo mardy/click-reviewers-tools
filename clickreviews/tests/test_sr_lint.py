@@ -126,8 +126,17 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.check_results(r, expected_counts)
 
     def test_check_name_bad(self):
-        '''Test check_name - bad'''
+        '''Test check_name - bad - ?'''
         self.set_test_snap_yaml("name", "foo?bar")
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_name_bad_slash(self):
+        '''Test check_name - bad - /'''
+        self.set_test_snap_yaml("name", "foo/bar")
         c = SnapReviewLint(self.test_name)
         c.check_name()
         r = c.click_report
