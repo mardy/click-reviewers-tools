@@ -164,7 +164,7 @@ class SnapReview(Review):
 
     def _verify_pkgname(self, n):
         '''Verify package name'''
-        pat = re.compile(r'^[a-z0-9][a-z0-9+-]+$')
+        pat = re.compile(r'^[a-z](?:-?[a-z0-9])*$')
 
         if pat.search(n):
             return True
@@ -172,7 +172,7 @@ class SnapReview(Review):
 
     def _verify_appname(self, n):
         '''Verify app name'''
-        pat = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9+-]+$')
+        pat = re.compile(r'^[a-zA-Z0-9](?:-?[a-zA-Z0-9])*$')
 
         if pat.search(n):
             return True

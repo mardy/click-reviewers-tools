@@ -134,7 +134,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_name_bad_slash(self):
+    def test_check_name_bad1(self):
         '''Test check_name - bad - /'''
         self.set_test_snap_yaml("name", "foo/bar")
         c = SnapReviewLint(self.test_name)
@@ -164,6 +164,33 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_name_bad4(self):
         '''Test check_name - dict'''
         self.set_test_snap_yaml("name", {})
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_name_bad5(self):
+        '''Test check_name - bad - --'''
+        self.set_test_snap_yaml("name", "foo--bar")
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_name_bad6(self):
+        '''Test check_name - bad - endswith -'''
+        self.set_test_snap_yaml("name", "foo-bar-")
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_name_bad7(self):
+        '''Test check_name - bad - cap'''
+        self.set_test_snap_yaml("name", "foo-Bar")
         c = SnapReviewLint(self.test_name)
         c.check_name()
         r = c.click_report
@@ -906,6 +933,24 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_apps_bad10(self):
         '''Test check_apps() - bad name with /'''
         self.set_test_snap_yaml("apps", {"foo/bar": {"command": "bin/foo"}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_bad11(self):
+        '''Test check_apps() - bad name ends with -'''
+        self.set_test_snap_yaml("apps", {"foo-bar-": {"command": "bin/foo"}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_bad12(self):
+        '''Test check_apps() - bad name with --'''
+        self.set_test_snap_yaml("apps", {"foo--bar": {"command": "bin/foo"}})
         c = SnapReviewLint(self.test_name)
         c.check_apps()
         r = c.click_report
