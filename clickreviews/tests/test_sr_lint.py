@@ -903,6 +903,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_apps_bad10(self):
+        '''Test check_apps() - bad name with /'''
+        self.set_test_snap_yaml("apps", {"foo/bar": {"command": "bin/foo"}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_apps_command(self):
         '''Test check_apps_command()'''
         cmd = "bin/foo"
