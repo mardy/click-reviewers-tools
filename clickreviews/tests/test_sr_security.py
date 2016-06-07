@@ -248,6 +248,15 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_plugs_no_plugs(self):
+        ''' Test check_security_plugs() - no plugs'''
+        self.set_test_snap_yaml("plugs", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_plugs_unknown_type(self):
         ''' Test check_security_plugs() - unknown type'''
         plugs = self._create_top_plugs()
@@ -297,9 +306,19 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected['info'][name] = {"text": "OK"}
         self.check_results(report, expected=expected)
 
-    def test_check_security_apps_plugs_none(self):
-        ''' Test check_security_apps_plugs() - None'''
+    def test_check_security_apps_plugs_no_apps(self):
+        ''' Test check_security_apps_plugs() - No apps'''
         self.set_test_snap_yaml("apps", None)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_plugs()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_plugs_none(self):
+        ''' Test check_security_apps_plugs() - app with no plugs'''
+        apps = {'app1': {'plugs': {}}}
+        self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_apps_plugs()
         report = c.click_report
@@ -324,6 +343,26 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         c.check_security_apps_plugs()
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_plugs_reserved_home_x11_override(self):
+        ''' Test check_security_apps_plugs() - reserved overriden (home/x11)'''
+        apps = {'app1': {'plugs': [ 'x11', 'home' ]}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_plugs()
+        report = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_apps_plugs_reserved_home(self):
+        ''' Test check_security_apps_plugs() - reserved home'''
+        apps = {'app1': {'plugs': [ 'home' ]}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_apps_plugs()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_security_slots(self):

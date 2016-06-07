@@ -87,9 +87,14 @@ class SnapReviewSecurity(SnapReview):
             self._add_result(t, n, s, manual_review=m, override_result_type=o)
 
         home_classic_override = False
-        if interface == 'home' and ('unity7' in self.snap_yaml['plugs'] or
-                                    'x11' in self.snap_yaml['plugs']):
-            home_classic_override = True
+        if interface == 'home':
+            if name == 'plug' and ('unity7' in self.snap_yaml['plugs'] or
+                                   'x11' in self.snap_yaml['plugs']):
+                home_classic_override = True
+            elif name == 'app_plug' and \
+                    ('unity7' in self.snap_yaml['apps'][iface]['plugs'] or
+                     'x11' in self.snap_yaml['apps'][iface]['plugs']):
+                home_classic_override = True
 
         t = 'info'
         n = self._get_check_name('%s_safe' % name, app=iface, extra=interface)
