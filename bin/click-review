@@ -63,7 +63,10 @@ class Results(object):
                 print('%s: FAIL' % self.args.filename)
             else:
                 print('%s: pass' % self.args.filename)
-        if self.errors:
+        if self.rc == 1:
+            # always exit(1) if there are errors
+            pass
+        elif self.errors:
             self.rc = 2
         elif self.warnings:
             self.rc = 3
