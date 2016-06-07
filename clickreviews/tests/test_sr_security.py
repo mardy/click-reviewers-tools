@@ -347,7 +347,7 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
 
     def test_check_security_apps_plugs_reserved_home_x11_override(self):
         ''' Test check_security_apps_plugs() - reserved overriden (home/x11)'''
-        apps = {'app1': {'plugs': [ 'x11', 'home' ]}}
+        apps = {'app1': {'plugs': ['x11', 'home']}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_apps_plugs()
@@ -357,7 +357,7 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
 
     def test_check_security_apps_plugs_reserved_home(self):
         ''' Test check_security_apps_plugs() - reserved home'''
-        apps = {'app1': {'plugs': [ 'home' ]}}
+        apps = {'app1': {'plugs': ['home']}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_apps_plugs()
