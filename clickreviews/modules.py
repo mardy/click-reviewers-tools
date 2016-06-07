@@ -77,5 +77,5 @@ def init_main_class(module_name, click_file, overrides=None):
         ob = init_object(click_file, overrides)
     except TypeError as e:
         print('Could not init %s: %s' % (init_object, str(e)))
-        return None
+        raise
     return ob

@@ -12,8 +12,10 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
   * sr_common.py:
     - update _verify_pkgname() and _verify_appname() to use the same regex as
       in snapd and various tests
+  * bin/click-review, clickreviews/modules.py: exit '1' if error with
+    init_object or running checks
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 23 May 2016 14:22:33 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Jun 2016 13:51:28 -0500
 
 click-reviewers-tools (0.43) yakkety; urgency=medium
 

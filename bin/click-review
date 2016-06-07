@@ -57,7 +57,9 @@ class Results(object):
             print_findings(self.warnings, 'Warnings')
             if self.args.verbose:
                 print_findings(self.info, 'Info')
-            if self.warnings or self.errors:
+            if self.rc == 1:
+                print('%s: ERROR' % self.args.filename)
+            elif self.warnings or self.errors:
                 print('%s: FAIL' % self.args.filename)
             else:
                 print('%s: pass' % self.args.filename)
@@ -91,12 +93,16 @@ class Results(object):
         #
         section = module.replace('cr_', 'click,snap.v1_')
         section = section.replace('sr_', 'snap.v2_')
-        review = modules.init_main_class(module, self.pkg_fn,
-                                         overrides=overrides)
-        if review:
-            review.do_checks()
-            self.results[section] = review.click_report
-            return section
+        try:
+            review = modules.init_main_class(module, self.pkg_fn,
+                                             overrides=overrides)
+
+            if review:
+                review.do_checks()
+                self.results[section] = review.click_report
+                return section
+        except Exception:
+            self.rc = 1
         return None
 
     def run_all_checks(self, overrides):
