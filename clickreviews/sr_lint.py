@@ -595,7 +595,7 @@ class SnapReviewLint(SnapReview):
 
         # Certain options require 'daemon' so list the keys that are shared
         # by services and binaries
-        ok_keys = ['command', 'plugs']
+        ok_keys = ['command', 'environment', 'plugs', 'slots']
 
         for app in self.snap_yaml['apps']:
             needs_daemon = []
@@ -1143,3 +1143,73 @@ class SnapReviewLint(SnapReview):
             t = 'error'
             s = "'confinement' should only be specified with 'type: app'"
         self._add_result(t, n, s)
+
+    def _verify_env(self, env, app=None):
+        t = 'info'
+        n = self._get_check_name('environment_valid', app=app)
+        s = 'OK'
+
+        if not isinstance(env, dict):
+            t = 'error'
+            s = "invalid environment: %s (not a dict)" % env
+        self._add_result(t, n, s)
+
+        # http://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html
+        invalid = ['=', '\0']
+        portable_pat = re.compile(r'^[A-Z_][A-Z0-9_]*$')
+        lenient_pat = re.compile(r'^[a-zA-Z0-9_]+$')
+        for key in env:
+            t = 'info'
+            n = self._get_check_name('environment_key_valid', app=app,
+                                     extra=key)
+            s = 'OK'
+            l = None
+            invalid_chars = []
+            for c in invalid:
+                if c in key:
+                    invalid_chars.append(c)
+
+            if len(invalid_chars) > 0:
+                t = 'error'
+                s = "found invalid characters '%s'" % ", ".join(invalid_chars)
+            elif not portable_pat.search(key) and lenient_pat.search(key):
+                t = 'info'
+                s = "'%s' is not shell portable" % key
+                l = "http://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html"
+            elif not lenient_pat.search(key):
+                t = 'warn'
+                s = "unusual characters in '%s' " % key + \
+                    "(should be '^[a-zA-Z0-9_]+$')"
+            self._add_result(t, n, s, link=l)
+
+            # The only limit on the contents of an arg appear to be the length
+            # but that is goint to be language and system dependent, so don't
+            # worry about it here (this would simply be a bug in the software)
+            t = 'info'
+            n = n = self._get_check_name('environment_value_valid', app=app,
+                                         extra=key)
+            s = 'OK'
+            if not isinstance(env[key], str):
+                t = 'error'
+                s = "invalid environment value for '%s': %s" % (key, env[key])
+            self._add_result(t, n, s)
+
+    def check_environment(self):
+        '''Check environment'''
+        if not self.is_snap2 or 'environment' not in self.snap_yaml:
+            return
+
+        self._verify_env(self.snap_yaml['environment'])
+
+    def check_apps_environment(self):
+        '''Check apps environment'''
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
+            return
+
+        for app in self.snap_yaml['apps']:
+            key = 'environment'
+            if key not in self.snap_yaml['apps'][app]:
+                continue
+
+            self._verify_env(self.snap_yaml['apps'][app]['environment'],
+                             app=app)

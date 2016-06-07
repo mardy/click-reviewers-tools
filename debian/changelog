@@ -14,6 +14,7 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
       in snapd and various tests
   * bin/click-review, clickreviews/modules.py: exit '1' if error with
     init_object or running checks
+  * sr_lint.py: support 'environment' key in yaml (LP: #1583259)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Jun 2016 13:51:28 -0500
 

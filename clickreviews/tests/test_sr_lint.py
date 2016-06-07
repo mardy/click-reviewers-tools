@@ -2419,6 +2419,112 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_environment(self):
+        '''Test check_environment'''
+        env = {'ENV1': "value",
+               'ENV2': "value2",
+               }
+        self.set_test_snap_yaml("environment", env)
+        c = SnapReviewLint(self.test_name)
+        c.check_environment()
+        r = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_environment(self):
+        '''Test check_environment'''
+        env = {'ENV1': "value",
+               'ENV2': "value2",
+               }
+        apps = {'app1': {'environment': env},
+                'app2': {'environment': env},
+                'app3': {'environment': env},
+                'app4': {'environment': env},
+                }
+
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_environment()
+        r = c.click_report
+        expected_counts = {'info': 20, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_environment_bad_equal(self):
+        '''Test check_environment - bad - ='''
+        env = {'ENV1=': "value",
+               }
+        self.set_test_snap_yaml("environment", env)
+        c = SnapReviewLint(self.test_name)
+        c.check_environment()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_environment_bad_null(self):
+        '''Test check_environment - bad - \0'''
+        env = {'E\0NV1': "value",
+               }
+        self.set_test_snap_yaml("environment", env)
+        c = SnapReviewLint(self.test_name)
+        c.check_environment()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_environment_not_portable(self):
+        '''Test check_environment - not portable: starts with number'''
+        env = {'1ENV': "value",
+               }
+        self.set_test_snap_yaml("environment", env)
+        c = SnapReviewLint(self.test_name)
+        c.check_environment()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_environment_not_portable2(self):
+        '''Test check_environment - not portable - lower case'''
+        env = {'EnV1': "value",
+               }
+        self.set_test_snap_yaml("environment", env)
+        c = SnapReviewLint(self.test_name)
+        c.check_environment()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_environment_unusual(self):
+        '''Test check_environment - unusual'''
+        env = {'En:V1': "value",
+               }
+        self.set_test_snap_yaml("environment", env)
+        c = SnapReviewLint(self.test_name)
+        c.check_environment()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_environment_bad_env(self):
+        '''Test check_environment - bad env - list'''
+        env = []
+        self.set_test_snap_yaml("environment", env)
+        c = SnapReviewLint(self.test_name)
+        c.check_environment()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_environment_bad_value(self):
+        '''Test check_environment - bad value - list'''
+        env = {'ENV1': [],
+               }
+        self.set_test_snap_yaml("environment", env)
+        c = SnapReviewLint(self.test_name)
+        c.check_environment()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
 
 class TestSnapReviewLintNoMock(TestCase):
     """Tests without mocks where they are not needed."""
