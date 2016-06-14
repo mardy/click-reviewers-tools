@@ -2373,7 +2373,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_confinement_nonapp(self):
+    def test_check_confinement_os(self):
         '''Test check_confinement - os'''
         self.set_test_snap_yaml("confinement", "strict")
         self.set_test_snap_yaml("type", "os")
@@ -2381,6 +2381,16 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c.check_confinement()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_confinement_kernel(self):
+        '''Test check_confinement - kernel'''
+        self.set_test_snap_yaml("confinement", "strict")
+        self.set_test_snap_yaml("type", "kernel")
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_confinement_missing(self):
