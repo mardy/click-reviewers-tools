@@ -893,24 +893,37 @@ class SnapReviewLint(SnapReview):
             # 'interface' is optional since the interface name and the iface
             # name are the same
             interface = iface
-            if 'interface' in self.snap_yaml[iface_type][iface]:
-                interface = self.snap_yaml[iface_type][iface]['interface']
 
+            spec = self.snap_yaml[iface_type][iface]
+            if isinstance(spec, str):
+                # Abbreviated syntax (no attributes)
+                # <plugs|slots>:
+                #   <alias>: <interface>
+                interface = spec
+            elif 'interface' in spec:
+                # Full specification.
+                # <plugs|slots>:
+                #   <alias>:
+                #     interface: <interface>
+                interface = spec['interface']
+
+            # Validate indirect (specified via alias) interfaces:
+            if interface != iface:
                 key = 'interface'
                 t = 'info'
-                n = self._get_check_name(iface_type, app=key, extra=iface)
+                n = self._get_check_name(iface_type, app=key, extra=interface)
                 s = 'OK'
-                if not isinstance(self.snap_yaml[iface_type][iface][key], str):
+                if not isinstance(interface, str):
                     t = 'error'
-                    s = "invalid %s: %s (not a str)" % \
-                        (key, self.snap_yaml[iface_type][iface][key])
-                elif len(self.snap_yaml[iface_type][iface][key]) == 0:
+                    s = "invalid %s: %s (not a str)" % (key, interface)
+                elif len(interface) == 0:
                     t = 'error'
                     s = "'%s' is empty" % key
                 self._add_result(t, n, s)
                 if t == 'error':
                     continue
 
+            # Check interfaces whitelist.
             t = 'info'
             n = self._get_check_name(iface_type, app=interface, extra=iface)
             s = 'OK'
@@ -921,7 +934,12 @@ class SnapReviewLint(SnapReview):
             if t == 'error':
                 continue
 
-            for attrib in self.snap_yaml[iface_type][iface]:
+            # Abbreviated interfaces don't have attributes, done checking.
+            if isinstance(spec, str):
+                continue
+
+            # Check interface attributes.
+            for attrib in spec:
                 if attrib == 'interface':
                     continue
                 t = 'info'
@@ -932,8 +950,8 @@ class SnapReviewLint(SnapReview):
                     t = 'error'
                     s = "unknown attribute '%s' for interface '%s'" % (
                         attrib, interface)
-                elif not isinstance(self.snap_yaml[iface_type][iface][attrib],
-                                    type(self.interfaces[interface][attrib])):
+                elif not isinstance(
+                    spec[attrib], type(self.interfaces[interface][attrib])):
                     t = 'error'
                     s = "'%s' is not '%s'" % \
                         (attrib,

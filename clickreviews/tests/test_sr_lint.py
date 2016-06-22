@@ -2255,7 +2255,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-        
+
     def test_check_apps_slots(self):
         '''Test check_apps_slots()'''
         slots = self._create_top_slots()
