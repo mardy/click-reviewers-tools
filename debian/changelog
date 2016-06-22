@@ -19,6 +19,7 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
   * sr_lint.py:
     - support 'environment' key in yaml (LP: #1583259)
     - support 'confinement' key in yaml
+    - support for interface abbreviated syntax (LP: #1595184)
   * sr_security.py: specifying mpris slot should not warn
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 14 Jun 2016 09:48:15 +0300
