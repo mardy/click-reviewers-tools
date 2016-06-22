@@ -42,6 +42,8 @@ class SnapReviewSecurity(SnapReview):
                                   'os',
                                   'kernel']  # these don't need security items
 
+        self.sec_safe_slots = ['mpris']
+
     def check_security_policy_vendor(self):
         '''Check policy-vendor'''
         if not self.is_snap2:
@@ -76,7 +78,7 @@ class SnapReviewSecurity(SnapReview):
             return  # not in aa_policy
 
         o = self._devmode_override()
-        if name.endswith('slot'):
+        if name.endswith('slot') and interface not in self.sec_safe_slots:
             t = 'warn'
             n = self._get_check_name('is_slot', app=iface,
                                      extra=interface)
