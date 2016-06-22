@@ -11,7 +11,6 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
     - add mpris interface
   * clickreviews/common.py: don't fail on libmvec.so since it comes from libc6
     too (LP: #1584346)
-  * sr_security.py: home is ok if specified with unity7/x11
   * sr_common.py:
     - update _verify_pkgname() and _verify_appname() to use the same regex as
       in snapd and various tests

@@ -213,41 +213,6 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
                                   "manual_review": False}
         self.check_results(report, expected=expected)
 
-    def test_check_security_plugs_reserved_home(self):
-        ''' Test check_security_plugs() - reserved (home)'''
-        plugs = self._create_top_plugs()
-        plugs['home'] = {}
-        self.set_test_snap_yaml("plugs", plugs)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_plugs()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_plugs_reserved_home_unity7_override(self):
-        ''' Test check_security_plugs() - reserved overriden (home/unity7)'''
-        plugs = self._create_top_plugs()
-        plugs['home'] = {}
-        plugs['unity7'] = {}
-        self.set_test_snap_yaml("plugs", plugs)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_plugs()
-        report = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_plugs_reserved_home_x11_override(self):
-        ''' Test check_security_plugs() - reserved overriden (home/x11)'''
-        plugs = self._create_top_plugs()
-        plugs['home'] = {}
-        plugs['x11'] = {}
-        self.set_test_snap_yaml("plugs", plugs)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_plugs()
-        report = c.click_report
-        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
     def test_check_security_plugs_no_plugs(self):
         ''' Test check_security_plugs() - no plugs'''
         self.set_test_snap_yaml("plugs", None)
@@ -343,26 +308,6 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         c.check_security_apps_plugs()
         report = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_apps_plugs_reserved_home_x11_override(self):
-        ''' Test check_security_apps_plugs() - reserved overriden (home/x11)'''
-        apps = {'app1': {'plugs': ['x11', 'home']}}
-        self.set_test_snap_yaml("apps", apps)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_apps_plugs()
-        report = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_apps_plugs_reserved_home(self):
-        ''' Test check_security_apps_plugs() - reserved home'''
-        apps = {'app1': {'plugs': ['home']}}
-        self.set_test_snap_yaml("apps", apps)
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_apps_plugs()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(report, expected_counts)
 
     def test_check_security_slots(self):

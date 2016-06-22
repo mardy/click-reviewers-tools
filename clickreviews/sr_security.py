@@ -86,16 +86,6 @@ class SnapReviewSecurity(SnapReview):
                 m = True
             self._add_result(t, n, s, manual_review=m, override_result_type=o)
 
-        home_classic_override = False
-        if interface == 'home':
-            if name == 'plug' and ('unity7' in self.snap_yaml['plugs'] or
-                                   'x11' in self.snap_yaml['plugs']):
-                home_classic_override = True
-            elif name == 'app_plug' and \
-                    ('unity7' in self.snap_yaml['apps'][iface]['plugs'] or
-                     'x11' in self.snap_yaml['apps'][iface]['plugs']):
-                home_classic_override = True
-
         t = 'info'
         n = self._get_check_name('%s_safe' % name, app=iface, extra=interface)
         s = "OK"
@@ -107,15 +97,12 @@ class SnapReviewSecurity(SnapReview):
             l = 'http://askubuntu.com/a/562123/94326'
             if o is None:
                 m = True
-        elif sec_type == "reserved" and not home_classic_override:
+        elif sec_type == "reserved":
             t = 'error'
             s = "%s interface '%s' for vetted applications only" % (sec_type,
                                                                     interface)
             if o is None:
                 m = True
-        elif home_classic_override:
-            s = "%s '%s' allowed with 'unity7' and/or 'x11'" % (sec_type,
-                                                                interface)
         elif sec_type != "common":
             t = 'error'
             s = "unknown type '%s' for interface '%s'" % (sec_type, interface)
