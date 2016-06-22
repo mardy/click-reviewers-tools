@@ -357,6 +357,7 @@
         "common": [
 	  "cups-control",
 	  "firewall-control",
+	  "home",
 	  "locale-control",
 	  "locale-observe",
 	  "log-observe",
@@ -377,7 +378,6 @@
         "reserved": [
 	  "bluez",
 	  "gsettings",
-	  "home",
 	  "location-control",
 	  "location-observe",
 	  "network-manager"

@@ -6,6 +6,7 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
     - add location-observe and location-control
     - move all core interfaces to 'common'
     - add gsettings interface
+    - set home to auto-approve
   * clickreviews/common.py: don't fail on libmvec.so since it comes from libc6
     too (LP: #1584346)
   * sr_security.py: home is ok if specified with unity7/x11
