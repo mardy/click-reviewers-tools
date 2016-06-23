@@ -21,6 +21,9 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
     - support 'confinement' key in yaml
   * sr_security.py: specifying mpris slot should not warn
 
+  [ Celso Providelo ]
+  * support for interface abbreviated syntax (LP: #1595184)
+
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 14 Jun 2016 09:48:15 +0300
 
 click-reviewers-tools (0.43) yakkety; urgency=medium

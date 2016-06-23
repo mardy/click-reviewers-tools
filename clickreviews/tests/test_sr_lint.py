@@ -2073,6 +2073,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_plugs_abbreviated(self):
+        '''Test check_plugs() - abbreviated'''
+        self.set_test_snap_yaml("plugs", {'nm': 'network-manager'})
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_apps_plugs(self):
         '''Test check_apps_plugs()'''
         plugs = self._create_top_plugs()
@@ -2236,6 +2245,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c.check_slots()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_abbreviated(self):
+        '''Test check_slots() - abbreviated'''
+        self.set_test_snap_yaml("slots", {'nm': 'network-manager'})
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_slots(self):
