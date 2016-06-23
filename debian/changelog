@@ -1,5 +1,6 @@
 click-reviewers-tools (0.44) UNRELEASED; urgency=medium
 
+  [ Jamie Strandboge ]
   * data/apparmor-easyprof-ubuntu.json:
     - add pulseaudio interface
     - add bluetooth policy group for Touch for 15.04 and higher
@@ -20,6 +21,7 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
     - support 'environment' key in yaml (LP: #1583259)
     - support 'confinement' key in yaml
   * sr_security.py: specifying mpris slot should not warn
+  * run_tests: exit non-zero with failures, errors or unexpectedSuccesses
 
   [ Celso Providelo ]
   * support for interface abbreviated syntax (LP: #1595184)
