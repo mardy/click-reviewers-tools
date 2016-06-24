@@ -946,16 +946,17 @@ class SnapReviewLint(SnapReview):
                 n = self._get_check_name('%s_attributes' % iface_type,
                                          app=iface, extra=attrib)
                 s = "OK"
-                if attrib not in self.interfaces[interface]:
+                attrib_key = "%s/%s" % (attrib, iface_type)
+                if attrib_key not in self.interfaces[interface]:
                     t = 'error'
-                    s = "unknown attribute '%s' for interface '%s'" % (
-                        attrib, interface)
+                    s = "unknown attribute '%s' for interface '%s' (%s)" % (
+                        attrib, interface, iface_type)
                 elif not isinstance(
-                        spec[attrib], type(self.interfaces[interface][attrib])):
+                        spec[attrib], type(self.interfaces[interface][attrib_key])):
                     t = 'error'
                     s = "'%s' is not '%s'" % \
                         (attrib,
-                         type(self.interfaces[interface][attrib]).__name__)
+                         type(self.interfaces[interface][attrib_key]).__name__)
                 self._add_result(t, n, s)
 
     def check_plugs(self):

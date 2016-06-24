@@ -42,8 +42,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         return ports
 
     def _create_top_plugs(self):
-        plugs = {'iface-bool-file': {'interface': 'bool-file',
-                                     'path': '/path/to/something'},
+        plugs = {'iface-content': {'interface': 'content',
+                                   'target': '/path/to/something'},
                  'iface-network': {'interface': 'network'},
                  'iface-network-bind': {'interface': 'network-bind'},
                  # intentionally omitted
@@ -55,17 +55,26 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         plugs = {'app1': {'plugs': ['iface-network']},
                  'app2': {'plugs': ['iface-network-bind']},
                  'app3': {'plugs': ['network-control']},
-                 'app4': {'plugs': ['iface-bool-file']},
+                 'app4': {'plugs': ['iface-content']},
                  }
         return plugs
 
     def _create_top_slots(self):
-        slots = {'iface-slot1': {'interface': 'bool-file',
-                                 'path': '/path/to/something'}}
+        slots = {'iface-bool-file': {'interface': 'bool-file',
+                                     'path': '/path/to/something'},
+                 'iface-content': {'interface': 'content',
+                                   'read': '/path/to/somewhere',
+                                   'write': '/path/to/somewhere/else'},
+                 'iface-serial-port': {'interface': 'serial-port',
+                                       'path': '/path/to/something'},
+                 }
         return slots
 
     def _create_apps_slots(self):
-        slots = {'app1': {'slots': ['iface-slot1']}}
+        slots = {'app1': {'slots': ['iface-bool-file']},
+                 'app2': {'slots': ['iface-content']},
+                 'app3': {'slots': ['iface-serial-port']},
+                 }
         return slots
 
     def test_all_checks_as_v2(self):
@@ -2012,7 +2021,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_unspecified_interface(self):
         '''Test check_plugs() - unspecified interface'''
-        plugs = {'bool-file': {'path': '/path/to/some/where'}}
+        plugs = {'content': {'target': '/path/to/some/where'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -2053,7 +2062,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_plugs_unknown_attrib(self):
         '''Test check_plugs() - unknown attrib'''
-        plugs = {'test': {'interface': 'bool-file',
+        plugs = {'test': {'interface': 'content',
                           'nonexistent': 'abc'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
@@ -2062,10 +2071,21 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    def test_check_plugs_bad_attrib_boolfile(self):
-        '''Test check_plugs() - bad attrib - bool-file'''
-        plugs = {'test': {'interface': 'bool-file',
-                          'path': ['invalid']}}
+    def test_check_plugs_bad_attrib_content(self):
+        '''Test check_plugs() - bad attrib - content'''
+        plugs = {'test': {'interface': 'content',
+                          'target': ['invalid']}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_plugs_wrong_attrib_content(self):
+        '''Test check_plugs() - content (used slot attrib with plug)'''
+        plugs = {'test': {'interface': 'content',
+                          'read': '/path/to/something'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
@@ -2161,7 +2181,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_slots()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 10, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_slots_bad_interface(self):
@@ -2192,6 +2212,17 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c.check_slots()
         r = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_wrong_attrib_content(self):
+        '''Test check_slots() - content (used plug attrib with slot)'''
+        plugs = {'test': {'interface': 'content',
+                          'target': '/path/to/something'}}
+        self.set_test_snap_yaml("slots", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
     def test_check_slots_unknown_interface(self):
@@ -2265,7 +2296,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_apps_slots()
         r = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_no_slots(self):

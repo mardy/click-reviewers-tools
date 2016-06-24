@@ -8,13 +8,18 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
     - move all core interfaces to 'common'
     - add gsettings interface
     - set home to auto-approve
-    - add serial-port interface
     - add mpris interface
+    - add camera interface
+    - add optical-drive interface
+    - add serial-port interface
+    - add content interface
   * clickreviews/common.py: don't fail on libmvec.so since it comes from libc6
     too (LP: #1584346)
   * sr_common.py:
     - update _verify_pkgname() and _verify_appname() to use the same regex as
       in snapd and various tests
+    - update attributes to be slots or plugs side and cleanup code for
+      specifying attributes
   * bin/click-review, clickreviews/modules.py: exit '1' if error with
     init_object or running checks
   * sr_lint.py:

@@ -77,16 +77,28 @@ class SnapReview(Review):
     # 'plugs':
     #    'interface': name
     #    'attrib-name': <type>
-    # interfaces lists interfaces and the valid attribute names for the
+    # 'slots':
+    #    'interface': name
+    #    'attrib-name': <type>
+    # self.interfaces lists interfaces and the valid attribute names for the
     # interface with the valid python type for the attribute (eg, [], '', {},
-    # etc). These interfaces are likely going to change based on release, but
-    # for now, this is fine. Interfaces with no attributes should specify an
-    # empty dictionary.
+    # etc).  # Interfaces with no attributes should specify an empty
+    # dictionary.
     #
-    # Interfaces from apparmor-easyprof-ubuntu.json in __init__() so they don't
-    # have to be added here
-    interfaces = {'bool-file': {'path': ""},
-                  }
+    # Interfaces from apparmor-easyprof-ubuntu.json are read in __init__() so
+    # they don't have to be added to self.interfaces.
+    interfaces = dict()
+
+    # Since apparmor-easyprof-ubuntu.json doesn't allow specifying attributes,
+    # merge this into self.interfaces after reading
+    # apparmor-easyprof-ubuntu.json
+    interfaces_attribs = {'bool-file': {'path/slots': ""},
+                          'content': {'read/slots': "",
+                                      'write/slots': "",
+                                      'target/plugs': "",
+                                      },
+                          'serial-port': {'path/slots': ""},
+                          }
 
     def __init__(self, fn, review_type, overrides=None):
         Review.__init__(self, fn, review_type, overrides=overrides)
@@ -122,7 +134,10 @@ class SnapReview(Review):
                 if t not in self.aa_policy[self.policy_vendor][self.policy_version]['policy_groups']:
                     continue
                 for p in self.aa_policy[self.policy_vendor][self.policy_version]['policy_groups'][t]:
-                    self.interfaces[p] = {}
+                    if p in self.interfaces_attribs:
+                        self.interfaces[p] = self.interfaces_attribs[p]
+                    else:
+                        self.interfaces[p] = {}
 
         # default to 'app'
         if 'type' not in self.snap_yaml:

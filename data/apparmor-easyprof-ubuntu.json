@@ -355,11 +355,14 @@
       },
       "policy_groups": {
         "common": [
+	  "camera",
+	  "bool-file",
+	  "content",
 	  "cups-control",
 	  "firewall-control",
+	  "gsettings",
 	  "home",
 	  "locale-control",
-	  "locale-observe",
 	  "log-observe",
 	  "mount-observe",
 	  "mpris",
@@ -367,9 +370,11 @@
           "network-bind",
 	  "network-control",
 	  "network-observe",
-          "pulseaudio",
           "opengl",
-          "serial-port",
+          "optical-drive",
+	  "ppp",
+          "pulseaudio",
+	  "serial-port",
 	  "snapd-control",
 	  "system-observe",
 	  "timeserver-control",
@@ -379,10 +384,10 @@
         ],
         "reserved": [
 	  "bluez",
-	  "gsettings",
 	  "location-control",
 	  "location-observe",
-	  "network-manager"
+	  "network-manager",
+	  "modem-manager"
 	]
       }
     }
