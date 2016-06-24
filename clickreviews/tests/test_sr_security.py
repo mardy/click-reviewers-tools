@@ -322,9 +322,21 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         self.check_results(report, expected_counts)
 
     def test_check_security_slots_mpris(self):
-        ''' Test check_security_slots()'''
+        ''' Test check_security_slots() - mpris'''
         slots = dict()
         slots['mpris'] = {}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_slots()
+        report = c.click_report
+        # specifying slots currently requires manual review, unless a safe slot
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_slots_content(self):
+        ''' Test check_security_slots() - content'''
+        slots = dict()
+        slots['content'] = {}
         self.set_test_snap_yaml("slots", slots)
         c = SnapReviewSecurity(self.test_name)
         c.check_security_slots()

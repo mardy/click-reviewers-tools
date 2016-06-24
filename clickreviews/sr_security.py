@@ -42,7 +42,8 @@ class SnapReviewSecurity(SnapReview):
                                   'os',
                                   'kernel']  # these don't need security items
 
-        self.sec_safe_slots = ['mpris']
+        self.sec_safe_slots = ['content',
+                               'mpris']
 
     def check_security_policy_vendor(self):
         '''Check policy-vendor'''
