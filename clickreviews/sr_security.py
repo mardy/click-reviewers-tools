@@ -196,8 +196,7 @@ class SnapReviewSecurity(SnapReview):
             t = 'info'
             n = self._get_check_name('profile_name_length', app=app)
             s = "OK"
-            profile = "snap.%s.%s" % (self.snap_yaml['name'],
-                                    app)
+            profile = "snap.%s.%s" % (self.snap_yaml['name'], app)
             if len(profile) > maxlen:
                 t = 'error'
                 s = ("'%s' too long (exceeds %d characters). Please shorten "
