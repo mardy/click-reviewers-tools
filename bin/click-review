@@ -58,7 +58,7 @@ class Results(object):
             if self.args.verbose:
                 print_findings(self.info, 'Info')
             if self.rc == 1:
-                print('%s: ERROR' % self.args.filename)
+                print('%s: RUNTIME ERROR' % self.args.filename)
             elif self.warnings or self.errors:
                 print('%s: FAIL' % self.args.filename)
             else:

@@ -342,6 +342,18 @@ class ClickReviewLint(ClickReview):
         '''Check md5sums()'''
         if not self.is_click:
             return
+
+        t = 'info'
+        n = self._get_check_name('md5sums')
+
+        # The puritine click will have bad checksums due to bad symlinks
+        if 'hooks' in self.manifest:
+            for app in self.manifest['hooks']:
+                if "puritine" in self.manifest['hooks'][app]:
+                    s = "SKIPPED: puritine"
+                    self._add_result(t, n, s)
+                    return
+
         curdir = os.getcwd()
         fh = open_file_read(self.control_files["md5sums"])
         badsums = []
@@ -355,8 +367,6 @@ class ClickReviewLint(ClickReview):
         fh.close()
         os.chdir(curdir)
 
-        t = 'info'
-        n = self._get_check_name('md5sums')
         s = 'OK'
         if len(badsums) > 0:
             t = 'error'
@@ -549,6 +559,14 @@ exit 1
         t = 'info'
         n = self._get_check_name('external_symlinks')
         s = 'OK'
+
+        # The puritine click is expected to have external symlinks
+        if 'hooks' in self.manifest:
+            for app in self.manifest['hooks']:
+                if "puritine" in self.manifest['hooks'][app]:
+                    s = "SKIPPED: puritine"
+                    self._add_result(t, n, s)
+                    return
 
         links = find_external_symlinks(self.unpack_dir, self.pkg_files)
         if len(links) > 0:

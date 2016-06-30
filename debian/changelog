@@ -31,6 +31,8 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
   * run_tests: exit non-zero with failures, errors or unexpectedSuccesses
   * cr_lint.py:
     - 'puritine' is a known, but redflagged hook
+    - skip external symlinks and md5sums checks for puritine (since we expect
+      external symlinks and the hash checks fail on broken symlinks)
 
   [ Celso Providelo ]
   * support for interface abbreviated syntax (LP: #1595184)

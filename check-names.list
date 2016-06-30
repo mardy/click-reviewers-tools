@@ -59,6 +59,7 @@ lint:control_structure|
 lint:control_version_match|
 lint:dot_click|
 lint:exclusive_hooks|
+lint:external_symlinks|
 lint:file_mode|
 lint:framework|http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file
 lint:hashes_archive-sha512_present|
@@ -76,6 +77,7 @@ lint:manifest_architecture_valid|
 lint:manifest_icon_absolute_path|
 lint:manifest_icon_empty|
 lint:manifest_icon_present|
+lint:md5sums|
 lint:package yaml_architecture_valid|
 lint:package_yaml_icon_absolute_path|
 lint:package_yaml_icon_empty|

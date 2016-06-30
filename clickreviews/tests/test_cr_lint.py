@@ -1962,6 +1962,32 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_external_symlinks_puritine(self):
+        '''Test check_external_symlinks - puritine'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.manifest['hooks'][self.default_appname]["puritine"] = "foo"
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+        name = c._get_check_name('external_symlinks')
+        m = r['info'][name]['text']
+        self.assertIn("SKIPPED: puritine", m)
+
+    def test_check_md5sums_puritine(self):
+        '''Test check_md5sums - puritine'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.manifest['hooks'][self.default_appname]["puritine"] = "foo"
+        c.check_md5sums()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+        name = c._get_check_name('md5sums')
+        m = r['info'][name]['text']
+        self.assertIn("SKIPPED: puritine", m)
+
 
 class ClickReviewLintTestCase(TestCase):
     """Tests without mocks where they are not needed."""
