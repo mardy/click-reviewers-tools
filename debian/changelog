@@ -25,7 +25,9 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
   * sr_lint.py:
     - support 'environment' key in yaml (LP: #1583259)
     - support 'confinement' key in yaml
-  * sr_security.py: specifying mpris slot should not warn
+  * sr_security.py:
+    - specifying mpris slot should not warn
+    - adjust profile name length checks to use series 16 security label format
   * run_tests: exit non-zero with failures, errors or unexpectedSuccesses
 
   [ Celso Providelo ]
