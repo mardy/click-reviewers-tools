@@ -121,12 +121,14 @@ class ClickReviewLint(ClickReview):
                             'content-hub',
                             'desktop',
                             'pay-ui',
+                            'puritine',
                             'push-helper',
                             'scope',
                             'snappy-systemd',  # obsoleted, ignored
                             'urls']
 
         self.redflagged_hooks = ['pay-ui',
+                                 'puritine',
                                  'apparmor-profile',
                                  ]
 

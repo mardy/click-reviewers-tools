@@ -997,6 +997,18 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         name = c._get_check_name('hooks_redflag', app='test-app')
         self.check_manual_review(r, name)
 
+    def test_check_hooks_redflagged_puritine(self):
+        '''Test check_hooks_redflagged() - puritine'''
+        self.set_test_manifest("framework", "ubuntu-sdk-13.10")
+        c = ClickReviewLint(self.test_name)
+        c.manifest['hooks'][self.default_appname]["puritine"] = "foo"
+        c.check_hooks_redflagged()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+        name = c._get_check_name('hooks_redflag', app='test-app')
+        self.check_manual_review(r, name)
+
     def test_pkgname_toplevel(self):
         '''Test check_pkgname - toplevel'''
         self.set_test_manifest("name", "foo")
