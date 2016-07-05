@@ -458,9 +458,12 @@ exit 1
                     # TODO: when have apparmor policy for account-provider and
                     #       account-qml-plugin, remove this conditional
                     if f == 'apparmor' and \
-                       'apparmor-profile' in self.manifest['hooks'][app]:
-                        # Don't require apparmor if have apparmor-profile
+                            'apparmor-profile' in self.manifest['hooks'][app]:
+                            # Don't require apparmor if have apparmor-profile
                         pass
+                    elif f == 'apparmor' and \
+                            'puritine' in self.manifest['hooks'][app]:
+                        s = "OK (puritine does not use apparmor)"
                     elif f != 'apparmor' or \
                             len(self.manifest['hooks'][app]) != 2 or \
                             'account-provider' not in \
