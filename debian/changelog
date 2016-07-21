@@ -13,8 +13,9 @@ click-reviewers-tools (0.44) UNRELEASED; urgency=medium
     - add optical-drive interface
     - add serial-port interface
     - add content interface
-  * clickreviews/common.py: don't fail on libmvec.so since it comes from libc6
-    too (LP: #1584346)
+  * clickreviews/common.py:
+    - don't fail on libmvec.so since it comes from libc6 too (LP: #1584346)
+    - extend the regex to also match ld-linux-x86-64.so.2
   * sr_common.py:
     - update _verify_pkgname() and _verify_appname() to use the same regex as
       in snapd and various tests

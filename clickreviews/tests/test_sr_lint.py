@@ -2639,6 +2639,17 @@ class TestSnapReviewLintNoMock(TestCase):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_external_symlinks_has_symlink_libc6_ld_linux(self):
+        '''Test check_external_symlinks() - ld-linux-x86-64.so.2'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['/lib64/ld-linux-x86-64.so.2,ld-linux-x86-64.so.2']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_external_symlinks_type_kernel(self):
         '''Test check_external_symlinks() - type kernel'''
         output_dir = self.mkdtemp()

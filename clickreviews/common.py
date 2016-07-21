@@ -674,7 +674,7 @@ def find_external_symlinks(unpack_dir, pkg_files):
     for lib in libc6_libs:
         libc6_pats.append(re.compile(r'%s%s' % (lib, common)))
     libc6_pats.append(re.compile(r'ld-*.so$'))
-    libc6_pats.append(re.compile(r'ld-linux-*.so\.[0-9.]+$'))
+    libc6_pats.append(re.compile(r'ld-linux-.*.so\.[0-9.]+$'))
 
     def _in_patterns(pats, f):
         for pat in pats:
