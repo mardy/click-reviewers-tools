@@ -1202,7 +1202,7 @@ class SnapReviewLint(SnapReview):
             self._add_result(t, n, s, link=l)
 
             # The only limit on the contents of an arg appear to be the length
-            # but that is goint to be language and system dependent, so don't
+            # but that is going to be language and system dependent, so don't
             # worry about it here (this would simply be a bug in the software)
             t = 'info'
             n = n = self._get_check_name('environment_value_valid', app=app,
