@@ -355,20 +355,26 @@
       },
       "policy_groups": {
         "common": [
+	  "bluez",
 	  "camera",
 	  "bool-file",
 	  "content",
 	  "cups-control",
 	  "firewall-control",
 	  "gsettings",
+	  "hardware-observe",
 	  "home",
 	  "locale-control",
+	  "location-control",
+	  "location-observe",
 	  "log-observe",
+	  "modem-manager",
 	  "mount-observe",
 	  "mpris",
           "network",
           "network-bind",
 	  "network-control",
+	  "network-manager",
 	  "network-observe",
           "opengl",
           "optical-drive",
@@ -382,13 +388,7 @@
 	  "unity7",
 	  "x11"
         ],
-        "reserved": [
-	  "bluez",
-	  "location-control",
-	  "location-observe",
-	  "network-manager",
-	  "modem-manager"
-	]
+        "reserved": []
       }
     }
   }
