@@ -80,13 +80,18 @@ class SnapReviewSecurity(SnapReview):
 
         o = self._devmode_override()
         if name.endswith('slot') and interface not in self.sec_safe_slots:
-            t = 'warn'
+            t = 'info'
             n = self._get_check_name('is_slot', app=iface,
                                      extra=interface)
-            s = "(NEEDS REVIEW) slots requires approval"
+            s = "OK"
             m = False
-            if o is None:
-                m = True
+            if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'gadget':
+                s = 'OK (slots in gadget snaps are ok)'
+            else:
+                t = 'warn'
+                s = "(NEEDS REVIEW) slots requires approval"
+                if o is None:
+                    m = True
             self._add_result(t, n, s, manual_review=m, override_result_type=o)
 
         t = 'info'
