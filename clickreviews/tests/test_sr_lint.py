@@ -2006,7 +2006,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 7, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 11, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_bad_interface(self):
@@ -2036,7 +2036,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_unknown_interface(self):
@@ -2103,13 +2103,34 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_plugs_disallowed_plug(self):
+        '''Test check_plugs() - disallowed plug'''
+        plugs = {'test': {'interface': 'snapd-control'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_plugs_disallowed_attribute(self):
+        '''Test check_plugs() - disallowed attribute'''
+        plugs = {'test': {'interface': 'browser-support',
+                          'allow-sandbox': True}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_plugs_abbreviated(self):
         '''Test check_plugs() - abbreviated'''
         self.set_test_snap_yaml("plugs", {'nm': 'network-manager'})
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_plugs(self):
@@ -2121,7 +2142,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_apps_plugs()
         r = c.click_report
-        expected_counts = {'info': 8, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 9, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_no_plugs(self):
@@ -2182,6 +2203,18 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c.check_apps_plugs()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_plugs_disallowed_plug(self):
+        '''Test check_apps_plugs() - disallowed plug'''
+        plugs = self._create_top_plugs()
+        apps_plugs = {'bar': {'plugs': ['snapd-control']}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("apps", apps_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_slots(self):
@@ -2877,5 +2910,5 @@ plugs:
         c = SnapReviewLint(package)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)

@@ -4,7 +4,10 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
     - move all snappy interfaces into 'common' since snapd requires manually
       connecting privileged interfaces
     - refresh for newest interfaces
-  * sr_lint.py: don't flag ubuntu-core OS snap for manual review
+  * sr_lint.py:
+    - don't flag ubuntu-core OS snap for manual review
+    - don't flag certain snap names for manual review for particular
+      interfaces
   * sr_common.py:
     - content interface 'read' and 'write' are lists, not strings
   * sr_security.py: specifying slots with gadgets does not trigger manual

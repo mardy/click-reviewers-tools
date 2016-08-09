@@ -93,6 +93,7 @@ class SnapReview(Review):
     # merge this into self.interfaces after reading
     # apparmor-easyprof-ubuntu.json
     interfaces_attribs = {'bool-file': {'path/slots': ""},
+                          'browser-support': {'allow-sandbox/plugs': False},
                           'content': {'read/slots': [],
                                       'write/slots': [],
                                       'target/plugs': "",

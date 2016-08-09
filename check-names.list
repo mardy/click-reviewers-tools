@@ -107,6 +107,8 @@ lint-snap-v2:apps_required|
 lint-snap-v2:apps_unknown|
 lint-snap-v2:architecture_specified_needed|
 lint-snap-v2:architecture_valid|
+lint-snap-v2:blacklist|
+lint-snap-v2:blacklist_attributes|
 lint-snap-v2:command|
 lint-snap-v2:config_hook_executable|
 lint-snap-v2:confinement_valid|
