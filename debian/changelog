@@ -3,7 +3,7 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
   * data/apparmor-easyprof-ubuntu.json:
     - move all snappy interfaces into 'common' since snapd requires manually
       connecting privileged interfaces
-    - add hardware-observe
+    - refresh for newest interfaces
   * sr_lint.py: don't flag ubuntu-core OS snap for manual review
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 09 Aug 2016 13:48:20 -0500
