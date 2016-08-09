@@ -71,6 +71,14 @@ class SnapReviewLint(SnapReview):
                                       'os',
                                       ]
 
+        # Note: future assertions work will allow these hard-coded checks
+        # to be removed. For now we know that snap names have a 1 to 1 mapping
+        # to publishers so we can whitelist snap names for snap types to not
+        # flag for manual review.
+        self.redflagged_snap_types_overrides = {}
+        self.redflagged_snap_types_overrides["os"] = ['ubuntu-core',
+                                                      ]
+
     def check_architectures(self):
         '''Check architectures in snap.yaml is valid'''
         if not self.is_snap2:
@@ -268,9 +276,14 @@ class SnapReviewLint(SnapReview):
         s = "OK"
         manual_review = False
         if self.snap_yaml['type'] in self.redflagged_snap_types:
-            t = 'error'
-            s = "(NEEDS REVIEW) type '%s' not allowed" % self.snap_yaml['type']
-            manual_review = True
+            pkgname = self.snap_yaml['name']
+            if pkgname in self.redflagged_snap_types_overrides["os"]:
+                s = "OK (overridden for '%s')" % pkgname
+            else:
+                t = 'error'
+                s = "(NEEDS REVIEW) type '%s' not allowed" % \
+                    self.snap_yaml['type']
+                manual_review = True
         self._add_result(t, n, s, manual_review=manual_review)
 
     def check_version(self):

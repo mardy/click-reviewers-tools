@@ -392,6 +392,16 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         name = c._get_check_name('snap_type_redflag')
         self.check_manual_review(r, name)
 
+    def test_check_type_redflagged_os_whitelisted(self):
+        '''Test check_type_redflagged - os'''
+        self.set_test_snap_yaml("type", "os")
+        self.set_test_snap_yaml("name", "ubuntu-core")
+        c = SnapReviewLint(self.test_name)
+        c.check_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_type_unknown(self):
         '''Test check_type - unknown'''
         self.set_test_snap_yaml("type", "nonexistent")

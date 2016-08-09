@@ -4,8 +4,9 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
     - move all snappy interfaces into 'common' since snapd requires manually
       connecting privileged interfaces
     - add hardware-observe
+  * sr_lint.py: don't flag ubuntu-core OS snap for manual review
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 02 Aug 2016 08:38:14 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 09 Aug 2016 13:48:20 -0500
 
 click-reviewers-tools (0.44) yakkety; urgency=medium
 
