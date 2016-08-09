@@ -2103,6 +2103,27 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_plugs_browser_support(self):
+        '''Test check_plugs() - browser-support'''
+        plugs = {'test': {'interface': 'browser-support',
+                          'allow-sandbox': True}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_plugs_browser_support_bad(self):
+        '''Test check_plugs() - browser-support bad attribute'''
+        plugs = {'test': {'interface': 'browser-support',
+                          'allow-sandbox': 'Y'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': None, 'error': 1}
+        self.check_results(r, expected_counts)
     def test_check_plugs_disallowed_plug(self):
         '''Test check_plugs() - disallowed plug'''
         plugs = {'test': {'interface': 'snapd-control'}}
