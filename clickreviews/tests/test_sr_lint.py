@@ -2268,6 +2268,28 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_slots_gpio(self):
+        '''Test check_slots() - gpio'''
+        slots = {'test': {'interface': 'gpio',
+                          'number': 65}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_gpio_bad(self):
+        '''Test check_slots() - gpio - bad (string)'''
+        slots = {'test': {'interface': 'gpio',
+                          'number': 'a4'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_slots_unknown_interface(self):
         '''Test check_slots() - interface (unknown)'''
         slots = {'iface-unknown': {'interface': 'nonexistent'}}

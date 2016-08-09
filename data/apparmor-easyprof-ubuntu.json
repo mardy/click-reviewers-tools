@@ -363,6 +363,7 @@
 	  "content",
 	  "cups-control",
 	  "firewall-control",
+	  "gpio",
 	  "gsettings",
 	  "hardware-observe",
 	  "home",

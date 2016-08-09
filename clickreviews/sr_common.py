@@ -98,6 +98,7 @@ class SnapReview(Review):
                                       'write/slots': [],
                                       'target/plugs': "",
                                       },
+                          'gpio': {'number/slots': 0},
                           'serial-port': {'path/slots': ""},
                           }
 
