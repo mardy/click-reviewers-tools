@@ -93,8 +93,8 @@ class SnapReview(Review):
     # merge this into self.interfaces after reading
     # apparmor-easyprof-ubuntu.json
     interfaces_attribs = {'bool-file': {'path/slots': ""},
-                          'content': {'read/slots': "",
-                                      'write/slots': "",
+                          'content': {'read/slots': [],
+                                      'write/slots': [],
                                       'target/plugs': "",
                                       },
                           'serial-port': {'path/slots': ""},

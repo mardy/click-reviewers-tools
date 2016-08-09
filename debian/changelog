@@ -5,6 +5,8 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
       connecting privileged interfaces
     - refresh for newest interfaces
   * sr_lint.py: don't flag ubuntu-core OS snap for manual review
+  * sr_common.py:
+    - content interface 'read' and 'write' are lists, not strings
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 09 Aug 2016 13:48:20 -0500
 

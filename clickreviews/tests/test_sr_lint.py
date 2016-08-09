@@ -63,8 +63,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         slots = {'iface-bool-file': {'interface': 'bool-file',
                                      'path': '/path/to/something'},
                  'iface-content': {'interface': 'content',
-                                   'read': '/path/to/somewhere',
-                                   'write': '/path/to/somewhere/else'},
+                                   'read': ['/path/to/somewhere'],
+                                   'write': ['/path/to/somewhere/else']},
                  'iface-serial-port': {'interface': 'serial-port',
                                        'path': '/path/to/something'},
                  }
