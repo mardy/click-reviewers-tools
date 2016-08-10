@@ -215,6 +215,7 @@ security:redflag_fields|
 security:required_policy_groups_ubuntu_account_plugin|
 security-snap-v2:app_plug_safe|
 security-snap-v2:app_slot_safe|
+security-snap-v2:daemon_with_browser-support|
 security-snap-v2:is_slot|
 security-snap-v2:plug_safe|http://askubuntu.com/a/562123/94326
 security-snap-v2:policy-vendor|

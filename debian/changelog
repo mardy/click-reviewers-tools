@@ -10,8 +10,9 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
       interfaces
   * sr_common.py:
     - content interface 'read' and 'write' are lists, not strings
-  * sr_security.py: specifying slots with gadgets does not trigger manual
-    review
+  * sr_security.py:
+    - specifying slots with gadgets should not trigger manual review
+    - don't allow 'browser-support' with 'daemon'
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 09 Aug 2016 13:48:20 -0500
 

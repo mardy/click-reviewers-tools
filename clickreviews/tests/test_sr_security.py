@@ -310,6 +310,110 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_plugs_browser_support_with_daemon_top_plugs(self):
+        ''' Test check_security_plugs() - daemon with toplevel plugs'''
+        plugs = {'browser': {'interface': 'browser-support'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = {'app1': {'plugs': ['browser'],
+                         'daemon': 'simple'}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_browser_support_no_daemon_top_plugs(self):
+        ''' Test check_security_plugs() - no daemon with toplevel plugs'''
+        plugs = {'browser': {'interface': 'browser-support'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = {'app1': {'plugs': ['browser']}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_browser_support_with_daemon_top_plugs2(self):
+        ''' Test check_security_plugs() - daemon with toplevel plugs, no interface'''
+        plugs = {'browser-support': {}}
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = {'app1': {'daemon': 'simple'}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_browser_support_no_daemon_top_plugs2(self):
+        ''' Test check_security_plugs() - no daemon with toplevel plugs, no interface'''
+        plugs = {'browser-support': {}}
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = {'app1': {}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_browser_support_with_daemon(self):
+        ''' Test check_security_plugs() - daemon with plugs'''
+        apps = {'app1': {'plugs': ['browser-support'],
+                         'daemon': 'simple'}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_browser_support_no_daemon(self):
+        ''' Test check_security_plugs() - no daemon with plugs'''
+        apps = {'app1': {'plugs': ['browser-support']}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_browser_support_with_daemon_no_browser_support(self):
+        ''' Test check_security_plugs() - daemon without browser-support'''
+        apps = {'app1': {'plugs': ['network'],
+                         'daemon': 'simple'}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_browser_support_no_plugs(self):
+        ''' Test check_security_plugs() - daemon without browser-support'''
+        apps = {'app1': {'daemon': 'simple'}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_security_plugs_browser_support_multiple(self):
+        ''' Test check_security_plugs() - multiple apps'''
+        plugs = {'browser': {'interface': 'browser-support'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = {'app1': {'plugs': ['browser']},
+                'app2': {'daemon': 'simple'}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_security_slots(self):
         ''' Test check_security_slots()'''
         slots = self._create_top_slots()

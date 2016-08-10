@@ -153,6 +153,49 @@ class SnapReviewSecurity(SnapReview):
 
                 self._verify_iface('app_plug', app, plug_ref)
 
+    def check_security_plugs_browser_support_with_daemon(self):
+        '''Check security plugs - browser-support not used with daemon'''
+        def _plugref_is_interface(ref, iface):
+            if ref == iface:
+                return True
+            elif 'plugs' in self.snap_yaml and \
+                    ref in self.snap_yaml['plugs'] and \
+                    'interface' in self.snap_yaml['plugs'][ref] and \
+                    self.snap_yaml['plugs'][ref]['interface'] == iface:
+                return True
+            return False
+
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
+            return
+
+        found_app_plugs = False
+        for app in self.snap_yaml['apps']:
+            if 'plugs' in self.snap_yaml['apps'][app]:
+                found_app_plugs = True
+                break
+
+        if not found_app_plugs and 'plugs' not in self.snap_yaml:
+            return
+
+        for app in self.snap_yaml['apps']:
+            if found_app_plugs and 'plugs' not in self.snap_yaml['apps'][app]:
+                continue
+            elif 'plugs' in self.snap_yaml['apps'][app]:
+                plugs = self.snap_yaml['apps'][app]['plugs']
+            else:
+                plugs = self.snap_yaml['plugs']
+
+            if 'daemon' not in self.snap_yaml['apps'][app]:
+                continue
+
+            for plug_ref in plugs:
+                if _plugref_is_interface(plug_ref, "browser-support"):
+                    t = 'warn'
+                    n = self._get_check_name('daemon_with_browser-support',
+                                             app=app)
+                    s = "(NEEDS REVIEW) 'daemon' should not be used with 'browser-support'"
+                    self._add_result(t, n, s, manual_review=True)
+
     def check_security_slots(self):
         '''Check security slots'''
         if not self.is_snap2 or 'slots' not in self.snap_yaml:

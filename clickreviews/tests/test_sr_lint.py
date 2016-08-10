@@ -2124,6 +2124,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': None, 'warn': None, 'error': 1}
         self.check_results(r, expected_counts)
+
     def test_check_plugs_disallowed_plug(self):
         '''Test check_plugs() - disallowed plug'''
         plugs = {'test': {'interface': 'snapd-control'}}
