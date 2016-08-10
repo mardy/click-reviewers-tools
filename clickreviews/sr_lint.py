@@ -1218,6 +1218,7 @@ class SnapReviewLint(SnapReview):
             return
 
         allowed = ['strict', 'devmode']
+        use_with = ['app', 'kernel']
 
         t = 'info'
         n = self._get_check_name('confinement_valid')
@@ -1230,9 +1231,10 @@ class SnapReviewLint(SnapReview):
             t = 'error'
             s = "malformed 'confinement': '%s' should be one of '%s'" % (
                 self.snap_yaml['confinement'], ", ".join(allowed))
-        elif self.snap_yaml['type'] not in ['app', 'kernel']:
-            t = 'error'
-            s = "'confinement' should only be specified with 'type: app'"
+        elif self.snap_yaml['type'] not in use_with:
+            t = 'info'
+            s = "'confinement' should not be used with 'type: %s'" % \
+                self.snap_yaml['type']
         self._add_result(t, n, s)
 
     def _verify_env(self, env, app=None):

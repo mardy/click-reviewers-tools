@@ -8,6 +8,8 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
     - don't flag ubuntu-core OS snap for manual review
     - don't flag certain snap names for manual review for particular
       interfaces
+    - mark 'confinement' with incorrect snap types as 'info' to workaround
+      snapcraft always adding it (safe because snapd ignores it)
   * sr_common.py:
     - content interface 'read' and 'write' are lists, not strings
   * sr_security.py:

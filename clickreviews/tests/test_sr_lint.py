@@ -2500,6 +2500,14 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:confinement_valid'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
     def test_check_confinement_devmode(self):
         '''Test check_confinement - devmode'''
         self.set_test_snap_yaml("confinement", "devmode")
@@ -2516,8 +2524,16 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_confinement()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:confinement_valid'
+        expected['info'][name] = {"text": "'confinement' should not be used with 'type: os'"}
+        self.check_results(r, expected=expected)
 
     def test_check_confinement_kernel(self):
         '''Test check_confinement - kernel'''
@@ -2528,6 +2544,34 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:confinement_valid'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_confinement_gadget(self):
+        '''Test check_confinement - gadget'''
+        self.set_test_snap_yaml("confinement", "strict")
+        self.set_test_snap_yaml("type", "gadget")
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:confinement_valid'
+        expected['info'][name] = {
+            "text": "'confinement' should not be used with 'type: gadget'"
+        }
+        self.check_results(r, expected=expected)
 
     def test_check_confinement_missing(self):
         '''Test check_confinement - missing'''
