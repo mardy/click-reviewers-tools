@@ -75,9 +75,12 @@ class SnapReviewLint(SnapReview):
         # to be removed. For now we know that snap names have a 1 to 1 mapping
         # to publishers so we can whitelist snap names for snap types to not
         # flag for manual review.
-        self.redflagged_snap_types_overrides = {'os': ['ubuntu-core',
-                                                       ],
-                                                }
+        self.redflagged_snap_types_overrides = {
+            'os': ['ubuntu-core'],
+            'kernel': ['pi2-kernel',
+                       'pc-kernel',
+                       ],
+        }
         # d[<interface>][<attribute>] = list of pkg names allowed to use the
         # interface and/or attribute (snaps not in these lists will be flagged
         # for manual review if they specify the interface). Specifying '' for
@@ -288,8 +291,11 @@ class SnapReviewLint(SnapReview):
         manual_review = False
         if self.snap_yaml['type'] in self.redflagged_snap_types:
             pkgname = self.snap_yaml['name']
-            if pkgname in self.redflagged_snap_types_overrides["os"]:
-                s = "OK (overridden for '%s')" % pkgname
+            snaptype = self.snap_yaml['type']
+            if snaptype in self.redflagged_snap_types_overrides and \
+                    pkgname in self.redflagged_snap_types_overrides[snaptype]:
+                s = "OK (override '%s' for 'type: %s')" % (pkgname,
+                                                           snaptype)
             else:
                 t = 'error'
                 s = "(NEEDS REVIEW) type '%s' not allowed" % \

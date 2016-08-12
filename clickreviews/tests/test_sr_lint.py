@@ -402,6 +402,32 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:snap_type_redflag'
+        expected['info'][name] = {"text": "OK (override 'ubuntu-core' for 'type: os')"}
+        self.check_results(r, expected=expected)
+
+    def test_check_type_redflagged_kernel_whitelisted(self):
+        '''Test check_type_redflagged - kernel'''
+        self.set_test_snap_yaml("type", "kernel")
+        self.set_test_snap_yaml("name", "pc-kernel")
+        c = SnapReviewLint(self.test_name)
+        c.check_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:snap_type_redflag'
+        expected['info'][name] = {"text": "OK (override 'pc-kernel' for 'type: kernel')"}
+        self.check_results(r, expected=expected)
+
     def test_check_type_unknown(self):
         '''Test check_type - unknown'''
         self.set_test_snap_yaml("type", "nonexistent")
