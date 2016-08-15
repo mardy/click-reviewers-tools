@@ -76,10 +76,11 @@ class SnapReviewLint(SnapReview):
         # to publishers so we can whitelist snap names for snap types to not
         # flag for manual review.
         self.redflagged_snap_types_overrides = {
-            'os': ['ubuntu-core'],
-            'kernel': ['pi2-kernel',
+            'kernel': ['dragonboard-kernel',
                        'pc-kernel',
+                       'pi2-kernel',
                        ],
+            'os': ['ubuntu-core'],
         }
         # d[<interface>][<attribute>] = list of pkg names allowed to use the
         # interface and/or attribute (snaps not in these lists will be flagged

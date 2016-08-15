@@ -10,7 +10,8 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
       interfaces
     - mark 'confinement' with incorrect snap types as 'info' to workaround
       snapcraft always adding it (safe because snapd ignores it)
-    - don't flag pc-kernel and pi2-kernel for manual review
+    - don't flag pc-kernel, pi2-kernel and dragonboard-kernel for manual
+      review
   * sr_common.py:
     - content interface 'read' and 'write' are lists, not strings
   * sr_security.py:
