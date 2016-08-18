@@ -12,6 +12,7 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
       snapcraft always adding it (safe because snapd ignores it)
     - don't flag pc-kernel, pi2-kernel and dragonboard-kernel for manual
       review
+    - 'type: gadget' is valid with 'confinement'
   * sr_common.py:
     - content interface 'read' and 'write' are lists, not strings
   * sr_security.py:

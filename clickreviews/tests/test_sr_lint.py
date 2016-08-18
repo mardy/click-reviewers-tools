@@ -2594,9 +2594,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:confinement_valid'
-        expected['info'][name] = {
-            "text": "'confinement' should not be used with 'type: gadget'"
-        }
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_confinement_missing(self):

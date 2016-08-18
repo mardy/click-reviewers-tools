@@ -1225,7 +1225,7 @@ class SnapReviewLint(SnapReview):
             return
 
         allowed = ['strict', 'devmode']
-        use_with = ['app', 'kernel']
+        use_with = ['app', 'gadget', 'kernel']
 
         t = 'info'
         n = self._get_check_name('confinement_valid')
