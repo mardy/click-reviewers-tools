@@ -91,7 +91,7 @@ class SnapReviewLint(SnapReview):
             'browser-support': {'allow-sandbox': [],
                                 },
             'lxd-support': {'': ['lxd'],  # snapd also has a test for this
-                              },
+                            },
             'snapd-control': {'': [],  # eventually use webdm
                               },
         }
