@@ -90,6 +90,8 @@ class SnapReviewLint(SnapReview):
         self.redflagged_snap_interface_plugs = {
             'browser-support': {'allow-sandbox': [],
                                 },
+            'lxd-support': {'': ['lxd'],  # snapd also has a test for this
+                              },
             'snapd-control': {'': [],  # eventually use webdm
                               },
         }

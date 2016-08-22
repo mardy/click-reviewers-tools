@@ -2172,6 +2172,27 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_plugs_disallowed_plug_lxd_support(self):
+        '''Test check_plugs() - disallowed plug - lxd-support'''
+        plugs = {'test': {'interface': 'lxd-support'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_plugs_disallowed_plug_lxd_support_ok_with_lxd(self):
+        '''Test check_plugs() - lxd-support ok with lxd'''
+        plugs = {'test': {'interface': 'lxd-support'}}
+        self.set_test_snap_yaml("name", "lxd")
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_plugs_abbreviated(self):
         '''Test check_plugs() - abbreviated'''
         self.set_test_snap_yaml("plugs", {'nm': 'network-manager'})
