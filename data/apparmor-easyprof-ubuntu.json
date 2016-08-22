@@ -363,6 +363,7 @@
 	  "content",
 	  "cups-control",
 	  "firewall-control",
+	  "fuse-support",
 	  "gpio",
 	  "gsettings",
 	  "hardware-observe",
@@ -371,6 +372,7 @@
 	  "location-control",
 	  "location-observe",
 	  "log-observe",
+	  "mir",
 	  "modem-manager",
 	  "mount-observe",
 	  "mpris",
@@ -390,6 +392,7 @@
 	  "system-trace",
 	  "timeserver-control",
 	  "timezone-control",
+	  "tpm",
 	  "unity7",
 	  "x11"
         ],
