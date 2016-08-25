@@ -222,6 +222,9 @@ security-snap-v2:policy-vendor|
 security-snap-v2:policy-version|
 security-snap-v2:profile_name_length|
 security-snap-v2:slot_safe|http://askubuntu.com/a/562123/94326
+security-snap-v2:squashfs_files|
+security-snap-v2:squashfs_files_malformed_line|
+security-snap-v2:squashfs_files_unsquash|
 security-snap-v2:squashfs_lls|
 security-snap-v2:squashfs_repack_checksum|
 security-snap-v2:squashfs_resquash|

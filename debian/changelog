@@ -18,6 +18,7 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
   * sr_security.py:
     - specifying slots with gadgets should not trigger manual review
     - don't allow 'browser-support' with 'daemon'
+    - add file checks from unsquashfs -lls output
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 09 Aug 2016 13:48:20 -0500
 

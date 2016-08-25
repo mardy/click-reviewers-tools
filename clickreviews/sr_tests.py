@@ -30,6 +30,7 @@ TEST_PKGFMT_TYPE = "snap"
 TEST_PKGFMT_VERSION = "16.04"
 TEST_UNPACK_DIR = "/fake"
 TEST_SECURITY_PROFILES = dict()
+TEST_UNSQUASHFS_LLS = ""
 
 
 #
@@ -75,6 +76,11 @@ def __get_unpack_dir(self):
     return TEST_UNPACK_DIR
 
 
+def _unsquashfs_lls(self, fn):
+    '''Pretend we ran unsquashfs -lls fn'''
+    return (0, TEST_UNSQUASHFS_LLS)
+
+
 def create_patches():
     # http://docs.python.org/3.4/library/unittest.mock-examples.html
     # Mock patching. Don't use decorators but instead patch in setUp() of the
@@ -110,10 +116,12 @@ def create_patches():
     # sr_common
     patches.append(patch('clickreviews.sr_common.SnapReview._get_unpack_dir',
                    __get_unpack_dir))
-
-    # pkgfmt
     patches.append(patch("clickreviews.sr_common.SnapReview._pkgfmt_type",
                    _pkgfmt_type))
+
+    # sr_security
+    patches.append(patch("clickreviews.sr_security.SnapReviewSecurity._unsquashfs_lls",
+                   _unsquashfs_lls))
 
     return patches
 
@@ -214,6 +222,10 @@ class TestSnapReview(TestCase):
         global TEST_UNPACK_DIR
         TEST_UNPACK_DIR = d
 
+    def set_test_unsquashfs_lls(self, s):
+        global TEST_UNSQUASHFS_LLS
+        TEST_UNSQUASHFS_LLS = s
+
     def setUp(self):
         '''Make sure our patches are applied everywhere'''
         patches = create_patches()
@@ -233,5 +245,7 @@ class TestSnapReview(TestCase):
         TEST_PKGFMT_VERSION = "16.04"
         global TEST_UNPACK_DIR
         TEST_UNPACK_DIR = "/fake"
+        global TEST_UNSQUASHFS_LLS
+        TEST_UNSQUASHFS_LLS = ""
 
         self._reset_test_data()

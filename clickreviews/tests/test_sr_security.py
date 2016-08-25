@@ -662,6 +662,542 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_squashfs_files(self):
+        '''Test check_squashfs_files()'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+drwxrwxr-x root/root                38 2016-03-11 12:25 squashfs-root
+drwxrwxr-x root/root                88 2016-03-03 13:51 squashfs-root/bin
+-rwxrwxr-x root/root                31 2016-02-12 10:07 squashfs-root/bin/echo
+-rwxrwxr-x root/root                27 2016-02-12 10:07 squashfs-root/bin/env
+-rwxrwxr-x root/root               274 2016-02-12 10:07 squashfs-root/bin/evil
+-rwxrwxr-x root/root               209 2016-03-11 12:26 squashfs-root/bin/sh
+-rwxrwxr-x root/root               436 2016-02-12 10:19 squashfs-root/bin/showdev
+-rwxrwxr-x root/root               701 2016-02-12 10:19 squashfs-root/bin/usehw
+drwxrwxr-x root/root                48 2016-03-11 12:26 squashfs-root/meta
+-rw-rw-r-- root/root             18267 2016-02-12 10:07 squashfs-root/meta/icon.png
+-rw-rw-r-- root/root               813 2016-03-11 12:26 squashfs-root/meta/snap.yaml
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_files_bad_mode_invalid_type(self):
+        '''Test check_squashfs_files() - bad mode - invalid type'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+:rwxrwxr-x root/root                38 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: unknown type ':' for entry './foo'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_line(self):
+        '''Test check_squashfs_files() - bad line'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rwxrwxr-x root/root                38 2016-03-11
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'wrong number of fields in '-rwxrwxr-x root/root                38 2016-03-11''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_mode_length(self):
+        '''Test check_squashfs_files() - bad mode - length'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rwxrwxr-xx root/root                38 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'mode 'rwxrwxr-xx' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_mode_suid(self):
+        '''Test check_squashfs_files() - bad mode - suid'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rwsrwxr-x root/root                38 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwsrwxr-x' for entry './foo'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_mode_suid_os(self):
+        '''Test check_squashfs_files() - bad mode - suid os'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rwsrwxr-x root/root                38 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwsrwxr-x' for entry './foo'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_mode_suid_os_sudo(self):
+        '''Test check_squashfs_files() - mode - suid sudo'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rwsr-xr-x root/root                38 2016-03-11 12:25 squashfs-root/usr/bin/sudo
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_files_bad_mode_sticky(self):
+        '''Test check_squashfs_files() - bad mode - sticky dir'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+drwxrwxrwt root/root                38 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwxrwxrwt' for entry './foo'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_mode_symlink(self):
+        '''Test check_squashfs_files() - bad mode - symlink'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+lrwxrwxrw- root/root                38 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwxrwxrw-' for symlink './foo'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_type_block_os(self):
+        '''Test check_squashfs_files() - type - block os'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+brw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_files_bad_type_block(self):
+        '''Test check_squashfs_files() - bad type - block'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+brw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: file type 'b' not allowed (./foo)"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_type_char(self):
+        '''Test check_squashfs_files() - bad type - char'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+crw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: file type 'c' not allowed (./foo)"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_type_pipe(self):
+        '''Test check_squashfs_files() - bad type - pipe'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+prw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: file type 'p' not allowed (./foo)"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_type_socket(self):
+        '''Test check_squashfs_files() - bad type - block'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+srw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: file type 's' not allowed (./foo)"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_owner(self):
+        '''Test check_squashfs_files() - bad owner'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rw-rw-r-- bad                8 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'user/group 'bad' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_user(self):
+        '''Test check_squashfs_files() - bad user'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rw-rw-r-- bad/root                8 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: unusual user/group 'bad/root' for './foo'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_group(self):
+        '''Test check_squashfs_files() - bad group'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rw-rw-r-- root/bad                8 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files'
+        expected['error'][name] = {"text": "found errors in file output: unusual user/group 'root/bad' for './foo'"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_user_other_os(self):
+        '''Test check_squashfs_files() - user - other os'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rw-rw-r-- other/root                8 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_files_bad_major(self):
+        '''Test check_squashfs_files() - bad major'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+crw-rw-rw- root/root                a,  0 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'major 'a' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_major2(self):
+        '''Test check_squashfs_files() - bad major 2'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+crw-rw-rw- root/root                a,120 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'major 'a' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_minor(self):
+        '''Test check_squashfs_files() - bad minor'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+brw-rw-rw- root/root                8,  a 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'minor 'a' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_minor2(self):
+        '''Test check_squashfs_files() - bad minor 2'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+brw-rw-rw- root/root                8,12a 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'minor '12a' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_size(self):
+        '''Test check_squashfs_files() - bad size'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rw-rw-rw- root/root                a 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'size 'a' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_date(self):
+        '''Test check_squashfs_files() - bad date'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rw-rw-rw- root/root                8 2016-0e-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'date '2016-0e-11' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
+    def test_check_squashfs_files_bad_time(self):
+        '''Test check_squashfs_files() - bad time'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rw-rw-rw- root/root                8 2016-03-11 z2:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:squashfs_files_malformed_line'
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'time 'z2:25' malformed for './foo''"}
+        self.check_results(report, expected=expected)
+
 
 class TestSnapReviewSecurityNoMock(TestCase):
     """Tests without mocks where they are not needed."""
@@ -977,6 +1513,45 @@ exit 1
             os.environ['PATH'] = output_dir  # pragma: nocover
 
         c.check_squashfs_resquash()
+        os.environ['PATH'] = old_path
+        report = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_files(self):
+        '''Test check_squashfs_files()'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_files_unsquashfs_failed(self):
+        '''Test check_squashfs_files()'''
+        output_dir = self.mkdtemp()
+        package = utils.make_snap2(output_dir=output_dir)
+        c = SnapReviewSecurity(package)
+
+        # fake unsquashfs
+        unsquashfs = os.path.join(output_dir, 'unsquashfs')
+        content = '''#!/bin/sh
+echo test error: unsquashfs failure
+exit 1
+'''
+        with open(unsquashfs, 'w') as f:
+            f.write(content)
+        os.chmod(unsquashfs, 0o775)
+
+        old_path = os.environ['PATH']
+        if old_path:
+            os.environ['PATH'] = "%s:%s" % (output_dir, os.environ['PATH'])
+        else:
+            os.environ['PATH'] = output_dir  # pragma: nocover
+
+        c.check_squashfs_files()
         os.environ['PATH'] = old_path
         report = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}

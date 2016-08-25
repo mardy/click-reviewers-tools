@@ -28,6 +28,7 @@ from clickreviews.common import (
     MKSQUASHFS_OPTS,
 )
 import os
+import re
 
 
 class SnapReviewSecurity(SnapReview):
@@ -44,6 +45,39 @@ class SnapReviewSecurity(SnapReview):
 
         self.sec_safe_slots = ['content',
                                'mpris']
+
+        # Let's try to catch weird stuff in the os snap
+        self.os_mode_overrides = {'./bin/mount': 'rwsr-xr-x',
+                                  './bin/ping': 'rwsr-xr-x',
+                                  './bin/ping6': 'rwsr-xr-x',
+                                  './bin/su': 'rwsr-xr-x',
+                                  './bin/umount': 'rwsr-xr-x',
+                                  './sbin/pam_extrausers_chkpwd': 'rwxr-sr-x',
+                                  './sbin/unix_chkpwd': 'rwxr-sr-x',
+                                  './usr/bin/chage': 'rwxr-sr-x',
+                                  './usr/bin/chfn': 'rwsr-xr-x',
+                                  './usr/bin/chsh': 'rwsr-xr-x',
+                                  './usr/bin/crontab': 'rwxr-sr-x',
+                                  './usr/bin/dotlockfile': 'rwxr-sr-x',
+                                  './usr/bin/expiry': 'rwxr-sr-x',
+                                  './usr/bin/gpasswd': 'rwsr-xr-x',
+                                  './usr/bin/mail-lock': 'rwxr-sr-x',
+                                  './usr/bin/mail-unlock': 'rwxr-sr-x',
+                                  './usr/bin/mail-touchlock': 'rwxr-sr-x',
+                                  './usr/bin/newgrp': 'rwsr-xr-x',
+                                  './usr/bin/passwd': 'rwsr-xr-x',
+                                  './usr/bin/ssh-agent': 'rwxr-sr-x',
+                                  './usr/bin/sudo': 'rwsr-xr-x',
+                                  './usr/bin/wall': 'rwxr-sr-x',
+                                  './usr/lib/dbus-1.0/dbus-daemon-launch-helper': 'rwsr-xr--',
+                                  './usr/lib/openssh/ssh-keysign': 'rwsr-xr-x',
+                                  './usr/lib/snapd/snap-confine': 'rwsr-xr-x',
+                                  './usr/sbin/pppd': 'rwsr-xr--',
+                                  }
+
+    def _unsquashfs_lls(self, snap_pkg):
+        '''Run unsquashfs -lls on a snap package'''
+        return cmd(['unsquashfs', '-lls', snap_pkg])
 
     def check_security_policy_vendor(self):
         '''Check policy-vendor'''
@@ -357,4 +391,161 @@ class SnapReviewSecurity(SnapReview):
                 s = "checksums do not match. Please ensure the snap is " + \
                     "created with either 'snapcraft snap <DIR>' or " + \
                     "'mksquashfs <dir> <snap> %s'" % " ".join(MKSQUASHFS_OPTS)
+        self._add_result(t, n, s)
+
+    def check_squashfs_files(self):
+        '''Check squashfs files'''
+        def _check_allowed_perms(mode, allowed):
+            for p in mode[1:]:
+                if p not in allowed:
+                    return False
+            return True
+
+        if not self.is_snap2:
+            return
+
+        snap_type = 'app'
+        if 'type' in self.snap_yaml:
+            snap_type = self.snap_yaml['type']
+
+        fn = os.path.abspath(self.pkg_filename)
+
+        (rc, out) = self._unsquashfs_lls(fn)
+        if rc != 0:
+            t = 'error'
+            n = self._get_check_name('squashfs_files_unsquash')
+            s = 'unsquashfs -lls <snap> failed'
+            self._add_result(t, n, s)
+            return
+
+        in_header = True
+        malformed = []
+        errors = []
+
+        fname_pat = re.compile(r'.* squashfs-root')
+        date_pat = re.compile(r'^\d\d\d\d-\d\d-\d\d$')
+        time_pat = re.compile(r'^\d\d:\d\d$')
+        mknod_pat_full = re.compile(r'.,.')
+
+        for line in out.splitlines():
+            if in_header:
+                if len(line) < 1:
+                    in_header = False
+                continue
+
+            tmp = line.split()
+            if len(tmp) < 6:
+                malformed.append("wrong number of fields in '%s'" % line)
+                continue
+
+            fname = fname_pat.sub('.', line)
+            ftype = tmp[0][0]
+
+            # Also see 'info ls', but we list only the Linux ones
+            ftype = line[0]
+            if ftype not in ['b', 'c', 'd', 'l', 'p', 's', '-']:
+                errors.append("unknown type '%s' for entry '%s'" % (ftype,
+                                                                    fname))
+                continue
+
+            # verify mode
+            mode = tmp[0][1:]
+            if len(mode) != 9:
+                malformed.append("mode '%s' malformed for '%s'" % (mode,
+                                                                   fname))
+                continue
+            if ftype == 'd' or ftype == '-':
+                if not _check_allowed_perms(mode, ['r', 'w', 'x', '-']):
+                    if snap_type != 'os' or \
+                        fname not in self.os_mode_overrides or \
+                            self.os_mode_overrides[fname] != mode:
+                        errors.append("unusual mode '%s' for entry '%s'" %
+                                      (mode, fname))
+                        continue
+                # No point checking for world-writable, the squashfs is
+                # readonly
+                # if mode[-2] != '-':
+                #     errors.append("'%s' is world-writable" % fn)
+                #     continue
+            elif ftype == 'l':
+                if mode != 'rwxrwxrwx':
+                    errors.append("unusual mode '%s' for symlink '%s'" %
+                                  (mode, fname))
+                    continue
+            else:
+                if snap_type != 'os':
+                    errors.append("file type '%s' not allowed (%s)" % (ftype,
+                                                                       fname))
+                    continue
+
+            # verify user and group
+            if '/' not in tmp[1]:
+                malformed.append("user/group '%s' malformed for '%s'" %
+                                 (tmp[1], fname))
+                continue
+            (user, group) = tmp[1].split('/')
+            # we enforce 'root/root'
+            if snap_type != 'os' and (user != 'root' or group != 'root'):
+                errors.append("unusual user/group '%s' for '%s'" % (tmp[1],
+                                                                    fname))
+                continue
+
+            date_idx = 3
+            time_idx = 4
+            if ftype == 'b' or ftype == 'c':
+                # Account for unsquashfs -lls doing:
+                # crw-rw-rw- root/root             1,  8 2016-08-09 ...
+                # crw-rw---- root/root            10,141 2016-08-09 ...
+
+                if mknod_pat_full.search(tmp[2]):
+                    (major, minor) = tmp[2].split(',')
+                else:
+                    date_idx = 4
+                    time_idx = 5
+                    major = tmp[2][:-1]
+                    minor = tmp[3]
+
+                try:
+                    int(major)
+                except:
+                    malformed.append("major '%s' malformed for '%s'" %
+                                     (major, fname))
+                try:
+                    int(minor)
+                except:
+                    malformed.append("minor '%s' malformed for '%s'" %
+                                     (minor, fname))
+            else:
+                size = tmp[2]
+                try:
+                    int(size)
+                except:
+                    malformed.append("size '%s' malformed for '%s'" % (size,
+                                                                       fname))
+                    continue
+
+            date = tmp[date_idx]
+            if not date_pat.search(date):
+                malformed.append("date '%s' malformed for '%s'" % (date,
+                                                                   fname))
+                continue
+
+            time = tmp[time_idx]
+            if not time_pat.search(time):
+                malformed.append("time '%s' malformed for '%s'" % (time,
+                                                                   fname))
+                continue
+
+        if len(malformed) > 0:
+            t = 'error'
+            n = self._get_check_name('squashfs_files_malformed_line')
+            s = "malformed lines in unsquashfs output: '%s'" % ", ".join(malformed)
+            self._add_result(t, n, s)
+
+        t = 'info'
+        n = self._get_check_name('squashfs_files')
+        s = 'OK'
+        if len(errors) > 0:
+            t = 'error'
+            s = "found errors in file output: %s" % ", ".join(errors)
         self._add_result(t, n, s)
