@@ -54,8 +54,12 @@ class SnapReviewSecurity(SnapReview):
                 './bin/ping6': 'rwsr-xr-x',
                 './bin/su': 'rwsr-xr-x',
                 './bin/umount': 'rwsr-xr-x',
+                './etc/chatscripts': 'rwxr-s---',
+                './etc/ppp/peers': 'rwxr-s---',
+                './run/lock': 'rwxrwxrwt',
                 './sbin/pam_extrausers_chkpwd': 'rwxr-sr-x',
                 './sbin/unix_chkpwd': 'rwxr-sr-x',
+                './tmp': 'rwxrwxrwt',
                 './usr/bin/chage': 'rwxr-sr-x',
                 './usr/bin/chfn': 'rwsr-xr-x',
                 './usr/bin/chsh': 'rwsr-xr-x',
@@ -74,10 +78,16 @@ class SnapReviewSecurity(SnapReview):
                 './usr/lib/dbus-1.0/dbus-daemon-launch-helper': 'rwsr-xr--',
                 './usr/lib/openssh/ssh-keysign': 'rwsr-xr-x',
                 './usr/lib/snapd/snap-confine': 'rwsr-xr-x',
+                './usr/local/lib/python3.5': 'rwxrwsr-x',
+                './usr/local/lib/python3.5/dist-packages': 'rwxrwsr-x',
                 './usr/sbin/pppd': 'rwsr-xr--',
+                './var/local': 'rwxrwsr-x',
+                './var/mail': 'rwxrwsr-x',
+                './var/spool/cron/crontabs': 'rwx-wx--T',
+                './var/tmp': 'rwxrwxrwt',
             },
             'chrome-test': {  # chrome-test from Canonical
-                './opt/google/chrome/chrome-sandbox',
+                './opt/google/chrome/chrome-sandbox': 'rwsr-xr-x',
             },
         }
 
@@ -434,8 +444,10 @@ class SnapReviewSecurity(SnapReview):
         date_pat = re.compile(r'^\d\d\d\d-\d\d-\d\d$')
         time_pat = re.compile(r'^\d\d:\d\d$')
         mknod_pat_full = re.compile(r'.,.')
+        count = 0
 
         for line in out.splitlines():
+            count += 1
             if in_header:
                 if len(line) < 1:
                     in_header = False
@@ -543,6 +555,12 @@ class SnapReviewSecurity(SnapReview):
                 malformed.append("time '%s' malformed for '%s'" % (time,
                                                                    fname))
                 continue
+
+        if count < 4:
+            t = 'error'
+            n = self._get_check_name('squashfs_files_malformed output')
+            s = "unsquashfs -lls ouput too short"
+            self._add_result(t, n, s)
 
         if len(malformed) > 0:
             t = 'error'
