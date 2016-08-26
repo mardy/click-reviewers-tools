@@ -6,6 +6,7 @@ import json
 import os
 import sys
 import textwrap
+import traceback
 
 
 def print_findings(results, description):
@@ -105,6 +106,8 @@ class Results(object):
                 self.results[section] = review.click_report
                 return section
         except Exception:
+            print("Caught exception (setting rc=1 and continuing):")
+            traceback.print_exc(file=sys.stdout)
             self.rc = 1
         return None
 
