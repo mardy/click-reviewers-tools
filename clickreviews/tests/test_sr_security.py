@@ -812,6 +812,22 @@ drwxrwxr-x root/root                48 2016-03-11 12:26 squashfs-root/meta
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_squashfs_files_mode_suid_chrome_test_sandbox(self):
+        '''Test check_squashfs_files() - mode - chrome-sandbox with
+           chrome-test
+        '''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+-rwsr-xr-x root/root             14528 2016-08-02 18:18 squashfs-root/opt/google/chrome/chrome-sandbox
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("name", "ubuntu-core")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_squashfs_files_bad_mode_sticky(self):
         '''Test check_squashfs_files() - bad mode - sticky dir'''
         out = '''Parallel unsquashfs: Using 4 processors

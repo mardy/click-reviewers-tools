@@ -76,6 +76,9 @@ class SnapReviewSecurity(SnapReview):
                 './usr/lib/snapd/snap-confine': 'rwsr-xr-x',
                 './usr/sbin/pppd': 'rwsr-xr--',
             },
+            'chrome-test': {  # chrome-test from Canonical
+                './opt/google/chrome/chrome-sandbox',
+            },
         }
 
     def _unsquashfs_lls(self, snap_pkg):
