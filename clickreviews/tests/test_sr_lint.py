@@ -3057,3 +3057,393 @@ plugs:
         r = c.click_report
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_check_meta_gui_desktop_app_plug(self):
+        '''Test check_meta_gui_desktop() - app plug'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+apps:
+  testme:
+    command: bin/foo
+    plugs: [ unity7 ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        desktop = os.path.join(output_dir, 'test.desktop')
+        content = '''
+[Desktop Entry]
+Version=1.0
+Name=Test
+GenericName=Test Generic
+Exec=testme
+Terminal=false
+Type=Application
+'''
+        with open(desktop, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                       '%s:meta/gui/test.desktop' % desktop,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_meta_gui_desktop_no_plugs(self):
+        '''Test check_meta_gui_desktop() - top plug reference'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+apps:
+  testme:
+    command: bin/foo
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_meta_gui_desktop_app_plug_reference(self):
+        '''Test check_meta_gui_desktop() - app plug reference'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+plugs:
+  ref:
+    interface: unity7
+apps:
+  testme:
+    command: bin/foo
+    plugs: [ ref ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        desktop = os.path.join(output_dir, 'test.desktop')
+        content = '''
+[Desktop Entry]
+Version=1.0
+Name=Test
+GenericName=Test Generic
+Exec=testme
+Terminal=false
+Type=Application
+'''
+        with open(desktop, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                       '%s:meta/gui/test.desktop' % desktop,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_meta_gui_desktop_top_plug(self):
+        '''Test check_meta_gui_desktop() - top plug'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+plugs:
+  unity7: null
+apps:
+  testme:
+    command: bin/foo
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        desktop = os.path.join(output_dir, 'test.desktop')
+        content = '''
+[Desktop Entry]
+Version=1.0
+Name=Test
+GenericName=Test Generic
+Exec=testme
+Terminal=false
+Type=Application
+'''
+        with open(desktop, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                       '%s:meta/gui/test.desktop' % desktop,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_meta_gui_desktop_top_plug_reference(self):
+        '''Test check_meta_gui_desktop() - top plug reference'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+plugs:
+  ref:
+    interface: unity7
+apps:
+  testme:
+    command: bin/foo
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        desktop = os.path.join(output_dir, 'test.desktop')
+        content = '''
+[Desktop Entry]
+Version=1.0
+Name=Test
+GenericName=Test Generic
+Exec=testme
+Terminal=false
+Type=Application
+'''
+        with open(desktop, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                       '%s:meta/gui/test.desktop' % desktop,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_meta_gui_desktop_missing_app_plug(self):
+        '''Test check_meta_gui_desktop() - missing - app plug'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+apps:
+  testme:
+    command: bin/foo
+    plugs: [ unity7 ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:meta_gui_desktop'
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop"}
+        self.check_results(r, expected=expected)
+
+    def test_check_meta_gui_desktop_missing_app_plug_reference(self):
+        '''Test check_meta_gui_desktop() - missing - app plug'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+plugs:
+  ref:
+    interface: unity7
+apps:
+  testme:
+    command: bin/foo
+    plugs: [ ref ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:meta_gui_desktop'
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop"}
+        self.check_results(r, expected=expected)
+
+    def test_check_meta_gui_desktop_missing_app_plug_reference2(self):
+        '''Test check_meta_gui_desktop() - missing - top plug'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+plugs:
+  ref:
+    interface: unity7
+apps:
+  testme:
+    command: bin/foo
+    plugs: [ ref ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:meta_gui_desktop'
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop"}
+        self.check_results(r, expected=expected)
+
+    def test_check_meta_gui_desktop_missing_top_plug_null(self):
+        '''Test check_meta_gui_desktop() - missing - top plug - null'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+plugs:
+  unity7: null
+apps:
+  testme:
+    command: bin/foo
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:meta_gui_desktop'
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop"}
+        self.check_results(r, expected=expected)
+
+    def test_check_meta_gui_desktop_missing_top_plug(self):
+        '''Test check_meta_gui_desktop() - missing - top plug'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+plugs:
+  ref:
+    interface: unity7
+apps:
+  testme:
+    command: bin/foo
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:meta_gui_desktop'
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop"}
+        self.check_results(r, expected=expected)

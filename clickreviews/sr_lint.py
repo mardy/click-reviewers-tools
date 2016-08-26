@@ -96,6 +96,10 @@ class SnapReviewLint(SnapReview):
                               },
         }
 
+        self.interface_plug_requires_desktop_file = ['unity7',
+                                                     'x11',
+                                                     ]
+
     def check_architectures(self):
         '''Check architectures in snap.yaml is valid'''
         if not self.is_snap2:
@@ -1288,8 +1292,8 @@ class SnapReviewLint(SnapReview):
             # but that is going to be language and system dependent, so don't
             # worry about it here (this would simply be a bug in the software)
             t = 'info'
-            n = n = self._get_check_name('environment_value_valid', app=app,
-                                         extra=key)
+            n = self._get_check_name('environment_value_valid', app=app,
+                                     extra=key)
             s = 'OK'
             if not isinstance(env[key], str):
                 t = 'error'
@@ -1315,3 +1319,110 @@ class SnapReviewLint(SnapReview):
 
             self._verify_env(self.snap_yaml['apps'][app]['environment'],
                              app=app)
+
+    def _uses_interface(self, iface_type, iface):
+        '''Get interface name by type and interface/interface reference.
+           Returns:
+           - The dereferenced interface name
+           - None if could not be found
+        '''
+        if iface_type in self.snap_yaml:
+            for ref in self.snap_yaml[iface_type]:
+                interface = ''
+                spec = self.snap_yaml[iface_type][ref]
+                if isinstance(spec, str):
+                    # Abbreviated syntax (no attributes)
+                    # <plugs|slots>:
+                    #   <alias>: <interface>
+                    interface = spec
+                elif 'interface' in spec:
+                    # Full specification.
+                    # <plugs|slots>:
+                    #   <alias>:
+                    #     interface: <interface>
+                    interface = spec['interface']
+                elif isinstance(spec, dict):
+                    # Abbreviated syntax (no attributes)
+                    # <plugs|slots>:
+                    #   <interface>: null
+                    if len(spec) == 0:
+                        interface = ref
+                if interface == iface:
+                    return True
+
+        if 'apps' in self.snap_yaml:
+            for app in self.snap_yaml['apps']:
+                if iface_type in self.snap_yaml['apps'][app] and \
+                        iface in self.snap_yaml['apps'][app][iface_type]:
+                    return True
+
+        return False
+
+    def _verify_desktop_file(self, fn):
+        '''Verify the desktop file'''
+        if 'apps' not in self.snap_yaml:
+            return
+
+        appnames = []
+        for app in self.snap_yaml['apps']:
+            if app == self.snap_yaml['name']:
+                appnames.append(app)
+            else:
+                appnames.append("%s.%s" % (self.snap_yaml['name'], app))
+
+        fh = self._extract_file(fn)
+        for line in fh.readlines():
+            line = line.rstrip()
+            # For now, just check Exec= since snapd strips out anything it
+            # doesn't understand.
+            if line.startswith('Exec='):
+                t = 'info'
+                n = self._get_check_name('desktop_file',
+                                         extra=os.path.basename(fn))
+                s = 'OK'
+                found = False
+                for cmd in appnames:
+                    if line == 'Exec=%s' % cmd or \
+                            line.startswith('Exec=%s ' % cmd):
+                        found = True
+                        break
+                if not found:
+                    t = 'error'
+                    multi = " one of"
+                    if len(appnames) == 1:
+                        multi = ""
+                    s = "'%s' does not use%s: %s" % (line, multi,
+                                                     ",".join(appnames))
+                self._add_result(t, n, s)
+
+    def check_meta_gui_desktop(self):
+        '''Check meta/gui/*.desktop'''
+        if not self.is_snap2:
+            return
+
+        has_desktop_files = False
+        for f in self.pkg_files:
+            fn = os.path.relpath(f, self._get_unpack_dir())
+            if fn.startswith("meta/gui/") and fn.endswith(".desktop"):
+                self._verify_desktop_file(f)
+                has_desktop_files = True
+                break
+
+        desktop_interfaces_specified = []
+        for iface in self.interface_plug_requires_desktop_file:
+            if self._uses_interface("plugs", iface):
+                desktop_interfaces_specified.append(iface)
+
+        if len(desktop_interfaces_specified) < 1 and not has_desktop_files:
+            return
+
+        t = 'info'
+        n = self._get_check_name('meta_gui_desktop')
+        s = 'OK'
+        if len(desktop_interfaces_specified) > 0 and not has_desktop_files:
+            t = 'warn'
+            s = 'desktop interfaces ' + \
+                '(%s) ' % ",".join(desktop_interfaces_specified) + \
+                'specified without meta/gui/*.desktop'
+
+        self._add_result(t, n, s)

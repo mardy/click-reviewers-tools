@@ -116,6 +116,7 @@ lint-snap-v2:daemon|
 lint-snap-v2:daemon_required|
 lint-snap-v2:description|
 lint-snap-v2:description_present|
+lint-snap-v2:desktop_file|
 lint-snap-v2:environment_key_valid|http://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html
 lint-snap-v2:environment_valid|
 lint-snap-v2:environment_value_valid|
@@ -131,6 +132,7 @@ lint-snap-v2:license-version|
 lint-snap-v2:license-version_present|
 lint-snap-v2:listen-stream|
 lint-snap-v2:listen-stream_matches_name|
+lint-snap-v2:meta_gui_desktop|
 lint-snap-v2:name_valid|
 lint-snap-v2:plugs|
 lint-snap-v2:plugs_attributes|
@@ -224,6 +226,7 @@ security-snap-v2:profile_name_length|
 security-snap-v2:slot_safe|http://askubuntu.com/a/562123/94326
 security-snap-v2:squashfs_files|
 security-snap-v2:squashfs_files_malformed_line|
+security-snap-v2:squashfs_files_malformed output|
 security-snap-v2:squashfs_files_unsquash|
 security-snap-v2:squashfs_lls|
 security-snap-v2:squashfs_repack_checksum|

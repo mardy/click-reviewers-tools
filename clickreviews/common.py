@@ -161,6 +161,13 @@ class Review(object):
             return None
         return st
 
+    def _extract_file(self, rel):
+        '''Extract file'''
+        fn = os.path.join(self.unpack_dir, rel)
+        if not os.path.isfile(fn):
+            error("Could not find '%s'" % rel)
+        return open_file_read(fn)
+
     def _path_join(self, dirname, rest):
         return os.path.join(dirname, rest)
 
