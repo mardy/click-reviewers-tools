@@ -88,7 +88,7 @@ class SnapReviewLint(SnapReview):
         # the attribute here means any attribute. We only check these for plugs
         # since slots are blacklisted already
         self.redflagged_snap_interface_plugs = {
-            'browser-support': {'allow-sandbox': [],
+            'browser-support': {'allow-sandbox': ['chrome-test'],
                                 },
             'lxd-support': {'': ['lxd'],  # snapd also has a test for this
                             },
