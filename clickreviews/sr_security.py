@@ -47,33 +47,36 @@ class SnapReviewSecurity(SnapReview):
                                'mpris']
 
         # Let's try to catch weird stuff in the os snap
-        self.os_mode_overrides = {'./bin/mount': 'rwsr-xr-x',
-                                  './bin/ping': 'rwsr-xr-x',
-                                  './bin/ping6': 'rwsr-xr-x',
-                                  './bin/su': 'rwsr-xr-x',
-                                  './bin/umount': 'rwsr-xr-x',
-                                  './sbin/pam_extrausers_chkpwd': 'rwxr-sr-x',
-                                  './sbin/unix_chkpwd': 'rwxr-sr-x',
-                                  './usr/bin/chage': 'rwxr-sr-x',
-                                  './usr/bin/chfn': 'rwsr-xr-x',
-                                  './usr/bin/chsh': 'rwsr-xr-x',
-                                  './usr/bin/crontab': 'rwxr-sr-x',
-                                  './usr/bin/dotlockfile': 'rwxr-sr-x',
-                                  './usr/bin/expiry': 'rwxr-sr-x',
-                                  './usr/bin/gpasswd': 'rwsr-xr-x',
-                                  './usr/bin/mail-lock': 'rwxr-sr-x',
-                                  './usr/bin/mail-unlock': 'rwxr-sr-x',
-                                  './usr/bin/mail-touchlock': 'rwxr-sr-x',
-                                  './usr/bin/newgrp': 'rwsr-xr-x',
-                                  './usr/bin/passwd': 'rwsr-xr-x',
-                                  './usr/bin/ssh-agent': 'rwxr-sr-x',
-                                  './usr/bin/sudo': 'rwsr-xr-x',
-                                  './usr/bin/wall': 'rwxr-sr-x',
-                                  './usr/lib/dbus-1.0/dbus-daemon-launch-helper': 'rwsr-xr--',
-                                  './usr/lib/openssh/ssh-keysign': 'rwsr-xr-x',
-                                  './usr/lib/snapd/snap-confine': 'rwsr-xr-x',
-                                  './usr/sbin/pppd': 'rwsr-xr--',
-                                  }
+        self.sec_mode_overrides = {
+            'ubuntu-core': {
+                './bin/mount': 'rwsr-xr-x',
+                './bin/ping': 'rwsr-xr-x',
+                './bin/ping6': 'rwsr-xr-x',
+                './bin/su': 'rwsr-xr-x',
+                './bin/umount': 'rwsr-xr-x',
+                './sbin/pam_extrausers_chkpwd': 'rwxr-sr-x',
+                './sbin/unix_chkpwd': 'rwxr-sr-x',
+                './usr/bin/chage': 'rwxr-sr-x',
+                './usr/bin/chfn': 'rwsr-xr-x',
+                './usr/bin/chsh': 'rwsr-xr-x',
+                './usr/bin/crontab': 'rwxr-sr-x',
+                './usr/bin/dotlockfile': 'rwxr-sr-x',
+                './usr/bin/expiry': 'rwxr-sr-x',
+                './usr/bin/gpasswd': 'rwsr-xr-x',
+                './usr/bin/mail-lock': 'rwxr-sr-x',
+                './usr/bin/mail-unlock': 'rwxr-sr-x',
+                './usr/bin/mail-touchlock': 'rwxr-sr-x',
+                './usr/bin/newgrp': 'rwsr-xr-x',
+                './usr/bin/passwd': 'rwsr-xr-x',
+                './usr/bin/ssh-agent': 'rwxr-sr-x',
+                './usr/bin/sudo': 'rwsr-xr-x',
+                './usr/bin/wall': 'rwxr-sr-x',
+                './usr/lib/dbus-1.0/dbus-daemon-launch-helper': 'rwsr-xr--',
+                './usr/lib/openssh/ssh-keysign': 'rwsr-xr-x',
+                './usr/lib/snapd/snap-confine': 'rwsr-xr-x',
+                './usr/sbin/pppd': 'rwsr-xr--',
+            },
+        }
 
     def _unsquashfs_lls(self, snap_pkg):
         '''Run unsquashfs -lls on a snap package'''
@@ -404,6 +407,8 @@ class SnapReviewSecurity(SnapReview):
         if not self.is_snap2:
             return
 
+        pkgname = self.snap_yaml['name']
+
         snap_type = 'app'
         if 'type' in self.snap_yaml:
             snap_type = self.snap_yaml['type']
@@ -456,9 +461,9 @@ class SnapReviewSecurity(SnapReview):
                 continue
             if ftype == 'd' or ftype == '-':
                 if not _check_allowed_perms(mode, ['r', 'w', 'x', '-']):
-                    if snap_type != 'os' or \
-                        fname not in self.os_mode_overrides or \
-                            self.os_mode_overrides[fname] != mode:
+                    if pkgname not in self.sec_mode_overrides or \
+                        fname not in self.sec_mode_overrides[pkgname] or \
+                            self.sec_mode_overrides[pkgname][fname] != mode:
                         errors.append("unusual mode '%s' for entry '%s'" %
                                       (mode, fname))
                         continue

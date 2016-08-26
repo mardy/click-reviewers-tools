@@ -774,15 +774,15 @@ drwxrwxr-x root/root                48 2016-03-11 12:26 squashfs-root/meta
         expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwsrwxr-x' for entry './foo'"}
         self.check_results(report, expected=expected)
 
-    def test_check_squashfs_files_bad_mode_suid_os(self):
-        '''Test check_squashfs_files() - bad mode - suid os'''
+    def test_check_squashfs_files_bad_mode_suid_ubuntu_core(self):
+        '''Test check_squashfs_files() - bad mode - unknown suid ubuntu-core'''
         out = '''Parallel unsquashfs: Using 4 processors
 8 inodes (8 blocks) to write
 
 -rwsrwxr-x root/root                38 2016-03-11 12:25 squashfs-root/foo
 '''
         self.set_test_unsquashfs_lls(out)
-        self.set_test_snap_yaml("type", "os")
+        self.set_test_snap_yaml("name", "ubuntu-core")
         c = SnapReviewSecurity(self.test_name)
         c.check_squashfs_files()
         report = c.click_report
@@ -797,15 +797,15 @@ drwxrwxr-x root/root                48 2016-03-11 12:26 squashfs-root/meta
         expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwsrwxr-x' for entry './foo'"}
         self.check_results(report, expected=expected)
 
-    def test_check_squashfs_files_mode_suid_os_sudo(self):
-        '''Test check_squashfs_files() - mode - suid sudo'''
+    def test_check_squashfs_files_mode_suid_ubuntu_core_sudo(self):
+        '''Test check_squashfs_files() - mode - sudo suid on ubuntu-core'''
         out = '''Parallel unsquashfs: Using 4 processors
 8 inodes (8 blocks) to write
 
 -rwsr-xr-x root/root                38 2016-03-11 12:25 squashfs-root/usr/bin/sudo
 '''
         self.set_test_unsquashfs_lls(out)
-        self.set_test_snap_yaml("type", "os")
+        self.set_test_snap_yaml("name", "ubuntu-core")
         c = SnapReviewSecurity(self.test_name)
         c.check_squashfs_files()
         report = c.click_report
