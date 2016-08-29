@@ -368,6 +368,7 @@
 	  "gsettings",
 	  "hardware-observe",
 	  "home",
+	  "kernel-module-control",
 	  "locale-control",
 	  "location-control",
 	  "location-observe",

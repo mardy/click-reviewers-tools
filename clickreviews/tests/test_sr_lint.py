@@ -2223,6 +2223,27 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_plugs_disallowed_plug_kernel_module_control(self):
+        '''Test check_plugs() - disallowed plug - kernel-module-control'''
+        plugs = {'test': {'interface': 'kernel-module-control'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_plugs_disallowed_plug_kernel_module_control_ok_with_canonical_livepatch(self):
+        '''Test check_plugs() - kernel-module-support ok with canonical-livepatch'''
+        plugs = {'test': {'interface': 'kernel-module-control'}}
+        self.set_test_snap_yaml("name", "canonical-livepatch")
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_plugs_abbreviated(self):
         '''Test check_plugs() - abbreviated'''
         self.set_test_snap_yaml("plugs", {'nm': 'network-manager'})

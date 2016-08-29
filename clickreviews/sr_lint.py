@@ -71,10 +71,10 @@ class SnapReviewLint(SnapReview):
                                       'os',
                                       ]
 
-        # Note: future assertions work will allow these hard-coded checks
         # to be removed. For now we know that snap names have a 1 to 1 mapping
         # to publishers so we can whitelist snap names for snap types to not
         # flag for manual review.
+        # NOTE: this will eventually move to assertions
         self.redflagged_snap_types_overrides = {
             'kernel': ['dragonboard-kernel',
                        'pc-kernel',
@@ -91,10 +91,13 @@ class SnapReviewLint(SnapReview):
         # interface and/or attribute (snaps not in these lists will be flagged
         # for manual review if they specify the interface). Specifying '' for
         # the attribute here means any attribute. We only check these for plugs
-        # since slots are blacklisted already
+        # since slots are blacklisted already.
+        # NOTE: this will eventually move to assertions
         self.redflagged_snap_interface_plugs = {
             'browser-support': {'allow-sandbox': ['chrome-test'],
                                 },
+            'kernel-module-control': {'': ['canonical-livepatch'],
+                            },
             'lxd-support': {'': ['lxd'],  # snapd also has a test for this
                             },
             'snapd-control': {'': [],  # eventually use webdm
