@@ -81,6 +81,11 @@ class SnapReviewLint(SnapReview):
                        'pi2-kernel',
                        ],
             'os': ['ubuntu-core'],
+            'gadget': ['dragonboard',
+                       'pc',
+                       'pi2',
+                       'pi3',
+                       ],
         }
         # d[<interface>][<attribute>] = list of pkg names allowed to use the
         # interface and/or attribute (snaps not in these lists will be flagged
