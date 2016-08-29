@@ -1380,7 +1380,7 @@ class SnapReviewLint(SnapReview):
         for line in fh.readlines():
             line = line.rstrip()
             # For now, just check Exec= since snapd strips out anything it
-            # doesn't understand.
+            # doesn't understand. TODO: implement full checks
             if line.startswith('Exec='):
                 t = 'info'
                 n = self._get_check_name('desktop_file',
