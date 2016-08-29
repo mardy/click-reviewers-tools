@@ -1152,7 +1152,6 @@ class SnapReviewLint(SnapReview):
                 'all' not in self.snap_yaml['architectures']:
             return
 
-
         t = 'info'
         n = self._get_check_name('valid_contents_for_architecture')
         s = 'OK'
