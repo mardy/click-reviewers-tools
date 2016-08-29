@@ -2965,6 +2965,39 @@ architectures: [ amd64 ]
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_architecture_all_has_binary_gadget(self):
+        '''Test check_architecture_all() - has binary - gadget'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: test
+version: 0.1
+summary: some thing
+description: some desc
+type: gadget
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=['%s:meta/snap.yaml' % path,
+                                                '/bin/ls:ls'
+                                                ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_architecture_all()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:valid_contents_for_architecture'
+        expected['info'][name] = {"text": "found binaries for architecture 'all': ls (ok for 'type: gadget')"}
+        self.check_results(r, expected=expected)
+
     def test_check_architecture_specified_needed_has_binary(self):
         '''Test check_architecture_specified_needed() - has binary'''
         output_dir = self.mkdtemp()

@@ -15,6 +15,7 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
     - 'type: gadget' is valid with 'confinement'
     - add meta/gui/*.desktop checks for Exec=
     - warn if plugging desktop interfaces without specifying and desktop files
+    - don't error if find binaries in gadget snaps in check_architecture_all()
   * sr_common.py:
     - content interface 'read' and 'write' are lists, not strings
   * sr_security.py:

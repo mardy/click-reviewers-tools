@@ -1152,6 +1152,7 @@ class SnapReviewLint(SnapReview):
                 'all' not in self.snap_yaml['architectures']:
             return
 
+
         t = 'info'
         n = self._get_check_name('valid_contents_for_architecture')
         s = 'OK'
@@ -1164,9 +1165,15 @@ class SnapReviewLint(SnapReview):
                 continue
             x_binaries.append(os.path.relpath(i, self._get_unpack_dir()))
         if len(x_binaries) > 0:
+            # gadget snap is specified with 'all' but has binaries. Don't complain
+            # about that
             t = 'error'
-            s = "found binaries for architecture 'all': %s" % \
-                ", ".join(x_binaries)
+            ok_text = ''
+            if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'gadget':
+                t = 'info'
+                ok_text = " (ok for 'type: gadget')"
+            s = "found binaries for architecture 'all': %s%s" % \
+                (", ".join(x_binaries), ok_text)
         self._add_result(t, n, s)
 
     def check_architecture_specified_needed(self):
