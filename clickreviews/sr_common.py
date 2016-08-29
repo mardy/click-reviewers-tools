@@ -20,7 +20,7 @@ import re
 import yaml
 
 
-from clickreviews.common import(
+from clickreviews.common import (
     Review,
     ReviewException,
     error,
