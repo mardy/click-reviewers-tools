@@ -1,4 +1,4 @@
-click-reviewers-tools (0.45) UNRELEASED; urgency=medium
+click-reviewers-tools (0.45) yakkety; urgency=medium
 
   * data/apparmor-easyprof-ubuntu.json:
     - move all snappy interfaces into 'common' since snapd requires manually
@@ -24,7 +24,7 @@ click-reviewers-tools (0.45) UNRELEASED; urgency=medium
     - add file checks from unsquashfs -lls output
   * bin/click-review: show traceback if for runtime errors
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 09 Aug 2016 13:48:20 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 29 Aug 2016 12:22:17 -0500
 
 click-reviewers-tools (0.44) yakkety; urgency=medium
 
