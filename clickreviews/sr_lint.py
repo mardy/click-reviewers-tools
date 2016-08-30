@@ -94,7 +94,9 @@ class SnapReviewLint(SnapReview):
         # since slots are blacklisted already.
         # NOTE: this will eventually move to assertions
         self.redflagged_snap_interface_plugs = {
-            'browser-support': {'allow-sandbox': ['chrome-test'],
+            'browser-support': {'allow-sandbox': ['chrome-test',
+                                                  'firefox'
+                                                  ],
                                 },
             'kernel-module-control': {'': ['canonical-livepatch'],
                             },

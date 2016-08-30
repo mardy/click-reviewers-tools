@@ -2170,6 +2170,18 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 5, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_plugs_browser_support_firefox(self):
+        '''Test check_plugs() - browser-support - firefox'''
+        plugs = {'test': {'interface': 'browser-support',
+                          'allow-sandbox': True}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("name", "firefox")
+        c = SnapReviewLint(self.test_name)
+        c.check_plugs()
+        r = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_plugs_browser_support_bad(self):
         '''Test check_plugs() - browser-support bad attribute'''
         plugs = {'test': {'interface': 'browser-support',
