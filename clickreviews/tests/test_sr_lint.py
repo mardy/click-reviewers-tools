@@ -2753,17 +2753,18 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_grade()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
         expected = {
             'error': {},
-            'warn': {},
-            'info': {
+            'warn': {
                 'lint-snap-v2:grade_valid': {
                     "text": "'grade' should not be used with 'type: os'",
+                    "manual_review": False,
                 },
             },
+            'info': {},
         }
         self.check_results(r, expected=expected)
 

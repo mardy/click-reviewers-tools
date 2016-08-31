@@ -1286,8 +1286,8 @@ class SnapReviewLint(SnapReview):
             s = "malformed 'grade': '%s' should be one of '%s'" % (
                 self.snap_yaml['grade'], ", ".join(allowed))
         elif self.snap_yaml['type'] not in use_with:
-            # Being tolerant with grade being meaningless in 'os' snap.
-            t = 'info'
+            # "devel" grade os-snap should be avoided.
+            t = 'warn'
             s = "'grade' should not be used with 'type: %s'" % \
                 self.snap_yaml['type']
         self._add_result(t, n, s)
