@@ -122,6 +122,7 @@ lint-snap-v2:environment_valid|
 lint-snap-v2:environment_value_valid|
 lint-snap-v2:epoch_valid|
 lint-snap-v2:external_symlinks|
+lint-snap-v2:grade_valid|
 lint-snap-v2:icon_absolute_path|
 lint-snap-v2:icon_empty|
 lint-snap-v2:icon_exists|
