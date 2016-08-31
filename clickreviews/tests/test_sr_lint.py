@@ -2717,6 +2717,130 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_grade_stable(self):
+        '''Test check_grade - stable'''
+        self.set_test_snap_yaml("grade", "stable")
+        c = SnapReviewLint(self.test_name)
+        c.check_grade()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = {
+            'error': {},
+            'warn': {},
+            'info': {
+                'lint-snap-v2:grade_valid': {
+                    "text": "OK"
+                },
+            },
+        }
+        self.check_results(r, expected=expected)
+
+    def test_check_grade_devel(self):
+        '''Test check_grade - devel'''
+        self.set_test_snap_yaml("grade", "devel")
+        c = SnapReviewLint(self.test_name)
+        c.check_grade()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_grade_os(self):
+        '''Test check_grade - os'''
+        self.set_test_snap_yaml("grade", "stable")
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewLint(self.test_name)
+        c.check_grade()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = {
+            'error': {},
+            'warn': {},
+            'info': {
+                'lint-snap-v2:grade_valid': {
+                    "text": "'grade' should not be used with 'type: os'",
+                },
+            },
+        }
+        self.check_results(r, expected=expected)
+
+    def test_check_grade_kernel(self):
+        '''Test check_grade - kernel'''
+        self.set_test_snap_yaml("grade", "stable")
+        self.set_test_snap_yaml("type", "kernel")
+        c = SnapReviewLint(self.test_name)
+        c.check_grade()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = {
+            'error': {},
+            'warn': {},
+            'info': {
+                'lint-snap-v2:grade_valid': {
+                    "text": "OK"
+                },
+            },
+        }
+        self.check_results(r, expected=expected)
+
+    def test_check_grade_gadget(self):
+        '''Test check_grade - gadget'''
+        self.set_test_snap_yaml("grade", "stable")
+        self.set_test_snap_yaml("type", "gadget")
+        c = SnapReviewLint(self.test_name)
+        c.check_grade()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = {
+            'error': {},
+            'warn': {},
+            'info': {
+                'lint-snap-v2:grade_valid': {
+                    "text": "OK"
+                },
+            },
+        }
+        self.check_results(r, expected=expected)
+
+    def test_check_grade_missing(self):
+        '''Test check_grade - missing'''
+        self.set_test_snap_yaml("grade", None)
+        c = SnapReviewLint(self.test_name)
+        c.check_grade()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_grade_nonexistent(self):
+        '''Test check_grade - nonexistent'''
+        self.set_test_snap_yaml("grade", "nonexistent")
+        c = SnapReviewLint(self.test_name)
+        c.check_grade()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_grade_bad_booleans(self):
+        '''Test check_grade - bad booleans values'''
+        bad_values = (
+            True,
+            'true',
+        )
+        for v in bad_values:
+            self.set_test_snap_yaml("grade", v)
+            c = SnapReviewLint(self.test_name)
+            c.check_grade()
+            r = c.click_report
+            expected_counts = {'info': None, 'warn': 0, 'error': 1}
+            self.check_results(r, expected_counts)
+
     def test_check_environment(self):
         '''Test check_environment'''
         env = {'ENV1': "value",

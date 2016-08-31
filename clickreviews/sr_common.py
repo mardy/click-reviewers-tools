@@ -49,6 +49,7 @@ class SnapReview(Review):
                        'description',
                        'environment',
                        'epoch',
+                       'grade',
                        'license-agreement',
                        'license-version',
                        'summary',

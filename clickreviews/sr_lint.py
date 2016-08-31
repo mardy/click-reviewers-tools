@@ -1266,6 +1266,32 @@ class SnapReviewLint(SnapReview):
                 self.snap_yaml['type']
         self._add_result(t, n, s)
 
+    def check_grade(self):
+        '''Check confinement'''
+        if not self.is_snap2 or 'grade' not in self.snap_yaml:
+            return
+
+        allowed = ['stable', 'devel']
+        use_with = ['app', 'gadget', 'kernel']
+
+        t = 'info'
+        n = self._get_check_name('grade_valid')
+        s = 'OK'
+        if not isinstance(self.snap_yaml['grade'], str):
+            t = 'error'
+            s = "malformed 'grade': %s (not a string)" % (
+                self.snap_yaml['grade'])
+        elif self.snap_yaml['grade'] not in allowed:
+            t = 'error'
+            s = "malformed 'grade': '%s' should be one of '%s'" % (
+                self.snap_yaml['grade'], ", ".join(allowed))
+        elif self.snap_yaml['type'] not in use_with:
+            # Being tolerant with grade being meaningless in 'os' snap.
+            t = 'info'
+            s = "'grade' should not be used with 'type: %s'" % \
+                self.snap_yaml['type']
+        self._add_result(t, n, s)
+
     def _verify_env(self, env, app=None):
         t = 'info'
         n = self._get_check_name('environment_valid', app=app)
