@@ -1463,8 +1463,11 @@ class SnapReviewLint(SnapReview):
         s = 'OK'
         if len(desktop_interfaces_specified) > 0 and not has_desktop_files:
             t = 'warn'
-            s = 'desktop interfaces ' + \
-                '(%s) ' % ",".join(desktop_interfaces_specified) + \
-                'specified without meta/gui/*.desktop'
+            s = "desktop interfaces " + \
+                "(%s) " % ",".join(desktop_interfaces_specified) + \
+                "specified without meta/gui/*.desktop. Please provide a " + \
+                "desktop file via setup/gui/*.desktop if using snapcraft " + \
+                "or meta/gui/*.desktop otherwise. It should reference one " + \
+                "of the 'apps' from your snapcraft/snap.yaml."
 
         self._add_result(t, n, s)
