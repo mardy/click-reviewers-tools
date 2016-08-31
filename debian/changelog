@@ -1,8 +1,12 @@
 click-reviewers-tools (0.46) UNRELEASED; urgency=medium
 
+  [ Jamie Strandboge ]
   * add kernel-module-control interface
   * sr_lint.py:
     - don't flag pc, pi2, pi3 and dragonboard gadgets for manual review
+
+  [ Celso Providelo \
+  * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 29 Aug 2016 12:39:51 -0500
 
