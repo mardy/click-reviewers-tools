@@ -99,7 +99,7 @@ class SnapReviewLint(SnapReview):
                                                   ],
                                 },
             'kernel-module-control': {'': ['canonical-livepatch'],
-                            },
+                                      },
             'lxd-support': {'': ['lxd'],  # snapd also has a test for this
                             },
             'snapd-control': {'': [],  # eventually use webdm
