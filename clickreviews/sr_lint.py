@@ -1270,7 +1270,7 @@ class SnapReviewLint(SnapReview):
             return
 
         allowed = ['stable', 'devel']
-        use_with = ['app', 'gadget', 'kernel']
+        use_with = ['app', 'gadget', 'kernel', 'os']
 
         t = 'info'
         n = self._get_check_name('grade_valid')
