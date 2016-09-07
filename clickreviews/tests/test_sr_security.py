@@ -841,6 +841,21 @@ short
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_squashfs_files_mode_openwrt_tmp(self):
+        '''Test check_squashfs_files() - mode - openwrt /tmp'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rwxrwxrwt root/root             14528 2016-08-02 18:18 squashfs-root/rootfs/tmp
+'''
+        self.set_test_unsquashfs_lls(out)
+        self.set_test_snap_yaml("name", "openwrt")
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
     def test_check_squashfs_files_bad_mode_sticky(self):
         '''Test check_squashfs_files() - bad mode - sticky dir'''
         out = '''Parallel unsquashfs: Using 4 processors

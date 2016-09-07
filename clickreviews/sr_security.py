@@ -89,6 +89,9 @@ class SnapReviewSecurity(SnapReview):
             'chrome-test': {  # chrome-test from Canonical
                 './opt/google/chrome/chrome-sandbox': 'rwsr-xr-x',
             },
+            'openwrt': {  # demo from Canonical
+                './rootfs/tmp': 'rwxrwxrwt',
+            },
         }
 
     def _unsquashfs_lls(self, snap_pkg):
