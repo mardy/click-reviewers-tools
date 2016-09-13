@@ -1270,7 +1270,8 @@ class SnapReviewLint(SnapReview):
             return
 
         allowed = ['stable', 'devel']
-        use_with = ['app', 'gadget', 'kernel', 'os']
+# We may reintroduce this, but for now, grade may be used with all snaps
+#         use_with = ['app', 'gadget', 'kernel', 'os']
 
         t = 'info'
         n = self._get_check_name('grade_valid')
@@ -1283,11 +1284,11 @@ class SnapReviewLint(SnapReview):
             t = 'error'
             s = "malformed 'grade': '%s' should be one of '%s'" % (
                 self.snap_yaml['grade'], ", ".join(allowed))
-        elif self.snap_yaml['type'] not in use_with:
-            # "devel" grade os-snap should be avoided.
-            t = 'warn'
-            s = "'grade' should not be used with 'type: %s'" % \
-                self.snap_yaml['type']
+#         elif self.snap_yaml['type'] not in use_with:
+#             # "devel" grade os-snap should be avoided.
+#             t = 'warn'
+#             s = "'grade' should not be used with 'type: %s'" % \
+#                 self.snap_yaml['type']
         self._add_result(t, n, s)
 
     def _verify_env(self, env, app=None):
@@ -1411,29 +1412,23 @@ class SnapReviewLint(SnapReview):
                 appnames.append("%s.%s" % (self.snap_yaml['name'], app))
 
         fh = self._extract_file(fn)
+
+        # For now, just check Exec= since snapd strips out anything it
+        # doesn't understand. TODO: implement full checks
+        found_exec = False
+        t = 'info'
+        n = self._get_check_name('desktop_file',
+                                 extra=os.path.basename(fn))
+        s = 'OK'
         for line in fh.readlines():
             line = line.rstrip()
-            # For now, just check Exec= since snapd strips out anything it
-            # doesn't understand. TODO: implement full checks
             if line.startswith('Exec='):
-                t = 'info'
-                n = self._get_check_name('desktop_file',
-                                         extra=os.path.basename(fn))
-                s = 'OK'
-                found = False
-                for cmd in appnames:
-                    if line == 'Exec=%s' % cmd or \
-                            line.startswith('Exec=%s ' % cmd):
-                        found = True
-                        break
-                if not found:
-                    t = 'error'
-                    multi = " one of"
-                    if len(appnames) == 1:
-                        multi = ""
-                    s = "'%s' does not use%s: %s" % (line, multi,
-                                                     ",".join(appnames))
-                self._add_result(t, n, s)
+                found_exec = True
+                break
+        if not found_exec:
+            t = 'error'
+            s = "Could not find 'Exec=' in desktop file"
+        self._add_result(t, n, s)
 
     def check_meta_gui_desktop(self):
         '''Check meta/gui/*.desktop'''

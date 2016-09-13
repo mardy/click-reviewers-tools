@@ -3511,90 +3511,6 @@ Type=Application
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_meta_gui_desktop_app_plug_wrong_command_single(self):
-        '''Test check_meta_gui_desktop() - app plug wrong command - single'''
-        output_dir = self.mkdtemp()
-        path = os.path.join(output_dir, 'snap.yaml')
-        content = '''
-name: testme
-version: 0.1
-summary: some thing
-description: some desc
-apps:
-  testme:
-    command: bin/foo
-'''
-        with open(path, 'w') as f:
-            f.write(content)
-
-        desktop = os.path.join(output_dir, 'test.desktop')
-        content = '''
-[Desktop Entry]
-Version=1.0
-Name=Test
-GenericName=Test Generic
-Exec=testme.nonexistent
-Terminal=false
-Type=Application
-'''
-        with open(desktop, 'w') as f:
-            f.write(content)
-
-        package = utils.make_snap2(output_dir=output_dir,
-                                   extra_files=[
-                                       '%s:meta/snap.yaml' % path,
-                                       '%s:meta/gui/test.desktop' % desktop,
-                                   ]
-                                   )
-        c = SnapReviewLint(package)
-        c.check_meta_gui_desktop()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_meta_gui_desktop_app_plug_wrong_command_multiple(self):
-        '''Test check_meta_gui_desktop() - app plug wrong command - multiple'''
-        output_dir = self.mkdtemp()
-        path = os.path.join(output_dir, 'snap.yaml')
-        content = '''
-name: testme
-version: 0.1
-summary: some thing
-description: some desc
-apps:
-  testme:
-    command: bin/foo
-  other:
-    command: bin/foo
-'''
-        with open(path, 'w') as f:
-            f.write(content)
-
-        desktop = os.path.join(output_dir, 'test.desktop')
-        content = '''
-[Desktop Entry]
-Version=1.0
-Name=Test
-GenericName=Test Generic
-Exec=testme.nonexistent
-Terminal=false
-Type=Application
-'''
-        with open(desktop, 'w') as f:
-            f.write(content)
-
-        package = utils.make_snap2(output_dir=output_dir,
-                                   extra_files=[
-                                       '%s:meta/snap.yaml' % path,
-                                       '%s:meta/gui/test.desktop' % desktop,
-                                   ]
-                                   )
-        c = SnapReviewLint(package)
-        c.check_meta_gui_desktop()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
     def test_check_meta_gui_desktop_no_apps(self):
         '''Test check_meta_gui_desktop() - no apps'''
         output_dir = self.mkdtemp()
@@ -3898,3 +3814,44 @@ apps:
         name = 'lint-snap-v2:meta_gui_desktop'
         expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
+
+    def test_check_meta_gui_desktop_missing_exec(self):
+        '''Test check_meta_gui_desktop() - missing Exec='''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: testme
+version: 0.1
+summary: some thing
+description: some desc
+apps:
+  testme:
+    command: bin/foo
+    plugs: [ unity7 ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        desktop = os.path.join(output_dir, 'test.desktop')
+        content = '''
+[Desktop Entry]
+Version=1.0
+Name=Test
+GenericName=Test Generic
+Terminal=false
+Type=Application
+'''
+        with open(desktop, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                       '%s:meta/gui/test.desktop' % desktop,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)

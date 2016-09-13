@@ -7,6 +7,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - don't flag pc, pi2, pi3 and dragonboard gadgets for manual review
     - adjust error text for check_meta_gui_desktop()
     - don't warn when using 'grade' with 'type: os'
+    - only check for presence of Exec= in desktop file since there is no
+      guarantee that the binary will match a command name
   * sr_security.py: whitelist a few files for Canonical demo snaps
 
   [ Celso Providelo \
