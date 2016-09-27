@@ -11,6 +11,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
       guarantee that the binary will match a command name
     - docker may use docker-support interface
     - add check_hooks() (LP: #1586465)
+    - add check_hooks_plugs()
   * sr_security.py: whitelist a few files for Canonical demo snaps
 
   [ Celso Providelo \

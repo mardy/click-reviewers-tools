@@ -2468,6 +2468,90 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_hooks_plugs(self):
+        '''Test check_hooks_plugs()'''
+        plugs = self._create_top_plugs()
+        hooks_plugs = self._create_apps_plugs()
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("hooks", hooks_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks_plugs()
+        r = c.click_report
+        expected_counts = {'info': 9, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_no_plugs(self):
+        '''Test check_hooks_plugs() - no plugs'''
+        plugs = self._create_top_plugs()
+        hooks_plugs = {'bar': {}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("hooks", hooks_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks_plugs()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_plugs_bad(self):
+        '''Test check_hooks_plugs() - bad (dict)'''
+        plugs = self._create_top_plugs()
+        hooks_plugs = {'bar': {'plugs': {}}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("hooks", hooks_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_plugs_empty(self):
+        '''Test check_hooks_plugs() - empty'''
+        plugs = self._create_top_plugs()
+        hooks_plugs = {'bar': {'plugs': []}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("hooks", hooks_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_plugs_bad_entry(self):
+        '''Test check_hooks_plugs() - bad entry (dict)'''
+        plugs = self._create_top_plugs()
+        hooks_plugs = {'bar': {'plugs': [{}]}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("hooks", hooks_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_plugs_unknown_entry(self):
+        '''Test check_hooks_plugs() - unknown'''
+        plugs = self._create_top_plugs()
+        hooks_plugs = {'bar': {'plugs': ['nonexistent']}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("hooks", hooks_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_plugs_disallowed_plug(self):
+        '''Test check_hooks_plugs() - disallowed plug'''
+        plugs = self._create_top_plugs()
+        hooks_plugs = {'bar': {'plugs': ['snapd-control']}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("hooks", hooks_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks_plugs()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_slots(self):
         '''Test check_slots()'''
         slots = self._create_top_slots()

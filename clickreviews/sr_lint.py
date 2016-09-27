@@ -1062,29 +1062,36 @@ class SnapReviewLint(SnapReview):
 
         self._verify_interfaces(iface_type)
 
-    def _verify_app_interfaces(self, app, key):
+    def _verify_app_and_hook_interfaces(self, val, key, hook=False):
+        topkey = 'apps'
+        topkey_type = 'app'
+        if hook:
+            topkey = 'hooks'
+            topkey_type = 'hook'
+
         t = 'info'
-        n = self._get_check_name("app_%s" % key, app=app)
+        n = self._get_check_name("%s_%s" % (topkey_type, key), app=val)
         s = "OK"
-        if not isinstance(self.snap_yaml['apps'][app][key], list):
+        if not isinstance(self.snap_yaml[topkey][val][key], list):
             t = 'error'
             s = "invalid '%s' entry: '%s' (not a list)" % (
-                key, self.snap_yaml['apps'][app][key])
-        elif len(self.snap_yaml['apps'][app][key]) < 1:
+                key, self.snap_yaml[topkey][val][key])
+        elif len(self.snap_yaml[topkey][val][key]) < 1:
             t = 'error'
             s = "invalid %s entry (empty)" % (key)
         self._add_result(t, n, s)
         if t == 'error':
             return
 
-        # The interface referenced in the app's 'key' field (plugs/slots) can
+        # The interface referenced in the entry's 'key' field (plugs/slots) can
         # either be a known interface (when the interface name reference and
         # the interface is the same) or can reference a name in the snap's
         # toplevel 'key' (plugs/slots) mapping
-        for ref in self.snap_yaml['apps'][app][key]:
+        for ref in self.snap_yaml[topkey][val][key]:
             t = 'info'
-            n = self._get_check_name('app_%s_plug_reference' % key,
-                                     app=app,
+            n = self._get_check_name('%s_%s_plug_reference' %
+                                     (topkey_type, key),
+                                     app=val,
                                      extra=ref)
             s = "OK"
             if not isinstance(ref, str):
@@ -1104,7 +1111,7 @@ class SnapReviewLint(SnapReview):
             if key == 'plugs' and ref in self.interfaces:
                 pkgname = self.snap_yaml['name']
                 t = 'info'
-                n = self._get_check_name("blacklist", app=app, extra=ref)
+                n = self._get_check_name("blacklist", app=val, extra=ref)
                 s = "OK"
                 m = False
                 if ref in self.redflagged_snap_interface_plugs \
@@ -1125,7 +1132,19 @@ class SnapReviewLint(SnapReview):
             if key not in self.snap_yaml['apps'][app]:
                 continue
 
-            self._verify_app_interfaces(app, key)
+            self._verify_app_and_hook_interfaces(app, key)
+
+    def check_hooks_plugs(self):
+        '''Check hooks plugs'''
+        if not self.is_snap2 or 'hooks' not in self.snap_yaml:
+            return
+
+        for hook in self.snap_yaml['hooks']:
+            key = 'plugs'
+            if key not in self.snap_yaml['hooks'][hook]:
+                continue
+
+            self._verify_app_and_hook_interfaces(hook, key, hook=True)
 
     def check_slots(self):
         '''Check slots'''
@@ -1145,7 +1164,7 @@ class SnapReviewLint(SnapReview):
             if key not in self.snap_yaml['apps'][app]:
                 continue
 
-            self._verify_app_interfaces(app, key)
+            self._verify_app_and_hook_interfaces(app, key)
 
     def check_external_symlinks(self):
         '''Check snap for external symlinks'''
