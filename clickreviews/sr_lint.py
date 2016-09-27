@@ -134,11 +134,43 @@ class SnapReviewLint(SnapReview):
         else:
             bad_archs = []
             for arch in self.snap_yaml[key]:
-                if arch not in self.valid_architectures:
+                if not isinstance(arch, str):
+                    bad_archs.append(str(arch))
+                elif arch not in self.valid_architectures:
                     bad_archs.append(arch)
+
                 if len(bad_archs) > 0:
                     t = 'error'
                     s = "invalid multi architecture: %s" % ",".join(bad_archs)
+        self._add_result(t, n, s)
+
+    def check_assumes(self):
+        '''Check assumes in snap.yaml is valid'''
+        if not self.is_snap2:
+            return
+
+        t = 'info'
+        n = self._get_check_name('assumes_valid')
+        s = 'OK'
+
+        key = 'assumes'
+        if key not in self.snap_yaml:
+            s = 'OK (%s not specified)' % key
+            self._add_result(t, n, s)
+            return
+
+        if not isinstance(self.snap_yaml[key], list):
+            t = 'error'
+            s = "invalid %s entry: %s (not a list)" % (key,
+                                                       self.snap_yaml[key])
+        else:
+            bad_assumes = []
+            for a in self.snap_yaml[key]:
+                if not isinstance(a, str):
+                    bad_assumes.append(str(a))
+            if len(bad_assumes) > 0:
+                t = 'error'
+                s = "invalid assumes: %s" % ",".join(bad_assumes)
         self._add_result(t, n, s)
 
     def check_description(self):

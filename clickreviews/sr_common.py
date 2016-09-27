@@ -44,6 +44,7 @@ class SnapReview(Review):
                        ]
     # optional snappy fields here (may be required by appstore)
     snappy_optional = ['apps',
+                       'assumes',
                        'architectures',
                        'confinement',
                        'description',

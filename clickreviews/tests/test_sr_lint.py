@@ -630,6 +630,60 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_architectures_bad_entry(self):
+        '''Test check_architectures() - bad (dict)'''
+        self.set_test_snap_yaml("architectures", [{}])
+        c = SnapReviewLint(self.test_name)
+        c.check_architectures()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_assumes_missing(self):
+        '''Test check_assumes() - missing'''
+        self.set_test_snap_yaml("assumes", None)
+        c = SnapReviewLint(self.test_name)
+        c.check_assumes()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_assumes_empty(self):
+        '''Test check_assumes() - empty'''
+        self.set_test_snap_yaml("assumes", [])
+        c = SnapReviewLint(self.test_name)
+        c.check_assumes()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_assumes_bad(self):
+        '''Test check_assumes() - bad'''
+        self.set_test_snap_yaml("assumes", {})
+        c = SnapReviewLint(self.test_name)
+        c.check_assumes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_assumes_bad_entry(self):
+        '''Test check_assumes() - bad entry'''
+        self.set_test_snap_yaml("assumes", [{}])
+        c = SnapReviewLint(self.test_name)
+        c.check_assumes()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_assumes(self):
+        '''Test check_assumes()'''
+        self.set_test_snap_yaml("assumes", ['name', 'version'])
+        c = SnapReviewLint(self.test_name)
+        c.check_assumes()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_unknown_entries(self):
         '''Test check_unknown_entries - none'''
         c = SnapReviewLint(self.test_name)
