@@ -420,12 +420,16 @@ class SnapReviewLint(SnapReview):
                 (",".join(sorted(unknown)))
         self._add_result(t, n, s)
 
-    def check_apps(self):
-        '''Check apps'''
-        if not self.is_snap2:
-            return
-
+    def _verify_apps_and_hooks(self, hook=False):
         key = 'apps'
+        key_type = 'app'
+        required = self.apps_required
+        optional = self.apps_optional
+        if hook:
+            key = 'hooks'
+            key_type = 'hook'
+            required = []
+            optional = []
 
         t = 'info'
         n = self._get_check_name('%s_present' % key)
@@ -452,50 +456,56 @@ class SnapReviewLint(SnapReview):
             return
         self._add_result(t, n, s)
 
-        for app in self.snap_yaml[key]:
+        for val in self.snap_yaml[key]:
             t = 'info'
-            n = self._get_check_name('%s_entry' % key, app=app)
+            n = self._get_check_name('%s_entry' % key, app=val)
             s = 'OK'
 
-            if not isinstance(self.snap_yaml[key][app], dict):
+            if not isinstance(self.snap_yaml[key][val], dict):
                 t = 'error'
                 s = "invalid entry: %s (not a dict)" % (
-                    self.snap_yaml[key][app])
+                    self.snap_yaml[key][val])
                 self._add_result(t, n, s)
                 continue
-            elif len(self.snap_yaml[key][app].keys()) < 1:
+            elif len(self.snap_yaml[key][val].keys()) < 1:
                 t = 'error'
-                s = "invalid entry for '%s' (empty)" % (app)
+                s = "invalid entry for '%s' (empty)" % (val)
                 self._add_result(t, n, s)
                 continue
-            elif not self._verify_appname(app):
+            elif not self._verify_appname(val):
                 t = 'error'
-                s = "malformed app name: '%s'" % app
+                s = "malformed %s name: '%s'" % (key_type, val)
                 self._add_result(t, n, s)
                 continue
             self._add_result(t, n, s)
 
-            for field in self.apps_required:
+            for field in required:
                 t = 'info'
-                n = self._get_check_name('%s_required' % key, app=app)
+                n = self._get_check_name('%s_required' % key, app=val)
                 s = 'OK'
-                if field not in self.snap_yaml[key][app]:
+                if field not in self.snap_yaml[key][val]:
                     t = 'error'
                     s = "required field '%s' not specified" % field
                 self._add_result(t, n, s)
 
             t = 'info'
-            n = self._get_check_name('%s_unknown' % key, app=app)
+            n = self._get_check_name('%s_unknown' % key, app=val)
             s = 'OK'
             unknown = []
-            for field in self.snap_yaml[key][app]:
-                if field not in self.apps_required + self.apps_optional:
+            for field in self.snap_yaml[key][val]:
+                if field not in required + optional:
                     unknown.append(field)
             if len(unknown) > 0:
                 t = 'warn'
-                s = "unknown fields for app '%s': '%s'" % (
-                    app, ",".join(sorted(unknown)))
+                s = "unknown fields for %s '%s': '%s'" % (
+                    key_type, val, ",".join(sorted(unknown)))
             self._add_result(t, n, s)
+
+    def check_apps(self):
+        '''Check apps'''
+        if not self.is_snap2:
+            return
+        self._verify_apps_and_hooks()
 
     def _verify_value_is_file(self, app, key):
             t = 'info'
