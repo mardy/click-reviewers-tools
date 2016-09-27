@@ -1041,8 +1041,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_hooks_two_entriess(self):
         '''Test check_hooks() - two entries'''
         self.set_test_snap_yaml("hooks", {"foo": {},
-                                         "bar": {},
-                                         })
+                                          "bar": {},
+                                          })
         c = SnapReviewLint(self.test_name)
         c.check_hooks()
         r = c.click_report
@@ -1078,8 +1078,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_hooks_bad2(self):
         '''Test check_hooks() - unknown field'''
-        self.set_test_snap_yaml("hooks", {"foo": {"nonexistent": "abc"},
-                                         })
+        self.set_test_snap_yaml("hooks", {"foo": {"nonexistent": "abc"}})
         c = SnapReviewLint(self.test_name)
         c.check_hooks()
         r = c.click_report
