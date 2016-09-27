@@ -12,6 +12,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - docker may use docker-support interface
     - add check_hooks() (LP: #1586465)
     - add check_hooks_plugs()
+    - add check_assumes() (LP: #1586429)
   * sr_security.py: whitelist a few files for Canonical demo snaps
 
   [ Celso Providelo \
