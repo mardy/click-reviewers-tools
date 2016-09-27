@@ -153,6 +153,8 @@ class SnapReviewSecurity(SnapReview):
         m = False
         l = None
         if interface == "debug":
+            # IMPORTANT: do not change this string without coordination from
+            # the SDK team (LP: # 1415487)
             t = 'error'
             s = "'%s' not for production use" % interface
             l = 'http://askubuntu.com/a/562123/94326'

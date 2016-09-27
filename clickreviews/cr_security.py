@@ -769,6 +769,8 @@ class ClickReviewSecurity(ClickReview):
                         aa_type = self._get_policy_group_type(vendor, version,
                                                               i)
                     if i == "debug":
+                        # IMPORTANT: do not change this string without
+                        # coordination from the SDK team (LP: #1415487)
                         t = 'error'
                         s = "(REJECT) %s policy group " % aa_type + \
                             "'%s': not for production use" % (i)
