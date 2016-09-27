@@ -50,6 +50,7 @@ class SnapReview(Review):
                        'environment',
                        'epoch',
                        'grade',
+                       'hooks',
                        'license-agreement',
                        'license-version',
                        'summary',
@@ -73,6 +74,8 @@ class SnapReview(Review):
                      'socket-user',
                      'socket-group',
                      ]
+    hooks_required = []
+    hooks_optional = ['plugs']
 
     # https://docs.google.com/document/d/1Q5_T00yTq0wobm_nHzCV-KV8R4jdk-PXcrtm80ETTLU/edit#
     # 'plugs':

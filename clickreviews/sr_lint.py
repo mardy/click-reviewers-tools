@@ -428,8 +428,8 @@ class SnapReviewLint(SnapReview):
         if hook:
             key = 'hooks'
             key_type = 'hook'
-            required = []
-            optional = []
+            required = self.hooks_required
+            optional = self.hooks_optional
 
         t = 'info'
         n = self._get_check_name('%s_present' % key)
@@ -467,7 +467,8 @@ class SnapReviewLint(SnapReview):
                     self.snap_yaml[key][val])
                 self._add_result(t, n, s)
                 continue
-            elif len(self.snap_yaml[key][val].keys()) < 1:
+            elif key_type == 'app' and \
+                    len(self.snap_yaml[key][val].keys()) < 1:
                 t = 'error'
                 s = "invalid entry for '%s' (empty)" % (val)
                 self._add_result(t, n, s)
@@ -506,6 +507,12 @@ class SnapReviewLint(SnapReview):
         if not self.is_snap2:
             return
         self._verify_apps_and_hooks()
+
+    def check_hooks(self):
+        '''Check hooks'''
+        if not self.is_snap2:
+            return
+        self._verify_apps_and_hooks(hook=True)
 
     def _verify_value_is_file(self, app, key):
             t = 'info'

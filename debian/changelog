@@ -10,6 +10,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - only check for presence of Exec= in desktop file since there is no
       guarantee that the binary will match a command name
     - docker may use docker-support interface
+    - add check_hooks() (LP: #1586465)
   * sr_security.py: whitelist a few files for Canonical demo snaps
 
   [ Celso Providelo \

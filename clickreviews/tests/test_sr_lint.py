@@ -1020,6 +1020,126 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_hooks_one_entry(self):
+        '''Test check_hooks() - one entry'''
+        self.set_test_snap_yaml("hooks", {"foo": {}})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_one_entry_capitalized(self):
+        '''Test check_hooks() - one entry (capitalized)'''
+        self.set_test_snap_yaml("hooks", {"Fo0-Bar": {}})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_two_entriess(self):
+        '''Test check_hooks() - two entries'''
+        self.set_test_snap_yaml("hooks", {"foo": {},
+                                         "bar": {},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_missing(self):
+        '''Test check_hooks() - missing'''
+        self.set_test_snap_yaml("hooks", None)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad(self):
+        '''Test check_hooks() - bad'''
+        self.set_test_snap_yaml("hooks", [])
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad1(self):
+        '''Test check_hooks() - empty'''
+        self.set_test_snap_yaml("hooks", {})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad2(self):
+        '''Test check_hooks() - unknown field'''
+        self.set_test_snap_yaml("hooks", {"foo": {"nonexistent": "abc"},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad3(self):
+        '''Test check_hooks() - invalid field'''
+        self.set_test_snap_yaml("hooks", {"foo": []})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad4(self):
+        '''Test check_hooks() - bad name with .'''
+        self.set_test_snap_yaml("hooks", {"foo.bar": {}})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad5(self):
+        '''Test check_hooks() - bad name with _'''
+        self.set_test_snap_yaml("hooks", {"foo_bar": {}})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad6(self):
+        '''Test check_hooks() - bad name with /'''
+        self.set_test_snap_yaml("hooks", {"foo/bar": {}})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad7(self):
+        '''Test check_hooks() - bad name ends with -'''
+        self.set_test_snap_yaml("hooks", {"foo-bar-": {}})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_bad8(self):
+        '''Test check_hooks() - bad name with --'''
+        self.set_test_snap_yaml("hooks", {"foo--bar": {}})
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_apps_command(self):
         '''Test check_apps_command()'''
         cmd = "bin/foo"
