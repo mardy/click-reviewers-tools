@@ -98,6 +98,8 @@ class SnapReviewLint(SnapReview):
                                                   'firefox'
                                                   ],
                                 },
+            'docker-support': {'': ['docker'],
+                               },
             'kernel-module-control': {'': ['canonical-livepatch'],
                                       },
             'lxd-support': {'': ['lxd'],  # snapd also has a test for this

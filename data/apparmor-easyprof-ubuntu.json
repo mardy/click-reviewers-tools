@@ -362,6 +362,8 @@
 	  "camera",
 	  "content",
 	  "cups-control",
+	  "docker",
+	  "docker-support",
 	  "firewall-control",
 	  "fuse-support",
 	  "fwupd",
