@@ -462,9 +462,12 @@ class SnapReviewLint(SnapReview):
             s = 'OK'
 
             if not isinstance(self.snap_yaml[key][val], dict):
-                t = 'error'
-                s = "invalid entry: %s (not a dict)" % (
-                    self.snap_yaml[key][val])
+                if key_type == 'hook' and self.snap_yaml[key][val] is None:
+                    s = "OK (hook entry is empty)"
+                else:
+                    t = 'error'
+                    s = "invalid entry: %s (not a dict)" % (
+                        self.snap_yaml[key][val])
                 self._add_result(t, n, s)
                 continue
             elif key_type == 'app' and \
@@ -1141,7 +1144,8 @@ class SnapReviewLint(SnapReview):
 
         for hook in self.snap_yaml['hooks']:
             key = 'plugs'
-            if key not in self.snap_yaml['hooks'][hook]:
+            if self.snap_yaml['hooks'][hook] is None \
+                    or key not in self.snap_yaml['hooks'][hook]:
                 continue
 
             self._verify_app_and_hook_interfaces(hook, key, hook=True)

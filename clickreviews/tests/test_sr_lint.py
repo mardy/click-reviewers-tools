@@ -1038,7 +1038,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_hooks_two_entriess(self):
+    def test_check_hooks_two_entries(self):
         '''Test check_hooks() - two entries'''
         self.set_test_snap_yaml("hooks", {"foo": {},
                                           "bar": {},
@@ -1074,6 +1074,16 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c.check_hooks()
         r = c.click_report
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_hooks_nokeys(self):
+        '''Test check_hooks() - no keys'''
+        hooks_plugs = {'bar1': None}
+        self.set_test_snap_yaml("hooks", hooks_plugs)
+        c = SnapReviewLint(self.test_name)
+        c.check_hooks()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_hooks_bad2(self):
