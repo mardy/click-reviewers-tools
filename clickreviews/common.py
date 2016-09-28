@@ -86,7 +86,6 @@ class Review(object):
         'application/x-executable; charset=binary',
         'application/x-sharedlib; charset=binary',
         'application/x-object; charset=binary',
-        'application/octet-stream; charset=binary'
     ]
 
     def __init__(self, fn, review_type, overrides=None):
@@ -212,7 +211,8 @@ class Review(object):
         for i in self.pkg_files:
             res = self.mime.file(i)
             if res in self.magic_binary_file_descriptions and \
-               not self._check_if_message_catalog(i):
+               not self._check_if_message_catalog(i) and \
+               i not in self.pkg_bin_files:
                 self.pkg_bin_files.append(i)
 
     def _get_check_name(self, name, app='', extra=''):

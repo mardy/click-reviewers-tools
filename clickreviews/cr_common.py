@@ -92,12 +92,6 @@ class ClickReview(Review):
                            "security-template",
                            "security-override",
                            "security-policy"]
-    magic_binary_file_descriptions = [
-        'application/x-executable; charset=binary',
-        'application/x-sharedlib; charset=binary',
-        'application/x-object; charset=binary',
-        'application/octet-stream; charset=binary'
-    ]
 
     def __init__(self, fn, review_type, peer_hooks=None, overrides=None,
                  peer_hooks_link=None):
