@@ -48,7 +48,7 @@ class SnapReviewSecurity(SnapReview):
 
         # Let's try to catch weird stuff in the os snap
         self.sec_mode_overrides = {
-            'ubuntu-core': {
+            'core': {
                 './bin/mount': 'rwsr-xr-x',
                 './bin/ping': 'rwsr-xr-x',
                 './bin/ping6': 'rwsr-xr-x',
@@ -91,6 +91,44 @@ class SnapReviewSecurity(SnapReview):
             },
             'openwrt': {  # demo from Canonical
                 './rootfs/tmp': 'rwxrwxrwt',
+            },
+            'ubuntu-core': {
+                './bin/mount': 'rwsr-xr-x',
+                './bin/ping': 'rwsr-xr-x',
+                './bin/ping6': 'rwsr-xr-x',
+                './bin/su': 'rwsr-xr-x',
+                './bin/umount': 'rwsr-xr-x',
+                './etc/chatscripts': 'rwxr-s---',
+                './etc/ppp/peers': 'rwxr-s---',
+                './run/lock': 'rwxrwxrwt',
+                './sbin/pam_extrausers_chkpwd': 'rwxr-sr-x',
+                './sbin/unix_chkpwd': 'rwxr-sr-x',
+                './tmp': 'rwxrwxrwt',
+                './usr/bin/chage': 'rwxr-sr-x',
+                './usr/bin/chfn': 'rwsr-xr-x',
+                './usr/bin/chsh': 'rwsr-xr-x',
+                './usr/bin/crontab': 'rwxr-sr-x',
+                './usr/bin/dotlockfile': 'rwxr-sr-x',
+                './usr/bin/expiry': 'rwxr-sr-x',
+                './usr/bin/gpasswd': 'rwsr-xr-x',
+                './usr/bin/mail-lock': 'rwxr-sr-x',
+                './usr/bin/mail-unlock': 'rwxr-sr-x',
+                './usr/bin/mail-touchlock': 'rwxr-sr-x',
+                './usr/bin/newgrp': 'rwsr-xr-x',
+                './usr/bin/passwd': 'rwsr-xr-x',
+                './usr/bin/ssh-agent': 'rwxr-sr-x',
+                './usr/bin/sudo': 'rwsr-xr-x',
+                './usr/bin/wall': 'rwxr-sr-x',
+                './usr/lib/dbus-1.0/dbus-daemon-launch-helper': 'rwsr-xr--',
+                './usr/lib/openssh/ssh-keysign': 'rwsr-xr-x',
+                './usr/lib/snapd/snap-confine': 'rwsr-xr-x',
+                './usr/local/lib/python3.5': 'rwxrwsr-x',
+                './usr/local/lib/python3.5/dist-packages': 'rwxrwsr-x',
+                './usr/sbin/pppd': 'rwsr-xr--',
+                './var/local': 'rwxrwsr-x',
+                './var/mail': 'rwxrwsr-x',
+                './var/spool/cron/crontabs': 'rwx-wx--T',
+                './var/tmp': 'rwxrwxrwt',
             },
         }
 

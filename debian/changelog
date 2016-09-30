@@ -13,7 +13,9 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - add check_hooks() (LP: #1586465)
     - add check_hooks_plugs()
     - add check_assumes() (LP: #1586429)
-  * sr_security.py: whitelist a few files for Canonical demo snaps
+  * sr_security.py:
+    - whitelist a few files for Canonical demo snaps
+    - add 'core' snap to sec_mode_overrides
   * common.py: remove 'application/octet-stream; charset=binary' from
     magic_binary_file_descriptions to reduce false positives in
     _list_all_compiled_binaries() (LP: #1591253)
