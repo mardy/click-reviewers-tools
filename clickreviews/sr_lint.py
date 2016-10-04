@@ -80,7 +80,9 @@ class SnapReviewLint(SnapReview):
                        'pc-kernel',
                        'pi2-kernel',
                        ],
-            'os': ['ubuntu-core'],
+            'os': ['core',
+                   'ubuntu-core'
+                   ],
             'gadget': ['dragonboard',
                        'pc',
                        'pi2',

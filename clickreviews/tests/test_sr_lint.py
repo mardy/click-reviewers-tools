@@ -392,8 +392,26 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         name = c._get_check_name('snap_type_redflag')
         self.check_manual_review(r, name)
 
-    def test_check_type_redflagged_os_whitelisted(self):
-        '''Test check_type_redflagged - os'''
+    def test_check_type_redflagged_os_whitelisted_core(self):
+        '''Test check_type_redflagged - os (core)'''
+        self.set_test_snap_yaml("type", "os")
+        self.set_test_snap_yaml("name", "core")
+        c = SnapReviewLint(self.test_name)
+        c.check_type_redflagged()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:snap_type_redflag'
+        expected['info'][name] = {"text": "OK (override 'core' for 'type: os')"}
+        self.check_results(r, expected=expected)
+
+    def test_check_type_redflagged_os_whitelisted_ubuntu_core(self):
+        '''Test check_type_redflagged - os (ubuntu-core)'''
         self.set_test_snap_yaml("type", "os")
         self.set_test_snap_yaml("name", "ubuntu-core")
         c = SnapReviewLint(self.test_name)
