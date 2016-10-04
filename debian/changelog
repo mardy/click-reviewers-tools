@@ -2,8 +2,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
   * add fwupd, hidraw, kernel-module-control, libvirt,
-    network-setup-observe, removable-media, screen-inhibit-control, udisks2
-    and upower-observe interfaces
+    network-setup-observe, removable-media, screen-inhibit-control,
+    time-control, udisks2 and upower-observe interfaces
   * sr_lint.py:
     - don't flag pc, pi2, pi3 and dragonboard gadgets for manual review
     - adjust error text for check_meta_gui_desktop()
