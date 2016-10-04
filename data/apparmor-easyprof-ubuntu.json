@@ -388,6 +388,7 @@
 	  "network-control",
 	  "network-manager",
 	  "network-observe",
+	  "network-setup-observe",
           "opengl",
           "optical-drive",
 	  "ppp",
