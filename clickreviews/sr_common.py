@@ -102,6 +102,8 @@ class SnapReview(Review):
                           'content': {'read/slots': [],
                                       'write/slots': [],
                                       'target/plugs': "",
+                                      'default-provider/plugs': "",
+                                      'content/plugs': "",
                                       },
                           'gpio': {'number/slots': 0},
                           'serial-port': {'path/slots': ""},
