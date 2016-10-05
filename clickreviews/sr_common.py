@@ -105,6 +105,9 @@ class SnapReview(Review):
                                       'default-provider/plugs': "",
                                       'content/plugs': "",
                                       },
+                          'docker-support': {
+                              'privileged-containers/plugs': False
+                              },
                           'gpio': {'number/slots': 0},
                           'serial-port': {'path/slots': ""},
                           }
