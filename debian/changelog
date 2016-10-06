@@ -15,6 +15,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - add check_hooks_plugs()
     - add check_assumes() (LP: #1586429)
     - don't flag 'core' os snap for manual review
+    - webbrowser-app may use browser-support with allow-sandbox
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides

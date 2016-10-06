@@ -97,7 +97,8 @@ class SnapReviewLint(SnapReview):
         # NOTE: this will eventually move to assertions
         self.redflagged_snap_interface_plugs = {
             'browser-support': {'allow-sandbox': ['chrome-test',
-                                                  'firefox'
+                                                  'firefox',
+                                                  'webbrowser-app',
                                                   ],
                                 },
             'docker-support': {'': ['docker'],
