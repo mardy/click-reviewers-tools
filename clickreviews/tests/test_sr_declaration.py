@@ -21,55 +21,11 @@ import clickreviews.sr_tests as sr_tests
 class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
     """Tests for the lint review tool."""
 
-    def test_check_foo(self):
-        '''Test check_foo()'''
+    def test_check_base_declaration(self):
+        '''Test check_base_declaration()'''
         c = SnapReviewDeclaration(self.test_name)
-        c.check_foo()
+        c.check_base_declaration()
         r = c.click_report
         # We should end up with 1 info
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 48, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-
-    def test_check_bar(self):
-        '''Test check_bar()'''
-        c = SnapReviewDeclaration(self.test_name)
-        c.check_bar()
-        r = c.click_report
-        # We should end up with 1 error
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_baz(self):
-        '''Test check_baz()'''
-        c = SnapReviewDeclaration(self.test_name)
-        c.check_baz()
-        r = c.click_report
-        # We should end up with 1 warning
-        expected_counts = {'info': 0, 'warn': 1, 'error': 0}
-        self.check_results(r, expected_counts)
-
-        # Check specific entries
-        expected = dict()
-        expected['info'] = dict()
-        expected['warn'] = dict()
-        name = c._get_check_name('baz')
-        expected['warn'][name] = {"text": "TODO",
-                                  "link": "http://example.com"}
-        expected['error'] = dict()
-        self.check_results(r, expected=expected)
-
-    def test_output(self):
-        '''Test output'''
-        # Update the control field and output the changes
-        self._update_test_name()
-
-        import pprint
-        import yaml
-        print('''
-= test output =
-== Mock filename ==
-%s
-
-== Mock meta/snap.yaml ==
-''' % (self.test_name))
-        pprint.pprint(yaml.load(sr_tests.TEST_SNAP_YAML))

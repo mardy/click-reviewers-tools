@@ -28,6 +28,7 @@ from clickreviews.common import (
 )
 
 import clickreviews.apparmor_policy as apparmor_policy
+import clickreviews.snapd_base_declaration as snapd_base_declaration
 
 
 #
@@ -133,6 +134,18 @@ class SnapReview(Review):
             local_copy = branch_fn
         p = apparmor_policy.ApparmorPolicy(local_copy)
         self.aa_policy = p.policy
+
+        # If local_copy is None, then this will check the server to see if
+        # we are up to date. However, if we are working within the development
+        # tree, use it unconditionally.
+        local_copy = None
+        branch_fn = os.path.join(os.path.dirname(__file__),
+                                 '../data/snapd-base-declaration.yaml')
+        if os.path.exists(branch_fn):
+            local_copy = branch_fn
+        p = snapd_base_declaration.SnapdBaseDeclaration(local_copy)
+        self.base_declaration = p.decl
+        self.base_declatation_series = "16"
 
         # TODO: may need updating for ubuntu-personal, etc
         self.policy_vendor = "ubuntu-core"
