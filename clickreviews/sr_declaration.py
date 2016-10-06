@@ -152,6 +152,7 @@ class SnapReviewDeclaration(SnapReview):
                         self._add_result(t, n, s)
                         break
 
+                    # FIXME: we aren't reporting correctly here
                     cstr_bools = ["on-classic"]
                     cstr_lists = ["plug-snap-type",
                                   "slot-snap-type",
@@ -181,7 +182,21 @@ class SnapReviewDeclaration(SnapReview):
                             if not isinstance(cstr[cstr_key], dict):
                                 t, s = malformed("'%s' not a dict" % cstr_key,
                                                  base)
-                            # TODO
+                            else:
+                                for attrib in cstr[cstr_key]:
+                                    if iface not in self.interfaces_attribs:
+                                        t, s = malformed("unknown attribute '%s'" % attrib, base)
+                                        continue
+                                    for tmp in self.interfaces_attribs[iface]:
+                                        known, side = tmp.split('/')
+                                        spec_side = side[:-1]
+                                        if not cstr_key.startswith(spec_side):
+                                            t, s = malformed("attribute '%s' wrong for '%ss'" % (attrib, spec_side), base)
+                                            continue
+                                        attr_type = cstr[cstr_key][attrib]
+                                        if not isinstance(attr_type, type(self.interfaces_attribs[iface][tmp])):
+                                            t, s = malformed("wrong type '%s' for attribute '%s'" % (attr_type, attrib), base)
+                                            continue
 
                     self._add_result(t, n, s)
 
