@@ -582,7 +582,16 @@ def open_file_read(path):
 
 def recursive_rm(dirPath, contents_only=False):
     '''recursively remove directory'''
-    names = os.listdir(dirPath)
+    try:
+        names = os.listdir(dirPath)
+    except PermissionError:
+        # If directory has weird permissions (eg, 000), just try to remove the
+        # directory if we can. If it is non-empty, we'll legitimately fail
+        # here. This allows us to remove empty directories with weird
+        # permissions.
+        os.rmdir(dirPath)
+        return
+
     for name in names:
         path = os.path.join(dirPath, name)
         if os.path.islink(path) or not os.path.isdir(path):
