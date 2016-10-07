@@ -255,3 +255,13 @@ class SnapReviewDeclaration(SnapReview):
 
                     if not base and not found_errors:
                         self._add_result(t, n, s)
+
+    def check_fake_test(self):
+        '''Fake test just for demonstrating --json output'''
+        if not self.is_snap2:
+            return
+
+        t = 'info'
+        n = self._get_check_name('demo-test')
+        s = "OK"
+        self._add_result(t, n, s)
