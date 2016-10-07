@@ -79,6 +79,19 @@ class SnapReview(Review):
     hooks_required = []
     hooks_optional = ['plugs']
 
+    # Valid values for 'type' in packaging yaml
+    # - app
+    # - core
+    # - kernel
+    # - gadget
+    # - os (deprecated)
+    valid_snap_types = ['app',
+                        'core'
+                        'kernel',
+                        'gadget',
+                        'os',
+                        ]
+
     # https://docs.google.com/document/d/1Q5_T00yTq0wobm_nHzCV-KV8R4jdk-PXcrtm80ETTLU/edit#
     # 'plugs':
     #    'interface': name
