@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from clickreviews.sr_declaration import SnapReviewDeclaration
+from clickreviews.sr_declaration import SnapReviewDeclaration, SnapDeclarationException
 import clickreviews.sr_tests as sr_tests
 
 
@@ -306,6 +306,17 @@ class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
         expected['error'][name] = {"text": "declaration malformed (empty)"}
         self.check_results(r, expected=expected)
 
+    def test__verify_declaration_invalid_empty_base(self):
+        '''Test _verify_declaration - empty'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {}
+
+        try:
+            c._verify_declaration(decl=decl, base=True)
+        except SnapDeclarationException:
+            return
+        raise Exception("base declaration should be invalid")
+
     def test__verify_declaration_invalid_type(self):
         '''Test _verify_declaration - bad type (list)'''
         c = SnapReviewDeclaration(self.test_name)
@@ -571,4 +582,264 @@ class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
         expected['error'][name] = {"text": "declaration malformed (unknown constraint key 'nonexistent')"}
         name2 = 'declaration-snap-v2:valid_slots:foo:deny-auto-connection_nonexistent2'
         expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_bool(self):
+        '''Test _verify_declaration - invalid interface constraint bool'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'allow-installation': {'on-classic': []}}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-installation_on-classic'
+        expected['error'][name] = {"text": "declaration malformed ('on-classic' not True or False)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_str(self):
+        '''Test _verify_declaration - invalid interface constraint str'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'allow-installation': {'plug-snap-id': ""}}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-installation_plug-snap-id'
+        expected['error'][name] = {"text": "declaration malformed ('plug-snap-id' not a list)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_list_value(self):
+        '''Test _verify_declaration - invalid interface constraint list
+           value'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'foo': {
+                    'allow-installation': {
+                        'plug-snap-id': [{}]
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-installation_plug-snap-id'
+        expected['error'][name] = {"text": "declaration malformed ('{}' in 'plug-snap-id' not a string)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_dict(self):
+        '''Test _verify_declaration - invalid interface constraint dict'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'foo': {
+                    'allow-connection': {
+                        'plug-attributes': []
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-connection_plug-attributes'
+        expected['error'][name] = {"text": "declaration malformed ('plug-attributes' not a dict)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_valid_slots_plug_attribs_browser_support(self):
+        '''Test _verify_declaration - valid interface constraint attrib
+           value for browser-support
+        '''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'browser-support': {
+                    'allow-connection': {
+                        'plug-attributes': {
+                            'allow-sandbox': True
+                        }
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:browser-support:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_plug_attribs_browser_support_bad(self):
+        '''Test _verify_declaration - invalid interface constraint attrib
+           value'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'browser-support': {
+                    'allow-connection': {
+                        'plug-attributes': {
+                            'allow-sandbox': []
+                        }
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:browser-support:allow-connection_plug-attributes'
+        expected['error'][name] = {"text": "declaration malformed (wrong type '[]' for attribute 'allow-sandbox')"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_plug_attribs_browser_support_nonexistent(self):
+        '''Test _verify_declaration - invalid interface constraint attrib
+           nonexistent'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'something': {
+                    'allow-connection': {
+                        'plug-attributes': {
+                            'nonexistent': []
+                        }
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:something:allow-connection_plug-attributes'
+        expected['error'][name] = {"text": "declaration malformed (unknown attribute 'nonexistent')"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_valid_slots_plug_attribs_content(self):
+        '''Test _verify_declaration - valid interface constraint attrib
+           for content'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'content': {
+                    'allow-connection': {
+                        'slot-attributes': {
+                            'read': ["/foo"],
+                            'write': ["/bar"]
+                        },
+                        'plug-attributes': {
+                            'target': "/target",
+                            'content': "baz"
+                        },
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+
+        name = 'declaration-snap-v2:valid_slots:content:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_plug_attribs_content_value(self):
+        '''Test _verify_declaration - invalid interface constraint attrib
+           value for content'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'content': {
+                    'allow-connection': {
+                        'slot-attributes': {
+                            'read': ""
+                        }
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:content:allow-connection_slot-attributes'
+        expected['error'][name] = {"text": "declaration malformed (wrong type '' for attribute 'read')"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_plug_attribs_content_side(self):
+        '''Test _verify_declaration - invalid interface constraint attrib
+           side for content'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'content': {
+                    'allow-connection': {
+                        'slot-attributes': {
+                            'target': ""
+                        }
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:content:allow-connection_slot-attributes'
+        expected['error'][name] = {"text": "declaration malformed (attribute 'target' wrong for 'slots')"}
         self.check_results(r, expected=expected)

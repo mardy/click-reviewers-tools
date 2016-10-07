@@ -148,41 +148,59 @@ class SnapReviewDeclaration(SnapReview):
                                   ]
                     cstr_dicts = ["plug-attributes", "slot-attributes"]
                     for cstr_key in cstr:
+                        badn = self._get_check_name('valid_%s' % key,
+                                                    app=iface, extra="%s_%s" %
+                                                    (constraint, cstr_key))
                         if cstr_key in cstr_bools:
                             if not isinstance(cstr[cstr_key], int) and \
                                     cstr[cstr_key] is not True and \
                                     cstr[cstr_key] is not False:
-                                malformed(n, "'%s' not True or False" %
+                                malformed(badn, "'%s' not True or False" %
                                           cstr_key, base)
+                                found_errors = True
                         elif cstr_key in cstr_lists:
                             if not isinstance(cstr[cstr_key], list):
-                                malformed(n, "'%s' not a list" % cstr_key,
+                                malformed(badn, "'%s' not a list" % cstr_key,
                                           base)
+                                found_errors = True
                             else:
                                 for entry in cstr[cstr_key]:
                                     if not isinstance(entry, str):
-                                        malformed(n, "'%s' not string" % entry,
-                                                  base)
+                                        malformed(badn,
+                                                  "'%s' in '%s' not a string" %
+                                                  (entry, cstr_key), base)
+                                        found_errors = True
                         elif cstr_key in cstr_dicts:
                             if not isinstance(cstr[cstr_key], dict):
-                                malformed(n, "'%s' not a dict" % cstr_key,
+                                malformed(badn, "'%s' not a dict" % cstr_key,
                                           base)
+                                found_errors = True
                             else:
                                 for attrib in cstr[cstr_key]:
+                                    bn = self._get_check_name('valid_%s' % key,
+                                                              app=iface,
+                                                              extra="%s_%s" %
+                                                              (constraint,
+                                                               cstr_key))
                                     if iface not in self.interfaces_attribs:
-                                        malformed(n, "unknown attribute '%s'" %
-                                                  attrib, base)
+                                        malformed(bn, "unknown attribute '%s'"
+                                                  % attrib, base)
+                                        found_errors = True
                                         continue
                                     for tmp in self.interfaces_attribs[iface]:
                                         known, side = tmp.split('/')
+                                        if attrib != known:
+                                            continue
                                         spec_side = side[:-1]
                                         if not cstr_key.startswith(spec_side):
-                                            malformed(n, "attribute '%s' wrong for '%ss'" % (attrib, spec_side), base)
-                                            continue
+                                            malformed(bn, "attribute '%s' wrong for '%ss'" % (attrib, cstr_key[:4]), base)
+                                            found_errors = True
+                                            break
                                         attr_type = cstr[cstr_key][attrib]
                                         if not isinstance(attr_type, type(self.interfaces_attribs[iface][tmp])):
-                                            malformed(n, "wrong type '%s' for attribute '%s'" % (attr_type, attrib), base)
-                                            continue
+                                            malformed(bn, "wrong type '%s' for attribute '%s'" % (attr_type, attrib), base)
+                                            found_errors = True
+                                            break
                     # TODO: verify snap-type, publisher-id
 
                     if not base and not found_errors:
