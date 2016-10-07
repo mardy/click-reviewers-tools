@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 from clickreviews.sr_common import SnapReview, SnapReviewException
+import re
 
 
 class SnapDeclarationException(SnapReviewException):
@@ -46,6 +47,10 @@ class SnapReviewDeclaration(SnapReview):
             if isinstance(item, int) and (item is True or item is False):
                 return True
             return False
+
+        # from snapd.git/assers/ifacedecls.go
+        id_pat = re.compile(r'^[a-z0-9A-Z]{32}$')
+        pub_pat = re.compile(r'^(?:[a-z0-9A-Z]{32}|[-a-z0-9]{2,28}|\$[A-Z][A-Z0-9_]*)$')
 
         if not isinstance(decl, dict):
             malformed(self._get_check_name('valid_dict'), "not a dict", base)
@@ -202,16 +207,41 @@ class SnapReviewDeclaration(SnapReview):
                                             found_errors = True
                                             break
 
-                        # TODO: verify snap-type, publisher-id
-                        if cstr_key == "plug-publisher-id" or \
+                        if not found_errors and \
+                                cstr_key == "plug-publisher-id" or \
                                 cstr_key == "slot-publisher-id":
-                            # TODO
-                            pass
-                        elif cstr_key == "plug-snap-id" or \
+                            for pubid in cstr[cstr_key]:
+                                if not pub_pat.search(pubid):
+                                    malformed(n, "invalid format for "
+                                                 "publisher id '%s'" % pubid)
+                                    found_errors = True
+                                    break
+                                if pubid.startswith('$'):
+                                    if cstr_key == "plug-publisher-id" and \
+                                            pubid != "$SLOT_PUBLISHER_ID":
+                                        malformed(n,
+                                                  "invalid publisher id '%s'" %
+                                                  pubid)
+                                        found_errors = True
+                                        break
+                                    elif cstr_key == "slot-publisher-id" and \
+                                            pubid != "$PLUG_PUBLISHER_ID":
+                                        malformed(n,
+                                                  "invalid publisher id '%s'" %
+                                                  pubid)
+                                        found_errors = True
+                                        break
+                        elif not found_errors and \
+                                cstr_key == "plug-snap-id" or \
                                 cstr_key == "slot-snap-id":
-                            # TODO
-                            pass
-                        elif cstr_key == "plug-snap-type" or \
+                            for id in cstr[cstr_key]:
+                                if not id_pat.search(id):
+                                    malformed(n, "invalid format for snap id "
+                                                 "'%s'" % id)
+                                    found_errors = True
+                                    break
+                        elif not found_errors and \
+                                cstr_key == "plug-snap-type" or \
                                 cstr_key == "slot-snap-type":
                             for snap_type in cstr[cstr_key]:
                                 if snap_type not in self.valid_snap_types:
