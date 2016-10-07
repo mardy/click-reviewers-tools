@@ -86,7 +86,7 @@ class SnapReview(Review):
     # - gadget
     # - os (deprecated)
     valid_snap_types = ['app',
-                        'core'
+                        'core',
                         'kernel',
                         'gadget',
                         'os',
