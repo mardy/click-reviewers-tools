@@ -132,9 +132,8 @@ class SnapReviewDeclaration(SnapReview):
                         if cstr_key not in allowed:
                             name = self._get_check_name('valid_%s' % key,
                                                         app=iface,
-                                                        extra="%s_%s" % (
-                                                               constraint,
-                                                               cstr_key))
+                                                        extra="%s_%s" %
+                                                        (constraint, cstr_key))
                             malformed(name, "unknown constraint key '%s'" %
                                       cstr_key, base)
                             found_errors = True
