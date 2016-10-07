@@ -29,6 +29,9 @@ class SnapReviewDeclaration(SnapReview):
         SnapReview.__init__(self, fn, "declaration-snap-v2",
                             overrides=overrides)
 
+        if not self.is_snap2:
+            return
+
         for series in self.base_declaration:
             self._verify_declaration(self.base_declaration[series], base=True)
 
@@ -252,16 +255,3 @@ class SnapReviewDeclaration(SnapReview):
 
                     if not base and not found_errors:
                         self._add_result(t, n, s)
-
-    def check_base_declaration(self):
-        '''Check base declaration'''
-        if not self.is_snap2:
-            return
-
-        t = 'info'
-        n = self._get_check_name('base-declaration')
-        s = "OK"
-        if False:
-            t = 'error'
-            s = "some message"
-        self._add_result(t, n, s)
