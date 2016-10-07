@@ -201,7 +201,24 @@ class SnapReviewDeclaration(SnapReview):
                                             malformed(bn, "wrong type '%s' for attribute '%s'" % (attr_type, attrib), base)
                                             found_errors = True
                                             break
-                    # TODO: verify snap-type, publisher-id
+
+                        # TODO: verify snap-type, publisher-id
+                        if cstr_key == "plug-publisher-id" or \
+                                cstr_key == "slot-publisher-id":
+                            # TODO
+                            pass
+                        elif cstr_key == "plug-snap-id" or \
+                                cstr_key == "slot-snap-id":
+                            # TODO
+                            pass
+                        elif cstr_key == "plug-snap-type" or \
+                                cstr_key == "slot-snap-type":
+                            for snap_type in cstr[cstr_key]:
+                                if snap_type not in self.valid_snap_types:
+                                    malformed(n, "invalid snap type '%s'" %
+                                              snap_type)
+                                    found_errors = True
+                                    break
 
                     if not base and not found_errors:
                         self._add_result(t, n, s)

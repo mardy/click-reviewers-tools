@@ -843,3 +843,72 @@ class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
         name = 'declaration-snap-v2:valid_slots:content:allow-connection_slot-attributes'
         expected['error'][name] = {"text": "declaration malformed (attribute 'target' wrong for 'slots')"}
         self.check_results(r, expected=expected)
+
+    def test__verify_declaration_valid_slots_plug_snap_type(self):
+        '''Test _verify_declaration - valid plug-snap-type'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'foo': {
+                    'allow-connection': {
+                        'plug-snap-type': ['gadget']
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test__verify_declaration_invalid_slots_plug_snap_type(self):
+        '''Test _verify_declaration - invalid plug-snap-type'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'foo': {
+                    'allow-connection': {
+                        'plug-snap-type': ['bad-snap-type']
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-connection'
+        expected['error'][name] = {"text": "declaration malformed (invalid snap type 'bad-snap-type')"}
+        self.check_results(r, expected=expected)
+
+
+    def test__verify_declaration_invalid_plugs_slot_snap_type(self):
+        '''Test _verify_declaration - invalid slot-snap-type'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'plugs': {
+                'foo': {
+                    'allow-connection': {
+                        'slot-snap-type': ['bad-snap-type']
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_plugs:foo:allow-connection'
+        expected['error'][name] = {"text": "declaration malformed (invalid snap type 'bad-snap-type')"}
+        self.check_results(r, expected=expected)
+
