@@ -108,7 +108,7 @@ class SnapReviewDeclaration(SnapReview):
                             allowed.append("slot-attributes")
                     else:
                         allowed = ["plug-attributes", "slot-attributes",
-                                        "on-classic"]
+                                   "on-classic"]
                         if key == "plugs":
                             allowed.append("slot-publisher-id")
                             allowed.append("slot-snap-id")
@@ -133,7 +133,8 @@ class SnapReviewDeclaration(SnapReview):
                             name = self._get_check_name('valid_%s' % key,
                                                         app=iface,
                                                         extra="%s_%s" % (
-                                                        constraint, cstr_key))
+                                                               constraint,
+                                                               cstr_key))
                             malformed(name, "unknown constraint key '%s'" %
                                       cstr_key, base)
                             found_errors = True
