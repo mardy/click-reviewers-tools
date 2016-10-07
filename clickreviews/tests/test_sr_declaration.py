@@ -21,11 +21,554 @@ import clickreviews.sr_tests as sr_tests
 class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
     """Tests for the lint review tool."""
 
-    def test_check_base_declaration(self):
-        '''Test check_base_declaration()'''
+    def test__verify_declaration_valid(self):
+        '''Test _verify_declaration - valid'''
         c = SnapReviewDeclaration(self.test_name)
-        c.check_base_declaration()
+        decl = {
+            'slots': {
+                'inst-on-classic-true': {
+                    'allow-installation': {
+                        'on-classic': True
+                    },
+                },
+                'inst-on-classic-false': {
+                    'deny-installation': {
+                        'on-classic': False
+                    },
+                },
+                'inst-slot-snap-type-all': {
+                    'allow-installation': {
+                        'slot-snap-type': ['core', 'gadget', 'kernel', 'app']
+                    },
+                },
+                'inst-slot-snap-type-app': {
+                    'deny-installation': {
+                        'slot-snap-type': ['app']
+                    },
+                },
+                'inst-slot-attributes-empty': {
+                    'allow-installation': {
+                        'slot-attributes': {},
+                    },
+                },
+                'conn-on-classic-true': {
+                    'allow-connection': {
+                        'on-classic': True
+                    },
+                },
+                'conn-on-classic-false': {
+                    'deny-connection': {
+                        'on-classic': False
+                    },
+                },
+                'conn-plug-snap-type-all': {
+                    'allow-connection': {
+                        'plug-snap-type': ['core', 'gadget', 'kernel', 'app']
+                    },
+                },
+                'conn-plug-snap-type-core': {
+                    'deny-connection': {
+                        'plug-snap-type': ['core']
+                    },
+                },
+                'conn-plug-snap-id-allow': {
+                    'allow-connection': {
+                        'plug-snap-id': ['something32charslongGgGgGgGgGgGg']
+                    },
+                },
+                'conn-plug-snap-id-deny': {
+                    'deny-connection': {
+                        'plug-snap-id': ['somethingelse32charslongGgGgGgGg']
+                    },
+                },
+                'conn-plug-publisher-id-allow': {
+                    'allow-connection': {
+                        'plug-publisher-id': ['$PLUG_PUBLISHER_ID',
+                                              'canonical']
+                    },
+                },
+                'conn-plug-publisher-id-deny': {
+                    'deny-connection': {
+                        'plug-publisher-id': ['badpublisher']
+                    },
+                },
+                'conn-slot-attributes-empty': {
+                    'allow-connection': {
+                        'slot-attributes': {},
+                    },
+                },
+                'conn-plug-attributes-empty': {
+                    'deny-connection': {
+                        'plug-attributes': {},
+                    },
+                },
+                'autoconn-on-classic-true': {
+                    'allow-connection': {
+                        'on-classic': True
+                    },
+                },
+                'autoconn-on-classic-false': {
+                    'deny-connection': {
+                        'on-classic': False
+                    },
+                },
+                'autoconn-plug-snap-type-all': {
+                    'allow-connection': {
+                        'plug-snap-type': ['core', 'gadget', 'kernel', 'app']
+                    },
+                },
+                'autoconn-plug-snap-type-core': {
+                    'deny-connection': {
+                        'plug-snap-type': ['core']
+                    },
+                },
+                'autoconn-plug-snap-id-allow': {
+                    'allow-connection': {
+                        'plug-snap-id': ['something32charslongGgGgGgGgGgGg']
+                    },
+                },
+                'autoconn-plug-snap-id-deny': {
+                    'deny-connection': {
+                        'plug-snap-id': ['somethingelse32charslongGgGgGgGg']
+                    },
+                },
+                'autoconn-plug-publisher-id-allow': {
+                    'allow-connection': {
+                        'plug-publisher-id': ['$PLUG_PUBLISHER_ID',
+                                              'canonical']
+                    },
+                },
+                'autoconn-plug-publisher-id-deny': {
+                    'deny-connection': {
+                        'plug-publisher-id': ['badpublisher']
+                    },
+                },
+                'autoconn-slot-attributes-empty': {
+                    'allow-connection': {
+                        'slot-attributes': {},
+                    },
+                },
+                'autoconn-plug-attributes-empty': {
+                    'deny-connection': {
+                        'plug-attributes': {},
+                    },
+                },
+            },
+            'plugs': {
+                'inst-on-classic-true': {
+                    'allow-installation': {
+                        'on-classic': True
+                    },
+                },
+                'inst-on-classic-false': {
+                    'deny-installation': {
+                        'on-classic': False
+                    },
+                },
+                'inst-plug-snap-type-all': {
+                    'allow-installation': {
+                        'plug-snap-type': ['core', 'gadget', 'kernel', 'app']
+                    },
+                },
+                'inst-plug-snap-type-app': {
+                    'deny-installation': {
+                        'plug-snap-type': ['app']
+                    },
+                },
+                'inst-plug-attributes-empty': {
+                    'allow-installation': {
+                        'plug-attributes': {},
+                    },
+                },
+                'conn-on-classic-true': {
+                    'allow-connection': {
+                        'on-classic': True
+                    },
+                },
+                'conn-on-classic-false': {
+                    'deny-connection': {
+                        'on-classic': False
+                    },
+                },
+                'conn-slot-snap-type-all': {
+                    'allow-connection': {
+                        'slot-snap-type': ['core', 'gadget', 'kernel', 'app']
+                    },
+                },
+                'conn-slot-snap-type-core': {
+                    'deny-connection': {
+                        'slot-snap-type': ['core']
+                    },
+                },
+                'conn-slot-snap-id-allow': {
+                    'allow-connection': {
+                        'slot-snap-id': ['something32charslongGgGgGgGgGgGg']
+                    },
+                },
+                'conn-slot-snap-id-deny': {
+                    'deny-connection': {
+                        'slot-snap-id': ['somethingelse32charslongGgGgGgGg']
+                    },
+                },
+                'conn-slot-publisher-id-allow': {
+                    'allow-connection': {
+                        'slot-publisher-id': ['$slot_PUBLISHER_ID',
+                                              'canonical']
+                    },
+                },
+                'conn-slot-publisher-id-deny': {
+                    'deny-connection': {
+                        'slot-publisher-id': ['badpublisher']
+                    },
+                },
+                'conn-plug-attributes-empty': {
+                    'allow-connection': {
+                        'plug-attributes': {},
+                    },
+                },
+                'conn-slot-attributes-empty': {
+                    'deny-connection': {
+                        'slot-attributes': {},
+                    },
+                },
+                'autoconn-on-classic-true': {
+                    'allow-connection': {
+                        'on-classic': True
+                    },
+                },
+                'autoconn-on-classic-false': {
+                    'deny-connection': {
+                        'on-classic': False
+                    },
+                },
+                'autoconn-slot-snap-type-all': {
+                    'allow-connection': {
+                        'slot-snap-type': ['core', 'gadget', 'kernel', 'app']
+                    },
+                },
+                'autoconn-slot-snap-type-core': {
+                    'deny-connection': {
+                        'slot-snap-type': ['core']
+                    },
+                },
+                'autoconn-slot-snap-id-allow': {
+                    'allow-connection': {
+                        'slot-snap-id': ['something32charslongGgGgGgGgGgGg']
+                    },
+                },
+                'autoconn-slot-snap-id-deny': {
+                    'deny-connection': {
+                        'slot-snap-id': ['somethingelse32charslongGgGgGgGg']
+                    },
+                },
+                'autoconn-slot-publisher-id-allow': {
+                    'allow-connection': {
+                        'slot-publisher-id': ['$slot_PUBLISHER_ID',
+                                              'canonical']
+                    },
+                },
+                'autoconn-slot-publisher-id-deny': {
+                    'deny-connection': {
+                        'slot-publisher-id': ['badpublisher']
+                    },
+                },
+                'autoconn-plug-attributes-empty': {
+                    'allow-connection': {
+                        'plug-attributes': {},
+                    },
+                },
+                'autoconn-slot-attributes-empty': {
+                    'deny-connection': {
+                        'slot-attributes': {},
+                    },
+                },
+            },
+        }
+        c._verify_declaration(decl=decl)
         r = c.click_report
-        # We should end up with 1 info
-        expected_counts = {'info': 48, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 50, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test__verify_declaration_invalid_empty(self):
+        '''Test _verify_declaration - empty'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_dict'
+        expected['error'][name] = {"text": "declaration malformed (empty)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_type(self):
+        '''Test _verify_declaration - bad type (list)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = []
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_dict'
+        expected['error'][name] = {"text": "declaration malformed (not a dict)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_true(self):
+        '''Test _verify_declaration - invalid slots - true'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': True}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_dict:slots'
+        expected['error'][name] = {"text": "declaration malformed (not a dict)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_plugs_false(self):
+        '''Test _verify_declaration - invalid plugs - false'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'plugs': False}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_dict:plugs'
+        expected['error'][name] = {"text": "declaration malformed (not a dict)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_bad_key(self):
+        '''Test _verify_declaration - bad key'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'non-existent': {'foo': True}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_key'
+        expected['error'][name] = {"text": "declaration malformed (unknown key 'non-existent')"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_slots_iface_bool(self):
+        '''Test _verify_declaration - interface: boolean (slots)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': True}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_plugs_iface_bool(self):
+        '''Test _verify_declaration - interface: boolean (plugs)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'plugs': {'foo': True}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_plugs:foo'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_type(self):
+        '''Test _verify_declaration - invalid interface: list'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': []}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots_dict:foo'
+        expected['error'][name] = {
+            "text": "declaration malformed (interface not True, False or dict)"
+        }
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_slots_iface_constraint_bool(self):
+        '''Test _verify_declaration - interface constraint: boolean (slots)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'allow-installation': True}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-installation'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_plugs_iface_constraint_bool(self):
+        '''Test _verify_declaration - interface constraint: boolean (plugs)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'plugs': {'foo': {'deny-installation': True}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_plugs:foo:deny-installation'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_list(self):
+        '''Test _verify_declaration - invalid interface constraint: list
+           (slots)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'allow-installation': []}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-installation'
+        expected['error'][name] = {"text": "declaration malformed (allow-installation not True, False or dict)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_unknown(self):
+        '''Test _verify_declaration - invalid interface constraint: unknown
+           (slots with allow-installation)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'nonexistent': True}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:nonexistent'
+        expected['error'][name] = {"text": "declaration malformed (unknown constraint 'nonexistent')"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_key_unknown(self):
+        '''Test _verify_declaration - invalid interface constraint key: unknown
+           (slots with allow-installation)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'foo': {
+                    'allow-installation': {
+                        'nonexistent': True,
+                        'nonexistent2': False
+                    },
+                },
+            },
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-installation_nonexistent'
+        expected['error'][name] = {"text": "declaration malformed (unknown constraint key 'nonexistent')"}
+        name2 = 'declaration-snap-v2:valid_slots:foo:allow-installation_nonexistent2'
+        expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_list2(self):
+        '''Test _verify_declaration - invalid interface constraint: list
+           (slots with allow-connection)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'allow-connection': []}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-connection'
+        expected['error'][name] = {"text": "declaration malformed (allow-connection not True, False or dict)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_key_unknown2(self):
+        '''Test _verify_declaration - invalid interface constraint key: unknown
+           (slots with deny-auto-connection)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'foo': {
+                    'deny-auto-connection': {
+                        'nonexistent': True,
+                        'nonexistent2': False
+                    },
+                },
+            },
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:deny-auto-connection_nonexistent'
+        expected['error'][name] = {"text": "declaration malformed (unknown constraint key 'nonexistent')"}
+        name2 = 'declaration-snap-v2:valid_slots:foo:deny-auto-connection_nonexistent2'
+        expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
+        self.check_results(r, expected=expected)
