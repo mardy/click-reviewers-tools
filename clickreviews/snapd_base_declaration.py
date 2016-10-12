@@ -20,7 +20,7 @@ USER_DATA_FILE = os.path.join(clickreviews.remote.DATA_DIR,
                               'snapd-base-declaration.yaml')
 
 BD_DATA_URL = \
-    "http://bazaar.launchpad.net/~store-reviewers/click-reviewers-tools/trunk/download/head:/TODO/snapd-base-declaration.yaml"
+    "http://bazaar.launchpad.net/~store-reviewers/click-reviewers-tools/trunk/download/head:/snapdbasedeclaration-20161006183920-boraju2lx3zea83z-2/snapd-base-declaration.yaml"
 
 
 def get_base_declaration_file(fn):
