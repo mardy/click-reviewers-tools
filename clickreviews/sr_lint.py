@@ -56,16 +56,6 @@ class SnapReviewLint(SnapReview):
 
         self._list_all_compiled_binaries()
 
-        # Valid values for 'type' in packaging yaml
-        # - app
-        # - kernel
-        # - gadget
-        # - os
-        self.valid_snap_types = ['app',
-                                 'kernel',
-                                 'gadget',
-                                 'os',
-                                 ]
         self.redflagged_snap_types = ['kernel',
                                       'gadget',
                                       'os',

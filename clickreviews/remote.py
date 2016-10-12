@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2014 Canonical Ltd.
+#  Copyright (C) 2014-2016 Canonical Ltd.
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import sys
 import time
 from urllib import request, parse
 from urllib.error import HTTPError, URLError
+import yaml
 
 DATA_DIR = os.path.join(os.path.expanduser('~/.cache/click-reviewers-tools/'))
 UPDATE_INTERVAL = 60 * 60 * 24 * 7
@@ -87,16 +88,19 @@ def get_remote_file(fn, url, data_dir=DATA_DIR):
         local_file.write(data)
 
 
-def read_cr_file(fn, url, local_copy_fn=None):
+def read_cr_file(fn, url, local_copy_fn=None, as_yaml=False):
     '''read click reviews file from remote or local copy:
        - fn: where to store the cached file
        - url: url to fetch
        - local_copy_fn: force use of local copy
     '''
-    j = {}
+    d = {}
     if local_copy_fn and os.path.exists(local_copy_fn):
         try:
-            j = json.loads(open(local_copy_fn, 'r').read())
+            if as_yaml:
+                d = yaml.safe_load(open(local_copy_fn, 'r').read())
+            else:
+                d = json.loads(open(local_copy_fn, 'r').read())
         except ValueError:
             raise ValueError("Could not parse '%s'" % local_copy_fn)
     else:
@@ -104,7 +108,10 @@ def read_cr_file(fn, url, local_copy_fn=None):
             get_remote_file(fn, url)
         if os.path.exists(fn):
             try:
-                j = json.loads(open(fn, 'r').read())
+                if as_yaml:
+                    d = yaml.safe_load(open(fn, 'r').read())
+                else:
+                    d = json.loads(open(fn, 'r').read())
             except ValueError:
                 raise ValueError("Could not parse '%s'" % fn)
-    return j
+    return d
