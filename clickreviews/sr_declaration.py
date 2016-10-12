@@ -35,6 +35,8 @@ class SnapReviewDeclaration(SnapReview):
         for series in self.base_declaration:
             self._verify_declaration(self.base_declaration[series], base=True)
 
+        self.snap_declaration = None
+
     def _verify_declaration(self, decl, base=False):
         '''Verify declaration'''
         def malformed(name, s, base=False):
@@ -256,12 +258,157 @@ class SnapReviewDeclaration(SnapReview):
                     if not base and not found_errors:
                         self._add_result(t, n, s)
 
-    def check_fake_test(self):
-        '''Fake test just for demonstrating --json output'''
+    def _search(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
+        '''Search dictionary 'd' for matching values. Returns true when
+           - val == d[key]
+           - subval in d[key][subkey]
+           - subval_inverted == True and subval not in d[key][subkey]
+        '''
+        found = False
+        if key not in d:
+            return found
+
+        if val is not None and val == d[key]:
+            found = True
+        elif isinstance(d[key], dict) and subkey is not None and \
+                subval is not None and subkey in d[key]:
+            if subval_inverted:
+                if subval not in d[key][subkey]:
+                    found = True
+            elif subval in d[key][subkey]:
+                found = True
+
+        return found
+
+    def _verify_iface(self, name, iface, interface, decl=None):
+        # FIXME: don't hardcode series
+        series = "16"
+
+        if name.endswith('slot'):
+            side = 'slots'
+        elif name.endswith('plug'):
+            side = 'plugs'
+        else:
+            raise  # pragma: nocover
+
+        t = 'info'
+        n = self._get_check_name('%s_known' % name, app=iface, extra=interface)
+        s = 'OK'
+        if side in self.base_declaration[series] and \
+                interface not in self.base_declaration[series][side]:
+            t = 'error'
+            s = "interface '%s' not found in base declaration" % interface
+            self._add_result(t, n, s)
+            return
+
+        if decl is None:
+            decl = self.base_declaration[series]
+
+        if interface not in decl[side]:
+            t = 'info'
+            n = self._get_check_name('%s' % name, app=iface, extra=interface)
+            s = 'OK (interface not in declaration)'
+            self._add_result(t, n, s)
+            return
+
+        require_manual = False
+
+        # top-level allow/deny-installation/connection
+        # Note: auto-connection is only for snapd, so don't include it here
+        for i in ['installation', 'connection']:
+            for j in ['deny', 'allow']:
+                # flag if deny-* is true or allow-* is false
+                if self._search(decl[side][interface], "%s-%s" % (j, i),
+                                j == 'deny'):
+                    self._add_result('error',
+                                     self._get_check_name("%s_%s-%s" %
+                                                          (side, j, i),
+                                                          app=iface,
+                                                          extra=interface),
+                                     "not allowed by '%s-%s'" % (j, i),
+                                     manual_review=True)
+                    require_manual = True
+
+                    # if manual review after 'deny', don't look at allow
+                    break
+
+        # installation snap-type
+        snap_type = 'app'
+        if 'type' in self.snap_yaml:
+            snap_type = self.snap_yaml['type']
+        decl_key = '%s-snap-type' % side[:-1]
+        for j in ['deny', 'allow']:
+            # flag if deny-*/snap-type matches or allow-*/snap-type doesn't
+            if self._search(decl[side][interface], "%s-installation" % j,
+                            subkey=decl_key, subval=snap_type,
+                            subval_inverted=(j == 'allow')):
+                self._add_result('error',
+                                 self._get_check_name("%s_%s-installation" %
+                                                      (side, j),
+                                                      app=iface,
+                                                      extra=interface),
+                                 "not allowed by '%s-installation/%s'" %
+                                 (j, decl_key),
+                                 manual_review=True)
+                require_manual = True
+
+                # if manual review after 'deny', don't look at allow
+                break
+
+        # Report something back if everything ok
+        if not require_manual:
+            self._add_result('info',
+                             self._get_check_name("%s" % side, app=iface,
+                                                  extra=interface),
+                             "OK", manual_review=False)
+
+    def check_declaration(self):
+        '''Check base/snap declaration requires manual review for top-level
+           plugs/slots
+        '''
         if not self.is_snap2:
             return
 
-        t = 'info'
-        n = self._get_check_name('demo-test')
-        s = "OK"
-        self._add_result(t, n, s)
+        decl = None
+        if self.snap_declaration is not None:
+            decl = self.snap_declaration
+
+        for side in ['plugs', 'slots']:
+            if side not in self.snap_yaml:
+                continue
+
+            for iface in self.snap_yaml[side]:
+                # If the 'interface' name is the same as the 'plug/slot' name,
+                # then 'interface' is optional since the interface name and the
+                # plug/slot name are the same
+                interface = iface
+                if 'interface' in self.snap_yaml[side][iface]:
+                    interface = self.snap_yaml[side][iface]['interface']
+
+                self._verify_iface(side[:-1], iface, interface, decl)
+
+    def check_declaration_apps(self):
+        '''Check base/snap declaration requires manual review for apps
+           plugs/slots
+        '''
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
+            return
+
+        decl = None
+        if self.snap_declaration is not None:
+            decl = self.snap_declaration
+
+        for app in self.snap_yaml['apps']:
+            for side in ['plugs', 'slots']:
+                if side not in self.snap_yaml['apps'][app]:
+                    continue
+
+                # The interface referenced in the app's 'plugs' or 'slots'
+                # field can either be a known interface (when the interface
+                # name reference and the interface is the same) or can
+                # reference a name in the snap's toplevel 'plugs' mapping
+                for ref in self.snap_yaml['apps'][app][side]:
+                    if not isinstance(ref, str):
+                        continue  # checked elsewhere
+
+                    self._verify_iface('app_%s' % side[:-1], app, ref, decl)

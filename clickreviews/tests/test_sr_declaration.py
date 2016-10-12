@@ -21,6 +21,40 @@ import clickreviews.sr_tests as sr_tests
 class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
     """Tests for the lint review tool."""
 
+    def _set_base_declaration(self, c, decl):
+        # TODO: don't hardcode series
+        c.base_declaration["16"] = decl
+
+    def test_all_checks_as_v2(self):
+        '''Test snap v2 has checks'''
+        self.set_test_pkgfmt("snap", "16.04")
+        c = SnapReviewDeclaration(self.test_name)
+        c.do_checks()
+        sum = 0
+        for i in c.click_report:
+            sum += len(c.click_report[i])
+        self.assertTrue(sum == 0)
+
+    def test_all_checks_as_v1(self):
+        '''Test snap v1 has no checks'''
+        self.set_test_pkgfmt("snap", "15.04")
+        c = SnapReviewDeclaration(self.test_name)
+        c.do_checks()
+        sum = 0
+        for i in c.click_report:
+            sum += len(c.click_report[i])
+        self.assertTrue(sum == 0)
+
+    def test_all_checks_as_click(self):
+        '''Test click format has no checks'''
+        self.set_test_pkgfmt("click", "0.4")
+        c = SnapReviewDeclaration(self.test_name)
+        c.do_checks()
+        sum = 0
+        for i in c.click_report:
+            sum += len(c.click_report[i])
+        self.assertTrue(sum == 0)
+
     def test__verify_declaration_valid(self):
         '''Test _verify_declaration - valid'''
         c = SnapReviewDeclaration(self.test_name)
@@ -993,3 +1027,347 @@ class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
         name = 'declaration-snap-v2:valid_slots:foo:allow-connection'
         expected['error'][name] = {"text": "declaration malformed (invalid format for snap id 'b@d')"}
         self.check_results(r, expected=expected)
+
+    def test_check_declaration_unknown_interface(self):
+        '''Test check_declaration - unknown interface'''
+        slots = {'iface-foo': {'interface': 'bar'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': False
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slot_known:iface-foo:bar'
+        expected['error'][name] = {"text": "interface 'bar' not found in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_unknown_interface_app(self):
+        '''Test check_declaration - unknown interface - app'''
+        apps = {'app1': {'slots': ['bar']}}
+        self.set_test_snap_yaml("apps", apps)
+
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': False
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration_apps()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:app_slot_known:app1:bar'
+        expected['error'][name] = {"text": "interface 'bar' not found in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_interface_app_bad_ref(self):
+        '''Test check_declaration - interface - app - bad ref'''
+        apps = {'app1': {'slots': [{}]}}
+        self.set_test_snap_yaml("apps", apps)
+
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': False
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration_apps()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_slots_deny_installation_true(self):
+        '''Test check_declaration - slots/deny-installation/true'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': True
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_deny-installation:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-installation'"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_deny_installation_false(self):
+        '''Test check_declaration - slots/deny-installation/false'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': False
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_slots_allow_installation_false(self):
+        '''Test check_declaration - slots/allow-installation/false'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': False
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_allow-installation:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'allow-installation'"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_allow_installation_true(self):
+        '''Test check_declaration - slots/allow-installation/true'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': True
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_plugs_deny_connection_true(self):
+        '''Test check_declaration - plugs/deny-connection/true'''
+        plugs = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': True
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_deny-connection:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_deny_connection_false(self):
+        '''Test check_declaration - plugs/deny-connection/false'''
+        plugs = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': False
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_plugs_allow_connection_false(self):
+        '''Test check_declaration - plugs/allow-connection/false'''
+        plugs = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'allow-connection': False
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_allow-connection:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'allow-connection'"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_allow_connection_true(self):
+        '''Test check_declaration - plugs/allow-connection/true'''
+        plugs = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'allow-connection': True
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_slots_allow_installation_snap_type_app(self):
+        '''Test check_declaration - slots/allow-installation/snap-type'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': {
+                        'slot-snap-type': ['app']
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_slots_allow_installation_snap_type_bad(self):
+        '''Test check_declaration - bad slots/allow-installation/snap-type'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': {
+                        'slot-snap-type': ['kernel']
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_allow-installation:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'allow-installation/slot-snap-type'"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_deny_installation_snap_type_app(self):
+        '''Test check_declaration - plugs/deny-installation/snap-type'''
+        plugs = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-installation': {
+                        'plug-snap-type': ['app']
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_deny-installation:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-installation/plug-snap-type'"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_deny_installation_snap_type_bad(self):
+        '''Test check_declaration - bad plugs/deny-installation/snap-type'''
+        plugs = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-installation': {
+                        'plug-snap-type': ['kernel']
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
