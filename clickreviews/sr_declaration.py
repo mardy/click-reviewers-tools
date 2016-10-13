@@ -294,17 +294,20 @@ class SnapReviewDeclaration(SnapReview):
                             found = True
                             matches += 1
                     elif (isinstance(d[key][subkey][subsubkey], list)):
-                        # attribute value list compare
-                        if sorted(d[key][subkey][subsubkey]) == subval[subsubkey]:
+                        # attribute value list compare. All values must match
+                        if sorted(d[key][subkey][subsubkey]) == \
+                                sorted(subval[subsubkey]):
                             found = True
                             matches += 1
                     elif (isinstance(d[key][subkey][subsubkey], dict)):
-                        # attribute value dict compare
+                        # attribute value dict compare. All values must match
                         if d[key][subkey][subsubkey] == subval[subsubkey]:
                             found = True
                             matches += 1
                     else:
-                        raise
+                        raise SnapDeclarationException(
+                                "unknown type for '%s': %s" %
+                                (subsubkey, type(d[key][subkey][subsubkey])))
 
                 if subval_inverted:
                     # return true when something didn't match
@@ -312,9 +315,6 @@ class SnapReviewDeclaration(SnapReview):
                         found = True
                     else:
                         found = False
-            else:
-                raise SnapDeclarationException("unknown type for '%s': %s" %
-                                               (subkey, type(d[key][subkey])))
 
         return found
 
@@ -445,6 +445,7 @@ class SnapReviewDeclaration(SnapReview):
                 # then 'interface' is optional since the interface name and the
                 # plug/slot name are the same
                 interface = iface
+                attribs = None
 
                 spec = self.snap_yaml[side][iface]
                 if isinstance(spec, str):
@@ -452,18 +453,15 @@ class SnapReviewDeclaration(SnapReview):
                     # <plugs|slots>:
                     #   <alias>: <interface>
                     interface = spec
-                    attribs = None
                 elif 'interface' in spec:
                     # Full specification.
                     # <plugs|slots>:
                     #   <alias>:
                     #     interface: <interface>
                     interface = spec['interface']
-                    attribs = spec
-                    del attribs['interface']
-
-#                 if 'interface' in self.snap_yaml[side][iface]:
-#                     interface = self.snap_yaml[side][iface]['interface']
+                    if len(spec) > 1:
+                        attribs = spec
+                        del attribs['interface']
 
                 self._verify_iface(side[:-1], iface, interface, attribs, decl)
 
