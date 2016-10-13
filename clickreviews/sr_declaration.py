@@ -287,27 +287,24 @@ class SnapReviewDeclaration(SnapReview):
                 int_keys = d_keys.intersection(subval_keys)
                 matches = 0
                 for subsubkey in int_keys:
-                    # FIXME: no regexes in subkeys
-                    if (isinstance(d[key][subkey][subsubkey], str)):
-                        # attribute value str compare
-                        if d[key][subkey][subsubkey] == subval[subsubkey]:
-                            found = True
-                            matches += 1
-                    elif (isinstance(d[key][subkey][subsubkey], list)):
-                        # attribute value list compare. All values must match
-                        if sorted(d[key][subkey][subsubkey]) == \
-                                sorted(subval[subsubkey]):
-                            found = True
-                            matches += 1
-                    elif (isinstance(d[key][subkey][subsubkey], dict)):
-                        # attribute value dict compare. All values must match
-                        if d[key][subkey][subsubkey] == subval[subsubkey]:
-                            found = True
-                            matches += 1
-                    else:
+                    if type(d[key][subkey][subsubkey]) not in [str,
+                                                               list,
+                                                               dict]:
                         raise SnapDeclarationException(
                             "unknown type for '%s': %s" %
                             (subsubkey, type(d[key][subkey][subsubkey])))
+
+                    # FIXME: no regexes in subkeys
+                    dval = d[key][subkey][subsubkey]
+                    sval = subval[subsubkey]
+                    # attribute value compare. All values must match whether
+                    # str, list or dict
+                    if (isinstance(d[key][subkey][subsubkey], list)):
+                        dval = sorted(d[key][subkey][subsubkey])
+                        sval = sorted(subval[subsubkey])
+                    if dval == sval:
+                        found = True
+                        matches += 1
 
                 if subval_inverted:
                     # return true when something didn't match
