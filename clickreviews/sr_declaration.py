@@ -18,6 +18,8 @@ from __future__ import print_function
 from clickreviews.sr_common import SnapReview, SnapReviewException
 import re
 
+# Specification:
+# https://docs.google.com/document/d/1QkglVjSzHC65lPthXV3ZlQcqPpKxuGEBL-FMuGP6ogs/edit#
 
 class SnapDeclarationException(SnapReviewException):
     '''This class represents SnapDeclaration exceptions'''
@@ -371,19 +373,20 @@ class SnapReviewDeclaration(SnapReview):
         snap_type = 'app'
         if 'type' in self.snap_yaml:
             snap_type = self.snap_yaml['type']
-        decl_key = '%s-snap-type' % side[:-1]
+        decl_subkey = '%s-snap-type' % side[:-1]
         for j in ['deny', 'allow']:
+            decl_key = "%s-installation" % j
             # flag if deny-*/snap-type matches or allow-*/snap-type doesn't
-            if self._search(decl[side][interface], "%s-installation" % j,
-                            subkey=decl_key, subval=snap_type,
+            if self._search(decl[side][interface], decl_key,
+                            subkey=decl_subkey, subval=snap_type,
                             subval_inverted=(j == 'allow')):
                 self._add_result('error',
-                                 self._get_check_name("%s_%s-installation" %
-                                                      (side, j),
+                                 self._get_check_name("%s_%s" %
+                                                      (side, decl_key),
                                                       app=iface,
                                                       extra=interface),
-                                 "not allowed by '%s-installation/%s'" %
-                                 (j, decl_key),
+                                 "not allowed by '%s/%s'" %
+                                 (decl_key, decl_subkey),
                                  manual_review=True)
                 require_manual = True
 
