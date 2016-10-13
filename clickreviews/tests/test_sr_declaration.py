@@ -1371,3 +1371,107 @@ class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_check_declaration_plugs_deny_connection_attrib_str_match(self):
+        '''Test check_declaration - plugs/deny-connection/attrib - str match'''
+        plugs = {'iface-foo': {'interface': 'foo', 'attrib1': 'val1'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': {
+                        'plug-attributes': {
+                            'attrib1': 'val1'
+                        }
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_deny-connection:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes'"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_deny_connection_attrib_str_nomatch(self):
+        '''Test check_declaration - plugs/deny-connection/attrib - str nomatch'''
+        plugs = {'iface-foo': {'interface': 'foo', 'attrib1': 'val1'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': {
+                        'plug-attributes': {
+                            'attrib1': 'other'
+                        }
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_plugs_allow_connection_attrib_str_match(self):
+        '''Test check_declaration - plugs/allow-connection/attrib - str match'''
+        plugs = {'iface-foo': {'interface': 'foo', 'attrib1': 'val1'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'allow-connection': {
+                        'plug-attributes': {
+                            'attrib1': 'val1'
+                        }
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_plugs_allow_connection_attrib_str_nomatch(self):
+        '''Test check_declaration - plugs/allow-connection/attrib - str nomatch'''
+        plugs = {'iface-foo': {'interface': 'foo', 'attrib1': 'val2'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'allow-connection': {
+                        'plug-attributes': {
+                            'attrib1': 'val1'
+                        }
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_allow-connection:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes'"}
+        self.check_results(r, expected=expected)

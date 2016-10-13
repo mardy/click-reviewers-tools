@@ -262,7 +262,10 @@ class SnapReviewDeclaration(SnapReview):
         '''Search dictionary 'd' for matching values. Returns true when
            - val == d[key]
            - subval in d[key][subkey]
+           - subval dictionary has any matches in d[key][subkey] dict
            - subval_inverted == True and subval not in d[key][subkey]
+           - subval_inverted == True and subval has any non-matches in
+             d[key][subkey] dict
         '''
         found = False
         if key not in d:
@@ -272,15 +275,50 @@ class SnapReviewDeclaration(SnapReview):
             found = True
         elif isinstance(d[key], dict) and subkey is not None and \
                 subval is not None and subkey in d[key]:
-            if subval_inverted:
-                if subval not in d[key][subkey]:
+            if isinstance(d[key][subkey], list):
+                if subval_inverted:
+                    if subval not in d[key][subkey]:
+                        found = True
+                elif subval in d[key][subkey]:
                     found = True
-            elif subval in d[key][subkey]:
-                found = True
+            elif isinstance(d[key][subkey], dict) and isinstance(subval, dict):
+                d_keys = set(d[key][subkey].keys())
+                subval_keys = set(subval.keys())
+                int_keys = d_keys.intersection(subval_keys)
+                matches = 0
+                for subsubkey in int_keys:
+                    # FIXME: no regexes in subkeys
+                    if (isinstance(d[key][subkey][subsubkey], str)):
+                        # attribute value str compare
+                        if d[key][subkey][subsubkey] == subval[subsubkey]:
+                            found = True
+                            matches += 1
+                    elif (isinstance(d[key][subkey][subsubkey], list)):
+                        # attribute value list compare
+                        if sorted(d[key][subkey][subsubkey]) == subval[subsubkey]:
+                            found = True
+                            matches += 1
+                    elif (isinstance(d[key][subkey][subsubkey], dict)):
+                        # attribute value dict compare
+                        if d[key][subkey][subsubkey] == subval[subsubkey]:
+                            found = True
+                            matches += 1
+                    else:
+                        raise
+
+                if subval_inverted:
+                    # return true when something didn't match
+                    if matches != len(int_keys):
+                        found = True
+                    else:
+                        found = False
+            else:
+                raise SnapDeclarationException("unknown type for '%s': %s" %
+                                               (subkey, type(d[key][subkey])))
 
         return found
 
-    def _verify_iface(self, name, iface, interface, decl=None):
+    def _verify_iface(self, name, iface, interface, attribs=None, decl=None):
         # FIXME: don't hardcode series
         series = "16"
 
@@ -332,7 +370,7 @@ class SnapReviewDeclaration(SnapReview):
                     # if manual review after 'deny', don't look at allow
                     break
 
-        # installation snap-type
+        # deny/allow-installation snap-type
         snap_type = 'app'
         if 'type' in self.snap_yaml:
             snap_type = self.snap_yaml['type']
@@ -349,6 +387,31 @@ class SnapReviewDeclaration(SnapReview):
                                                       extra=interface),
                                  "not allowed by '%s-installation/%s'" %
                                  (j, decl_key),
+                                 manual_review=True)
+                require_manual = True
+
+                # if manual review after 'deny', don't look at allow
+                break
+
+        # deny/allow-connection attributes
+        decl_subkey = '%s-attributes' % side[:-1]
+        for j in ['deny', 'allow']:
+            decl_key = "%s-connection" % j
+            if attribs is None:
+                continue
+
+            # flag if any deny-*/attribs match or any allow-*/attribs don't
+            if self._search(decl[side][interface],
+                            decl_key,
+                            subkey=decl_subkey, subval=attribs,
+                            subval_inverted=(j == 'allow')):
+                self._add_result('error',
+                                 self._get_check_name("%s_%s" %
+                                                      (side, decl_key),
+                                                      app=iface,
+                                                      extra=interface),
+                                 "not allowed by '%s/%s'" %
+                                 (decl_key, decl_subkey),
                                  manual_review=True)
                 require_manual = True
 
@@ -382,10 +445,27 @@ class SnapReviewDeclaration(SnapReview):
                 # then 'interface' is optional since the interface name and the
                 # plug/slot name are the same
                 interface = iface
-                if 'interface' in self.snap_yaml[side][iface]:
-                    interface = self.snap_yaml[side][iface]['interface']
 
-                self._verify_iface(side[:-1], iface, interface, decl)
+                spec = self.snap_yaml[side][iface]
+                if isinstance(spec, str):
+                    # Abbreviated syntax (no attributes)
+                    # <plugs|slots>:
+                    #   <alias>: <interface>
+                    interface = spec
+                    attribs = None
+                elif 'interface' in spec:
+                    # Full specification.
+                    # <plugs|slots>:
+                    #   <alias>:
+                    #     interface: <interface>
+                    interface = spec['interface']
+                    attribs = spec
+                    del attribs['interface']
+
+#                 if 'interface' in self.snap_yaml[side][iface]:
+#                     interface = self.snap_yaml[side][iface]['interface']
+
+                self._verify_iface(side[:-1], iface, interface, attribs, decl)
 
     def check_declaration_apps(self):
         '''Check base/snap declaration requires manual review for apps
@@ -411,4 +491,4 @@ class SnapReviewDeclaration(SnapReview):
                     if not isinstance(ref, str):
                         continue  # checked elsewhere
 
-                    self._verify_iface('app_%s' % side[:-1], app, ref, decl)
+                    self._verify_iface('app_%s' % side[:-1], app, ref, decl=decl)
