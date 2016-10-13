@@ -21,6 +21,7 @@ import re
 # Specification:
 # https://docs.google.com/document/d/1QkglVjSzHC65lPthXV3ZlQcqPpKxuGEBL-FMuGP6ogs/edit#
 
+
 class SnapDeclarationException(SnapReviewException):
     '''This class represents SnapDeclaration exceptions'''
 
@@ -341,7 +342,7 @@ class SnapReviewDeclaration(SnapReview):
         if decl is None:
             decl = self.base_declaration[series]
 
-        if interface not in decl[side]:
+        if side not in decl or interface not in decl[side]:
             t = 'info'
             n = self._get_check_name('%s' % name, app=iface, extra=interface)
             s = 'OK (interface not in declaration)'
