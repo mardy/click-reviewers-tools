@@ -122,7 +122,17 @@ class SnapReview(Review):
                           'docker-support': {'privileged-containers/plugs':
                                              False},
                           'gpio': {'number/slots': 0},
-                          'serial-port': {'path/slots': ""},
+                          'hidraw': {'path/slots': "",
+                                   'usb-vendor/slots': 0,
+                                   'usb-product/slots': 0,
+                                   'path/slots': "",
+                                   },
+                          'mpris': {'name/slots': ""},
+                          'serial-port': {'path/slots': "",
+                                          'usb-vendor/slots': 0,
+                                          'usb-product/slots': 0,
+                                          'path/slots': "",
+                                          },
                           }
 
     def __init__(self, fn, review_type, overrides=None):
