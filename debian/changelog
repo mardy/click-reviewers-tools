@@ -28,6 +28,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - add 'content' and 'default-provider' as valid attributes
       for the content interface
     - add 'privileged-containers' as valid attribute for docker-support
+  * add sr_declaration.py:
+    - check snap.yaml against base declaration
 
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
