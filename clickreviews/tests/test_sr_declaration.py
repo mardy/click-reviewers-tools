@@ -1781,4 +1781,3 @@ class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
         except SnapDeclarationException:
             return
         raise Exception("base declaration should be invalid")
-

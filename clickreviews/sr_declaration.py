@@ -306,8 +306,8 @@ class SnapReviewDeclaration(SnapReview):
                             matches += 1
                     else:
                         raise SnapDeclarationException(
-                                "unknown type for '%s': %s" %
-                                (subsubkey, type(d[key][subkey][subsubkey])))
+                            "unknown type for '%s': %s" %
+                            (subsubkey, type(d[key][subkey][subsubkey])))
 
                 if subval_inverted:
                     # return true when something didn't match
