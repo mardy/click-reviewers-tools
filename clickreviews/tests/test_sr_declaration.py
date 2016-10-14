@@ -1482,7 +1482,7 @@ slots:
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_declaration_plugs_deny_connection_attrib_str_match(self):
+    def test_z_check_declaration_plugs_deny_connection_attrib_str_match(self):
         '''Test check_declaration - plugs/deny-connection/attrib - str match'''
         plugs = {'iface-foo': {'interface': 'foo', 'attrib1': 'val1'}}
         self.set_test_snap_yaml("plugs", plugs)
@@ -2455,12 +2455,11 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
-    def _test_check_declaration_slots_mpris(self):
+    def test_check_declaration_slots_mpris(self):
         '''Test check_declaration - slots mpris'''
         slots = {'iface': {'interface': 'mpris',
                            'name': 'foo'}}
         self.set_test_snap_yaml("slots", slots)
-        self.set_test_snap_yaml("type", "gadget")
         c = SnapReviewDeclaration(self.test_name)
         self._use_test_base_declaration(c)
 
@@ -2474,7 +2473,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-connection:iface:mpris'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/slot-attributes'"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_mir(self):

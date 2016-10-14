@@ -261,6 +261,26 @@ class SnapReviewDeclaration(SnapReview):
                     if not base and not found_errors:
                         self._add_result(t, n, s)
 
+    def _match(self, against, val):
+        '''Ordering matters since 'against' is treated as a regex if str'''
+        if type(against) != type(val):
+            return False
+
+        if type(val) not in [str, list, dict, bool]:
+            raise SnapDeclarationException("unknown type '%s'" % val)
+
+        matched = False
+
+        if isinstance(val, str):
+            if re.search(r'^(%s)$' % against, val):
+                matched = True
+        elif isinstance(val, list):
+            matched = (sorted(against) == sorted(val))
+        else:  # bools and dicts (TODO: nested matches for dicts)
+            matched = (against == val)
+
+        return matched
+
     def _search(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
         '''Search dictionary 'd' for matching values. Returns true when
            - val == d[key]
@@ -290,23 +310,8 @@ class SnapReviewDeclaration(SnapReview):
                 int_keys = d_keys.intersection(subval_keys)
                 matches = 0
                 for subsubkey in int_keys:
-                    if type(d[key][subkey][subsubkey]) not in [str,
-                                                               list,
-                                                               dict,
-                                                               bool]:
-                        raise SnapDeclarationException(
-                            "unknown type for '%s': %s" %
-                            (subsubkey, type(d[key][subkey][subsubkey])))
-
-                    # FIXME: no regexes in subkeys
-                    dval = d[key][subkey][subsubkey]
-                    sval = subval[subsubkey]
-                    # attribute value compare. All values must match whether
-                    # str, list or dict
-                    if (isinstance(d[key][subkey][subsubkey], list)):
-                        dval = sorted(d[key][subkey][subsubkey])
-                        sval = sorted(subval[subsubkey])
-                    if dval == sval:
+                    if self._match(d[key][subkey][subsubkey],
+                                   subval[subsubkey]):
                         found = True
                         matches += 1
 
