@@ -67,6 +67,7 @@ class SnapReviewLint(SnapReview):
         # NOTE: this will eventually move to assertions
         self.redflagged_snap_types_overrides = {
             'kernel': ['dragonboard-kernel',
+                       'linux-generic-bbb',
                        'pc-kernel',
                        'pi2-kernel',
                        ],
