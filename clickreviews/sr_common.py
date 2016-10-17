@@ -118,6 +118,7 @@ class SnapReview(Review):
                                       'target/plugs': "",
                                       'default-provider/plugs': "",
                                       'content/plugs': "",
+                                      'content/slots': "",
                                       },
                           'docker-support': {'privileged-containers/plugs':
                                              False},
