@@ -16,6 +16,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - add check_assumes() (LP: #1586429)
     - don't flag 'core' os snap for manual review
     - webbrowser-app may use browser-support with allow-sandbox
+    - linux-generic-bbb is allowed as a kernel
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides
@@ -30,6 +31,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - add 'privileged-containers' as valid attribute for docker-support
   * add sr_declaration.py:
     - check snap.yaml against base declaration
+  * add bin/create-snap-declaration.py
 
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
