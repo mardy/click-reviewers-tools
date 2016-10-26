@@ -25,6 +25,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
       magic_binary_file_descriptions to reduce false positives in
       _list_all_compiled_binaries() (LP: #1591253)
     - don't traceback in recursive_rm if encounter a directory we cannot read
+    - allow snaps to symlink to SNAP and SNAP_DATA in find_external_symlinks()
   * sr_common.py:
     - add 'content' and 'default-provider' as valid attributes
       for the content interface

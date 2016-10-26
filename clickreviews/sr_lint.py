@@ -1213,7 +1213,8 @@ class SnapReviewLint(SnapReview):
         t = 'info'
         n = self._get_check_name('external_symlinks')
         s = 'OK'
-        links = find_external_symlinks(self._get_unpack_dir(), self.pkg_files)
+        links = find_external_symlinks(self._get_unpack_dir(), self.pkg_files,
+                                       self.snap_yaml['name'])
         if len(links) > 0:
             t = 'error'
             s = 'package contains external symlinks: %s' % ', '.join(links)

@@ -658,7 +658,7 @@ def detect_package(fn, dir=None):
     return (pkgtype, pkgver)
 
 
-def find_external_symlinks(unpack_dir, pkg_files):
+def find_external_symlinks(unpack_dir, pkg_files, pkgname):
     '''Check if symlinks in the package go out to the system.'''
     common = '(-[0-9.]+)?\.so(\.[0-9.]+)?'
     libc6_libs = ['ld-*.so',
@@ -698,11 +698,18 @@ def find_external_symlinks(unpack_dir, pkg_files):
                 return True
         return False
 
-    external_symlinks = list(filter(lambda link: not
-                             os.path.realpath(link).startswith(
-                                 unpack_dir) and
-                             not _in_patterns(libc6_pats,
-                                              os.path.basename(link)),
+    def _is_external(link, pats, pkgname):
+        rp = os.path.realpath(link)
+        if not rp.startswith(unpack_dir + "/") and \
+                not rp.startswith(os.path.join("/snap", pkgname) + "/") and \
+                not rp.startswith(
+                    os.path.join("/var/snap", pkgname) + "/") and \
+                not _in_patterns(pats, os.path.basename(link)):
+            return True
+        return False
+
+    external_symlinks = list(filter(lambda link:
+                             _is_external(link, libc6_pats, pkgname),
                              pkg_files))
 
     return [os.path.relpath(i, unpack_dir) for i in external_symlinks]

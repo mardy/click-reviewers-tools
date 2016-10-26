@@ -3298,6 +3298,28 @@ class TestSnapReviewLintNoMock(TestCase):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_external_symlinks_has_symlink_to_snap(self):
+        '''Test check_external_symlinks() - /snap/<pkgname>/...'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['/snap/test/current/foo,/snap/test/current/foo']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_external_symlinks_has_symlink_to_snap_data(self):
+        '''Test check_external_symlinks() - /var/snap/<pkgname>/...'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['/var/snap/test/current/foo,/var/snap/test/current/foo']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_external_symlinks()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_external_symlinks_type_kernel(self):
         '''Test check_external_symlinks() - type kernel'''
         output_dir = self.mkdtemp()

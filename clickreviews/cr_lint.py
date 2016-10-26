@@ -571,7 +571,8 @@ exit 1
                     self._add_result(t, n, s)
                     return
 
-        links = find_external_symlinks(self.unpack_dir, self.pkg_files)
+        links = find_external_symlinks(self.unpack_dir, self.pkg_files,
+                                       self.click_pkgname)
         if len(links) > 0:
             t = 'error'
             s = 'package contains external symlinks: %s' % ', '.join(links)
