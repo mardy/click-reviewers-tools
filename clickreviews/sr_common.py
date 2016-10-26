@@ -169,7 +169,7 @@ class SnapReview(Review):
             local_copy = branch_fn
         p = snapd_base_declaration.SnapdBaseDeclaration(local_copy)
         self.base_declaration = p.decl
-        self.base_declatation_series = "16"
+        self.base_declaration_series = "16"
 
         # TODO: may need updating for ubuntu-personal, etc
         self.policy_vendor = "ubuntu-core"
