@@ -80,27 +80,6 @@ class SnapReviewLint(SnapReview):
                        'pi3',
                        ],
         }
-        # d[<interface>][<attribute>] = list of pkg names allowed to use the
-        # interface and/or attribute (snaps not in these lists will be flagged
-        # for manual review if they specify the interface). Specifying '' for
-        # the attribute here means any attribute. We only check these for plugs
-        # since slots are blacklisted already.
-        # NOTE: this will eventually move to assertions
-        self.redflagged_snap_interface_plugs = {
-            'browser-support': {'allow-sandbox': ['chrome-test',
-                                                  'firefox',
-                                                  'webbrowser-app',
-                                                  ],
-                                },
-            'docker-support': {'': ['docker'],
-                               },
-            'kernel-module-control': {'': ['canonical-livepatch'],
-                                      },
-            'lxd-support': {'': ['lxd'],  # snapd also has a test for this
-                            },
-            'snapd-control': {'': [],  # eventually use webdm
-                              },
-        }
 
         self.interface_plug_requires_desktop_file = ['unity7',
                                                      'x11',
@@ -1027,21 +1006,6 @@ class SnapReviewLint(SnapReview):
             if t == 'error':
                 continue
 
-            # Check allowed interfaces by snap name
-            if iface_type == 'plugs':
-                pkgname = self.snap_yaml['name']
-                t = 'info'
-                n = self._get_check_name("blacklist", app=interface, extra=iface)
-                s = "OK"
-                m = False
-                if interface in self.redflagged_snap_interface_plugs \
-                   and '' in self.redflagged_snap_interface_plugs[interface] \
-                   and pkgname not in self.redflagged_snap_interface_plugs[interface]['']:
-                        t = 'warn'
-                        s = "(NEEDS REVIEW) '%s' requires approval" % interface
-                        m = True
-                self._add_result(t, n, s, manual_review=m)
-
             # Abbreviated interfaces don't have attributes, done checking.
             if isinstance(spec, str):
                 continue
@@ -1066,22 +1030,6 @@ class SnapReviewLint(SnapReview):
                         (attrib,
                          type(self.interfaces[interface][attrib_key]).__name__)
                 self._add_result(t, n, s)
-
-                # Check allowed interface attributes by snap name
-                if iface_type == 'plugs':
-                    pkgname = self.snap_yaml['name']
-                    t = 'info'
-                    n = self._get_check_name("blacklist_attributes",
-                                             app=interface, extra=attrib)
-                    s = "OK"
-                    m = False
-                    if interface in self.redflagged_snap_interface_plugs \
-                       and attrib in self.redflagged_snap_interface_plugs[interface] \
-                       and pkgname not in self.redflagged_snap_interface_plugs[interface][attrib]:
-                            t = 'warn'
-                            s = "(NEEDS REVIEW) '%s' with '%s' requires approval" % (interface, attrib)
-                            m = True
-                    self._add_result(t, n, s, manual_review=m)
 
     def check_plugs(self):
         '''Check plugs'''
@@ -1135,21 +1083,6 @@ class SnapReviewLint(SnapReview):
             self._add_result(t, n, s)
             if t == 'error':
                 continue
-
-            # Check allowed interfaces by snap name
-            if key == 'plugs' and ref in self.interfaces:
-                pkgname = self.snap_yaml['name']
-                t = 'info'
-                n = self._get_check_name("blacklist", app=val, extra=ref)
-                s = "OK"
-                m = False
-                if ref in self.redflagged_snap_interface_plugs \
-                   and '' in self.redflagged_snap_interface_plugs[ref] \
-                   and pkgname not in self.redflagged_snap_interface_plugs[ref]['']:
-                        t = 'warn'
-                        s = "(NEEDS REVIEW) '%s' requires approval" % ref
-                        m = True
-                self._add_result(t, n, s, manual_review=m)
 
     def check_apps_plugs(self):
         '''Check apps plugs'''
