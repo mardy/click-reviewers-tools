@@ -125,8 +125,6 @@ lint-snap-v2:apps_unknown|
 lint-snap-v2:architecture_specified_needed|
 lint-snap-v2:architecture_valid|
 lint-snap-v2:assumes_valid|
-lint-snap-v2:blacklist|
-lint-snap-v2:blacklist_attributes|
 lint-snap-v2:command|
 lint-snap-v2:config_hook_executable|
 lint-snap-v2:confinement_valid|
@@ -240,15 +238,10 @@ security:policy_version_matches_framework|http://askubuntu.com/q/686347
 security:profile_name_length|
 security:redflag_fields|
 security:required_policy_groups_ubuntu_account_plugin|
-security-snap-v2:app_plug_safe|
-security-snap-v2:app_slot_safe|
 security-snap-v2:daemon_with_browser-support|
-security-snap-v2:is_slot|
-security-snap-v2:plug_safe|http://askubuntu.com/a/562123/94326
 security-snap-v2:policy-vendor|
 security-snap-v2:policy-version|
 security-snap-v2:profile_name_length|
-security-snap-v2:slot_safe|http://askubuntu.com/a/562123/94326
 security-snap-v2:squashfs_files|
 security-snap-v2:squashfs_files_malformed_line|
 security-snap-v2:squashfs_files_malformed output|

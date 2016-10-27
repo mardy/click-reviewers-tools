@@ -43,9 +43,6 @@ class SnapReviewSecurity(SnapReview):
                                   'os',
                                   'kernel']  # these don't need security items
 
-        self.sec_safe_slots = ['content',
-                               'mpris']
-
         # Let's try to catch weird stuff in the os snap
         self.sec_mode_overrides = {
             'core': {
@@ -162,90 +159,6 @@ class SnapReviewSecurity(SnapReview):
             s = "unknown policy-version '%s'" % self.policy_version
         self._add_result(t, n, s)
 
-    def _verify_iface(self, name, iface, interface):
-        sec_type = self._get_policy_group_type(self.policy_vendor,
-                                               self.policy_version,
-                                               interface)
-        if sec_type is None:
-            return  # not in aa_policy
-
-        o = self._devmode_override()
-        if name.endswith('slot') and interface not in self.sec_safe_slots:
-            t = 'info'
-            n = self._get_check_name('is_slot', app=iface,
-                                     extra=interface)
-            s = "OK"
-            m = False
-            if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'gadget':
-                s = 'OK (slots in gadget snaps are ok)'
-            else:
-                t = 'warn'
-                s = "(NEEDS REVIEW) slots requires approval"
-                if o is None:
-                    m = True
-            self._add_result(t, n, s, manual_review=m, override_result_type=o)
-
-        t = 'info'
-        n = self._get_check_name('%s_safe' % name, app=iface, extra=interface)
-        s = "OK"
-        m = False
-        l = None
-        if interface == "debug":
-            # IMPORTANT: do not change this string without coordination from
-            # the SDK team (LP: # 1415487)
-            t = 'error'
-            s = "'%s' not for production use" % interface
-            l = 'http://askubuntu.com/a/562123/94326'
-            if o is None:
-                m = True
-        elif sec_type == "reserved":
-            t = 'error'
-            s = "%s interface '%s' for vetted applications only" % (sec_type,
-                                                                    interface)
-            if o is None:
-                m = True
-        elif sec_type != "common":
-            t = 'error'
-            s = "unknown type '%s' for interface '%s'" % (sec_type, interface)
-            o = None
-        self._add_result(t, n, s, l, manual_review=m, override_result_type=o)
-
-    def check_security_plugs(self):
-        '''Check security plugs'''
-        if not self.is_snap2 or 'plugs' not in self.snap_yaml:
-            return
-
-        for plug in self.snap_yaml['plugs']:
-            # If the 'interface' name is the same as the 'plug' name, then
-            # 'interface' is optional since the interface name and the plug
-            # name are the same
-            interface = plug
-            if 'interface' in self.snap_yaml['plugs'][plug]:
-                interface = self.snap_yaml['plugs'][plug]['interface']
-
-            self._verify_iface('plug', plug, interface)
-
-    def check_security_apps_plugs(self):
-        '''Check security app plugs'''
-        if not self.is_snap2 or 'apps' not in self.snap_yaml:
-            return
-
-        for app in self.snap_yaml['apps']:
-            if 'plugs' not in self.snap_yaml['apps'][app]:
-                continue
-
-            # The interface referenced in the app's 'plugs' field can either be
-            # a known interface (when the interface name reference and the
-            # interface is the same) or can reference a name in the snap's
-            # toplevel 'plugs' mapping
-            for plug_ref in self.snap_yaml['apps'][app]['plugs']:
-                if not isinstance(plug_ref, str):
-                    continue  # checked elsewhere
-                elif plug_ref not in self.interfaces:
-                    continue  # check_security_plugs() verifies these
-
-                self._verify_iface('app_plug', app, plug_ref)
-
     def check_security_plugs_browser_support_with_daemon(self):
         '''Check security plugs - browser-support not used with daemon'''
         def _plugref_is_interface(ref, iface):
@@ -288,42 +201,6 @@ class SnapReviewSecurity(SnapReview):
                                              app=app)
                     s = "(NEEDS REVIEW) 'daemon' should not be used with 'browser-support'"
                     self._add_result(t, n, s, manual_review=True)
-
-    def check_security_slots(self):
-        '''Check security slots'''
-        if not self.is_snap2 or 'slots' not in self.snap_yaml:
-            return
-
-        for slot in self.snap_yaml['slots']:
-            # If the 'interface' name is the same as the 'slot' name, then
-            # 'interface' is optional since the interface name and the slot
-            # name are the same
-            interface = slot
-            if 'interface' in self.snap_yaml['slots'][slot]:
-                interface = self.snap_yaml['slots'][slot]['interface']
-
-            self._verify_iface('slot', slot, interface)
-
-    def check_security_apps_slots(self):
-        '''Check security app slots'''
-        if not self.is_snap2 or 'apps' not in self.snap_yaml:
-            return
-
-        for app in self.snap_yaml['apps']:
-            if 'slots' not in self.snap_yaml['apps'][app]:
-                continue
-
-            # The interface referenced in the app's 'slots' field can either be
-            # a known interface (when the interface name reference and the
-            # interface is the same) or can reference a name in the snap's
-            # toplevel 'slots' mapping
-            for slot_ref in self.snap_yaml['apps'][app]['slots']:
-                if not isinstance(slot_ref, str):
-                    continue  # checked elsewhere
-                elif slot_ref not in self.interfaces:
-                    continue  # check_security_slots() verifies these
-
-                self._verify_iface('app_slot', app, slot_ref)
 
     def check_apparmor_profile_name_length(self):
         '''Check AppArmor profile name length'''
