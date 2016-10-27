@@ -10,16 +10,16 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - don't warn when using 'grade' with 'type: os'
     - only check for presence of Exec= in desktop file since there is no
       guarantee that the binary will match a command name
-    - docker may use docker-support interface
     - add check_hooks() (LP: #1586465)
     - add check_hooks_plugs()
     - add check_assumes() (LP: #1586429)
     - don't flag 'core' os snap for manual review
-    - webbrowser-app may use browser-support with allow-sandbox
     - linux-generic-bbb is allowed as a kernel
+    - remove interface checks that are now handled by sr_declaration.py
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides
+    - remove interface checks that are now handled by sr_declaration.py
   * common.py:
     - remove 'application/octet-stream; charset=binary' from
       magic_binary_file_descriptions to reduce false positives in
@@ -37,7 +37,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 29 Aug 2016 12:39:51 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 27 Oct 2016 16:58:43 -0500
 
 click-reviewers-tools (0.45) yakkety; urgency=medium
 
