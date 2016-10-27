@@ -31,7 +31,7 @@ class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
 plugs:
   # super-privileged implicit
   docker-support: # snap decl needs 'allow-connection: ...'
-    deny-connection: true
+    allow-installation: false
     deny-auto-connection: true
 slots:
   # manually connected implicit
@@ -44,15 +44,14 @@ slots:
     allow-installation:
       slot-snap-type:
       - core
-    deny-connection: true
     deny-auto-connection: true
   # auto-connected implicit
   home:
     allow-installation:
       slot-snap-type:
       - core
-    allow-auto-connection:
-      on-classic: true
+    deny-auto-connection:
+      on-classic: false
   content:
     allow-installation:
       slot-snap-type:
@@ -74,9 +73,6 @@ slots:
       - core
   # manually connecect app-provided
   bluez: # snap decl needs 'allow-connection: ...'
-    allow-installation:
-      slot-snap-type:
-      - app
     deny-connection: true
     deny-auto-connection: true
   docker: # snap decl needs 'allow-installation/connection: ...'
@@ -90,6 +86,7 @@ slots:
     deny-connection:
       slot-attributes:
         name: .+
+    deny-auto-connection: true
   mir: # snap decl needs 'allow-connection: ...'
     allow-installation:
       slot-snap-type:
@@ -100,7 +97,6 @@ slots:
       slot-snap-type:
       - core
       - gadget
-    deny-connection: true
     deny-auto-connection: true
 ''')
         c._verify_declaration(decl=decl, base=True)
@@ -880,7 +876,8 @@ slots:
                     'allow-connection': {
                         'slot-attributes': {
                             'read': ["/foo"],
-                            'write': ["/bar"]
+                            'write': ["/bar"],
+                            'content': "baz"
                         },
                         'plug-attributes': {
                             'target': "/target",
@@ -2115,8 +2112,8 @@ slots:
         expected['error'] = dict()
         expected['warn'] = dict()
         expected['info'] = dict()
-        name = 'declaration-snap-v2:plugs_deny-connection:iface:docker-support'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        name = 'declaration-snap-v2:plugs_allow-installation:iface:docker-support'
+        expected['error'][name] = {"text": "not allowed by 'allow-installation'"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_docker_support(self):
@@ -2129,15 +2126,15 @@ slots:
 
         c.check_declaration()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
         expected = dict()
         expected['error'] = dict()
         expected['warn'] = dict()
         expected['info'] = dict()
-        name = 'declaration-snap-v2:slots_deny-connection:iface:docker-support'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        name = 'declaration-snap-v2:slots:iface:docker-support'
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_home(self):
@@ -2207,6 +2204,7 @@ slots:
     def test_check_declaration_slots_content(self):
         '''Test check_declaration - slots content'''
         slots = {'iface': {'interface': 'content',
+                           'content': 'bar',
                            'read': 'foo',
                            'write': 'bar'}}
         self.set_test_snap_yaml("slots", slots)
@@ -2547,13 +2545,13 @@ slots:
 
         c.check_declaration()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
         expected = dict()
         expected['error'] = dict()
         expected['warn'] = dict()
         expected['info'] = dict()
-        name = 'declaration-snap-v2:slots_deny-connection:iface:serial-port'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        name = 'declaration-snap-v2:slots:iface:serial-port'
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)

@@ -11,6 +11,7 @@ content_hub:valid_value|
 declaration-snap-v2:app_slot_known|
 declaration-snap-v2:plugs|
 declaration-snap-v2:plugs_allow-connection|
+declaration-snap-v2:plugs_allow-installation|
 declaration-snap-v2:plugs_deny-connection|
 declaration-snap-v2:plugs_deny-installation|
 declaration-snap-v2:slot_known|
