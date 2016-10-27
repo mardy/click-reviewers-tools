@@ -406,6 +406,8 @@ class SnapReviewDeclaration(SnapReview):
         snap_type = 'app'
         if 'type' in self.snap_yaml:
             snap_type = self.snap_yaml['type']
+            if snap_type == 'os':
+                snap_type = 'core'
         decl_subkey = '%s-snap-type' % side[:-1]
         for j in ['deny', 'allow']:
             decl_key = "%s-installation" % j
