@@ -212,13 +212,20 @@ class SnapReviewDeclaration(SnapReview):
                                             found_iface_attr = True
 
                                         attr_type = cstr[cstr_key][attrib]
-                                        if not isinstance(attr_type, type(self.interfaces_attribs[iface][tmp])):
-                                            malformed(bn, "wrong type '%s' for attribute '%s'" % (attr_type, attrib), base)
+                                        if not isinstance(attr_type,
+                                                          type(self.interfaces_attribs[iface][tmp])):
+                                            malformed(bn,
+                                                      "wrong type '%s' for attribute '%s'"
+                                                      % (attr_type, attrib),
+                                                      base)
                                             found_errors = True
                                             break
 
                                     if not found_iface_attr:
-                                        malformed(bn, "attribute '%s' wrong for '%ss'" % (attrib, cstr_key[:4]), base)
+                                        malformed(bn,
+                                                  "attribute '%s' wrong for '%ss'"
+                                                  % (attrib, cstr_key[:4]),
+                                                  base)
                                         found_errors = True
 
                         if not found_errors and \
