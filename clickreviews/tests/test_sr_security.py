@@ -90,40 +90,6 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
             sum += len(c.click_report[i])
         self.assertTrue(sum == 0)
 
-    def test_check_security_policy_vendor(self):
-        '''Test check_security_policy_vendor()'''
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy_vendor()
-        report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_vendor_missing(self):
-        '''Test check_security_policy_vendor() - missing'''
-        c = SnapReviewSecurity(self.test_name)
-        c.aa_policy.pop("ubuntu-core", None)
-        c.check_security_policy_vendor()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_version(self):
-        '''Test check_security_policy_vesion()'''
-        c = SnapReviewSecurity(self.test_name)
-        c.check_security_policy_version()
-        report = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(report, expected_counts)
-
-    def test_check_security_policy_version_missing(self):
-        '''Test check_security_policy_vesion()'''
-        c = SnapReviewSecurity(self.test_name)
-        c.aa_policy["ubuntu-core"].pop("16.04", None)
-        c.check_security_policy_version()
-        report = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(report, expected_counts)
-
     def test_check_security_plugs_browser_support_with_daemon_top_plugs(self):
         ''' Test check_security_plugs() - daemon with toplevel plugs'''
         plugs = {'browser': {'interface': 'browser-support'}}

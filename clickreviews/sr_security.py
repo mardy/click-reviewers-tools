@@ -133,32 +133,6 @@ class SnapReviewSecurity(SnapReview):
         '''Run unsquashfs -lls on a snap package'''
         return cmd(['unsquashfs', '-lls', snap_pkg])
 
-    def check_security_policy_vendor(self):
-        '''Check policy-vendor'''
-        if not self.is_snap2:
-            return
-
-        t = 'info'
-        n = self._get_check_name('policy-vendor')
-        s = 'OK'
-        if self.policy_vendor not in self.aa_policy:
-            t = 'error'
-            s = "unknown policy-vendor '%s'" % self.policy_vendor
-        self._add_result(t, n, s)
-
-    def check_security_policy_version(self):
-        '''Check policy-version'''
-        if not self.is_snap2 or self.policy_vendor not in self.aa_policy:
-            return
-
-        t = 'info'
-        n = self._get_check_name('policy-version')
-        s = 'OK'
-        if self.policy_version not in self.aa_policy[self.policy_vendor]:
-            t = 'error'
-            s = "unknown policy-version '%s'" % self.policy_version
-        self._add_result(t, n, s)
-
     def check_security_plugs_browser_support_with_daemon(self):
         '''Check security plugs - browser-support not used with daemon'''
         def _plugref_is_interface(ref, iface):

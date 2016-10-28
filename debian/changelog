@@ -20,6 +20,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides
     - remove interface checks that are now handled by sr_declaration.py
+    - remove policy_vendor and policy_version checks since they don't apply
+      to declaration checks
   * common.py:
     - remove 'application/octet-stream; charset=binary' from
       magic_binary_file_descriptions to reduce false positives in
@@ -30,6 +32,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - add 'content' and 'default-provider' as valid attributes
       for the content interface
     - add 'privileged-containers' as valid attribute for docker-support
+    - don't read in old apparmor policy or use aa_policy dict and use only
+      the base declaration
   * add sr_declaration.py:
     - check snap.yaml against base declaration
   * add bin/create-snap-declaration.py

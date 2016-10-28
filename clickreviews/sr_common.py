@@ -27,7 +27,6 @@ from clickreviews.common import (
     open_file_read,
 )
 
-import clickreviews.apparmor_policy as apparmor_policy
 import clickreviews.snapd_base_declaration as snapd_base_declaration
 
 
@@ -104,8 +103,8 @@ class SnapReview(Review):
     # etc).  # Interfaces with no attributes should specify an empty
     # dictionary.
     #
-    # Interfaces from apparmor-easyprof-ubuntu.json are read in __init__() so
-    # they don't have to be added to self.interfaces.
+    # Interfaces are read from the base declaration in __init__() so they don't
+    # have to be added to self.interfaces.
     interfaces = dict()
 
     # Since apparmor-easyprof-ubuntu.json doesn't allow specifying attributes,
@@ -126,13 +125,11 @@ class SnapReview(Review):
                           'hidraw': {'path/slots': "",
                                      'usb-vendor/slots': 0,
                                      'usb-product/slots': 0,
-                                     'path/slots': "",
                                      },
                           'mpris': {'name/slots': ""},
                           'serial-port': {'path/slots': "",
                                           'usb-vendor/slots': 0,
                                           'usb-product/slots': 0,
-                                          'path/slots': "",
                                           },
                           }
 
@@ -153,17 +150,6 @@ class SnapReview(Review):
         # tree, use it unconditionally.
         local_copy = None
         branch_fn = os.path.join(os.path.dirname(__file__),
-                                 '../data/apparmor-easyprof-ubuntu.json')
-        if os.path.exists(branch_fn):
-            local_copy = branch_fn
-        p = apparmor_policy.ApparmorPolicy(local_copy)
-        self.aa_policy = p.policy
-
-        # If local_copy is None, then this will check the server to see if
-        # we are up to date. However, if we are working within the development
-        # tree, use it unconditionally.
-        local_copy = None
-        branch_fn = os.path.join(os.path.dirname(__file__),
                                  '../data/snapd-base-declaration.yaml')
         if os.path.exists(branch_fn):
             local_copy = branch_fn
@@ -171,21 +157,13 @@ class SnapReview(Review):
         self.base_declaration = p.decl
         self.base_declaration_series = "16"
 
-        # TODO: may need updating for ubuntu-personal, etc
-        self.policy_vendor = "ubuntu-core"
-        self.policy_version = str(self._pkgfmt_version())
-
-        if self.policy_vendor in self.aa_policy and \
-                self.policy_version in self.aa_policy[self.policy_vendor] and \
-                'policy_groups' in self.aa_policy[self.policy_vendor][self.policy_version]:
-            for t in ['common', 'reserved']:
-                if t not in self.aa_policy[self.policy_vendor][self.policy_version]['policy_groups']:
-                    continue
-                for p in self.aa_policy[self.policy_vendor][self.policy_version]['policy_groups'][t]:
-                    if p in self.interfaces_attribs:
-                        self.interfaces[p] = self.interfaces_attribs[p]
-                    else:
-                        self.interfaces[p] = {}
+        # to simplify checks, gather up all the interfaces into one dict()
+        for side in ['plugs', 'slots']:
+            for k in self.base_declaration[self.base_declaration_series][side]:
+                if k in self.interfaces_attribs:
+                    self.interfaces[k] = self.interfaces_attribs[k]
+                else:
+                    self.interfaces[k] = {}
 
         # default to 'app'
         if 'type' not in self.snap_yaml:
