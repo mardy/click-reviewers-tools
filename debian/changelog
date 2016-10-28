@@ -35,9 +35,11 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - don't read in old apparmor policy or use aa_policy dict and use only
       the base declaration
   * add sr_declaration.py:
-    - check snap.yaml against base declaration
+    - check snap.yaml against base and snap declarations
   * add bin/create-snap-declaration.py
   * cr_common.py: refactor anything that uses aa_policy from common.py
+  * bin/click-review: support --plugs and --slots and apply them as snap
+    declaration overrides
 
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
