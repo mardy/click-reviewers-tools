@@ -220,10 +220,3 @@ class SnapReview(Review):
         if pat.search(n):
             return True
         return False
-
-    def _devmode_override(self):
-        '''Determine override result type based on confinement property'''
-        if 'confinement' in self.snap_yaml and \
-                self.snap_yaml['confinement'] == "devmode":
-            return 'info'
-        return None
