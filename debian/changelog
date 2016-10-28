@@ -37,6 +37,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
   * add sr_declaration.py:
     - check snap.yaml against base declaration
   * add bin/create-snap-declaration.py
+  * cr_common.py: refactor anything that uses aa_policy from common.py
 
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
