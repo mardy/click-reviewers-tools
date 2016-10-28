@@ -352,6 +352,7 @@ class SnapReviewDeclaration(SnapReview):
         '''
         decl = self.base_declaration
         base_decl = True
+        decl_type = "base"
 
         if self.snap_declaration is not None and \
                 side in self.snap_declaration and \
@@ -360,9 +361,10 @@ class SnapReviewDeclaration(SnapReview):
                 if k.endswith(dtype):
                     decl = self.snap_declaration
                     base_decl = False
+                    decl_type = "snap"
                     break
 
-        return (decl, base_decl)
+        return (decl, base_decl, decl_type)
 
     def _verify_iface(self, name, iface, interface, attribs=None):
         '''verify interface
@@ -406,7 +408,8 @@ class SnapReviewDeclaration(SnapReview):
             for j in ['deny', 'allow']:
                 decl_key = "%s-%s" % (j, i)
                 # flag if deny-* is true or allow-* is false
-                (decl, base_decl) = self._get_decl(side, interface, i)
+                (decl, base_decl, decl_type) = self._get_decl(side, interface,
+                                                              i)
                 if side in decl and interface in decl[side] and \
                         self._search(decl[side][interface], "%s" % decl_key,
                                      j == 'deny'):
@@ -415,7 +418,8 @@ class SnapReviewDeclaration(SnapReview):
                                                           (side, decl_key),
                                                           app=iface,
                                                           extra=interface),
-                                     "not allowed by '%s'" % decl_key,
+                                     "not allowed by '%s' in %s declaration" %
+                                     (decl_key, decl_type),
                                      manual_review=True)
                     require_manual = True
 
@@ -430,7 +434,8 @@ class SnapReviewDeclaration(SnapReview):
                 snap_type = 'core'
         decl_subkey = '%s-snap-type' % side[:-1]
         for j in ['deny', 'allow']:
-            (decl, base_decl) = self._get_decl(side, interface, 'installation')
+            (decl, base_decl, decl_type) = self._get_decl(side, interface,
+                                                          'installation')
             decl_key = "%s-installation" % j
             # flag if deny-*/snap-type matches or allow-*/snap-type doesn't
             if side in decl and interface in decl[side] and \
@@ -442,8 +447,8 @@ class SnapReviewDeclaration(SnapReview):
                                                       (side, decl_key),
                                                       app=iface,
                                                       extra=interface),
-                                 "not allowed by '%s/%s'" %
-                                 (decl_key, decl_subkey),
+                                 "not allowed by '%s/%s' in %s declaration" %
+                                 (decl_key, decl_subkey, decl_type),
                                  manual_review=True)
                 require_manual = True
 
@@ -453,7 +458,8 @@ class SnapReviewDeclaration(SnapReview):
         # deny/allow-connection attributes
         decl_subkey = '%s-attributes' % side[:-1]
         for j in ['deny', 'allow']:
-            (decl, base_decl) = self._get_decl(side, interface, 'connection')
+            (decl, base_decl, decl_type) = self._get_decl(side, interface,
+                                                          'connection')
             decl_key = "%s-connection" % j
             if attribs is None:
                 continue
@@ -468,8 +474,8 @@ class SnapReviewDeclaration(SnapReview):
                                                       (side, decl_key),
                                                       app=iface,
                                                       extra=interface),
-                                 "not allowed by '%s/%s'" %
-                                 (decl_key, decl_subkey),
+                                 "not allowed by '%s/%s' in %s declaration" %
+                                 (decl_key, decl_subkey, decl_type),
                                  manual_review=True)
                 require_manual = True
 

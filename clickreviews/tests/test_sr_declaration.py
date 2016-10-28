@@ -1225,7 +1225,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-installation:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-installation'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-installation' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_deny_installation_true_abbreviated(self):
@@ -1251,7 +1251,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-installation:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-installation'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-installation' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_deny_installation_false(self):
@@ -1295,7 +1295,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_allow-installation:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'allow-installation'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-installation' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_allow_installation_true(self):
@@ -1339,7 +1339,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_deny-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_connection_false(self):
@@ -1383,7 +1383,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_allow-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'allow-connection'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-connection' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_allow_connection_true(self):
@@ -1512,7 +1512,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_allow-installation:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'allow-installation/slot-snap-type'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-installation/slot-snap-type' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_installation_snap_type_app(self):
@@ -1540,7 +1540,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_deny-installation:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-installation/plug-snap-type'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-installation/plug-snap-type' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_installation_snap_type_bad(self):
@@ -1590,7 +1590,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_deny-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_connection_attrib_str_nomatch(self):
@@ -1664,7 +1664,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_allow-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_connection_attrib_str2_match(self):
@@ -1697,7 +1697,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_deny-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_connection_attrib_str2_match2(self):
@@ -1728,7 +1728,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_deny-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_connection_attrib_str2_nomatch(self):
@@ -1836,7 +1836,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_allow-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_deny_connection_attrib_list_match(self):
@@ -1866,7 +1866,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection/slot-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/slot-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_deny_connection_attrib_list_nomatch(self):
@@ -1940,7 +1940,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_allow-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'allow-connection/slot-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-connection/slot-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_connection_attrib_dict_match(self):
@@ -1971,7 +1971,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_deny-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_connection_attrib_dict_nomatch(self):
@@ -2048,7 +2048,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_allow-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_deny_connection_attrib_str_missing(self):
@@ -2146,7 +2146,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_allow-connection:iface-foo:foo'
-        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_bluetooth_control(self):
@@ -2186,7 +2186,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_allow-installation:iface:bluetooth-control'
-        expected['error'][name] = {"text": "not allowed by 'allow-installation/slot-snap-type'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-installation/slot-snap-type' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_bluetooth_control_core(self):
@@ -2227,7 +2227,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_allow-installation:iface:docker-support'
-        expected['error'][name] = {"text": "not allowed by 'allow-installation'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-installation' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_docker_support_override(self):
@@ -2559,7 +2559,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_allow-connection:iface:network'
-        expected['error'][name] = {"text": "not allowed by 'allow-connection'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-connection' in snap declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_network(self):
@@ -2621,7 +2621,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-connection:iface:bluez'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_docker(self):
@@ -2662,9 +2662,9 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-connection:iface:docker'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
         name = 'declaration-snap-v2:slots_allow-installation:iface:docker'
-        expected['error'][name] = {"text": "not allowed by 'allow-installation'"}
+        expected['error'][name] = {"text": "not allowed by 'allow-installation' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_docker_override_install_connect(self):
@@ -2713,7 +2713,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-connection:iface:docker'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
         name = 'declaration-snap-v2:valid_slots:docker:allow-installation'
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
@@ -2756,7 +2756,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-connection:iface:mpris'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection/slot-attributes'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/slot-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_mir(self):
@@ -2797,7 +2797,7 @@ slots:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-connection:iface:mir'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_mir_override_connection(self):
