@@ -1181,6 +1181,28 @@ slots:
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_declaration_interface_app_nonexistent_ref_skipped(self):
+        '''Test check_declaration - interface - app - skip nonexistent ref'''
+        plugs = {'someref': {'interface': 'nonexistent'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        apps = {'app1': {'plugs': ['someref']}}
+        self.set_test_snap_yaml("apps", apps)
+
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': False
+                }
+            },
+            'plugs': {}
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration_apps()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_declaration_slots_deny_installation_true(self):
         '''Test check_declaration - slots/deny-installation/true'''
         slots = {'iface-foo': {'interface': 'foo'}}
@@ -1393,6 +1415,69 @@ slots:
                 'foo': {
                     'allow-installation': {
                         'slot-snap-type': ['app']
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_slots_allow_installation_snap_type_gadget(self):
+        '''Test check_declaration - slots/allow-installation/snap-type'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "gadget")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': {
+                        'slot-snap-type': ['gadget']
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_slots_allow_installation_snap_type_core(self):
+        '''Test check_declaration - slots/allow-installation/snap-type'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': {
+                        'slot-snap-type': ['core']
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_declaration_slots_allow_installation_snap_type_os(self):
+        '''Test check_declaration - slots/allow-installation/snap-type'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': {
+                        'slot-snap-type': ['core']
                     }
                 }
             }
@@ -2012,7 +2097,7 @@ slots:
         self.check_results(r, expected_counts)
 
     def test_check_declaration_plugs_bad_subsubkey_type(self):
-        '''Test _verify_declaration - empty'''
+        '''Test _verify_declaration - bad subsubkey_type'''
         plugs = {'iface-foo': {'interface': 'foo', 'attrib1': None}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewDeclaration(self.test_name)
@@ -2034,6 +2119,36 @@ slots:
         except SnapDeclarationException:
             return
         raise Exception("base declaration should be invalid")
+
+    def test_check_declaration_plugs_mismatch_subsubkey_type(self):
+        '''Test _verify_declaration - mismatched subsubkey_type'''
+        plugs = {'iface-foo': {'interface': 'foo', 'attrib1': ['foo']}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'allow-connection': {
+                        'plug-attributes': {
+                            'attrib1': "foo"
+                        }
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_allow-connection:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'allow-connection/plug-attributes'"}
+        self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_bluetooth_control(self):
         '''Test check_declaration - plugs bluetooth-control'''
