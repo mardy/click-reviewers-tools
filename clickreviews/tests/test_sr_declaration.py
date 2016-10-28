@@ -70,8 +70,22 @@ slots:
     allow-installation:
       slot-snap-type:
       - core
-  # manually connecect app-provided
+  # manually connected app/core-provided
+  network-manager:
+    - allow-installation:
+        slot-snap-type:
+          - core
+      deny-auto-connection: true
+    - allow-installation:
+        slot-snap-type:
+          - app
+      deny-connection: true
+      deny-auto-connection: true
+  # manually connected app-provided
   bluez: # snap decl needs 'allow-connection: ...'
+    allow-installation:
+      slot-snap-type:
+      - app
     deny-connection: true
     deny-auto-connection: true
   docker: # snap decl needs 'allow-installation/connection: ...'

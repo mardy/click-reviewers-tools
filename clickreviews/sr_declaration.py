@@ -65,14 +65,13 @@ class SnapReviewDeclaration(SnapReview):
                 return True
             return False
 
-        def _verify_constraint(constraint, decl, key, iface, base):
+        def _verify_constraint(constraint, cstr, key, iface, base):
             found_errors = False
 
             t = 'info'
             n = self._get_check_name('valid_%s' % key, app=iface,
                                      extra=constraint)
             s = "OK"
-            cstr = decl[key][iface][constraint]
 
             allowed_ctrs = ["allow-installation",
                             "deny-installation",
@@ -290,9 +289,18 @@ class SnapReviewDeclaration(SnapReview):
                               "interface not True, False or dict", base)
                     continue
 
-                for constraint in decl[key][iface]:
-                    if not _verify_constraint(constraint, decl, key, iface, base):
-                        break
+                alternates = []
+                if isinstance(decl[key][iface], dict):
+                    alternates.append(decl[key][iface])
+                else:
+                    alternates = decl[key][iface]
+
+                for alt in alternates:
+                    for constraint in alt:
+                        cstr = alt[constraint]
+                        # FIXME: this does not break when allowed
+                        if not _verify_constraint(constraint, cstr, key, iface, base):
+                            break
 
     def _match(self, against, val):
         '''Ordering matters since 'against' is treated as a regex if str'''
