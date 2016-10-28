@@ -35,10 +35,19 @@ class SnapReviewDeclaration(SnapReview):
         if not self.is_snap2:
             return
 
-        for series in self.base_declaration:
-            self._verify_declaration(self.base_declaration[series], base=True)
+        self._verify_declaration(self.base_declaration, base=True)
 
         self.snap_declaration = None
+        if overrides is not None and ('snap_decl_plugs' in overrides or
+                                      'snap_decl_slots' in overrides):
+            self.snap_declaration = {}
+            self.snap_declaration = {'plugs': {}, 'slots': {}}
+            if 'snap_decl_plugs' in overrides:
+                self.snap_declaration['plugs'] = overrides['snap_decl_plugs']
+            if 'snap_decl_slots' in overrides:
+                self.snap_declaration['slots'] = overrides['snap_decl_slots']
+
+            self._verify_declaration(self.snap_declaration, base=False)
 
     def _verify_declaration(self, decl, base=False):
         '''Verify declaration'''
@@ -337,7 +346,25 @@ class SnapReviewDeclaration(SnapReview):
 
         return found
 
-    def _verify_iface(self, name, iface, interface, attribs=None, decl=None):
+    def _get_decl(self, side, interface, dtype):
+        '''If the snap declaration has something to say about the declaration
+           override type (dtype), then use it instead of the base declaration.
+        '''
+        decl = self.base_declaration
+        base_decl = True
+
+        if self.snap_declaration is not None and \
+                side in self.snap_declaration and \
+                interface in self.snap_declaration[side]:
+            for k in self.snap_declaration[side][interface]:
+                if k.endswith(dtype):
+                    decl = self.snap_declaration
+                    base_decl = False
+                    break
+
+        return (decl, base_decl)
+
+    def _verify_iface(self, name, iface, interface, attribs=None):
         '''verify interface
            This will:
            - error if interface doesn't exist in base declaration
@@ -347,9 +374,6 @@ class SnapReviewDeclaration(SnapReview):
            - flag if allow/deny-connection attributes don't match slot side of
              base declaration (since base declaration is mostly slot side)
         '''
-        # FIXME: don't hardcode series
-        series = "16"
-
         if name.endswith('slot'):
             side = 'slots'
             oside = 'plugs'
@@ -360,10 +384,10 @@ class SnapReviewDeclaration(SnapReview):
         t = 'info'
         n = self._get_check_name('%s_known' % name, app=iface, extra=interface)
         s = 'OK'
-        if side in self.base_declaration[series] and \
-                interface not in self.base_declaration[series][side] and \
-                oside in self.base_declaration[series] and \
-                interface not in self.base_declaration[series][oside]:
+        if side in self.base_declaration and \
+                interface not in self.base_declaration[side] and \
+                oside in self.base_declaration and \
+                interface not in self.base_declaration[oside]:
             if name.startswith('app_') and side in self.snap_yaml and \
                     interface in self.snap_yaml[side]:
                 # If it is an interface reference used by an app, skip since it
@@ -374,11 +398,6 @@ class SnapReviewDeclaration(SnapReview):
             self._add_result(t, n, s)
             return
 
-        base_decl = False
-        if decl is None:
-            decl = self.base_declaration[series]
-            base_decl = True
-
         require_manual = False
 
         # top-level allow/deny-installation/connection
@@ -387,6 +406,7 @@ class SnapReviewDeclaration(SnapReview):
             for j in ['deny', 'allow']:
                 decl_key = "%s-%s" % (j, i)
                 # flag if deny-* is true or allow-* is false
+                (decl, base_decl) = self._get_decl(side, interface, i)
                 if side in decl and interface in decl[side] and \
                         self._search(decl[side][interface], "%s" % decl_key,
                                      j == 'deny'):
@@ -410,6 +430,7 @@ class SnapReviewDeclaration(SnapReview):
                 snap_type = 'core'
         decl_subkey = '%s-snap-type' % side[:-1]
         for j in ['deny', 'allow']:
+            (decl, base_decl) = self._get_decl(side, interface, 'installation')
             decl_key = "%s-installation" % j
             # flag if deny-*/snap-type matches or allow-*/snap-type doesn't
             if side in decl and interface in decl[side] and \
@@ -432,6 +453,7 @@ class SnapReviewDeclaration(SnapReview):
         # deny/allow-connection attributes
         decl_subkey = '%s-attributes' % side[:-1]
         for j in ['deny', 'allow']:
+            (decl, base_decl) = self._get_decl(side, interface, 'connection')
             decl_key = "%s-connection" % j
             if attribs is None:
                 continue
@@ -487,10 +509,6 @@ class SnapReviewDeclaration(SnapReview):
         if not self.is_snap2:
             return
 
-        decl = None
-        if self.snap_declaration is not None:
-            decl = self.snap_declaration
-
         for side in ['plugs', 'slots']:
             if side not in self.snap_yaml:
                 continue
@@ -518,7 +536,7 @@ class SnapReviewDeclaration(SnapReview):
                         attribs = spec
                         del attribs['interface']
 
-                self._verify_iface(side[:-1], iface, interface, attribs, decl)
+                self._verify_iface(side[:-1], iface, interface, attribs)
 
     def check_declaration_apps(self):
         '''Check base/snap declaration requires manual review for apps
@@ -526,10 +544,6 @@ class SnapReviewDeclaration(SnapReview):
         '''
         if not self.is_snap2 or 'apps' not in self.snap_yaml:
             return
-
-        decl = None
-        if self.snap_declaration is not None:
-            decl = self.snap_declaration
 
         for app in self.snap_yaml['apps']:
             for side in ['plugs', 'slots']:
@@ -545,4 +559,4 @@ class SnapReviewDeclaration(SnapReview):
                     if not isinstance(ref, str):
                         continue  # checked elsewhere
 
-                    self._verify_iface('app_%s' % side[:-1], app, ref, decl=decl)
+                    self._verify_iface('app_%s' % side[:-1], app, ref)

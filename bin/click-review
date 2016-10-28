@@ -150,6 +150,10 @@ def main():
     parser.add_argument('--sdk',
                         help='use output format suitable for the Ubuntu SDK',
                         action='store_true')
+    parser.add_argument('--plugs', default=None,
+                        help='file specifying snap declaration for plugs')
+    parser.add_argument('--slots', default=None,
+                        help='file specifying snap declaration for slots')
     args = parser.parse_args()
 
     if not os.path.exists(args.filename):
@@ -164,6 +168,15 @@ def main():
     overrides = None
     if args.overrides:
         overrides = json.loads(args.overrides)
+
+    if args.plugs:
+        if overrides is None:
+            overrides = {}
+        overrides['snap_decl_plugs'] = json.loads(open(args.plugs, 'r').read())
+    if args.slots:
+        if overrides is None:
+            overrides = {}
+        overrides['snap_decl_slots'] = json.loads(open(args.slots, 'r').read())
 
     results.run_all_checks(overrides)
     sys.exit(results.rc)

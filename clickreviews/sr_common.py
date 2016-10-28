@@ -154,12 +154,13 @@ class SnapReview(Review):
         if os.path.exists(branch_fn):
             local_copy = branch_fn
         p = snapd_base_declaration.SnapdBaseDeclaration(local_copy)
-        self.base_declaration = p.decl
+        # FIXME: don't hardcode series
         self.base_declaration_series = "16"
+        self.base_declaration = p.decl[self.base_declaration_series]
 
         # to simplify checks, gather up all the interfaces into one dict()
         for side in ['plugs', 'slots']:
-            for k in self.base_declaration[self.base_declaration_series][side]:
+            for k in self.base_declaration[side]:
                 if k in self.interfaces_attribs:
                     self.interfaces[k] = self.interfaces_attribs[k]
                 else:

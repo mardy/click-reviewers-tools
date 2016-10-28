@@ -22,8 +22,7 @@ import yaml
 class TestSnapReviewDeclaration(sr_tests.TestSnapReview):
     """Tests for the lint review tool."""
     def _set_base_declaration(self, c, decl):
-        # TODO: don't hardcode series
-        c.base_declaration["16"] = decl
+        c.base_declaration = decl
 
     def _use_test_base_declaration(self, c):
         # setup minimized, intended base declaration
@@ -2231,6 +2230,35 @@ slots:
         expected['error'][name] = {"text": "not allowed by 'allow-installation'"}
         self.check_results(r, expected=expected)
 
+    def test_check_declaration_plugs_docker_support_override(self):
+        '''Test check_declaration - plugs docker-support - override'''
+        plugs = {'iface': {'interface': 'docker-support'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        overrides = {
+            'snap_decl_plugs': {
+                'docker-support': {
+                    'allow-installation': True
+                }
+            }
+        }
+        c = SnapReviewDeclaration(self.test_name, overrides=overrides)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs:iface:docker-support'
+        expected['info'][name] = {"text": "OK"}
+        name = 'declaration-snap-v2:valid_plugs:docker-support:allow-installation'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
     def test_check_declaration_slots_docker_support(self):
         '''Test check_declaration - slots docker-support'''
         slots = {'iface': {'interface': 'docker-support'}}
@@ -2402,6 +2430,70 @@ slots:
         expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
+    def test_check_declaration_plugs_browser_support_simple_override(self):
+        '''Test check_declaration - plugs browser-support - simple override'''
+        plugs = {'iface': {'interface': 'browser-support',
+                           'allow-sandbox': True}}
+        self.set_test_snap_yaml("plugs", plugs)
+        overrides = {
+            'snap_decl_plugs': {
+                'browser-support': {
+                    'allow-connection': True
+                }
+            }
+        }
+        c = SnapReviewDeclaration(self.test_name, overrides=overrides)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs:iface:browser-support'
+        expected['info'][name] = {"text": "OK"}
+        name = 'declaration-snap-v2:valid_plugs:browser-support:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_browser_support_complex_override(self):
+        '''Test check_declaration - plugs browser-support - complex override'''
+        plugs = {'iface': {'interface': 'browser-support',
+                           'allow-sandbox': True}}
+        self.set_test_snap_yaml("plugs", plugs)
+        overrides = {
+            'snap_decl_plugs': {
+                'browser-support': {
+                    'allow-connection': {
+                        'plug-attributes': {
+                            'allow-sandbox': True
+                        }
+                    }
+                }
+            }
+        }
+        c = SnapReviewDeclaration(self.test_name, overrides=overrides)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs:iface:browser-support'
+        expected['info'][name] = {"text": "OK"}
+        name = 'declaration-snap-v2:valid_plugs:browser-support:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
     def test_check_declaration_slots_browser_support(self):
         '''Test check_declaration - slots browser-support'''
         slots = {'iface': {'interface': 'browser-support'}}
@@ -2441,6 +2533,33 @@ slots:
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs:iface:network'
         expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_network_revoke(self):
+        '''Test check_declaration - plugs network'''
+        plugs = {'iface': {'interface': 'network'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        overrides = {
+            'snap_decl_plugs': {
+                'network': {
+                    'allow-connection': False
+                }
+            }
+        }
+        c = SnapReviewDeclaration(self.test_name, overrides=overrides)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_allow-connection:iface:network'
+        expected['error'][name] = {"text": "not allowed by 'allow-connection'"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_network(self):
@@ -2548,6 +2667,57 @@ slots:
         expected['error'][name] = {"text": "not allowed by 'allow-installation'"}
         self.check_results(r, expected=expected)
 
+    def test_check_declaration_slots_docker_override_install_connect(self):
+        '''Test check_declaration - slots docker - override install/connect'''
+        slots = {'iface': {'interface': 'docker'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "app")
+        overrides = {'snap_decl_slots': {'docker': {'allow-installation': True,
+                                                    'allow-connection': True}}}
+        c = SnapReviewDeclaration(self.test_name, overrides=overrides)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:docker:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        name = 'declaration-snap-v2:valid_slots:docker:allow-installation'
+        expected['info'][name] = {"text": "OK"}
+        name = 'declaration-snap-v2:slots:iface:docker'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_docker_override_installation(self):
+        '''Test check_declaration - slots docker - override installation'''
+        slots = {'iface': {'interface': 'docker'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "app")
+        overrides = {'snap_decl_slots': {'docker': {'allow-installation': True}}}
+        c = SnapReviewDeclaration(self.test_name, overrides=overrides)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_deny-connection:iface:docker'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        name = 'declaration-snap-v2:valid_slots:docker:allow-installation'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
     def test_check_declaration_plugs_mpris(self):
         '''Test check_declaration - plugs mpris'''
         plugs = {'iface': {'interface': 'mpris'}}
@@ -2628,6 +2798,30 @@ slots:
         expected['info'] = dict()
         name = 'declaration-snap-v2:slots_deny-connection:iface:mir'
         expected['error'][name] = {"text": "not allowed by 'deny-connection'"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_mir_override_connection(self):
+        '''Test check_declaration - slots mir - override connection'''
+        slots = {'iface': {'interface': 'mir'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "app")
+        overrides = {'snap_decl_slots': {'mir': {'allow-connection': True}}}
+        c = SnapReviewDeclaration(self.test_name, overrides=overrides)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:mir:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        name = 'declaration-snap-v2:slots:iface:mir'
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_serial_port(self):
