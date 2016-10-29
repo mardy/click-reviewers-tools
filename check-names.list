@@ -24,6 +24,7 @@ declaration-snap-v2:valid_dict|
 declaration-snap-v2:valid_key|
 declaration-snap-v2:valid_plugs|
 declaration-snap-v2:valid_slots|
+declaration-snap-v2:valid_slots_alt_dict|
 declaration-snap-v2:valid_slots_dict|
 desktop:Exec|
 desktop:Exec_webapp_args_minimal_chrome|

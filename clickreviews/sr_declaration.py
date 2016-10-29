@@ -65,12 +65,15 @@ class SnapReviewDeclaration(SnapReview):
                 return True
             return False
 
-        def _verify_constraint(constraint, cstr, key, iface, base):
+        def _verify_constraint(constraint, cstr, key, iface, base, count):
             found_errors = False
+            ctxt = constraint
+            if count > 1:
+                ctxt = "%s_%d" % (constraint, count)
 
             t = 'info'
             n = self._get_check_name('valid_%s' % key, app=iface,
-                                     extra=constraint)
+                                     extra=ctxt)
             s = "OK"
 
             allowed_ctrs = ["allow-installation",
@@ -81,8 +84,7 @@ class SnapReviewDeclaration(SnapReview):
                             "deny-auto-connection"
                             ]
             if constraint not in allowed_ctrs:
-                malformed(n, "unknown constraint '%s'" % constraint,
-                          base)
+                malformed(n, "unknown constraint '%s'" % ctxt, base)
                 return False
 
             allowed = []
@@ -112,15 +114,14 @@ class SnapReviewDeclaration(SnapReview):
                     self._add_result('info', n, s)
                 return True
             elif not isinstance(cstr, dict):
-                malformed(n, "%s not True, False or dict" %
-                          constraint, base)
+                malformed(n, "%s not True, False or dict" % ctxt, base)
                 # found_errors = True
                 return True
 
             for cstr_key in cstr:
                 if cstr_key not in allowed:
                     name = self._get_check_name('valid_%s' % key, app=iface,
-                                                extra="%s_%s" % (constraint,
+                                                extra="%s_%s" % (ctxt,
                                                                  cstr_key))
                     malformed(name,
                               "unknown constraint key '%s'" % cstr_key, base)
@@ -137,7 +138,7 @@ class SnapReviewDeclaration(SnapReview):
             cstr_dicts = ["plug-attributes", "slot-attributes"]
             for cstr_key in cstr:
                 badn = self._get_check_name('valid_%s' % key, app=iface,
-                                            extra="%s_%s" % (constraint,
+                                            extra="%s_%s" % (ctxt,
                                                              cstr_key))
                 if cstr_key in cstr_bools:
                     if not isinstance(cstr[cstr_key], int) and \
@@ -166,8 +167,7 @@ class SnapReviewDeclaration(SnapReview):
                             bn = self._get_check_name('valid_%s' % key,
                                                       app=iface,
                                                       extra="%s_%s" %
-                                                      (constraint,
-                                                       cstr_key))
+                                                      (ctxt, cstr_key))
                             if iface not in self.interfaces_attribs:
                                 malformed(bn,
                                           "unknown attribute '%s'" % attrib,
@@ -277,12 +277,17 @@ class SnapReviewDeclaration(SnapReview):
                     self._add_result('info', n, 'OK')
                     continue
                 elif isinstance(decl[key][iface], list):
+                    err = False
                     for item in decl[key][iface]:
                         if not isinstance(item, dict):
                             malformed(self._get_check_name('valid_%s_alt_dict'
                                                            % key, app=iface),
                                       "interface alternate not True, False or dict",
                                       base)
+                            err = True
+                            break
+                    if err:
+                        continue
                 elif not isinstance(decl[key][iface], dict):
                     malformed(self._get_check_name('valid_%s_dict' % key,
                                                    app=iface),
@@ -295,12 +300,14 @@ class SnapReviewDeclaration(SnapReview):
                 else:
                     alternates = decl[key][iface]
 
+                count = 1
                 for alt in alternates:
                     for constraint in alt:
                         cstr = alt[constraint]
-                        # FIXME: this does not break when allowed
-                        if not _verify_constraint(constraint, cstr, key, iface, base):
+                        if not _verify_constraint(constraint, cstr, key,
+                                                  iface, base, count):
                             break
+                    count += 1
 
     def _match(self, against, val):
         '''Ordering matters since 'against' is treated as a regex if str'''

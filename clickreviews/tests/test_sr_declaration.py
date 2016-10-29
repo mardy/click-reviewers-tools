@@ -563,6 +563,25 @@ slots:
         }
         self.check_results(r, expected=expected)
 
+    def test__verify_declaration_invalid_slots_iface_type_alternate(self):
+        '''Test _verify_declaration - invalid interface: integer as alternate'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': [{'allow-connection': True}, -1]}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots_alt_dict:foo'
+        expected['error'][name] = {
+            "text": "declaration malformed (interface alternate not True, False or dict)"
+        }
+        self.check_results(r, expected=expected)
+
     def test__verify_declaration_slots_iface_constraint_bool(self):
         '''Test _verify_declaration - interface constraint: boolean (slots)'''
         c = SnapReviewDeclaration(self.test_name)
@@ -613,6 +632,26 @@ slots:
         expected['info'] = dict()
         name = 'declaration-snap-v2:valid_slots:foo:allow-installation'
         expected['error'][name] = {"text": "declaration malformed (allow-installation not True, False or dict)"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_invalid_slots_iface_constraint_alternate_list(self):
+        '''Test _verify_declaration - invalid interface alt constraint: list'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': [{'allow-connection': True},
+                                  {'allow-connection': []}]}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-connection_2'
+        expected['error'][name] = {"text": "declaration malformed (allow-connection_2 not True, False or dict)"}
+        name = 'declaration-snap-v2:valid_slots:foo:allow-connection'
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test__verify_declaration_invalid_slots_iface_constraint_unknown(self):
