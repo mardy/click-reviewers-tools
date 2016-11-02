@@ -372,25 +372,53 @@ class SnapReviewDeclaration(SnapReview):
 
         return found
 
-    def _get_decl(self, side, interface, dtype):
-        '''If the snap declaration has something to say about the declaration
-           override type (dtype), then use it instead of the base declaration.
-        '''
-        decl = self.base_declaration
-        base_decl = True
-        decl_type = "base"
+    def _get_decls(self, interface):
+        def _create_decls(side, interface, cstr_type, base=False):
+            decls = []
+            d = self.base_declaration
+            if not base:
+                d = self.snap_declaration
 
-        if self.snap_declaration is not None and \
-                side in self.snap_declaration and \
-                interface in self.snap_declaration[side]:
-            for k in self.snap_declaration[side][interface]:
-                if k.endswith(dtype):
-                    decl = self.snap_declaration
-                    base_decl = False
-                    decl_type = "snap"
-                    break
+            if side in d and interface in d[side]:
+                cstrs = []
+                if isinstance(d[side][interface], list):
+                    cstrs = d[side][interface]
+                else:
+                    cstrs.append(d[side][interface])
 
-        return (decl, base_decl, decl_type)
+                for cstr in cstrs:
+                    decl = {}
+                    decl[side] = {}
+                    if isinstance(cstr, dict):
+                        decl[side][interface] = {}
+                        for k in cstr:
+                            if k.endswith(cstr_type):
+                                decl[side][interface][k] = cstr[k]
+                                use_snap = True
+                    else:
+                        decl[side][interface] = cstr
+                        use_snap = True
+
+                    if base:
+                        decl['decl-type'] = "base"
+                    else:
+                        decl['decl-type'] = "snap"
+
+                    decls.append(decl)
+
+            return decls
+
+        decls = []
+        for side in ['plugs', 'slots']:
+            for cstr_type in ['installation', 'connection']:
+                use_snap = False
+
+                if self.snap_declaration is not None:
+                    decls += _create_decls(side, interface, cstr_type)
+                else:
+                    decls += _create_decls(side, interface, cstr_type, True)
+
+        return decls
 
     def _verify_iface(self, name, iface, interface, attribs=None):
         '''verify interface
@@ -426,7 +454,32 @@ class SnapReviewDeclaration(SnapReview):
             self._add_result(t, n, s)
             return
 
+        alternates = self._get_decls(interface)
         require_manual = False
+        for decl in alternates:
+            if self._check_interface_alternate(decl, side, oside, iface, interface, attribs):
+                require_manual = True
+
+        # Report something back if everything ok
+        if not require_manual:
+            self._add_result('info',
+                             self._get_check_name("%s" % side, app=iface,
+                                                  extra=interface),
+                             "OK", manual_review=False)
+
+    def _check_interface_alternate(self, decl, side, oside, iface, interface, attribs):
+        require_manual = False
+
+        # TODO: cleanup
+        decl_type = decl['decl-type']
+        base_decl = True
+        if decl_type == "snap":
+            base_decl = False
+
+        if interface == "docker":
+            print("\nHERE")
+            import pprint
+            pprint.pprint(decl)
 
         # top-level allow/deny-installation/connection
         # Note: auto-connection is only for snapd, so don't include it here
@@ -434,8 +487,6 @@ class SnapReviewDeclaration(SnapReview):
             for j in ['deny', 'allow']:
                 decl_key = "%s-%s" % (j, i)
                 # flag if deny-* is true or allow-* is false
-                (decl, base_decl, decl_type) = self._get_decl(side, interface,
-                                                              i)
                 if side in decl and interface in decl[side] and \
                         self._search(decl[side][interface], "%s" % decl_key,
                                      j == 'deny'):
@@ -460,8 +511,6 @@ class SnapReviewDeclaration(SnapReview):
                 snap_type = 'core'
         decl_subkey = '%s-snap-type' % side[:-1]
         for j in ['deny', 'allow']:
-            (decl, base_decl, decl_type) = self._get_decl(side, interface,
-                                                          'installation')
             decl_key = "%s-installation" % j
             # flag if deny-*/snap-type matches or allow-*/snap-type doesn't
             if side in decl and interface in decl[side] and \
@@ -484,8 +533,6 @@ class SnapReviewDeclaration(SnapReview):
         # deny/allow-connection attributes
         decl_subkey = '%s-attributes' % side[:-1]
         for j in ['deny', 'allow']:
-            (decl, base_decl, decl_type) = self._get_decl(side, interface,
-                                                          'connection')
             decl_key = "%s-connection" % j
             if attribs is None:
                 continue
@@ -527,12 +574,7 @@ class SnapReviewDeclaration(SnapReview):
                 # if manual review after 'deny', don't look at allow
                 break
 
-        # Report something back if everything ok
-        if not require_manual:
-            self._add_result('info',
-                             self._get_check_name("%s" % side, app=iface,
-                                                  extra=interface),
-                             "OK", manual_review=False)
+        return require_manual
 
     def check_declaration(self):
         '''Check base/snap declaration requires manual review for top-level

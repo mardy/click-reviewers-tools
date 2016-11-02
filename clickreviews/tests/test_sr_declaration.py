@@ -1540,6 +1540,35 @@ slots:
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_declaration_slots_allow_installation_snap_type_mismatch(self):
+        '''Test check_declaration - slots/allow-installation/snap-type'''
+        slots = {'iface-foo': {'interface': 'foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "app")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': {
+                        'slot-snap-type': ['core']
+                    }
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_allow-installation:iface-foo:foo'
+        expected['error'][name] = {"text": "not allowed by 'allow-installation/slot-snap-type' in base declaration"}
+        self.check_results(r, expected=expected)
+
     def test_check_declaration_slots_allow_installation_snap_type_bad(self):
         '''Test check_declaration - bad slots/allow-installation/snap-type'''
         slots = {'iface-foo': {'interface': 'foo'}}
@@ -2747,8 +2776,8 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
-    def test_check_declaration_slots_docker_override_installation(self):
-        '''Test check_declaration - slots docker - override installation'''
+    def test_z_check_declaration_slots_docker_override_only_installation(self):
+        '''Test check_declaration - slots docker - override only installation'''
         slots = {'iface': {'interface': 'docker'}}
         self.set_test_snap_yaml("slots", slots)
         self.set_test_snap_yaml("type", "app")
@@ -2875,6 +2904,91 @@ slots:
         expected['info'][name] = {"text": "OK"}
         name = 'declaration-snap-v2:slots:iface:mir'
         expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_network_manager(self):
+        '''Test check_declaration - plugs network-manager'''
+        plugs = {'iface': {'interface': 'network-manager'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        c = SnapReviewDeclaration(self.test_name)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs:iface:network-manager'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_z_check_declaration_slots_network_manager_app(self):
+        '''Test check_declaration - slots network-manager (app)'''
+        slots = {'iface': {'interface': 'network-manager'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "app")
+        c = SnapReviewDeclaration(self.test_name)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': -1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_deny-connection:iface:network-manager'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_z_check_declaration_slots_network_manager_core(self):
+        '''Test check_declaration - slots network-manager (core)'''
+        slots = {'iface': {'interface': 'network-manager'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "os")
+        c = SnapReviewDeclaration(self.test_name)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': -1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_deny-connection:iface:network-manager'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_z_check_declaration_slots_network_manager_gadget(self):
+        '''Test check_declaration - slots network-manager (gadget)'''
+        slots = {'iface': {'interface': 'network-manager'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "gadget")
+        c = SnapReviewDeclaration(self.test_name)
+        self._use_test_base_declaration(c)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_allow-installation:iface:network-manager'
+        expected['error'][name] = {"text": "not allowed by 'allow-installation/slot-snap-type' in base declaration"}
+        name = 'declaration-snap-v2:slots_deny-connection:iface:network-manager'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_serial_port(self):
