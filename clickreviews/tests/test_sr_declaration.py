@@ -1645,7 +1645,7 @@ slots:
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_z_check_declaration_plugs_deny_connection_attrib_str_match(self):
+    def test_check_declaration_plugs_deny_connection_attrib_str_match(self):
         '''Test check_declaration - plugs/deny-connection/attrib - str match'''
         plugs = {'iface-foo': {'interface': 'foo', 'attrib1': 'val1'}}
         self.set_test_snap_yaml("plugs", plugs)
@@ -2776,7 +2776,7 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
-    def test_z_check_declaration_slots_docker_override_only_installation(self):
+    def test_check_declaration_slots_docker_override_only_installation(self):
         '''Test check_declaration - slots docker - override only installation'''
         slots = {'iface': {'interface': 'docker'}}
         self.set_test_snap_yaml("slots", slots)
@@ -2926,7 +2926,7 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
-    def test_z_check_declaration_slots_network_manager_app(self):
+    def test_check_declaration_slots_network_manager_app(self):
         '''Test check_declaration - slots network-manager (app)'''
         slots = {'iface': {'interface': 'network-manager'}}
         self.set_test_snap_yaml("slots", slots)
@@ -2947,7 +2947,7 @@ slots:
         expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
         self.check_results(r, expected=expected)
 
-    def test_z_check_declaration_slots_network_manager_core(self):
+    def test_check_declaration_slots_network_manager_core(self):
         '''Test check_declaration - slots network-manager (core)'''
         slots = {'iface': {'interface': 'network-manager'}}
         self.set_test_snap_yaml("slots", slots)
@@ -2968,7 +2968,7 @@ slots:
         expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
         self.check_results(r, expected=expected)
 
-    def test_z_check_declaration_slots_network_manager_gadget(self):
+    def test_check_declaration_slots_network_manager_gadget(self):
         '''Test check_declaration - slots network-manager (gadget)'''
         slots = {'iface': {'interface': 'network-manager'}}
         self.set_test_snap_yaml("slots", slots)
