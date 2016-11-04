@@ -54,6 +54,13 @@ class SnapReviewDeclaration(SnapReview):
             return True
         return False
 
+    def str2bool(self, s):
+        if s == "true" or s == "True":
+            return True
+        if s == "false" or s == "False":
+            return False
+        return s
+
     def _verify_declaration(self, decl, base=False):
         '''Verify declaration'''
         def malformed(name, s, base=False):
@@ -88,6 +95,9 @@ class SnapReviewDeclaration(SnapReview):
                 return
 
             for iface in decl[key]:
+                # snap declarations from the store express bools as strings
+                if isinstance(decl[key][iface], str):
+                    decl[key][iface] = self.str2bool(decl[key][iface])
                 # iface may be bool or dict
                 if self.is_bool(decl[key][iface]):
                     n = self._get_check_name('valid_%s' % key, app=iface)
@@ -101,6 +111,11 @@ class SnapReviewDeclaration(SnapReview):
 
                 found_errors = False
                 for constraint in decl[key][iface]:
+                    # snap declarations from the store express bools as strings
+                    if isinstance(decl[key][iface][constraint], str):
+                        decl[key][iface][constraint] = \
+                            self.str2bool(decl[key][iface][constraint])
+
                     t = 'info'
                     n = self._get_check_name('valid_%s' % key, app=iface,
                                              extra=constraint)
@@ -174,6 +189,13 @@ class SnapReviewDeclaration(SnapReview):
                                                     app=iface, extra="%s_%s" %
                                                     (constraint, cstr_key))
                         if cstr_key in cstr_bools:
+                            # snap declarations from the store express bools as
+                            # strings
+                            if isinstance(decl[key][iface][constraint][cstr_key], str):
+                                decl[key][iface][constraint][cstr_key] = \
+                                    self.str2bool(decl[key][iface][constraint][cstr_key])
+                                cstr[cstr_key] = \
+                                    self.str2bool(cstr[cstr_key])
                             if not self.is_bool(cstr[cstr_key]):
                                 malformed(badn, "'%s' not True or False" %
                                           cstr_key, base)

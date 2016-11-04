@@ -542,6 +542,40 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
+    def test__verify_declaration_valid_slots_iface_bool_str_true(self):
+        '''Test _verify_declaration - slots interface: "true"'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': "true"}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_valid_plugs_iface_bool_str_false(self):
+        '''Test _verify_declaration - plugs interface: "false"'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'plugs': {'foo': "false"}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_plugs:foo'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
     def test__verify_declaration_invalid_slots_iface_type(self):
         '''Test _verify_declaration - invalid interface: list'''
         c = SnapReviewDeclaration(self.test_name)
@@ -594,6 +628,43 @@ slots:
         name = 'declaration-snap-v2:valid_plugs:foo:deny-installation'
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
+
+    def test__verify_declaration_valid_slots_iface_constraint_bool_str_true(self):
+        '''Test _verify_declaration - interface constraint: "true"
+           (slots with allow-connection)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'allow-connection': "true"}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_valid_slots_iface_constraint_bool_str_false(self):
+        '''Test _verify_declaration - interface constraint: "false"
+           (slots with allow-connection)'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'allow-connection': "false"}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
 
     def test__verify_declaration_invalid_slots_iface_constraint_list(self):
         '''Test _verify_declaration - invalid interface constraint: list
@@ -705,6 +776,40 @@ slots:
         expected['error'][name] = {"text": "declaration malformed (unknown constraint key 'nonexistent')"}
         name2 = 'declaration-snap-v2:valid_slots:foo:deny-auto-connection_nonexistent2'
         expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_slots_iface_constraint_bool_str_true(self):
+        '''Test _verify_declaration - interface constraint bool "true"'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'slots': {'foo': {'allow-installation': {'on-classic': "true"}}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:foo:allow-installation'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test__verify_declaration_plugs_iface_constraint_bool_str_false(self):
+        '''Test _verify_declaration - interface constraint bool "false"'''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {'plugs': {'foo': {'allow-installation': {'on-classic': "false"}}}}
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_plugs:foo:allow-installation'
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test__verify_declaration_invalid_slots_iface_constraint_bool(self):
