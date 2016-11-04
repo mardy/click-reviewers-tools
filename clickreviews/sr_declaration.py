@@ -174,9 +174,7 @@ class SnapReviewDeclaration(SnapReview):
                                                     app=iface, extra="%s_%s" %
                                                     (constraint, cstr_key))
                         if cstr_key in cstr_bools:
-                            if not isinstance(cstr[cstr_key], int) and \
-                                    cstr[cstr_key] is not True and \
-                                    cstr[cstr_key] is not False:
+                            if not self.is_bool(cstr[cstr_key]):
                                 malformed(badn, "'%s' not True or False" %
                                           cstr_key, base)
                                 found_errors = True
