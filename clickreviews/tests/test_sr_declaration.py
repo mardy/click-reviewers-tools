@@ -2936,7 +2936,7 @@ slots:
 
         c.check_declaration()
         r = c.click_report
-        expected_counts = {'info': -1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 0, 'warn': 0, 'error': -1}
         self.check_results(r, expected_counts)
 
         expected = dict()
@@ -2957,15 +2957,15 @@ slots:
 
         c.check_declaration()
         r = c.click_report
-        expected_counts = {'info': 0, 'warn': 0, 'error': -1}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
         expected = dict()
         expected['error'] = dict()
         expected['warn'] = dict()
         expected['info'] = dict()
-        name = 'declaration-snap-v2:slots_deny-connection:iface:network-manager'
-        expected['error'][name] = {"text": "not allowed by 'deny-connection' in base declaration"}
+        name = 'declaration-snap-v2:slots:iface:network-manager'
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_network_manager_gadget(self):
