@@ -22,6 +22,9 @@
         - core
     deny-auto-connection: true
   bluez:
+    allow-installation:
+      slot-snap-type:
+        - app
     deny-connection: true
     deny-auto-connection: true
   bool-file:
@@ -80,6 +83,9 @@
         - core
     deny-auto-connection: true
   fwupd:
+    allow-installation:
+      slot-snap-type:
+        - app
     deny-connection: true
     deny-auto-connection: true
   gpio:
@@ -125,9 +131,15 @@
         - core
     deny-auto-connection: true
   location-control:
+    allow-installation:
+      slot-snap-type:
+        - app
     deny-connection: true
     deny-auto-connection: true
   location-observe:
+    allow-installation:
+      slot-snap-type:
+        - app
     deny-connection: true
     deny-auto-connection: true
   log-observe:
@@ -146,8 +158,13 @@
         - app
     deny-connection: true
   modem-manager:
-    deny-connection: true
+    allow-installation:
+      slot-snap-type:
+        - app
+        - core
     deny-auto-connection: true
+    deny-connection:
+      on-classic: false
   mount-observe:
     allow-installation:
       slot-snap-type:
@@ -180,6 +197,8 @@
         - app
         - core
     deny-auto-connection: true
+    deny-connection:
+      on-classic: false
   network-observe:
     allow-installation:
       slot-snap-type:
@@ -213,6 +232,9 @@
       slot-snap-type:
         - app
         - core
+    deny-auto-connection: true
+    deny-connection:
+      on-classic: false
   removable-media:
     allow-installation:
       slot-snap-type:
@@ -269,6 +291,9 @@
         - core
     deny-auto-connection: true
   udisks2:
+    allow-installation:
+      slot-snap-type:
+        - app
     deny-connection: true
     deny-auto-connection: true
   unity7:
