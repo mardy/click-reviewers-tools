@@ -531,9 +531,9 @@ slots:
         self.check_results(r, expected=expected)
 
     def test__verify_declaration_invalid_slots_iface_type(self):
-        '''Test _verify_declaration - invalid interface: integer'''
+        '''Test _verify_declaration - invalid interface: list'''
         c = SnapReviewDeclaration(self.test_name)
-        decl = {'slots': {'foo': -1}}
+        decl = {'slots': {'foo': []}}
         c._verify_declaration(decl=decl)
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
