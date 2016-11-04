@@ -665,7 +665,6 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
-
     def test__verify_declaration_invalid_slots_iface_constraint_list(self):
         '''Test _verify_declaration - invalid interface constraint: list
            (slots)'''
@@ -778,7 +777,7 @@ slots:
         expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
         self.check_results(r, expected=expected)
 
-    def test__verify_declaration_slots_iface_constraint_bool_str_true(self):
+    def test__verify_declaration_valid_slots_iface_constraint_bool_str_true(self):
         '''Test _verify_declaration - interface constraint bool "true"'''
         c = SnapReviewDeclaration(self.test_name)
         decl = {'slots': {'foo': {'allow-installation': {'on-classic': "true"}}}}
@@ -795,7 +794,7 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
-    def test__verify_declaration_plugs_iface_constraint_bool_str_false(self):
+    def test__verify_declaration_valid_plugs_iface_constraint_bool_str_false(self):
         '''Test _verify_declaration - interface constraint bool "false"'''
         c = SnapReviewDeclaration(self.test_name)
         decl = {'plugs': {'foo': {'allow-installation': {'on-classic': "false"}}}}
