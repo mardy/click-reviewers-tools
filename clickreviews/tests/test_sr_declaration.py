@@ -226,53 +226,53 @@ slots:
                     },
                 },
                 'autoconn-on-classic-true': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'on-classic': True
                     },
                 },
                 'autoconn-on-classic-false': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'on-classic': False
                     },
                 },
                 'autoconn-plug-snap-type-all': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'plug-snap-type': ['core', 'gadget', 'kernel', 'app']
                     },
                 },
                 'autoconn-plug-snap-type-core': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'plug-snap-type': ['core']
                     },
                 },
                 'autoconn-plug-snap-id-allow': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'plug-snap-id': ['something32charslongGgGgGgGgGgGg']
                     },
                 },
                 'autoconn-plug-snap-id-deny': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'plug-snap-id': ['somethingelse32charslongGgGgGgGg']
                     },
                 },
                 'autoconn-plug-publisher-id-allow': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'plug-publisher-id': ['$SLOT_PUBLISHER_ID',
                                               'canonical']
                     },
                 },
                 'autoconn-plug-publisher-id-deny': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'plug-publisher-id': ['badpublisher']
                     },
                 },
                 'autoconn-slot-attributes-empty': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'slot-attributes': {},
                     },
                 },
                 'autoconn-plug-attributes-empty': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'plug-attributes': {},
                     },
                 },
@@ -355,53 +355,53 @@ slots:
                     },
                 },
                 'autoconn-on-classic-true': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'on-classic': True
                     },
                 },
                 'autoconn-on-classic-false': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'on-classic': False
                     },
                 },
                 'autoconn-slot-snap-type-all': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'slot-snap-type': ['core', 'gadget', 'kernel', 'app']
                     },
                 },
                 'autoconn-slot-snap-type-core': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'slot-snap-type': ['core']
                     },
                 },
                 'autoconn-slot-snap-id-allow': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'slot-snap-id': ['something32charslongGgGgGgGgGgGg']
                     },
                 },
                 'autoconn-slot-snap-id-deny': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'slot-snap-id': ['somethingelse32charslongGgGgGgGg']
                     },
                 },
                 'autoconn-slot-publisher-id-allow': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'slot-publisher-id': ['$PLUG_PUBLISHER_ID',
                                               'canonical']
                     },
                 },
                 'autoconn-slot-publisher-id-deny': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'slot-publisher-id': ['badpublisher']
                     },
                 },
                 'autoconn-plug-attributes-empty': {
-                    'allow-connection': {
+                    'allow-auto-connection': {
                         'plug-attributes': {},
                     },
                 },
                 'autoconn-slot-attributes-empty': {
-                    'deny-connection': {
+                    'deny-auto-connection': {
                         'slot-attributes': {},
                     },
                 },
