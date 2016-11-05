@@ -72,6 +72,156 @@ class SnapReviewDeclaration(SnapReview):
                 raise SnapDeclarationException(err)
             self._add_result('error', name, err)
 
+        def verify_constraint(cstr, decl, key, iface, index, has_alternates):
+            found_errors = False
+            if self.is_bool(cstr):
+                if not base:
+                    self._add_result('info', n, s)
+                return True
+            elif not isinstance(cstr, dict):
+                malformed(n, "%s not True, False or dict" %
+                          constraint, base)
+                return True
+
+            for cstr_key in cstr:
+                if cstr_key not in allowed:
+                    name = self._get_check_name('valid_%s' % key,
+                                                app=iface,
+                                                extra="%s_%s" %
+                                                (constraint, cstr_key))
+                    malformed(name, "unknown constraint key '%s'" %
+                              cstr_key, base)
+                    found_errors = True
+
+            cstr_bools = ["on-classic"]
+            cstr_lists = ["plug-snap-type",
+                          "slot-snap-type",
+                          "plug-publisher-id"
+                          "slot-publisher-id",
+                          "plug-snap-id",
+                          "slot-snap-id"
+                          ]
+            cstr_dicts = ["plug-attributes", "slot-attributes"]
+            for cstr_key in cstr:
+                badn = self._get_check_name('valid_%s' % key,
+                                            app=iface, extra="%s_%s" %
+                                            (constraint, cstr_key))
+                if cstr_key in cstr_bools:
+                    # snap declarations from the store express bools as
+                    # strings
+                    if isinstance(cstr[cstr_key], str):
+                        cstr[cstr_key] = \
+                            self.str2bool(cstr[cstr_key])
+                        if has_alternates:
+                            decl[key][iface][constraint][index][cstr_key] = \
+                                self.str2bool(decl[key][iface][constraint][index][cstr_key])
+                    if not self.is_bool(cstr[cstr_key]):
+                        malformed(badn, "'%s' not True or False" %
+                                  cstr_key, base)
+                        found_errors = True
+                elif cstr_key in cstr_lists:
+                    if not isinstance(cstr[cstr_key], list):
+                        malformed(badn, "'%s' not a list" % cstr_key,
+                                  base)
+                        found_errors = True
+                    else:
+                        for entry in cstr[cstr_key]:
+                            if not isinstance(entry, str):
+                                malformed(badn,
+                                          "'%s' in '%s' not a string" %
+                                          (entry, cstr_key), base)
+                                found_errors = True
+                elif cstr_key in cstr_dicts:
+                    if not isinstance(cstr[cstr_key], dict):
+                        malformed(badn, "'%s' not a dict" % cstr_key,
+                                  base)
+                        found_errors = True
+                    else:
+                        for attrib in cstr[cstr_key]:
+                            bn = self._get_check_name('valid_%s' % key,
+                                                      app=iface,
+                                                      extra="%s_%s" %
+                                                      (constraint,
+                                                       cstr_key))
+                            if iface not in self.interfaces_attribs:
+                                malformed(bn, "unknown attribute '%s'"
+                                          % attrib, base)
+                                found_errors = True
+                                continue
+
+                            found_iface_attr = False
+                            for tmp in self.interfaces_attribs[iface]:
+                                known, side = tmp.split('/')
+                                if attrib != known:
+                                    continue
+                                spec_side = side[:-1]
+
+                                if cstr_key.startswith(spec_side):
+                                    found_iface_attr = True
+
+                                attr_type = cstr[cstr_key][attrib]
+                                if not isinstance(attr_type,
+                                                  type(self.interfaces_attribs[iface][tmp])):
+                                    malformed(bn,
+                                              "wrong type '%s' for attribute '%s'"
+                                              % (attr_type, attrib),
+                                              base)
+                                    found_errors = True
+                                    break
+
+                            if not found_iface_attr:
+                                malformed(bn,
+                                          "attribute '%s' wrong for '%ss'"
+                                          % (attrib, cstr_key[:4]),
+                                          base)
+                                found_errors = True
+
+                if not found_errors and \
+                        cstr_key == "plug-publisher-id" or \
+                        cstr_key == "slot-publisher-id":
+                    for pubid in cstr[cstr_key]:
+                        if not pub_pat.search(pubid):
+                            malformed(n, "invalid format for "
+                                         "publisher id '%s'" % pubid)
+                            found_errors = True
+                            break
+                        if pubid.startswith('$'):
+                            if cstr_key == "plug-publisher-id" and \
+                                    pubid != "$SLOT_PUBLISHER_ID":
+                                malformed(n,
+                                          "invalid publisher id '%s'" %
+                                          pubid)
+                                found_errors = True
+                                break
+                            elif cstr_key == "slot-publisher-id" and \
+                                    pubid != "$PLUG_PUBLISHER_ID":
+                                malformed(n,
+                                          "invalid publisher id '%s'" %
+                                          pubid)
+                                found_errors = True
+                                break
+                elif not found_errors and \
+                        cstr_key == "plug-snap-id" or \
+                        cstr_key == "slot-snap-id":
+                    for id in cstr[cstr_key]:
+                        if not id_pat.search(id):
+                            malformed(n, "invalid format for snap id "
+                                         "'%s'" % id)
+                            found_errors = True
+                            break
+                elif not found_errors and \
+                        cstr_key == "plug-snap-type" or \
+                        cstr_key == "slot-snap-type":
+                    for snap_type in cstr[cstr_key]:
+                        if snap_type not in self.valid_snap_types:
+                            malformed(n, "invalid snap type '%s'" %
+                                      snap_type)
+                            found_errors = True
+                            break
+
+            return found_errors
+            # end verify_constraint()
+
         # from snapd.git/assers/ifacedecls.go
         id_pat = re.compile(r'^[a-z0-9A-Z]{32}$')
         pub_pat = re.compile(r'^(?:[a-z0-9A-Z]{32}|[-a-z0-9]{2,28}|\$[A-Z][A-Z0-9_]*)$')
@@ -155,150 +305,20 @@ class SnapReviewDeclaration(SnapReview):
                             allowed.append("plug-snap-id")
                             allowed.append("plug-snap-type")
 
-                    # constraint may be bool or dict
-                    if self.is_bool(cstr):
-                        if not base:
-                            self._add_result('info', n, s)
-                        continue
-                    elif not isinstance(cstr, dict):
-                        malformed(n, "%s not True, False or dict" %
-                                  constraint, base)
-                        continue
+                    # constraint may be bool or dict or lists of bools and
+                    # dicts
+                    alternates = []
+                    if isinstance(cstr, list):
+                        alternates = cstr
+                    else:
+                        alternates.append(cstr)
 
-                    for cstr_key in cstr:
-                        if cstr_key not in allowed:
-                            name = self._get_check_name('valid_%s' % key,
-                                                        app=iface,
-                                                        extra="%s_%s" %
-                                                        (constraint, cstr_key))
-                            malformed(name, "unknown constraint key '%s'" %
-                                      cstr_key, base)
+                    index = 0
+                    for alt in alternates:
+                        if verify_constraint(alt, decl, key, iface, index,
+                                             (len(alternates) > 1)):
                             found_errors = True
-
-                    cstr_bools = ["on-classic"]
-                    cstr_lists = ["plug-snap-type",
-                                  "slot-snap-type",
-                                  "plug-publisher-id"
-                                  "slot-publisher-id",
-                                  "plug-snap-id",
-                                  "slot-snap-id"
-                                  ]
-                    cstr_dicts = ["plug-attributes", "slot-attributes"]
-                    for cstr_key in cstr:
-                        badn = self._get_check_name('valid_%s' % key,
-                                                    app=iface, extra="%s_%s" %
-                                                    (constraint, cstr_key))
-                        if cstr_key in cstr_bools:
-                            # snap declarations from the store express bools as
-                            # strings
-                            if isinstance(decl[key][iface][constraint][cstr_key], str):
-                                decl[key][iface][constraint][cstr_key] = \
-                                    self.str2bool(decl[key][iface][constraint][cstr_key])
-                                cstr[cstr_key] = \
-                                    self.str2bool(cstr[cstr_key])
-                            if not self.is_bool(cstr[cstr_key]):
-                                malformed(badn, "'%s' not True or False" %
-                                          cstr_key, base)
-                                found_errors = True
-                        elif cstr_key in cstr_lists:
-                            if not isinstance(cstr[cstr_key], list):
-                                malformed(badn, "'%s' not a list" % cstr_key,
-                                          base)
-                                found_errors = True
-                            else:
-                                for entry in cstr[cstr_key]:
-                                    if not isinstance(entry, str):
-                                        malformed(badn,
-                                                  "'%s' in '%s' not a string" %
-                                                  (entry, cstr_key), base)
-                                        found_errors = True
-                        elif cstr_key in cstr_dicts:
-                            if not isinstance(cstr[cstr_key], dict):
-                                malformed(badn, "'%s' not a dict" % cstr_key,
-                                          base)
-                                found_errors = True
-                            else:
-                                for attrib in cstr[cstr_key]:
-                                    bn = self._get_check_name('valid_%s' % key,
-                                                              app=iface,
-                                                              extra="%s_%s" %
-                                                              (constraint,
-                                                               cstr_key))
-                                    if iface not in self.interfaces_attribs:
-                                        malformed(bn, "unknown attribute '%s'"
-                                                  % attrib, base)
-                                        found_errors = True
-                                        continue
-
-                                    found_iface_attr = False
-                                    for tmp in self.interfaces_attribs[iface]:
-                                        known, side = tmp.split('/')
-                                        if attrib != known:
-                                            continue
-                                        spec_side = side[:-1]
-
-                                        if cstr_key.startswith(spec_side):
-                                            found_iface_attr = True
-
-                                        attr_type = cstr[cstr_key][attrib]
-                                        if not isinstance(attr_type,
-                                                          type(self.interfaces_attribs[iface][tmp])):
-                                            malformed(bn,
-                                                      "wrong type '%s' for attribute '%s'"
-                                                      % (attr_type, attrib),
-                                                      base)
-                                            found_errors = True
-                                            break
-
-                                    if not found_iface_attr:
-                                        malformed(bn,
-                                                  "attribute '%s' wrong for '%ss'"
-                                                  % (attrib, cstr_key[:4]),
-                                                  base)
-                                        found_errors = True
-
-                        if not found_errors and \
-                                cstr_key == "plug-publisher-id" or \
-                                cstr_key == "slot-publisher-id":
-                            for pubid in cstr[cstr_key]:
-                                if not pub_pat.search(pubid):
-                                    malformed(n, "invalid format for "
-                                                 "publisher id '%s'" % pubid)
-                                    found_errors = True
-                                    break
-                                if pubid.startswith('$'):
-                                    if cstr_key == "plug-publisher-id" and \
-                                            pubid != "$SLOT_PUBLISHER_ID":
-                                        malformed(n,
-                                                  "invalid publisher id '%s'" %
-                                                  pubid)
-                                        found_errors = True
-                                        break
-                                    elif cstr_key == "slot-publisher-id" and \
-                                            pubid != "$PLUG_PUBLISHER_ID":
-                                        malformed(n,
-                                                  "invalid publisher id '%s'" %
-                                                  pubid)
-                                        found_errors = True
-                                        break
-                        elif not found_errors and \
-                                cstr_key == "plug-snap-id" or \
-                                cstr_key == "slot-snap-id":
-                            for id in cstr[cstr_key]:
-                                if not id_pat.search(id):
-                                    malformed(n, "invalid format for snap id "
-                                                 "'%s'" % id)
-                                    found_errors = True
-                                    break
-                        elif not found_errors and \
-                                cstr_key == "plug-snap-type" or \
-                                cstr_key == "slot-snap-type":
-                            for snap_type in cstr[cstr_key]:
-                                if snap_type not in self.valid_snap_types:
-                                    malformed(n, "invalid snap type '%s'" %
-                                              snap_type)
-                                    found_errors = True
-                                    break
+                        index += 1
 
                     if not base and not found_errors:
                         self._add_result(t, n, s)

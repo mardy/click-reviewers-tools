@@ -174,6 +174,18 @@ slots:
                         'slot-attributes': {},
                     },
                 },
+                'inst-allow-alternates': {
+                    'allow-installation': [
+                        {'slot-snap-type': ['app']},
+                        {'on-classic': 'false'},
+                    ],
+                },
+                'inst-deny-alternates': {
+                    'deny-installation': [
+                        {'slot-snap-type': ['gadget']},
+                        {'on-classic': 'true'},
+                    ],
+                },
                 'conn-on-classic-true': {
                     'allow-connection': {
                         'on-classic': True
@@ -224,6 +236,26 @@ slots:
                     'deny-connection': {
                         'plug-attributes': {},
                     },
+                },
+                'conn-allow-alternates': {
+                    'allow-connection': [
+                        {'plug-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'plug-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
+                'conn-deny-alternates': {
+                    'deny-connection': [
+                        {'plug-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'plug-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
                 },
                 'autoconn-on-classic-true': {
                     'allow-auto-connection': {
@@ -276,6 +308,26 @@ slots:
                         'plug-attributes': {},
                     },
                 },
+                'autoconn-allow-alternates': {
+                    'allow-auto-connection': [
+                        {'plug-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'plug-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
+                'autoconn-deny-alternates': {
+                    'deny-auto-connection': [
+                        {'plug-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'plug-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
             },
             'plugs': {
                 'inst-on-classic-true': {
@@ -302,6 +354,18 @@ slots:
                     'allow-installation': {
                         'plug-attributes': {},
                     },
+                },
+                'inst-allow-alternates': {
+                    'allow-installation': [
+                        {'plug-snap-type': ['app']},
+                        {'on-classic': 'false'},
+                    ],
+                },
+                'inst-deny-alternates': {
+                    'deny-installation': [
+                        {'plug-snap-type': ['gadget']},
+                        {'on-classic': 'true'},
+                    ],
                 },
                 'conn-on-classic-true': {
                     'allow-connection': {
@@ -354,6 +418,26 @@ slots:
                         'slot-attributes': {},
                     },
                 },
+                'conn-allow-alternates': {
+                    'allow-connection': [
+                        {'slot-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'slot-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
+                'conn-deny-alternates': {
+                    'deny-connection': [
+                        {'slot-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'slot-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
                 'autoconn-on-classic-true': {
                     'allow-auto-connection': {
                         'on-classic': True
@@ -405,11 +489,31 @@ slots:
                         'slot-attributes': {},
                     },
                 },
+                'autoconn-allow-alternates': {
+                    'allow-auto-connection': [
+                        {'slot-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'slot-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
+                'autoconn-deny-alternates': {
+                    'deny-auto-connection': [
+                        {'slot-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'slot-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
             },
         }
         c._verify_declaration(decl=decl)
         r = c.click_report
-        expected_counts = {'info': 50, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 62, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test__verify_declaration_invalid_empty(self):
@@ -665,11 +769,11 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
-    def test__verify_declaration_invalid_slots_iface_constraint_list(self):
-        '''Test _verify_declaration - invalid interface constraint: list
+    def test__verify_declaration_invalid_slots_iface_constraint_none(self):
+        '''Test _verify_declaration - invalid interface constraint: none
            (slots)'''
         c = SnapReviewDeclaration(self.test_name)
-        decl = {'slots': {'foo': {'allow-installation': []}}}
+        decl = {'slots': {'foo': {'allow-installation': None}}}
         c._verify_declaration(decl=decl)
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
@@ -730,11 +834,11 @@ slots:
         expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
         self.check_results(r, expected=expected)
 
-    def test__verify_declaration_invalid_slots_iface_constraint_list2(self):
-        '''Test _verify_declaration - invalid interface constraint: list
+    def test__verify_declaration_invalid_slots_iface_constraint_none2(self):
+        '''Test _verify_declaration - invalid interface constraint: none
            (slots with allow-connection)'''
         c = SnapReviewDeclaration(self.test_name)
-        decl = {'slots': {'foo': {'allow-connection': []}}}
+        decl = {'slots': {'foo': {'allow-connection': None}}}
         c._verify_declaration(decl=decl)
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
@@ -777,10 +881,10 @@ slots:
         expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
         self.check_results(r, expected=expected)
 
-    def test__verify_declaration_valid_slots_iface_constraint_bool_str_true(self):
+    def test__verify_declaration_valid_plugs_iface_constraint_bool_str_true(self):
         '''Test _verify_declaration - interface constraint bool "true"'''
         c = SnapReviewDeclaration(self.test_name)
-        decl = {'slots': {'foo': {'allow-installation': {'on-classic': "true"}}}}
+        decl = {'plugs': {'foo': {'allow-installation': {'on-classic': "true"}}}}
         c._verify_declaration(decl=decl)
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
@@ -790,7 +894,7 @@ slots:
         expected['error'] = dict()
         expected['warn'] = dict()
         expected['info'] = dict()
-        name = 'declaration-snap-v2:valid_slots:foo:allow-installation'
+        name = 'declaration-snap-v2:valid_plugs:foo:allow-installation'
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
