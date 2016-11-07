@@ -336,7 +336,7 @@ class SnapReviewDeclaration(SnapReview):
 
         return matched
 
-    def _search(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
+    def _search_ind(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
         '''Search dictionary 'd' for matching values. Returns true when
            - val == d[key]
            - subval in d[key][subkey]
@@ -380,6 +380,36 @@ class SnapReviewDeclaration(SnapReview):
                         found = True
                     else:
                         found = False
+
+        return found
+
+    def _search(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
+        found = False
+        if key not in d:
+            return found
+
+        alternates = []
+        if isinstance(d[key], list):
+            idx = 0
+            for i in d[key]:
+                alternates.append({key: i})
+        else:
+            alternates.append({key: d[key]})
+
+        import pprint
+        print("d=\n%s" % pprint.pformat(d))
+        print("alternates=\n%s" % pprint.pformat(alternates))
+
+        num_found = 0
+        for alt in alternates:
+            if self._search_ind(alt, key, val, subkey, subval, subval_inverted):
+                found = True
+                num_found += 1
+
+        print("num_found = %d, num alternates = %d" % (num_found, len(alternates)))
+#         if found and num_found < len(alternates):
+#             # At least one alternate was ok
+#             found = False
 
         return found
 
