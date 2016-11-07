@@ -407,9 +407,6 @@ class SnapReviewDeclaration(SnapReview):
                 num_found += 1
 
         print("num_found = %d, num alternates = %d" % (num_found, len(alternates)))
-#         if found and num_found < len(alternates):
-#             # At least one alternate was ok
-#             found = False
 
         return found
 
@@ -433,40 +430,7 @@ class SnapReviewDeclaration(SnapReview):
 
         return (decl, base_decl, decl_type)
 
-    def _verify_iface(self, name, iface, interface, attribs=None):
-        '''verify interface
-           This will:
-           - error if interface doesn't exist in base declaration
-           - flag if allow/deny-connection/installation matches boolean
-           - flag if allow/deny-installation snap-type doesn't match
-           - flag if allow/deny-connection attributes don't match
-           - flag if allow/deny-connection attributes don't match slot side of
-             base declaration (since base declaration is mostly slot side)
-        '''
-        if name.endswith('slot'):
-            side = 'slots'
-            oside = 'plugs'
-        elif name.endswith('plug'):
-            side = 'plugs'
-            oside = 'slots'
-
-        t = 'info'
-        n = self._get_check_name('%s_known' % name, app=iface, extra=interface)
-        s = 'OK'
-        if side in self.base_declaration and \
-                interface not in self.base_declaration[side] and \
-                oside in self.base_declaration and \
-                interface not in self.base_declaration[oside]:
-            if name.startswith('app_') and side in self.snap_yaml and \
-                    interface in self.snap_yaml[side]:
-                # If it is an interface reference used by an app, skip since it
-                # will be checked in top-level interface checks.
-                return
-            t = 'error'
-            s = "interface '%s' not found in base declaration" % interface
-            self._add_result(t, n, s)
-            return
-
+    def _verify_iface_ind(self, name, iface, interface, attribs, side, oside):
         require_manual = False
 
         # top-level allow/deny-installation/connection
@@ -602,6 +566,43 @@ class SnapReviewDeclaration(SnapReview):
                 # if manual review after 'deny', don't look at allow
                 break
 
+        return require_manual
+
+    def _verify_iface(self, name, iface, interface, attribs=None):
+        '''verify interface
+           This will:
+           - error if interface doesn't exist in base declaration
+           - flag if allow/deny-connection/installation matches boolean
+           - flag if allow/deny-installation snap-type doesn't match
+           - flag if allow/deny-connection attributes don't match
+           - flag if allow/deny-connection attributes don't match slot side of
+             base declaration (since base declaration is mostly slot side)
+        '''
+        if name.endswith('slot'):
+            side = 'slots'
+            oside = 'plugs'
+        elif name.endswith('plug'):
+            side = 'plugs'
+            oside = 'slots'
+
+        t = 'info'
+        n = self._get_check_name('%s_known' % name, app=iface, extra=interface)
+        s = 'OK'
+        if side in self.base_declaration and \
+                interface not in self.base_declaration[side] and \
+                oside in self.base_declaration and \
+                interface not in self.base_declaration[oside]:
+            if name.startswith('app_') and side in self.snap_yaml and \
+                    interface in self.snap_yaml[side]:
+                # If it is an interface reference used by an app, skip since it
+                # will be checked in top-level interface checks.
+                return
+            t = 'error'
+            s = "interface '%s' not found in base declaration" % interface
+            self._add_result(t, n, s)
+            return
+
+        require_manual = self._verify_iface_ind(name, iface, interface, attribs, side, oside)
         # Report something back if everything ok
         if not require_manual:
             self._add_result('info',
