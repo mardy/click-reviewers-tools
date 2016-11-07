@@ -95,10 +95,12 @@ class Review(object):
         self.review_type = review_type
         # TODO: rename as pkg_report
         self.click_report = dict()
+        self.stage_report = dict()
 
         self.result_types = ['info', 'warn', 'error']
         for r in self.result_types:
             self.click_report[r] = dict()
+            self.stage_report[r] = dict()
 
         self.click_report_output = "json"
 
@@ -243,8 +245,14 @@ class Review(object):
     #   override_result_type: prefix results with [<result_type>] and set
     #     result_type to override_result_type
     def _add_result(self, result_type, review_name, result, link=None,
-                    manual_review=False, override_result_type=None):
+                    manual_review=False, override_result_type=None,
+                    stage=False):
         '''Add result to report'''
+        if stage:
+            report = self.stage_report
+        else:
+            report = self.click_report
+
         if result_type not in self.result_types:
             error("Invalid result type '%s'" % result_type)
 
@@ -256,7 +264,7 @@ class Review(object):
             prefix = "[%s] " % result_type.upper()
             result_type = override_result_type
 
-        if review_name not in self.click_report[result_type]:
+        if review_name not in report[result_type]:
             # log info about check so it can be collected into the
             # check-names.list file
             # format should be
@@ -265,14 +273,30 @@ class Review(object):
             name = ':'.join(review_name.split(':')[:2])
             link_text = link if link is not None else ""
             logging.debug(msg.format(name, link_text))
-            self.click_report[result_type][review_name] = dict()
+            report[result_type][review_name] = dict()
 
-        self.click_report[result_type][review_name].update({
+        report[result_type][review_name].update({
             'text': "%s%s" % (prefix, result),
             'manual_review': manual_review,
         })
         if link is not None:
-            self.click_report[result_type][review_name]["link"] = link
+            report[result_type][review_name]["link"] = link
+
+    def _apply_staged_results(self):
+        '''Merge the staged report into the main report'''
+        for result_type in self.stage_report:
+            if result_type not in self.result_types:
+                error("Invalid result type '%s'" % result_type)
+
+            for review_name in self.stage_report[result_type]:
+                if review_name not in self.click_report[result_type]:
+                    self.click_report[result_type][review_name] = dict()
+                for key in self.stage_report[result_type][review_name]:
+                    self.click_report[result_type][review_name][key] = \
+                            self.stage_report[result_type][review_name][key]
+                    print("HERE2: Applying self.stage_report[%s][%s][%s] = %s" % (result_type, review_name, key, self.stage_report[result_type][review_name][key]))
+            # reset the staged report
+            self.stage_report[result_type] = dict()
 
     def do_report(self):
         '''Print report'''

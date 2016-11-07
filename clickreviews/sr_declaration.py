@@ -336,7 +336,7 @@ class SnapReviewDeclaration(SnapReview):
 
         return matched
 
-    def _search_ind(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
+    def _search(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
         '''Search dictionary 'd' for matching values. Returns true when
            - val == d[key]
            - subval in d[key][subkey]
@@ -383,54 +383,79 @@ class SnapReviewDeclaration(SnapReview):
 
         return found
 
-    def _search(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
-        found = False
-        if key not in d:
-            return found
-
-        alternates = []
-        if isinstance(d[key], list):
-            idx = 0
-            for i in d[key]:
-                alternates.append({key: i})
-        else:
-            alternates.append({key: d[key]})
-
-        import pprint
-        print("d=\n%s" % pprint.pformat(d))
-        print("alternates=\n%s" % pprint.pformat(alternates))
-
-        num_found = 0
-        for alt in alternates:
-            if self._search_ind(alt, key, val, subkey, subval, subval_inverted):
-                found = True
-                num_found += 1
-
-        print("num_found = %d, num alternates = %d" % (num_found, len(alternates)))
-
-        return found
-
-    def _get_decl(self, side, interface, dtype):
+    def _get_decl(self, base, snap, side, interface, dtype):
         '''If the snap declaration has something to say about the declaration
            override type (dtype), then use it instead of the base declaration.
         '''
-        decl = self.base_declaration
+        decl = base
         base_decl = True
         decl_type = "base"
 
-        if self.snap_declaration is not None and \
-                side in self.snap_declaration and \
-                interface in self.snap_declaration[side]:
-            for k in self.snap_declaration[side][interface]:
+        if snap is not None and side in snap and interface in snap[side]:
+            for k in snap[side][interface]:
                 if k.endswith(dtype):
-                    decl = self.snap_declaration
+                    decl = snap
                     base_decl = False
                     decl_type = "snap"
                     break
 
         return (decl, base_decl, decl_type)
 
-    def _verify_iface_ind(self, name, iface, interface, attribs, side, oside):
+    def _get_all_combinations(self, interface):
+        def expand(d, side, interface, keys, templates):
+            if len(keys) == 0:
+                return templates
+
+            updated = []
+            key = keys[-1]
+            for i in d[side][interface][key]:
+                for t in templates:
+                    tmp = {side: {interface: {}}}
+                    # copy existing keys
+                    for template_key in t[side][interface]:
+                        tmp[side][interface][template_key] = \
+                                t[side][interface][template_key]
+                    tmp[side][interface][key] = i
+                    updated.append(tmp)
+
+            return expand(d, side, interface, keys[:-1], updated)
+
+        decls = {'base': [], 'snap': []}
+
+        has_alternates = False
+        for dtype in ["base", "snap"]:
+            if dtype == "base":
+                d = self.base_declaration
+            else:
+                d = self.snap_declaration
+
+            for side in ["plugs", "slots"]:
+                if dtype == "snap" and d == None:
+                    continue
+                if side not in d or interface not in d[side]:
+                    continue
+
+                to_expand = []
+                templates = []
+                template = {side: {interface: {}}}
+                for cstr in d[side][interface]:
+                    if isinstance(d[side][interface][cstr], list):
+                        to_expand.append(cstr)
+                    else:
+                        template[side][interface][cstr] = d[side][interface][cstr]
+                decls[dtype] += expand(d, side, interface, to_expand, [template])
+                if len(to_expand) > 0:
+                    has_alternates = True
+
+        # We need at least one declaration, even if it is None
+        if len(decls['snap']) == 0:
+            decls['snap'].append(None)
+
+        return (decls, has_alternates)
+
+    # FIXME: we shouldn't require_manual on individual test if other types
+    # don't match when have alternates
+    def _verify_iface_ind(self, base, snap, name, iface, interface, attribs, side, oside):
         require_manual = False
 
         # top-level allow/deny-installation/connection
@@ -439,7 +464,7 @@ class SnapReviewDeclaration(SnapReview):
             for j in ['deny', 'allow']:
                 decl_key = "%s-%s" % (j, i)
                 # flag if deny-* is true or allow-* is false
-                (decl, base_decl, decl_type) = self._get_decl(side, interface,
+                (decl, base_decl, decl_type) = self._get_decl(base, snap, side, interface,
                                                               i)
                 if side in decl and interface in decl[side] and \
                         self._search(decl[side][interface], "%s" % decl_key,
@@ -451,7 +476,8 @@ class SnapReviewDeclaration(SnapReview):
                                                           extra=interface),
                                      "not allowed by '%s' in %s declaration" %
                                      (decl_key, decl_type),
-                                     manual_review=True)
+                                     manual_review=True,
+                                     stage=True)
                     require_manual = True
 
                     # if manual review after 'deny', don't look at allow
@@ -465,7 +491,7 @@ class SnapReviewDeclaration(SnapReview):
                 snap_type = 'core'
         decl_subkey = '%s-snap-type' % side[:-1]
         for j in ['deny', 'allow']:
-            (decl, base_decl, decl_type) = self._get_decl(side, interface,
+            (decl, base_decl, decl_type) = self._get_decl(base, snap, side, interface,
                                                           'installation')
             decl_key = "%s-installation" % j
             # flag if deny-*/snap-type matches or allow-*/snap-type doesn't
@@ -480,7 +506,8 @@ class SnapReviewDeclaration(SnapReview):
                                                       extra=interface),
                                  "not allowed by '%s/%s' in %s declaration" %
                                  (decl_key, decl_subkey, decl_type),
-                                 manual_review=True)
+                                 manual_review=True,
+                                 stage=True)
                 require_manual = True
 
                 # if manual review after 'deny', don't look at allow
@@ -495,7 +522,7 @@ class SnapReviewDeclaration(SnapReview):
         decl_subkey = 'on-classic'
         for i in ['installation', 'connection']:
             for j in ['deny', 'allow']:
-                (decl, base_decl, decl_type) = self._get_decl(side, interface,
+                (decl, base_decl, decl_type) = self._get_decl(base, snap, side, interface,
                                                               i)
                 decl_key = "%s-%s" % (j, i)
                 # when an app snap, flag if deny-*/on-classic=false or
@@ -514,7 +541,8 @@ class SnapReviewDeclaration(SnapReview):
                                                           extra=interface),
                                      "not allowed by '%s/%s' in %s declaration" %
                                      (decl_key, decl_subkey, decl_type),
-                                     manual_review=True)
+                                     manual_review=True,
+                                     stage=True)
                     require_manual = True
 
                     # if manual review after 'deny', don't look at allow
@@ -523,7 +551,7 @@ class SnapReviewDeclaration(SnapReview):
         # deny/allow-connection attributes
         decl_subkey = '%s-attributes' % side[:-1]
         for j in ['deny', 'allow']:
-            (decl, base_decl, decl_type) = self._get_decl(side, interface,
+            (decl, base_decl, decl_type) = self._get_decl(base, snap, side, interface,
                                                           'connection')
             decl_key = "%s-connection" % j
             if attribs is None:
@@ -541,7 +569,8 @@ class SnapReviewDeclaration(SnapReview):
                                                       extra=interface),
                                  "not allowed by '%s/%s' in %s declaration" %
                                  (decl_key, decl_subkey, decl_type),
-                                 manual_review=True)
+                                 manual_review=True,
+                                 stage=True)
                 require_manual = True
 
                 # if manual review after 'deny', don't look at allow
@@ -560,7 +589,8 @@ class SnapReviewDeclaration(SnapReview):
                                                       extra=interface),
                                  "not allowed by '%s/%s' in base declaration" %
                                  (decl_key, decl_subkey),
-                                 manual_review=True)
+                                 manual_review=True,
+                                 stage=True)
                 require_manual = True
 
                 # if manual review after 'deny', don't look at allow
@@ -578,6 +608,7 @@ class SnapReviewDeclaration(SnapReview):
            - flag if allow/deny-connection attributes don't match slot side of
              base declaration (since base declaration is mostly slot side)
         '''
+        print("HERE0: %s, %s, %s, %s" % (name, iface, interface, attribs))
         if name.endswith('slot'):
             side = 'slots'
             oside = 'plugs'
@@ -602,9 +633,41 @@ class SnapReviewDeclaration(SnapReview):
             self._add_result(t, n, s)
             return
 
-        require_manual = self._verify_iface_ind(name, iface, interface, attribs, side, oside)
+        # To support alternates in the base and snap declaration, we need to
+        # try each combination. If we have alternates and one passes, then
+        # don't report.
+        (decls, has_alternates) = self._get_all_combinations(interface)
+        require_manual = False
+        ok = False
+        import pprint
+        print("HERE1\nbase=\n%s" % (pprint.pformat(self.base_declaration)))
+        print("\nsnap=\n%s" % (pprint.pformat(self.snap_declaration)))
+        print("\ndecls=\n%s" % (pprint.pformat(decls)))
+
+        for b in decls['base']:
+            for s in decls['snap']:
+                import pprint
+                print("\nHERE2\nb=\n%s" % (pprint.pformat(b)))
+                print("\ns=\n%s" % (pprint.pformat(s)))
+                if self._verify_iface_ind(b, s, name, iface, interface, attribs, side, oside):
+                    require_manual = True
+                    print("\nHERE2.5\nblocked by b=\n%s" % (pprint.pformat(b)))
+                    print("\nblocked by s=\n%s" % (pprint.pformat(s)))
+#                 elif has_alternates:
+#                     print("HERE5")
+
+#                     # we found a passing combination that doesn't require
+#                     # manual review, so bail
+#                     ok = True
+#                     require_manual = False
+#                     break
+#             if ok:
+#                 break
+
         # Report something back if everything ok
-        if not require_manual:
+        if require_manual:
+            self._apply_staged_results()
+        else:
             self._add_result('info',
                              self._get_check_name("%s" % side, app=iface,
                                                   extra=interface),
