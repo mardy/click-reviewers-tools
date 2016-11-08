@@ -174,6 +174,18 @@ slots:
                         'slot-attributes': {},
                     },
                 },
+                'inst-allow-alternates': {
+                    'allow-installation': [
+                        {'slot-snap-type': ['app']},
+                        {'on-classic': 'false'},
+                    ],
+                },
+                'inst-deny-alternates': {
+                    'deny-installation': [
+                        {'slot-snap-type': ['gadget']},
+                        {'on-classic': 'true'},
+                    ],
+                },
                 'conn-on-classic-true': {
                     'allow-connection': {
                         'on-classic': True
@@ -224,6 +236,26 @@ slots:
                     'deny-connection': {
                         'plug-attributes': {},
                     },
+                },
+                'conn-allow-alternates': {
+                    'allow-connection': [
+                        {'plug-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'plug-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
+                'conn-deny-alternates': {
+                    'deny-connection': [
+                        {'plug-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'plug-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
                 },
                 'autoconn-on-classic-true': {
                     'allow-auto-connection': {
@@ -276,6 +308,26 @@ slots:
                         'plug-attributes': {},
                     },
                 },
+                'autoconn-allow-alternates': {
+                    'allow-auto-connection': [
+                        {'plug-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'plug-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
+                'autoconn-deny-alternates': {
+                    'deny-auto-connection': [
+                        {'plug-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'plug-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
             },
             'plugs': {
                 'inst-on-classic-true': {
@@ -302,6 +354,18 @@ slots:
                     'allow-installation': {
                         'plug-attributes': {},
                     },
+                },
+                'inst-allow-alternates': {
+                    'allow-installation': [
+                        {'plug-snap-type': ['app']},
+                        {'on-classic': 'false'},
+                    ],
+                },
+                'inst-deny-alternates': {
+                    'deny-installation': [
+                        {'plug-snap-type': ['gadget']},
+                        {'on-classic': 'true'},
+                    ],
                 },
                 'conn-on-classic-true': {
                     'allow-connection': {
@@ -354,6 +418,26 @@ slots:
                         'slot-attributes': {},
                     },
                 },
+                'conn-allow-alternates': {
+                    'allow-connection': [
+                        {'slot-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'slot-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
+                'conn-deny-alternates': {
+                    'deny-connection': [
+                        {'slot-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'slot-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
                 'autoconn-on-classic-true': {
                     'allow-auto-connection': {
                         'on-classic': True
@@ -405,11 +489,31 @@ slots:
                         'slot-attributes': {},
                     },
                 },
+                'autoconn-allow-alternates': {
+                    'allow-auto-connection': [
+                        {'slot-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'slot-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
+                'autoconn-deny-alternates': {
+                    'deny-auto-connection': [
+                        {'slot-snap-id': ['something32charslongGgGgGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                        {'slot-snap-id': ['somethingelse32charslongGgGgGgGg'],
+                         'on-classic': 'true',
+                         },
+                    ],
+                },
             },
         }
         c._verify_declaration(decl=decl)
         r = c.click_report
-        expected_counts = {'info': 50, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 62, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test__verify_declaration_invalid_empty(self):
@@ -665,11 +769,11 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
-    def test__verify_declaration_invalid_slots_iface_constraint_list(self):
-        '''Test _verify_declaration - invalid interface constraint: list
+    def test__verify_declaration_invalid_slots_iface_constraint_none(self):
+        '''Test _verify_declaration - invalid interface constraint: none
            (slots)'''
         c = SnapReviewDeclaration(self.test_name)
-        decl = {'slots': {'foo': {'allow-installation': []}}}
+        decl = {'slots': {'foo': {'allow-installation': None}}}
         c._verify_declaration(decl=decl)
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
@@ -730,11 +834,11 @@ slots:
         expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
         self.check_results(r, expected=expected)
 
-    def test__verify_declaration_invalid_slots_iface_constraint_list2(self):
-        '''Test _verify_declaration - invalid interface constraint: list
+    def test__verify_declaration_invalid_slots_iface_constraint_none2(self):
+        '''Test _verify_declaration - invalid interface constraint: none
            (slots with allow-connection)'''
         c = SnapReviewDeclaration(self.test_name)
-        decl = {'slots': {'foo': {'allow-connection': []}}}
+        decl = {'slots': {'foo': {'allow-connection': None}}}
         c._verify_declaration(decl=decl)
         r = c.click_report
         expected_counts = {'info': 0, 'warn': 0, 'error': 1}
@@ -777,10 +881,10 @@ slots:
         expected['error'][name2] = {"text": "declaration malformed (unknown constraint key 'nonexistent2')"}
         self.check_results(r, expected=expected)
 
-    def test__verify_declaration_valid_slots_iface_constraint_bool_str_true(self):
+    def test__verify_declaration_valid_plugs_iface_constraint_bool_str_true(self):
         '''Test _verify_declaration - interface constraint bool "true"'''
         c = SnapReviewDeclaration(self.test_name)
-        decl = {'slots': {'foo': {'allow-installation': {'on-classic': "true"}}}}
+        decl = {'plugs': {'foo': {'allow-installation': {'on-classic': "true"}}}}
         c._verify_declaration(decl=decl)
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
@@ -790,7 +894,7 @@ slots:
         expected['error'] = dict()
         expected['warn'] = dict()
         expected['info'] = dict()
-        name = 'declaration-snap-v2:valid_slots:foo:allow-installation'
+        name = 'declaration-snap-v2:valid_plugs:foo:allow-installation'
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
@@ -1221,6 +1325,45 @@ slots:
         name = 'declaration-snap-v2:valid_slots:foo:allow-connection'
         expected['error'][name] = {"text": "declaration malformed (invalid format for snap id 'b@d')"}
         self.check_results(r, expected=expected)
+
+    def test__get_all_combinations(self):
+        '''Test _get_all_combinations()'''
+        c = SnapReviewDeclaration(self.test_name)
+        iface = 'someiface'
+        snap = {
+            'slots': {
+                iface: {
+                    'foo': '1',
+                    'bar': ['2', '3'],
+                    'baz': '4',
+                    'norf': ['5', '6'],
+                }
+            },
+            'plugs': {
+                iface: {
+                    'qux': '7',
+                    'quux': ['8', '9'],
+                }
+            }
+        }
+        c.snap_declaration = snap
+
+        (decls, has_alt) = c._get_all_combinations(iface)
+        self.assertTrue(has_alt)
+        self.assertTrue(len(decls['snap']) == 6)
+
+        expected = {
+            'base': [],
+            'snap': [
+                {'plugs': {'someiface': {'qux': '7', 'quux': '8'}}},
+                {'plugs': {'someiface': {'qux': '7', 'quux': '9'}}},
+                {'slots': {'someiface': {'bar': '2', 'baz': '4', 'foo': '1', 'norf': '5'}}},
+                {'slots': {'someiface': {'bar': '2', 'baz': '4', 'foo': '1', 'norf': '6'}}},
+                {'slots': {'someiface': {'bar': '3', 'baz': '4', 'foo': '1', 'norf': '5'}}},
+                {'slots': {'someiface': {'bar': '3', 'baz': '4', 'foo': '1', 'norf': '6'}}},
+            ]
+        }
+        self.assertEqual(decls, expected)
 
     def test_check_declaration_unknown_interface(self):
         '''Test check_declaration - unknown interface'''
@@ -2473,6 +2616,438 @@ slots:
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs_deny-connection:iface:foo'
         expected['error'][name] = {"text": "not allowed by 'deny-connection/on-classic' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_connection_alternates_one_denied(self):
+        '''Test check_declaration - plugs connection alternates - core matching attrib'''
+        plugs = {'iface': {'interface': 'foo', 'name': 'one'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': [
+                        {
+                            'plug-attributes': {'name': 'one'},
+                        },
+                        {
+                            'plug-attributes': {'name': 'two'},
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_deny-connection:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_connection_alternates_two_allowed(self):
+        '''Test check_declaration - plugs connection alternates - matching attrib'''
+        plugs = {'iface': {'interface': 'foo', 'name': 'two'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': [
+                        {
+                            'plug-attributes': {'name': 'one'},
+                        },
+                        {
+                            'plug-attributes': {'name': 'two'},
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_deny-connection:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_connection_alternates_three_allowed(self):
+        '''Test check_declaration - plugs connection alternates - non-matching attrib'''
+        plugs = {'iface': {'interface': 'foo', 'name': 'three'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': [
+                        {
+                            'plug-attributes': {'name': 'one'},
+                        },
+                        {
+                            'plug-attributes': {'name': 'two'},
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs:iface:foo'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_connection_alternates_one_denied(self):
+        '''Test check_declaration - slots connection alternates - core matching attrib'''
+        slots = {'iface': {'interface': 'foo', 'name': 'one'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-connection': [
+                        {
+                            'slot-attributes': {'name': 'one'},
+                        },
+                        {
+                            'slot-attributes': {'name': 'two'},
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_deny-connection:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/slot-attributes' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_connection_alternates_two_allowed(self):
+        '''Test check_declaration - slots connection alternates - matching attrib'''
+        slots = {'iface': {'interface': 'foo', 'name': 'two'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-connection': [
+                        {
+                            'slot-attributes': {'name': 'one'},
+                        },
+                        {
+                            'slot-attributes': {'name': 'two'},
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_deny-connection:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/slot-attributes' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_connection_alternates_three_allowed(self):
+        '''Test check_declaration - slots connection alternates - non-matching attrib'''
+        slots = {'iface': {'interface': 'foo', 'name': 'three'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-connection': [
+                        {
+                            'slot-attributes': {'name': 'one'},
+                        },
+                        {
+                            'slot-attributes': {'name': 'two'},
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots:iface:foo'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_installation_alternates_one_denied(self):
+        '''Test check_declaration - plugs installation alternates - core matching attrib'''
+        plugs = {'iface': {'interface': 'foo', 'name': 'one'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-installation': [
+                        {
+                            'plug-attributes': {'name': 'one'},
+                            'plug-snap-type': ['core'],
+                        },
+                        {
+                            'plug-attributes': {'name': 'two'},
+                            'plug-snap-type': ['app'],
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_deny-installation:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-installation/plug-attributes' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_installation_alternates_two_denied(self):
+        '''Test check_declaration - plugs installation alternates - app matching attrib'''
+        plugs = {'iface': {'interface': 'foo', 'name': 'two'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("type", "app")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-installation': [
+                        {
+                            'plug-attributes': {'name': 'one'},
+                            'plug-snap-type': ['core'],
+                        },
+                        {
+                            'plug-attributes': {'name': 'two'},
+                            'plug-snap-type': ['app'],
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_deny-installation:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-installation/plug-attributes' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_installation_alternates_three_allowed(self):
+        '''Test check_declaration - plugs installation alternates - core not matching attrib'''
+        plugs = {'iface': {'interface': 'foo', 'name': 'three'}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-installation': [
+                        {
+                            'plug-attributes': {'name': 'one'},
+                            'plug-snap-type': ['core'],
+                        },
+                        {
+                            'plug-attributes': {'name': 'two'},
+                            'plug-snap-type': ['app'],
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs:iface:foo'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_installation_alternates_one_denied(self):
+        '''Test check_declaration - slots installation alternates - core matching attrib'''
+        slots = {'iface': {'interface': 'foo', 'name': 'one'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': [
+                        {
+                            'slot-attributes': {'name': 'one'},
+                            'slot-snap-type': ['core'],
+                        },
+                        {
+                            'slot-attributes': {'name': 'two'},
+                            'slot-snap-type': ['app'],
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_deny-installation:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-installation/slot-attributes' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_installation_alternates_two_denied(self):
+        '''Test check_declaration - slots installation alternates - app matching attrib'''
+        slots = {'iface': {'interface': 'foo', 'name': 'two'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "app")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': [
+                        {
+                            'slot-attributes': {'name': 'one'},
+                            'slot-snap-type': ['core'],
+                        },
+                        {
+                            'slot-attributes': {'name': 'two'},
+                            'slot-snap-type': ['app'],
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots_deny-installation:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-installation/slot-attributes' in base declaration"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_slots_installation_alternates_three_allowed(self):
+        '''Test check_declaration - slots installation alternates - core not matching attrib'''
+        slots = {'iface': {'interface': 'foo', 'name': 'three'}}
+        self.set_test_snap_yaml("slots", slots)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'slots': {
+                'foo': {
+                    'deny-installation': [
+                        {
+                            'slot-attributes': {'name': 'one'},
+                            'slot-snap-type': ['core'],
+                        },
+                        {
+                            'slot-attributes': {'name': 'two'},
+                            'slot-snap-type': ['app'],
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:slots:iface:foo'
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_plugs_on_classic_deny_false_core(self):
