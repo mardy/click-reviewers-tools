@@ -39,6 +39,7 @@ class SnapReviewLint(SnapReview):
                                              'i386',
                                              'amd64',
                                              'arm64',
+                                             'powerpc',
                                              'ppc64el',
                                              's390x',
                                              ]
