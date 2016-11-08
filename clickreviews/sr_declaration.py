@@ -412,10 +412,6 @@ class SnapReviewDeclaration(SnapReview):
             for i in d[side][interface][key]:
                 for t in templates:
                     tmp = {side: {interface: {}}}
-                    # copy existing keys
-                    for template_key in t[side][interface]:
-                        tmp[side][interface][template_key] = \
-                            t[side][interface][template_key]
                     tmp[side][interface][key] = i
                     updated.append(tmp)
 
