@@ -405,16 +405,18 @@ class SnapReviewDeclaration(SnapReview):
     def _get_all_combinations(self, interface):
         '''Return list of all base and snap declaration combinations where
            each base/snap declaration pair represents a particular combination
-           of alternate constraints.
+           of alternate constraints. Also return if there are alternate
+           constraints anywhere.
 
            For simple declarations, this will return the interface of the
            base declaration and if a snap declaration is specified, the
            interface of the snap declaration (ie, a single base/snap
            declaration pair).
 
-           For complex declarations, this will return a list of pairs such
-           that for each of base and snap declarations, well expand like so
-           (showing on the base declaration for simplicity):
+           For complex declarations with alternate constrainst, this will
+           return a list of pairs such that for each of base and snap
+           declarations, well expand like so (showing on the base declaration
+           for simplicity):
 
                base = {
                    'slots': {
@@ -423,9 +425,15 @@ class SnapReviewDeclaration(SnapReview):
                            'bar': ['2', '3'],
                            'baz': '4',
                            'norf': ['5', '6'],
-                           }
+                       }
+                   },
+                   'plugs': {
+                       'interface': {
+                           'qux': '7',
+                           'quux': ['8', '9'],
                        }
                    }
+               }
 
             then the list of 'base declarations' to check against is:
 
@@ -462,12 +470,24 @@ class SnapReviewDeclaration(SnapReview):
                             'norf': '6',
                         }
                     },
+                    {'plugs': {
+                        'interface': {
+                            'qux': '7',
+                            'quux': '8',
+                        }
+                    },
+                    {'plugs': {
+                        'interface': {
+                            'qux': '7',
+                            'quux': '9',
+                        }
+                    },
                 ]
 
-            If the plugs side is defined for this interface, it will appear
-            alongside each 'slot' in each declaration combination. If the
-            snap declaration is defined, it will be stored in decls['snap'] in
-            the same way as the base declaration.
+            If the plugs side is defined for this interface, it will appear as
+            a different declaration combination (this may change in the future
+            if needed). If the snap declaration is defined, it will be stored
+            in decls['snap'] in the same way as the base declaration.
 
             In this manner, each one of the base declarations can be evaluated
             and compared to any defined snap declarations.
@@ -481,6 +501,10 @@ class SnapReviewDeclaration(SnapReview):
             for i in d[side][interface][key]:
                 for t in templates:
                     tmp = {side: {interface: {}}}
+                    # copy existing keys
+                    for template_key in t[side][interface]:
+                        tmp[side][interface][template_key] = \
+                            t[side][interface][template_key]
                     tmp[side][interface][key] = i
                     updated.append(tmp)
 

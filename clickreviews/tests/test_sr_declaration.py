@@ -16,6 +16,7 @@
 
 from clickreviews.sr_declaration import SnapReviewDeclaration, SnapDeclarationException
 import clickreviews.sr_tests as sr_tests
+import pprint
 import yaml
 
 
@@ -1325,6 +1326,45 @@ slots:
         name = 'declaration-snap-v2:valid_slots:foo:allow-connection'
         expected['error'][name] = {"text": "declaration malformed (invalid format for snap id 'b@d')"}
         self.check_results(r, expected=expected)
+
+    def test__get_all_combinations(self):
+        '''Test _get_all_combinations()'''
+        c = SnapReviewDeclaration(self.test_name)
+        iface = 'someiface'
+        snap = {
+            'slots': {
+                iface: {
+                    'foo': '1',
+                    'bar': ['2', '3'],
+                    'baz': '4',
+                    'norf': ['5', '6'],
+                }
+            },
+            'plugs': {
+                iface: {
+                    'qux': '7',
+                    'quux': ['8', '9'],
+                }
+            }
+        }
+        c.snap_declaration = snap
+
+        (decls, has_alt) = c._get_all_combinations(iface)
+        self.assertTrue(has_alt)
+        self.assertTrue(len(decls['snap']) == 6)
+
+        expected = {
+            'base': [],
+            'snap': [
+                {'plugs': {'someiface': {'qux': '7', 'quux': '8'}}},
+                {'plugs': {'someiface': {'qux': '7', 'quux': '9'}}},
+                {'slots': {'someiface': {'bar': '2', 'baz': '4', 'foo': '1', 'norf': '5'}}},
+                {'slots': {'someiface': {'bar': '2', 'baz': '4', 'foo': '1', 'norf': '6'}}},
+                {'slots': {'someiface': {'bar': '3', 'baz': '4', 'foo': '1', 'norf': '5'}}},
+                {'slots': {'someiface': {'bar': '3', 'baz': '4', 'foo': '1', 'norf': '6'}}},
+            ]
+        }
+        self.assertEqual(pprint.pformat(decls), pprint.pformat(expected))
 
     def test_check_declaration_unknown_interface(self):
         '''Test check_declaration - unknown interface'''
