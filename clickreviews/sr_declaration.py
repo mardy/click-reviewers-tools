@@ -345,9 +345,11 @@ class SnapReviewDeclaration(SnapReview):
            - subval_inverted == True and subval has any non-matches in
              d[key][subkey] dict
         '''
+        print("HERE3: _search(d=..., key=%s, val=%s, subkey=%s, subval=%s, subval_inverted=%s" % (key, val, subkey, subval, subval_inverted))
         found = False
-        if key not in d:
-            return found
+#         if key not in d:
+#             print("HERE3.4: found=%s" % found)
+#             return found
 
         if val is not None and val == d[key]:
             found = True
@@ -381,6 +383,10 @@ class SnapReviewDeclaration(SnapReview):
                     else:
                         found = False
 
+        if found:
+            print("*** HERE3.5: found=%s" % found)
+        else:
+            print("HERE3.6: found=%s" % found)
         return found
 
     def _get_decl(self, base, snap, side, interface, dtype):
@@ -453,10 +459,13 @@ class SnapReviewDeclaration(SnapReview):
 
         return (decls, has_alternates)
 
-    # FIXME: we shouldn't require_manual on individual test if other types
-    # don't match when have alternates
+    # FIXME: we shouldn't require_manual for individual decl_type checks if
+    # others don't match (ie, if slot-snap-type doesn't match but
+    # slot-attributes does
     def _verify_iface_ind(self, base, snap, name, iface, interface, attribs, side, oside):
         require_manual = False
+        checked = 0
+        denied = 0
 
         # top-level allow/deny-installation/connection
         # Note: auto-connection is only for snapd, so don't include it here
@@ -466,8 +475,10 @@ class SnapReviewDeclaration(SnapReview):
                 # flag if deny-* is true or allow-* is false
                 (decl, base_decl, decl_type) = self._get_decl(base, snap, side, interface,
                                                               i)
-                if side in decl and interface in decl[side] and \
-                        self._search(decl[side][interface], "%s" % decl_key,
+                if side in decl and interface in decl[side] and decl_key in decl[side][interface] and not isinstance(decl[side][interface][decl_key], dict):
+                  print("HERE4.1")
+                  checked += 1
+                  if self._search(decl[side][interface], decl_key,
                                      j == 'deny'):
                     self._add_result('error',
                                      self._get_check_name("%s_%s" %
@@ -479,6 +490,7 @@ class SnapReviewDeclaration(SnapReview):
                                      manual_review=True,
                                      stage=True)
                     require_manual = True
+                    denied += 1
 
                     # if manual review after 'deny', don't look at allow
                     break
@@ -495,8 +507,10 @@ class SnapReviewDeclaration(SnapReview):
                                                           'installation')
             decl_key = "%s-installation" % j
             # flag if deny-*/snap-type matches or allow-*/snap-type doesn't
-            if side in decl and interface in decl[side] and \
-                    self._search(decl[side][interface], decl_key,
+            if side in decl and interface in decl[side] and decl_key in decl[side][interface] and isinstance(decl[side][interface][decl_key], dict) and decl_subkey in decl[side][interface][decl_key]:
+              checked += 1
+              print("HERE4.2")
+              if self._search(decl[side][interface], decl_key,
                                  subkey=decl_subkey, subval=snap_type,
                                  subval_inverted=(j == 'allow')):
                 self._add_result('error',
@@ -509,6 +523,7 @@ class SnapReviewDeclaration(SnapReview):
                                  manual_review=True,
                                  stage=True)
                 require_manual = True
+                denied += 1
 
                 # if manual review after 'deny', don't look at allow
                 break
@@ -529,8 +544,10 @@ class SnapReviewDeclaration(SnapReview):
                 # allow-*/on-classic=true
                 # when not an app snap, flag if deny-*/on-classic=true or
                 # allow-*/on-classic=false
-                if side in decl and interface in decl[side] and \
-                        self._search(decl[side][interface], decl_key,
+                if side in decl and interface in decl[side] and decl_key in decl[side][interface] and isinstance(decl[side][interface][decl_key], dict) and decl_subkey in decl[side][interface][decl_key]:
+                  checked += 1
+                  print("HERE4.4")
+                  if self._search(decl[side][interface], decl_key,
                                      subkey=decl_subkey,
                                      subval=(snap_type == 'app'),
                                      subval_inverted=(j == 'deny')):
@@ -544,22 +561,26 @@ class SnapReviewDeclaration(SnapReview):
                                      manual_review=True,
                                      stage=True)
                     require_manual = True
+                    denied += 1
 
                     # if manual review after 'deny', don't look at allow
                     break
 
-        # deny/allow-connection attributes
+        # deny/allow-connection/installation attributes
         decl_subkey = '%s-attributes' % side[:-1]
-        for j in ['deny', 'allow']:
+        for i in ['installation', 'connection']:
+          if attribs is None:
+              continue
+          for j in ['deny', 'allow']:
             (decl, base_decl, decl_type) = self._get_decl(base, snap, side, interface,
-                                                          'connection')
-            decl_key = "%s-connection" % j
-            if attribs is None:
-                continue
+                                                          i)
+            decl_key = "%s-%s" % (j, i)
 
             # flag if any deny-*/attribs match or any allow-*/attribs don't
-            if side in decl and interface in decl[side] and \
-                    self._search(decl[side][interface], decl_key,
+            if side in decl and interface in decl[side] and decl_key in decl[side][interface] and isinstance(decl[side][interface][decl_key], dict) and decl_subkey in decl[side][interface][decl_key]:
+              checked += 1
+              print("HERE4.5")
+              if self._search(decl[side][interface], decl_key,
                                  subkey=decl_subkey, subval=attribs,
                                  subval_inverted=(j == 'allow')):
                 self._add_result('error',
@@ -572,14 +593,17 @@ class SnapReviewDeclaration(SnapReview):
                                  manual_review=True,
                                  stage=True)
                 require_manual = True
+                denied += 1
 
                 # if manual review after 'deny', don't look at allow
                 break
             # Since base declaration mostly has slots side, if plugs, look
             # at the other side for checking plug-attributes
             elif base_decl and side == 'plugs' and oside in decl and \
-                    interface in decl[oside] and \
-                    self._search(decl[oside][interface], decl_key,
+                    interface in decl[oside] and decl_key in decl[oside][interface] and decl_subkey in decl[oside][interface][decl_key]:
+              checked += 1
+              print("HERE4.6")
+              if self._search(decl[oside][interface], decl_key,
                                  subkey=decl_subkey, subval=attribs,
                                  subval_inverted=(j == 'allow')):
                 self._add_result('error',
@@ -592,11 +616,19 @@ class SnapReviewDeclaration(SnapReview):
                                  manual_review=True,
                                  stage=True)
                 require_manual = True
+                denied += 1
 
                 # if manual review after 'deny', don't look at allow
                 break
 
-        return require_manual
+        # matched will only have entries for things it actually checked so if
+        # we have more than one key in matched, they all must've matched
+        print("HERE4.7: checked=%d, denied=%d" % (checked, denied))
+#         if require_manual and checked > 0 and denied == 0:
+#             print("HERE4.8: overriding require_manual")
+#             require_manual = False
+
+        return (require_manual, checked == denied)
 
     def _verify_iface(self, name, iface, interface, attribs=None):
         '''verify interface
@@ -644,25 +676,32 @@ class SnapReviewDeclaration(SnapReview):
         print("\nsnap=\n%s" % (pprint.pformat(self.snap_declaration)))
         print("\ndecls=\n%s" % (pprint.pformat(decls)))
 
+        checked = 0
+        denied = 0
+        exact_deny = True
         for b in decls['base']:
             for s in decls['snap']:
                 import pprint
-                print("\nHERE2\nb=\n%s" % (pprint.pformat(b)))
-                print("\ns=\n%s" % (pprint.pformat(s)))
-                if self._verify_iface_ind(b, s, name, iface, interface, attribs, side, oside):
+                print("\nHERE2\nsingle base=\n%s" % (pprint.pformat(b)))
+                print("\nsingle snap=\n%s" % (pprint.pformat(s)))
+                if has_alternates:
+                    checked += 1
+                (manual, exact) = self._verify_iface_ind(b, s, name, iface, interface, attribs, side, oside)
+                print("\nHERE2.4\nexact_match=%s" % exact)
+                if manual:
                     require_manual = True
-                    print("\nHERE2.5\nblocked by b=\n%s" % (pprint.pformat(b)))
-                    print("\nblocked by s=\n%s" % (pprint.pformat(s)))
-#                 elif has_alternates:
-#                     print("HERE5")
+                    print("\nHERE2.5\nblocked by base=\n%s" % (pprint.pformat(b)))
+                    print("\nblocked by snap=\n%s" % (pprint.pformat(s)))
+                    if has_alternates and not exact:
+                        exact_deny = False
+                        print("\nHERE2.6\nexact_deny=%s" % exact_deny)
 
-#                     # we found a passing combination that doesn't require
-#                     # manual review, so bail
-#                     ok = True
-#                     require_manual = False
-#                     break
-#             if ok:
-#                 break
+#         if has_alternates and checked != denied:
+#             print("HERE2.7: overriding require_manual: checked=%d, denied=%d" % (checked, denied))
+#             require_manual = False
+        if has_alternates and not exact_deny:
+            require_manual = False
+            print("HERE2.7: overriding require_manual")
 
         # Report something back if everything ok
         if require_manual:
