@@ -484,10 +484,10 @@ class SnapReviewDeclaration(SnapReview):
                     },
                 ]
 
-            If the plugs side is defined for this interface, it will appear as
-            a different declaration combination (this may change in the future
-            if needed). If the snap declaration is defined, it will be stored
-            in decls['snap'] in the same way as the base declaration.
+            If the plugs side is defined for this interface, it will appear
+            next to the slot as with a regular declaration. If the snap
+            declaration is defined, it will be stored in decls['snap'] in the
+            same way as the base declaration.
 
             In this manner, each one of the base declarations can be evaluated
             and compared to any defined snap declarations.
@@ -519,6 +519,7 @@ class SnapReviewDeclaration(SnapReview):
             else:
                 d = self.snap_declaration
 
+            tmp = {}
             for side in ["plugs", "slots"]:
                 if dtype == "snap" and d is None:
                     continue
@@ -533,10 +534,24 @@ class SnapReviewDeclaration(SnapReview):
                     else:
                         template[side][interface][cstr] = \
                             d[side][interface][cstr]
-                decls[dtype] += expand(d, side, interface, to_expand,
-                                       [template])
+
+                tmp[side] = []
+                tmp[side] += expand(d, side, interface, to_expand, [template])
+
                 if len(to_expand) > 0:
                     has_alternates = True
+
+            # Now that we have all the slots combinations and all the plugs
+            # combinations, create combinations of those
+            if "plugs" in tmp and "slots" in tmp:
+                for p in tmp["plugs"]:
+                    for s in tmp["slots"]:
+                        decls[dtype].append({'plugs': p['plugs'],
+                                             'slots': s['slots']})
+            elif "plugs" in tmp:
+                decls[dtype] = tmp["plugs"]
+            elif "slots" in tmp:
+                decls[dtype] = tmp["slots"]
 
         # We need at least one declaration per list, even if it is None
         if len(decls['snap']) == 0:

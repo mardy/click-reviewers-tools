@@ -1350,20 +1350,8 @@ slots:
 
         (decls, has_alt) = c._get_all_combinations(iface)
         self.assertTrue(has_alt)
-        self.assertTrue(len(decls['snap']) == 6)
-
-        expected = {
-            'base': [],
-            'snap': [
-                {'plugs': {'someiface': {'qux': '7', 'quux': '8'}}},
-                {'plugs': {'someiface': {'qux': '7', 'quux': '9'}}},
-                {'slots': {'someiface': {'bar': '2', 'baz': '4', 'foo': '1', 'norf': '5'}}},
-                {'slots': {'someiface': {'bar': '2', 'baz': '4', 'foo': '1', 'norf': '6'}}},
-                {'slots': {'someiface': {'bar': '3', 'baz': '4', 'foo': '1', 'norf': '5'}}},
-                {'slots': {'someiface': {'bar': '3', 'baz': '4', 'foo': '1', 'norf': '6'}}},
-            ]
-        }
-        self.assertEqual(decls, expected)
+        self.assertTrue(len(decls['base']) == 0)
+        self.assertTrue(len(decls['snap']) == 8)
 
     def test_check_declaration_unknown_interface(self):
         '''Test check_declaration - unknown interface'''
