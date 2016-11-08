@@ -341,20 +341,19 @@ class SnapReviewDeclaration(SnapReview):
            - val == d[key]
            - subval in d[key][subkey]
            - subval dictionary has any matches in d[key][subkey] dict
-           - subval_inverted == True and subval not in d[key][subkey]
            - subval_inverted == True and subval has any non-matches in
              d[key][subkey] dict
+
+           When 'key' must be in 'd' and when 'subkey' is not None, it must be
+           in d[key] (we want to raise an Exception here for where _search() is
+           is used with only exact matches).
         '''
-        print("HERE3: _search(d=..., key=%s, val=%s, subkey=%s, subval=%s, subval_inverted=%s" % (key, val, subkey, subval, subval_inverted))
         found = False
-#         if key not in d:
-#             print("HERE3.4: found=%s" % found)
-#             return found
 
         if val is not None and val == d[key]:
             found = True
         elif isinstance(d[key], dict) and subkey is not None and \
-                subval is not None and subkey in d[key]:
+                subval is not None:
             if self.is_bool(d[key][subkey]):
                 found = d[key][subkey] == subval
                 if subval_inverted:
@@ -383,10 +382,6 @@ class SnapReviewDeclaration(SnapReview):
                     else:
                         found = False
 
-        if found:
-            print("*** HERE3.5: found=%s" % found)
-        else:
-            print("HERE3.6: found=%s" % found)
         return found
 
     def _get_decl(self, base, snap, side, interface, dtype):
@@ -420,7 +415,7 @@ class SnapReviewDeclaration(SnapReview):
                     # copy existing keys
                     for template_key in t[side][interface]:
                         tmp[side][interface][template_key] = \
-                                t[side][interface][template_key]
+                            t[side][interface][template_key]
                     tmp[side][interface][key] = i
                     updated.append(tmp)
 
@@ -436,13 +431,12 @@ class SnapReviewDeclaration(SnapReview):
                 d = self.snap_declaration
 
             for side in ["plugs", "slots"]:
-                if dtype == "snap" and d == None:
+                if dtype == "snap" and d is None:
                     continue
                 if side not in d or interface not in d[side]:
                     continue
 
                 to_expand = []
-                templates = []
                 template = {side: {interface: {}}}
                 for cstr in d[side][interface]:
                     if isinstance(d[side][interface][cstr], list):
@@ -476,24 +470,23 @@ class SnapReviewDeclaration(SnapReview):
                 (decl, base_decl, decl_type) = self._get_decl(base, snap, side, interface,
                                                               i)
                 if side in decl and interface in decl[side] and decl_key in decl[side][interface] and not isinstance(decl[side][interface][decl_key], dict):
-                  print("HERE4.1")
-                  checked += 1
-                  if self._search(decl[side][interface], decl_key,
-                                     j == 'deny'):
-                    self._add_result('error',
-                                     self._get_check_name("%s_%s" %
-                                                          (side, decl_key),
-                                                          app=iface,
-                                                          extra=interface),
-                                     "not allowed by '%s' in %s declaration" %
-                                     (decl_key, decl_type),
-                                     manual_review=True,
-                                     stage=True)
-                    require_manual = True
-                    denied += 1
+                    print("HERE4.1")
+                    checked += 1
+                    if self._search(decl[side][interface], decl_key, j == 'deny'):
+                        self._add_result('error',
+                                         self._get_check_name("%s_%s" %
+                                                              (side, decl_key),
+                                                              app=iface,
+                                                              extra=interface),
+                                         "not allowed by '%s' in %s declaration" %
+                                         (decl_key, decl_type),
+                                         manual_review=True,
+                                         stage=True)
+                        require_manual = True
+                        denied += 1
 
-                    # if manual review after 'deny', don't look at allow
-                    break
+                        # if manual review after 'deny', don't look at allow
+                        break
 
         # deny/allow-installation snap-type
         snap_type = 'app'
@@ -508,25 +501,25 @@ class SnapReviewDeclaration(SnapReview):
             decl_key = "%s-installation" % j
             # flag if deny-*/snap-type matches or allow-*/snap-type doesn't
             if side in decl and interface in decl[side] and decl_key in decl[side][interface] and isinstance(decl[side][interface][decl_key], dict) and decl_subkey in decl[side][interface][decl_key]:
-              checked += 1
-              print("HERE4.2")
-              if self._search(decl[side][interface], decl_key,
-                                 subkey=decl_subkey, subval=snap_type,
-                                 subval_inverted=(j == 'allow')):
-                self._add_result('error',
-                                 self._get_check_name("%s_%s" %
-                                                      (side, decl_key),
-                                                      app=iface,
-                                                      extra=interface),
-                                 "not allowed by '%s/%s' in %s declaration" %
-                                 (decl_key, decl_subkey, decl_type),
-                                 manual_review=True,
-                                 stage=True)
-                require_manual = True
-                denied += 1
+                checked += 1
+                print("HERE4.2")
+                if self._search(decl[side][interface], decl_key,
+                                subkey=decl_subkey, subval=snap_type,
+                                subval_inverted=(j == 'allow')):
+                    self._add_result('error',
+                                     self._get_check_name("%s_%s" %
+                                                          (side, decl_key),
+                                                          app=iface,
+                                                          extra=interface),
+                                     "not allowed by '%s/%s' in %s declaration" %
+                                     (decl_key, decl_subkey, decl_type),
+                                     manual_review=True,
+                                     stage=True)
+                    require_manual = True
+                    denied += 1
 
-                # if manual review after 'deny', don't look at allow
-                break
+                    # if manual review after 'deny', don't look at allow
+                    break
 
         # deny/allow-connection/installation on-classic with app snaps
         snap_type = 'app'
@@ -545,81 +538,81 @@ class SnapReviewDeclaration(SnapReview):
                 # when not an app snap, flag if deny-*/on-classic=true or
                 # allow-*/on-classic=false
                 if side in decl and interface in decl[side] and decl_key in decl[side][interface] and isinstance(decl[side][interface][decl_key], dict) and decl_subkey in decl[side][interface][decl_key]:
-                  checked += 1
-                  print("HERE4.4")
-                  if self._search(decl[side][interface], decl_key,
-                                     subkey=decl_subkey,
-                                     subval=(snap_type == 'app'),
-                                     subval_inverted=(j == 'deny')):
-                    self._add_result('error',
-                                     self._get_check_name("%s_%s" %
-                                                          (side, decl_key),
-                                                          app=iface,
-                                                          extra=interface),
-                                     "not allowed by '%s/%s' in %s declaration" %
-                                     (decl_key, decl_subkey, decl_type),
-                                     manual_review=True,
-                                     stage=True)
-                    require_manual = True
-                    denied += 1
+                    checked += 1
+                    print("HERE4.4")
+                    if self._search(decl[side][interface], decl_key,
+                                    subkey=decl_subkey,
+                                    subval=(snap_type == 'app'),
+                                    subval_inverted=(j == 'deny')):
+                        self._add_result('error',
+                                         self._get_check_name("%s_%s" %
+                                                              (side, decl_key),
+                                                              app=iface,
+                                                              extra=interface),
+                                         "not allowed by '%s/%s' in %s declaration" %
+                                         (decl_key, decl_subkey, decl_type),
+                                         manual_review=True,
+                                         stage=True)
+                        require_manual = True
+                        denied += 1
 
-                    # if manual review after 'deny', don't look at allow
-                    break
+                        # if manual review after 'deny', don't look at allow
+                        break
 
         # deny/allow-connection/installation attributes
         decl_subkey = '%s-attributes' % side[:-1]
         for i in ['installation', 'connection']:
-          if attribs is None:
-              continue
-          for j in ['deny', 'allow']:
-            (decl, base_decl, decl_type) = self._get_decl(base, snap, side, interface,
-                                                          i)
-            decl_key = "%s-%s" % (j, i)
+            if attribs is None:
+                continue
+            for j in ['deny', 'allow']:
+                (decl, base_decl, decl_type) = self._get_decl(base, snap, side,
+                                                              interface, i)
+                decl_key = "%s-%s" % (j, i)
 
-            # flag if any deny-*/attribs match or any allow-*/attribs don't
-            if side in decl and interface in decl[side] and decl_key in decl[side][interface] and isinstance(decl[side][interface][decl_key], dict) and decl_subkey in decl[side][interface][decl_key]:
-              checked += 1
-              print("HERE4.5")
-              if self._search(decl[side][interface], decl_key,
-                                 subkey=decl_subkey, subval=attribs,
-                                 subval_inverted=(j == 'allow')):
-                self._add_result('error',
-                                 self._get_check_name("%s_%s" %
-                                                      (side, decl_key),
-                                                      app=iface,
-                                                      extra=interface),
-                                 "not allowed by '%s/%s' in %s declaration" %
-                                 (decl_key, decl_subkey, decl_type),
-                                 manual_review=True,
-                                 stage=True)
-                require_manual = True
-                denied += 1
+                # flag if any deny-*/attribs match or any allow-*/attribs don't
+                if side in decl and interface in decl[side] and decl_key in decl[side][interface] and isinstance(decl[side][interface][decl_key], dict) and decl_subkey in decl[side][interface][decl_key]:
+                    checked += 1
+                    print("HERE4.5")
+                    if self._search(decl[side][interface], decl_key,
+                                    subkey=decl_subkey, subval=attribs,
+                                    subval_inverted=(j == 'allow')):
+                        self._add_result('error',
+                                         self._get_check_name("%s_%s" %
+                                                              (side, decl_key),
+                                                              app=iface,
+                                                              extra=interface),
+                                         "not allowed by '%s/%s' in %s declaration" %
+                                         (decl_key, decl_subkey, decl_type),
+                                         manual_review=True,
+                                         stage=True)
+                        require_manual = True
+                        denied += 1
 
-                # if manual review after 'deny', don't look at allow
-                break
-            # Since base declaration mostly has slots side, if plugs, look
-            # at the other side for checking plug-attributes
-            elif base_decl and side == 'plugs' and oside in decl and \
-                    interface in decl[oside] and decl_key in decl[oside][interface] and decl_subkey in decl[oside][interface][decl_key]:
-              checked += 1
-              print("HERE4.6")
-              if self._search(decl[oside][interface], decl_key,
-                                 subkey=decl_subkey, subval=attribs,
-                                 subval_inverted=(j == 'allow')):
-                self._add_result('error',
-                                 self._get_check_name("%s_%s" %
-                                                      (side, decl_key),
-                                                      app=iface,
-                                                      extra=interface),
-                                 "not allowed by '%s/%s' in base declaration" %
-                                 (decl_key, decl_subkey),
-                                 manual_review=True,
-                                 stage=True)
-                require_manual = True
-                denied += 1
+                        # if manual review after 'deny', don't look at allow
+                        break
+                # Since base declaration mostly has slots side, if plugs, look
+                # at the other side for checking plug-attributes
+                elif base_decl and side == 'plugs' and oside in decl and \
+                        interface in decl[oside] and decl_key in decl[oside][interface] and decl_subkey in decl[oside][interface][decl_key]:
+                    checked += 1
+                    print("HERE4.6")
+                    if self._search(decl[oside][interface], decl_key,
+                                    subkey=decl_subkey, subval=attribs,
+                                    subval_inverted=(j == 'allow')):
+                        self._add_result('error',
+                                         self._get_check_name("%s_%s" %
+                                                              (side, decl_key),
+                                                              app=iface,
+                                                              extra=interface),
+                                         "not allowed by '%s/%s' in base declaration" %
+                                         (decl_key, decl_subkey),
+                                         manual_review=True,
+                                         stage=True)
+                        require_manual = True
+                        denied += 1
 
-                # if manual review after 'deny', don't look at allow
-                break
+                        # if manual review after 'deny', don't look at allow
+                        break
 
         # matched will only have entries for things it actually checked so if
         # we have more than one key in matched, they all must've matched
@@ -640,7 +633,6 @@ class SnapReviewDeclaration(SnapReview):
            - flag if allow/deny-connection attributes don't match slot side of
              base declaration (since base declaration is mostly slot side)
         '''
-        print("HERE0: %s, %s, %s, %s" % (name, iface, interface, attribs))
         if name.endswith('slot'):
             side = 'slots'
             oside = 'plugs'
@@ -666,26 +658,20 @@ class SnapReviewDeclaration(SnapReview):
             return
 
         # To support alternates in the base and snap declaration, we need to
-        # try each combination. If we have alternates and one passes, then
-        # don't report.
+        # try each combination. If we have alternates and one passes and there
+        # are no exact denials, then don't report.
         (decls, has_alternates) = self._get_all_combinations(interface)
         require_manual = False
-        ok = False
         import pprint
         print("HERE1\nbase=\n%s" % (pprint.pformat(self.base_declaration)))
         print("\nsnap=\n%s" % (pprint.pformat(self.snap_declaration)))
         print("\ndecls=\n%s" % (pprint.pformat(decls)))
 
-        checked = 0
-        denied = 0
         exact_deny = True
         for b in decls['base']:
             for s in decls['snap']:
-                import pprint
                 print("\nHERE2\nsingle base=\n%s" % (pprint.pformat(b)))
                 print("\nsingle snap=\n%s" % (pprint.pformat(s)))
-                if has_alternates:
-                    checked += 1
                 (manual, exact) = self._verify_iface_ind(b, s, name, iface, interface, attribs, side, oside)
                 print("\nHERE2.4\nexact_match=%s" % exact)
                 if manual:
@@ -696,9 +682,6 @@ class SnapReviewDeclaration(SnapReview):
                         exact_deny = False
                         print("\nHERE2.6\nexact_deny=%s" % exact_deny)
 
-#         if has_alternates and checked != denied:
-#             print("HERE2.7: overriding require_manual: checked=%d, denied=%d" % (checked, denied))
-#             require_manual = False
         if has_alternates and not exact_deny:
             require_manual = False
             print("HERE2.7: overriding require_manual")
