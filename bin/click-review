@@ -172,11 +172,13 @@ def main():
     if args.plugs:
         if overrides is None:
             overrides = {}
-        overrides['snap_decl_plugs'] = json.loads(open(args.plugs, 'r').read())
+        with open(args.plugs, 'r') as plugs_file:
+            overrides['snap_decl_plugs'] = json.loads(plugs_file.read())
     if args.slots:
         if overrides is None:
             overrides = {}
-        overrides['snap_decl_slots'] = json.loads(open(args.slots, 'r').read())
+        with open(args.slots, 'r') as slots_file:
+            overrides['snap_decl_slots'] = json.loads(slots_file.read())
 
     results.run_all_checks(overrides)
     sys.exit(results.rc)
