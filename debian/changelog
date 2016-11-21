@@ -1,9 +1,10 @@
 click-reviewers-tools (0.46) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
-  * add fwupd, hidraw, kernel-module-control, libvirt,
-    network-setup-observe, removable-media, screen-inhibit-control,
-    time-control, udisks2 and upower-observe interfaces
+  * add alsa, avahi-observe, dbus, fwupd, hidraw, i2c, kernel-module-control,
+    libvirt, network-setup-observe, ofono, removable-media,
+    screen-inhibit-control, time-control, udisks2, upower-observe and usb-raw
+    interfaces
   * sr_lint.py:
     - don't flag pc, pi2, pi3 and dragonboard gadgets for manual review
     - adjust error text for check_meta_gui_desktop()
@@ -35,6 +36,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - add 'privileged-containers' as valid attribute for docker-support
     - don't read in old apparmor policy or use aa_policy dict and use only
       the base declaration
+    - add 'dbus' attributes
   * add sr_declaration.py:
     - check snap.yaml against base and snap declarations
   * add bin/create-snap-declaration.py
@@ -45,7 +47,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 08 Nov 2016 12:31:40 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Mon, 21 Nov 2016 16:31:17 -0600
 
 click-reviewers-tools (0.45) yakkety; urgency=medium
 

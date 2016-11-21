@@ -119,6 +119,11 @@ class SnapReview(Review):
                                       'content/plugs': "",
                                       'content/slots': "",
                                       },
+                          'dbus': {'name/slots': "",
+                                   'bus/slots': "",
+                                   'name/plugs': "",
+                                   'bus/plugs': "",
+                                   },
                           'docker-support': {'privileged-containers/plugs':
                                              False},
                           'gpio': {'number/slots': 0},
