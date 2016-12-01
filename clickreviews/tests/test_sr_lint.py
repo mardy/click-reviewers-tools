@@ -473,6 +473,73 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_icon(self):
+        '''Test check_icon()'''
+        self.set_test_snap_yaml("icon", "someicon")
+        self.set_test_snap_yaml("type", "gadget")
+        self.set_test_unpack_dir = "/nonexistent"
+        c = SnapReviewLint(self.test_name)
+        c.pkg_files.append(os.path.join(c._get_unpack_dir(), 'someicon'))
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_no_gadget(self):
+        '''Test check_icon() - no gadget'''
+        self.set_test_snap_yaml("icon", "someicon")
+        self.set_test_unpack_dir = "/nonexistent"
+        c = SnapReviewLint(self.test_name)
+        c.pkg_files.append(os.path.join(c._get_unpack_dir(), 'someicon'))
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_unspecified(self):
+        '''Test check_icon() - unspecified'''
+        self.set_test_snap_yaml("icon", None)
+        self.set_test_snap_yaml("type", "gadget")
+        c = SnapReviewLint(self.test_name)
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_empty(self):
+        '''Test check_icon() - empty'''
+        self.set_test_snap_yaml("icon", "")
+        self.set_test_snap_yaml("type", "gadget")
+        c = SnapReviewLint(self.test_name)
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_absolute_path(self):
+        '''Test check_icon() - absolute path'''
+        self.set_test_snap_yaml("icon", "/foo/bar/someicon")
+        self.set_test_snap_yaml("type", "gadget")
+        c = SnapReviewLint(self.test_name)
+        c.pkg_files.append('/foo/bar/someicon')
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_icon_missing(self):
+        '''Test check_icon() - missing icon'''
+        self.set_test_snap_yaml("icon", "someicon")
+        self.set_test_snap_yaml("type", "gadget")
+        self.set_test_unpack_dir = "/nonexistent"
+        c = SnapReviewLint(self.test_name)
+        # since the icon isn't in c.pkg_files, don't add it for this test
+        # c.pkg_files.append(os.path.join(c._get_unpack_dir(), 'someicon'))
+        c.check_icon()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_architectures_bad(self):
         '''Test check_architectures() - bad (dict)'''
         self.set_test_snap_yaml("architectures", {})

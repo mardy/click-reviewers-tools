@@ -299,6 +299,53 @@ class SnapReviewLint(SnapReview):
             s = 'meta/hooks/config is not executable'
         self._add_result(t, n, s)
 
+    def check_icon(self):
+        '''Check icon'''
+        # see docs/meta.md and docs/gadget.md
+        if not self.is_snap2 or 'icon' not in self.snap_yaml:
+            return
+
+        # Snappy icons may be specified in the gadget snap.yaml, but not in
+        # app snap.yaml. With apps, the icon may be in meta/gui/icon.png and
+        # this file is optional. Therefore, for apps, there is nothing to do.
+        t = 'info'
+        n = self._get_check_name('icon_present')
+        s = 'OK'
+        if 'type' in self.snap_yaml and self.snap_yaml['type'] != "gadget":
+            t = 'warn'
+            s = 'icon only used with gadget snaps'
+            self._add_result(t, n, s)
+            return
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = self._get_check_name('icon_empty')
+        s = 'OK'
+        if len(self.snap_yaml['icon']) == 0:
+            t = 'error'
+            s = "icon entry is empty"
+            self._add_result(t, n, s)
+            return
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = self._get_check_name('icon_absolute_path')
+        s = 'OK'
+        if self.snap_yaml['icon'].startswith('/'):
+            t = 'error'
+            s = "icon entry '%s' should not specify absolute path" % \
+                self.snap_yaml['icon']
+        self._add_result(t, n, s)
+
+        t = 'info'
+        n = self._get_check_name('icon_exists')
+        s = 'OK'
+        fn = self._path_join(self._get_unpack_dir(), self.snap_yaml['icon'])
+        if fn not in self.pkg_files:
+            t = 'error'
+            s = "icon entry '%s' does not exist" % self.snap_yaml['icon']
+        self._add_result(t, n, s)
+
     def check_unknown_entries(self):
         '''Check for any unknown fields'''
         if not self.is_snap2:

@@ -18,7 +18,6 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - linux-generic-bbb is allowed as a kernel
     - remove interface checks that are now handled by sr_declaration.py
     - powerpc is a valid arch
-    - change compiled binaries for architecture to 'info'
     - remove check_license_agreement() and check_license_version() since they
       are no longer support (LP: 1605068)
   * sr_security.py:
@@ -33,6 +32,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
       _list_all_compiled_binaries() (LP: #1591253)
     - don't traceback in recursive_rm if encounter a directory we cannot read
     - allow snaps to symlink to SNAP and SNAP_DATA in find_external_symlinks()
+    - 'icon' is an allowed optional field
   * sr_common.py:
     - add 'content' and 'default-provider' as valid attributes
       for the content interface

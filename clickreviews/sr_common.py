@@ -52,8 +52,9 @@ class SnapReview(Review):
                        'epoch',
                        'grade',
                        'hooks',
-                       'license-agreement', # OBSOLETE (LP: #1638303)
-                       'license-version',   # OBSOLETE
+                       'icon',
+                       'license-agreement',  # OBSOLETE (LP: #1638303)
+                       'license-version',    # OBSOLETE
                        'summary',
                        'type',
                        'plugs',
