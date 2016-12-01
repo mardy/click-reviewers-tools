@@ -40,6 +40,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - don't read in old apparmor policy or use aa_policy dict and use only
       the base declaration
     - add 'dbus' attributes
+    - add in progress unity8 interface
   * add sr_declaration.py:
     - check snap.yaml against base and snap declarations
   * add bin/create-snap-declaration.py

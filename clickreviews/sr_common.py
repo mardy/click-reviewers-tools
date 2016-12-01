@@ -139,6 +139,25 @@ class SnapReview(Review):
                                           },
                           }
 
+    # In progress interfaces are those that are not yet in snapd but for
+    # some reason we need them. Normally we will never want to do this, but
+    # for example the unity8 interface is in progress and they want CI
+    # uploads
+    inprogress_interfaces = {
+        '16': {
+            'plugs': {},
+            'slots': {
+                'unity8': {
+                    'allow-installation': {
+                        'slot-snap-type': ['app'],
+                    },
+                    'deny-connection': 'true',
+                    'deny-auto-connection': 'true',
+                }
+            }
+        }
+    }
+
     def __init__(self, fn, review_type, overrides=None):
         Review.__init__(self, fn, review_type, overrides=overrides)
 
@@ -163,6 +182,26 @@ class SnapReview(Review):
         # FIXME: don't hardcode series
         self.base_declaration_series = "16"
         self.base_declaration = p.decl[self.base_declaration_series]
+
+        # Add in-progress interfaces
+        if self.base_declaration_series in self.inprogress_interfaces:
+            rel = self.base_declaration_series
+            for side in ['plugs', 'slots']:
+                if side not in self.base_declaration or \
+                        side not in self.inprogress_interfaces[rel]:
+                    continue
+
+                if side == 'plugs':
+                    oside = 'slots'
+                else:
+                    oside = 'plugs'
+
+                for iface in self.inprogress_interfaces[rel][side]:
+                    if iface in self.base_declaration[side] or \
+                            iface in self.base_declaration[oside]:
+                        # don't override anything in the base declaration
+                        continue
+                    self.base_declaration[side][iface] = self.inprogress_interfaces[rel][side][iface]
 
         # to simplify checks, gather up all the interfaces into one dict()
         for side in ['plugs', 'slots']:
