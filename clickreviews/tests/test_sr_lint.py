@@ -3403,8 +3403,16 @@ architectures: [ amd64 ]
         c = SnapReviewLint(package)
         c.check_architecture_specified_needed()
         r = c.click_report
-        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:architecture_specified_needed:amd64'
+        expected['info'][name] = {"text": "Could not find compiled binaries for architecture 'amd64'"}
+        self.check_results(r, expected=expected)
 
     def test_check_vcs(self):
         '''Test check_vcs()'''

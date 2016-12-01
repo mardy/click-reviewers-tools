@@ -1200,7 +1200,8 @@ class SnapReviewLint(SnapReview):
                                      extra=arch)
             s = 'OK'
             if len(self.pkg_bin_files) == 0:
-                t = 'warn'
+                # This should be a warning but it causes friction for uploads
+                t = 'info'
                 s = "Could not find compiled binaries for architecture '%s'" \
                     % arch
             self._add_result(t, n, s)
