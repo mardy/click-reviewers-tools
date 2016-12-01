@@ -20,6 +20,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - powerpc is a valid arch
     - remove check_license_agreement() and check_license_version() since they
       are no longer support (LP: 1605068)
+    - support confinement: classic
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides

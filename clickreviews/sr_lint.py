@@ -1186,12 +1186,13 @@ class SnapReviewLint(SnapReview):
         if not self.is_snap2 or 'confinement' not in self.snap_yaml:
             return
 
-        allowed = ['strict', 'devmode']
+        allowed = ['strict', 'devmode', 'classic']
         use_with = ['app', 'gadget', 'kernel']
 
         t = 'info'
         n = self._get_check_name('confinement_valid')
         s = 'OK'
+        manual_review = False
         if not isinstance(self.snap_yaml['confinement'], str):
             t = 'error'
             s = "malformed 'confinement': %s (not a string)" % (
@@ -1205,6 +1206,18 @@ class SnapReviewLint(SnapReview):
             s = "'confinement' should not be used with 'type: %s'" % \
                 self.snap_yaml['type']
         self._add_result(t, n, s)
+
+        t = 'info'
+        n = self._get_check_name('confinement_classic')
+        s = 'OK'
+        manual_review = False
+        if self.snap_yaml['confinement'] == "classic":
+            t = 'error'
+            s = "(NEEDS REVIEW) confinement '%s' not allowed" % \
+                self.snap_yaml['confinement']
+            manual_review = True
+
+        self._add_result(t, n, s, manual_review=manual_review)
 
     def check_grade(self):
         '''Check confinement'''

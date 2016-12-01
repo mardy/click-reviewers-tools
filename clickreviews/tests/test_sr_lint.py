@@ -2696,7 +2696,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_confinement()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
         expected = dict()
@@ -2713,8 +2713,25 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_confinement()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
+
+    def test_check_confinement_classic(self):
+        '''Test check_confinement - classic'''
+        self.set_test_snap_yaml("confinement", "classic")
+        c = SnapReviewLint(self.test_name)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:confinement_classic'
+        expected['error'][name] = {"text": "(NEEDS REVIEW) confinement 'classic' not allowed"}
+        self.check_results(r, expected=expected)
 
     def test_check_confinement_os(self):
         '''Test check_confinement - os'''
@@ -2723,7 +2740,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_confinement()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
         expected = dict()
@@ -2741,7 +2758,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_confinement()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
         expected = dict()
@@ -2759,7 +2776,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_confinement()
         r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
         expected = dict()
