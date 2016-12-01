@@ -19,6 +19,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - remove interface checks that are now handled by sr_declaration.py
     - powerpc is a valid arch
     - change compiled binaries for architecture to 'info'
+    - remove obsoleted check_icon() (it was removed from sr_common.py ages
+      ago)
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides
