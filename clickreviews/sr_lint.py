@@ -179,68 +179,6 @@ class SnapReviewLint(SnapReview):
             s = "%s is too short: '%s'" % (key, self.snap_yaml[key])
         self._add_result(t, n, s)
 
-    # TODO: verify this is a field
-    def check_license_agreement(self):
-        '''Check license-agreement'''
-        if not self.is_snap2:
-            return
-
-        key = 'license-agreement'
-
-        t = 'info'
-        n = self._get_check_name('%s_present' % key)
-        s = 'OK'
-        if key not in self.snap_yaml:
-            s = 'OK (optional %s field not specified)' % key
-            self._add_result(t, n, s)
-            return
-        self._add_result(t, n, s)
-
-        t = 'info'
-        n = self._get_check_name(key)
-        s = 'OK'
-        if not isinstance(self.snap_yaml[key], str):
-            t = 'error'
-            s = "invalid %s entry: %s (not a str)" % (key, self.snap_yaml[key])
-            self._add_result(t, n, s)
-            return
-        elif len(self.snap_yaml[key]) < 1:
-            t = 'error'
-            s = "invalid %s entry (empty)" % (key)
-            self._add_result(t, n, s)
-            return
-        self._add_result(t, n, s)
-
-    def check_license_version(self):
-        '''license-version'''
-        if not self.is_snap2:
-            return
-
-        key = 'license-version'
-        t = 'info'
-        n = self._get_check_name('%s_present' % key)
-        s = 'OK'
-        if key not in self.snap_yaml:
-            s = 'OK (optional %s field not specified)' % key
-            self._add_result(t, n, s)
-            return
-        self._add_result(t, n, s)
-
-        t = 'info'
-        n = self._get_check_name(key)
-        s = 'OK'
-        if not isinstance(self.snap_yaml[key], str):
-            t = 'error'
-            s = "invalid %s entry: %s (not a str)" % (key, self.snap_yaml[key])
-            self._add_result(t, n, s)
-            return
-        elif len(self.snap_yaml[key]) < 1:
-            t = 'error'
-            s = "invalid %s entry (empty)" % (key)
-            self._add_result(t, n, s)
-            return
-        self._add_result(t, n, s)
-
     def check_name(self):
         '''Check package name'''
         if not self.is_snap2:
