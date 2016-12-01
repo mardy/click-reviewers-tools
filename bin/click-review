@@ -154,6 +154,8 @@ def main():
                         help='file specifying snap declaration for plugs')
     parser.add_argument('--slots', default=None,
                         help='file specifying snap declaration for slots')
+    parser.add_argument('--allow-classic', help='allow confinement: classic',
+                        action='store_true')
     args = parser.parse_args()
 
     if not os.path.exists(args.filename):
@@ -179,6 +181,10 @@ def main():
             overrides = {}
         with open(args.slots, 'r') as slots_file:
             overrides['snap_decl_slots'] = json.loads(slots_file.read())
+    if args.allow_classic:
+        if overrides is None:
+            overrides = {}
+        overrides['snap_allow_classic'] = args.allow_classic
 
     results.run_all_checks(overrides)
     sys.exit(results.rc)

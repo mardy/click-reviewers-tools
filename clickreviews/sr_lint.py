@@ -1212,10 +1212,16 @@ class SnapReviewLint(SnapReview):
         s = 'OK'
         manual_review = False
         if self.snap_yaml['confinement'] == "classic":
-            t = 'error'
-            s = "(NEEDS REVIEW) confinement '%s' not allowed" % \
-                self.snap_yaml['confinement']
-            manual_review = True
+            if self.overrides is not None and \
+                    'snap_allow_classic' in self.overrides and \
+                    self.overrides['snap_allow_classic']:
+                s = "OK (confinement '%s' allowed)" % \
+                    self.snap_yaml['confinement']
+            else:
+                t = 'error'
+                s = "(NEEDS REVIEW) confinement '%s' not allowed" % \
+                    self.snap_yaml['confinement']
+                manual_review = True
 
         self._add_result(t, n, s, manual_review=manual_review)
 

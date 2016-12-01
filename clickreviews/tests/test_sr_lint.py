@@ -2705,6 +2705,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['info'] = dict()
         name = 'lint-snap-v2:confinement_valid'
         expected['info'][name] = {"text": "OK"}
+        name = 'lint-snap-v2:confinement_classic'
+        expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
     def test_check_confinement_devmode(self):
@@ -2731,6 +2733,27 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['info'] = dict()
         name = 'lint-snap-v2:confinement_classic'
         expected['error'][name] = {"text": "(NEEDS REVIEW) confinement 'classic' not allowed"}
+        self.check_results(r, expected=expected)
+
+    def test_check_confinement_classic_allowed(self):
+        '''Test check_confinement - classic'''
+        self.set_test_snap_yaml("confinement", "classic")
+        overrides = {
+            'snap_allow_classic': True
+        }
+
+        c = SnapReviewLint(self.test_name, overrides=overrides)
+        c.check_confinement()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:confinement_classic'
+        expected['info'][name] = {"text": "OK (confinement 'classic' allowed)"}
         self.check_results(r, expected=expected)
 
     def test_check_confinement_os(self):

@@ -46,8 +46,9 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - check snap.yaml against base and snap declarations
   * add bin/create-snap-declaration.py
   * cr_common.py: refactor anything that uses aa_policy from common.py
-  * bin/click-review: support --plugs and --slots and apply them as snap
-    declaration overrides
+  * bin/click-review:
+    - support --plugs and --slots and apply them as snap declaration overrides
+    - support --allow-classic and apply it as 'confinement: classic' override
 
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
