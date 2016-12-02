@@ -156,6 +156,12 @@ class SnapReviewDeclaration(SnapReview):
                                     found_iface_attr = True
 
                                 attr_type = cstr[cstr_key][attrib]
+
+                                # snap declarations from the store express
+                                # bools as strings
+                                if isinstance(attr_type, str):
+                                    attr_type = self.str2bool(attr_type)
+
                                 if not isinstance(attr_type,
                                                   type(self.interfaces_attribs[iface][tmp])):
                                     malformed(bn,
