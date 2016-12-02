@@ -155,12 +155,16 @@ class SnapReviewDeclaration(SnapReview):
                                 if cstr_key.startswith(spec_side):
                                     found_iface_attr = True
 
-                                attr_type = cstr[cstr_key][attrib]
-
                                 # snap declarations from the store express
                                 # bools as strings
-                                if isinstance(attr_type, str):
-                                    attr_type = self.str2bool(attr_type)
+                                if isinstance(cstr[cstr_key][attrib], str):
+                                    cstr[cstr_key][attrib] = \
+                                        self.str2bool(cstr[cstr_key][attrib])
+                                    if has_alternates:
+                                        decl[key][iface][constraint][index][cstr_key][attrib] = \
+                                            self.str2bool(decl[key][iface][constraint][index][cstr_key][attrib])
+
+                                attr_type = cstr[cstr_key][attrib]
 
                                 if not isinstance(attr_type,
                                                   type(self.interfaces_attribs[iface][tmp])):

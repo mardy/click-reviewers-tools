@@ -1029,6 +1029,35 @@ slots:
         expected['info'][name] = {"text": "OK"}
         self.check_results(r, expected=expected)
 
+    def test__verify_declaration_valid_slots_plug_attribs_browser_support_str(self):
+        '''Test _verify_declaration - valid interface constraint attrib
+           value for browser-support as string
+        '''
+        c = SnapReviewDeclaration(self.test_name)
+        decl = {
+            'slots': {
+                'browser-support': {
+                    'allow-connection': {
+                        'plug-attributes': {
+                            'allow-sandbox': "true"
+                        }
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_slots:browser-support:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
     def test__verify_declaration_invalid_slots_plug_attribs_browser_support_bad(self):
         '''Test _verify_declaration - invalid interface constraint attrib
            value'''
@@ -2709,6 +2738,76 @@ slots:
         expected['info'] = dict()
         name = 'declaration-snap-v2:plugs:iface:foo'
         expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_connection_alternates_bool(self):
+        '''Test check_declaration - plugs connection alternates - non-matching attrib bool/str'''
+        plugs = {'iface': {'interface': 'foo', 'bool': True}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': [
+                        {
+                            'plug-attributes': {'bool': False},
+                        },
+                        {
+                            'plug-attributes': {'bool': 'false'},
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs:iface:foo'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
+    def test_check_declaration_plugs_connection_alternates_bool2(self):
+        '''Test check_declaration - plugs connection alternates - matching attrib bool/str'''
+        plugs = {'iface': {'interface': 'foo', 'bool': False}}
+        self.set_test_snap_yaml("plugs", plugs)
+        self.set_test_snap_yaml("type", "core")
+        c = SnapReviewDeclaration(self.test_name)
+        base = {
+            'plugs': {
+                'foo': {
+                    'deny-connection': [
+                        {
+                            'plug-attributes': {'bool': False},
+                        },
+                        {
+                            'plug-attributes': {'bool': 'false'},
+                        },
+                    ]
+                }
+            }
+        }
+        self._set_base_declaration(c, base)
+
+        c.check_declaration()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:plugs_deny-connection:iface:foo'
+        expected['error'][name] = {"text": "not allowed by 'deny-connection/plug-attributes' in base declaration"}
         self.check_results(r, expected=expected)
 
     def test_check_declaration_slots_connection_alternates_one_denied(self):
