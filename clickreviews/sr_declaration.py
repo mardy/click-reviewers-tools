@@ -581,6 +581,22 @@ class SnapReviewDeclaration(SnapReview):
         checked = 0
         denied = 0
 
+        def err(key, subkey=None, dtype="base", attrs=None):
+            s = "human review required due to '%s' constraint " % key
+            if subkey is not None:
+                s += "for '%s' " % subkey
+            s += "from %s declaration" % dtype
+
+            if attrs is not None:
+                if 'allow-sandbox' in attrs and attrs['allow-sandbox']:
+                    s += ". If using a chromium webview, you can disable " + \
+                         "the internal sandbox and remove the " + \
+                         "'allow-sandbox' attribute instead. For Oxide " + \
+                         "webviews, export OXIDE_NO_SANDBOX=1 to disable " + \
+                         "its internal sandbox."
+
+            return s
+
         # top-level allow/deny-installation/connection
         # Note: auto-connection is only for snapd, so don't include it here
         for i in ['installation', 'connection']:
@@ -600,8 +616,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         "not allowed by '%s' in %s declaration"
-                                         % (decl_key, decl_type),
+                                         err(decl_key, dtype=decl_type),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
@@ -635,8 +650,7 @@ class SnapReviewDeclaration(SnapReview):
                                                           (side, decl_key),
                                                           app=iface,
                                                           extra=interface),
-                                     "not allowed by '%s/%s' in %s declaration"
-                                     % (decl_key, decl_subkey, decl_type),
+                                     err(decl_key, decl_subkey, decl_type),
                                      manual_review=True,
                                      stage=True)
                     denied += 1
@@ -675,8 +689,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         "not allowed by '%s/%s' in %s declaration"
-                                         % (decl_key, decl_subkey, decl_type),
+                                         err(decl_key, decl_subkey, decl_type),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
@@ -708,8 +721,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         "not allowed by '%s/%s' in %s declaration"
-                                         % (decl_key, decl_subkey, decl_type),
+                                         err(decl_key, decl_subkey, decl_type, attribs),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
@@ -731,8 +743,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         "not allowed by '%s/%s' in base declaration"
-                                         % (decl_key, decl_subkey),
+                                         err(decl_key, decl_subkey, decl_type, attribs),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
