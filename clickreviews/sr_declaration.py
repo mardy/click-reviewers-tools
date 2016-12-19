@@ -581,11 +581,13 @@ class SnapReviewDeclaration(SnapReview):
         checked = 0
         denied = 0
 
-        def err(key, subkey=None, dtype="base"):
-            k = key
+        def err(key, subkey=None, dtype="base", attrs=None):
+            s = "human review required due to '%s' constraint " % key
             if subkey is not None:
-                k = '%s/%s' % (key, subkey)
-            return "not allowed by '%s' in %s declaration" % (k, dtype)
+                s += "for '%s' " % subkey
+            s += "from %s declaration" % dtype
+
+            return s
 
         # top-level allow/deny-installation/connection
         # Note: auto-connection is only for snapd, so don't include it here
@@ -711,7 +713,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         err(decl_key, decl_subkey, decl_type),
+                                         err(decl_key, decl_subkey, decl_type, attribs),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
@@ -733,7 +735,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         err(decl_key, decl_subkey, decl_type),
+                                         err(decl_key, decl_subkey, decl_type, attribs),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
