@@ -581,6 +581,12 @@ class SnapReviewDeclaration(SnapReview):
         checked = 0
         denied = 0
 
+        def err(key, subkey=None, dtype="base"):
+            k = key
+            if subkey is not None:
+                k = '%s/%s' % (key, subkey)
+            return "not allowed by '%s' in %s declaration" % (k, dtype)
+
         # top-level allow/deny-installation/connection
         # Note: auto-connection is only for snapd, so don't include it here
         for i in ['installation', 'connection']:
@@ -600,8 +606,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         "not allowed by '%s' in %s declaration"
-                                         % (decl_key, decl_type),
+                                         err(decl_key, dtype=decl_type),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
@@ -635,8 +640,7 @@ class SnapReviewDeclaration(SnapReview):
                                                           (side, decl_key),
                                                           app=iface,
                                                           extra=interface),
-                                     "not allowed by '%s/%s' in %s declaration"
-                                     % (decl_key, decl_subkey, decl_type),
+                                     err(decl_key, decl_subkey, decl_type),
                                      manual_review=True,
                                      stage=True)
                     denied += 1
@@ -675,8 +679,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         "not allowed by '%s/%s' in %s declaration"
-                                         % (decl_key, decl_subkey, decl_type),
+                                         err(decl_key, decl_subkey, decl_type),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
@@ -708,8 +711,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         "not allowed by '%s/%s' in %s declaration"
-                                         % (decl_key, decl_subkey, decl_type),
+                                         err(decl_key, decl_subkey, decl_type),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
@@ -731,8 +733,7 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         "not allowed by '%s/%s' in base declaration"
-                                         % (decl_key, decl_subkey),
+                                         err(decl_key, decl_subkey, decl_type),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
