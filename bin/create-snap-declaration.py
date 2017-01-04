@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 
 import clickreviews.snapd_base_declaration as snapd_base_declaration
@@ -22,6 +23,45 @@ p = snapd_base_declaration.SnapdBaseDeclaration(local_copy)
 base_decl_series = "16"
 base_decl = p.decl[base_decl_series]
 
+
+def _verify_alias(alias):
+    # from snapd validate.go
+    pat = re.compile(r'^[a-zA-Z0-9][-_.a-zA-Z0-9]*$')
+    if not pat.search(alias):
+        raise Exception("'%s' is malformed (must match " % alias +
+                        "'^[a-zA-Z0-9][-_.a-zA-Z0-9]*$')")
+    if 'auto-aliases' in decl and alias in decl['auto-aliases']:
+        raise Exception("'%s' should only be declared once" % alias)
+
+
+def add_alias(alias):
+    _verify_alias(alias)
+
+    if 'auto-aliases' not in decl:
+        decl['auto-aliases'] = []
+
+    decl['auto-aliases'].append(alias)
+
+
+def _verify_snap_id(id):
+    # from snapd ifacedecls.go
+    pat = re.compile(r'^[a-z0-9A-Z]{32}$')
+    if not pat.search(id):
+        raise Exception("'%s' is malformed (must match '^[a-z0-9A-Z]{32}$')"
+                        % id)
+    if 'refresh-control' in decl and id in decl['refresh-control']:
+        raise Exception("'%s' should only be declared once" % id)
+
+
+def add_refresh_control(id):
+    _verify_snap_id(id)
+
+    if 'refresh-control' not in decl:
+        decl['refresh-control'] = []
+
+    decl['refresh-control'].append(id)
+
+
 def _verify_interface(iface):
     found = False
     if "slots" in base_decl and iface in base_decl["slots"]:
@@ -30,6 +70,7 @@ def _verify_interface(iface):
         found = True
 
     return found
+
 
 def add_interface(side, iface, key, value):
     if not _verify_interface(iface):
@@ -52,6 +93,7 @@ def add_interface(side, iface, key, value):
     else:
         raise Exception("'%s' already specified for '%s'" % (key, iface))
 
+
 def print_decl():
     def _print_key(key):
         print(json.dumps(decl[key], sort_keys=True, indent=2))
@@ -61,13 +103,19 @@ def print_decl():
     if "plugs" in decl:
         print("plugs:")
         _print_key("plugs")
+    if "auto-aliases" in decl:
+        print("auto-aliases:")
+        _print_key("auto-aliases")
+    if "refresh-control" in decl:
+        print("refresh-control:")
+        _print_key("refresh-control")
+
 
 def main():
     parser = argparse.ArgumentParser(
         prog='create-snap-declaration',
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Output data suitable for adding to snap declaration',
-        )
+        description='Output data suitable for adding to snap declaration')
     parser.add_argument('--slot-installation', type=str,
                         help='list of interfaces to allow installation')
     parser.add_argument('--slot-connection', type=str,
@@ -80,10 +128,11 @@ def main():
                         help='list of interfaces to allow connection')
     parser.add_argument('--plug-auto-connection', type=str,
                         help='list of interfaces to allow auto-connection')
+    parser.add_argument('--auto-aliases', type=str,
+                        help='list of aliases to auto-alias')
+    parser.add_argument('--refresh-control', type=str,
+                        help='list of snap IDs to be gated by this snap')
     args = parser.parse_args()
-
-    slots = {}
-    plugs = {}
 
     if args.slot_installation:
         for i in args.slot_installation.split(','):
@@ -108,6 +157,14 @@ def main():
     if args.plug_auto_connection:
         for i in args.plug_auto_connection.split(','):
             add_interface("plugs", i, "allow-auto-connection", True)
+
+    if args.auto_aliases:
+        for i in args.auto_aliases.split(','):
+            add_alias(i)
+
+    if args.refresh_control:
+        for i in args.refresh_control.split(','):
+            add_refresh_control(i)
 
     print_decl()
 
