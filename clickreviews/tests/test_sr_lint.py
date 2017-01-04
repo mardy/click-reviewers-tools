@@ -3076,6 +3076,65 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_apps_aliases(self):
+        '''Test check_apps_aliases'''
+        apps = {'app1': {'aliases': ['foo']},
+                'app2': {'aliases': ['bar', 'app2-bar']},
+                'app3': {},
+                }
+
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_aliases()
+        r = c.click_report
+        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_aliases_empty(self):
+        '''Test check_apps_aliases (empty)'''
+        apps = {'app1': {'aliases': []}}
+
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_aliases()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_aliases_dict(self):
+        '''Test check_apps_aliases (dict)'''
+        apps = {'app1': {'aliases': {}}}
+
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_aliases()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_aliases_bad(self):
+        '''Test check_apps_aliases (bad)'''
+        apps = {'app1': {'aliases': ['foo/bar']}}
+
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_aliases()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_aliases_dupe(self):
+        '''Test check_apps_aliases (dupe)'''
+        apps = {'app1': {'aliases': ['foo']},
+                'app2': {'aliases': ['bar', 'foo']},
+                }
+
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_aliases()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
 
 class TestSnapReviewLintNoMock(TestCase):
     """Tests without mocks where they are not needed."""

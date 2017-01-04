@@ -606,7 +606,7 @@ class SnapReviewLint(SnapReview):
 
         # Certain options require 'daemon' so list the keys that are shared
         # by services and binaries
-        ok_keys = ['command', 'environment', 'plugs', 'slots']
+        ok_keys = ['command', 'environment', 'plugs', 'slots', 'aliases']
 
         for app in self.snap_yaml['apps']:
             needs_daemon = []
@@ -1321,6 +1321,46 @@ class SnapReviewLint(SnapReview):
 
             self._verify_env(self.snap_yaml['apps'][app]['environment'],
                              app=app)
+
+    def check_apps_aliases(self):
+        '''Check apps aliases'''
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
+            return
+
+        seen = []
+        for app in self.snap_yaml['apps']:
+            key = 'aliases'
+            if key not in self.snap_yaml['apps'][app]:
+                continue
+
+            aliases = self.snap_yaml['apps'][app]['aliases']
+
+            t = 'info'
+            n = self._get_check_name('aliases_valid', app=app)
+            s = 'OK'
+            if not isinstance(aliases, list):
+                t = 'error'
+                s = "invalid aliases: %s (not a list)" % aliases
+            elif len(aliases) == 0:
+                t = 'error'
+                s = 'invalid aliases (empty)'
+            self._add_result(t, n, s)
+
+            # from validate.go in snapd
+            pat = re.compile(r'^[a-zA-Z0-9][-_.a-zA-Z0-9]*$')
+            for alias in aliases:
+                t = 'info'
+                n = self._get_check_name('alias_valid', app=app,
+                                         extra=alias)
+                if not pat.search(alias):
+                    t = 'error'
+                    s = "malformed alias '%s' " % alias + \
+                        "(should be '^[a-zA-Z0-9][-_.a-zA-Z0-9]*$')"
+                elif alias in seen:
+                    t = 'error'
+                    s = "alias '%s' used more than once" % alias
+                self._add_result(t, n, s)
+                seen.append(alias)
 
     def _uses_interface(self, iface_type, iface):
         '''Get interface name by type and interface/interface reference.
