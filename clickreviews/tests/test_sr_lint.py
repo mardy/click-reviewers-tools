@@ -3136,6 +3136,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+
 class TestSnapReviewLintNoMock(TestCase):
     """Tests without mocks where they are not needed."""
     def setUp(self):
