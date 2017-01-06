@@ -534,6 +534,7 @@ class SnapReviewLint(SnapReview):
                 # We check for required elsewhere
                 continue
 
+            suffix = 'ns|us|ms|s|m'
             t = 'info'
             n = self._get_check_name('%s' % key, app=app)
             s = "OK"
@@ -541,7 +542,7 @@ class SnapReviewLint(SnapReview):
                     not isinstance(self.snap_yaml['apps'][app][key], str):
                 t = 'error'
                 s = "'%s' is not a string or integer" % key
-            elif not re.search(r'[0-9]+[ms]?$',
+            elif not re.search(r'[0-9]+(%s)?$' % suffix,
                                str(self.snap_yaml['apps'][app][key])):
                 t = 'error'
                 s = "'%s' is not of form NN[ms] (%s)" % \
@@ -554,11 +555,12 @@ class SnapReviewLint(SnapReview):
             t = 'info'
             n = self._get_check_name('%s_range' % key, app=app)
             s = "OK"
-            st = int(str(self.snap_yaml['apps'][app][key]).rstrip(r'[ms]'))
-            if st < 0 or st > 60:
+            st = int(str(self.snap_yaml['apps'][app][key]).rstrip(r'(%s)' %
+                                                                  suffix))
+            if st < 0:
                 t = 'error'
-                s = "stop-timeout '%d' out of range (0-60)" % \
-                    self.snap_yaml['apps'][app][key]
+                s = "stop-timeout '%s' should be a positive" % \
+                    str(self.snap_yaml['apps'][app][key])
             self._add_result(t, n, s)
 
     def _verify_valid_values(self, app, key, valid):

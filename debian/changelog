@@ -22,6 +22,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
       are no longer support (LP: 1605068)
     - support confinement: classic
     - add check_apps_aliases()
+    - handle ms, ns and us granularities, integers larger than 60 and fix a
+      traceback in stop-timeout error reporting (LP: #1654451)
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides

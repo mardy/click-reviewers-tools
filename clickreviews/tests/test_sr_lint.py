@@ -1437,7 +1437,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_apps_nondaemon_stop_timeout(self):
         '''Test check_apps_nondaemon() - stop-timeout'''
         self.set_test_snap_yaml("apps", {"foo": {"command": "bin/bar",
-                                                 "stop-timeout": 60}})
+                                                 "stop-timeout": 59}})
         c = SnapReviewLint(self.test_name)
         c.check_apps_nondaemon()
         r = c.click_report
@@ -1851,6 +1851,42 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 2, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_apps_stop_timeout_granularity_ms(self):
+        '''Test check_apps_stop_timeout() - ms'''
+        self.set_test_snap_yaml("apps", {"bar": {"stop-timeout": '30ms'}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_stop_timeout_granularity_m(self):
+        '''Test check_apps_stop_timeout() - m'''
+        self.set_test_snap_yaml("apps", {"bar": {"stop-timeout": '30m'}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_stop_timeout_granularity_ns(self):
+        '''Test check_apps_stop_timeout() - ns'''
+        self.set_test_snap_yaml("apps", {"bar": {"stop-timeout": '30ns'}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_stop_timeout_granularity_us(self):
+        '''Test check_apps_stop_timeout() - us'''
+        self.set_test_snap_yaml("apps", {"bar": {"stop-timeout": '30us'}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_stop_timeout()
+        r = c.click_report
+        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_apps_stop_timeout_empty(self):
         '''Test check_apps_stop_timeout() - empty'''
         self.set_test_snap_yaml("apps", {"bar": {"stop-timeout": ''}})
@@ -1890,15 +1926,6 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_apps_stop_timeout_range_low(self):
         '''Test check_apps_stop_timeout() - out of range (low)'''
         self.set_test_snap_yaml("apps", {"bar": {"stop-timeout": -1}})
-        c = SnapReviewLint(self.test_name)
-        c.check_apps_stop_timeout()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
-    def test_check_apps_stop_timeout_range_high(self):
-        '''Test check_apps_stop_timeout() - out of range (high)'''
-        self.set_test_snap_yaml("apps", {"bar": {"stop-timeout": 61}})
         c = SnapReviewLint(self.test_name)
         c.check_apps_stop_timeout()
         r = c.click_report
