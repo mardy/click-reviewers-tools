@@ -1345,9 +1345,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_apps_daemon_dbus(self):
-        '''Test check_apps_daemon() - dbus'''
-        entry = "dbus"
+    def test_check_apps_daemon_notify(self):
+        '''Test check_apps_daemon() - notify'''
+        entry = "notify"
         self.set_test_snap_yaml("apps", {"foo": {"daemon": entry}})
         c = SnapReviewLint(self.test_name)
         c.check_apps_daemon()

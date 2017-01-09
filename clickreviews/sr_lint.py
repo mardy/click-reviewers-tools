@@ -590,7 +590,7 @@ class SnapReviewLint(SnapReview):
         valid = ["simple",
                  "forking",
                  "oneshot",
-                 "dbus",
+                 "notify",
                  ]
 
         for app in self.snap_yaml['apps']:
