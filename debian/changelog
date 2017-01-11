@@ -1,7 +1,7 @@
 click-reviewers-tools (0.46) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
-  * add alsa, avahi-observe, dbus, fwupd, hidraw, i2c, iio,
+  * add alsa, avahi-observe, classic-dimension, dbus, fwupd, hidraw, i2c, iio,
     kernel-module-control, libvirt, network-setup-observe, ofono, openvswitch,
     openvswitch-support, raw-usb, removable-media, screen-inhibit-control,
     time-control, udisks2, and upower-observe interfaces
