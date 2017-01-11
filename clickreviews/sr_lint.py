@@ -69,6 +69,7 @@ class SnapReviewLint(SnapReview):
         self.redflagged_snap_types_overrides = {
             'kernel': ['dragonboard-kernel',
                        'linux-generic-bbb',
+                       'mako-kernel',
                        'pc-kernel',
                        'pi2-kernel',
                        ],
