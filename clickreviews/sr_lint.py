@@ -67,19 +67,42 @@ class SnapReviewLint(SnapReview):
         # flag for manual review.
         # NOTE: this will eventually move to assertions
         self.redflagged_snap_types_overrides = {
-            'kernel': ['dragonboard-kernel',
+            'kernel': ['dragonboard-kernel', # Canonical reference kernels
                        'linux-generic-bbb',
-                       'mako-kernel',
                        'pc-kernel',
                        'pi2-kernel',
+                       'freescale-ls1043a-kernel', # @canonical.com kernels
+                       'joule-linux',
+                       'mako-kernel',
+                       'marvell-armada3700-kernel',
+                       'roseapple-pi-kernel',
+                       'roseapple-pi-kernel-ondra',
+                       'artik5-linux', # 3rd party vendor kernels
+                       'artik10-linux',
+                       'bubblegum96-kernel',
+                       'eragon410-kernel',
+                       'linux-generic-bbb',
+                       'teal-kernel',
+                       'tsimx6-kernel',
                        ],
             'os': ['core',
                    'ubuntu-core'
                    ],
-            'gadget': ['dragonboard',
+            'gadget': ['dragonboard', # Canonical reference gadgets
                        'pc',
                        'pi2',
                        'pi3',
+                       'hikey-snappy-gadget', # @canonical.com gadgets
+                       'pi2kyle',
+                       'roseapple-pi',
+                       'artik5', # 3rd party vendor gadgets
+                       'artik10',
+                       'bubblegum96-gadget',
+                       'eragon410',
+                       'eragon-sunny',
+                       'lemaker-guitar-gadget',
+                       'subutai-pc',
+                       'tsimx6-gadget',
                        ],
         }
 

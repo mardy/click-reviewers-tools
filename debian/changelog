@@ -7,7 +7,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     physical-memory-observe, raw-usb, removable-media, screen-inhibit-control,
     time-control, udisks2, and upower-observe interfaces
   * sr_lint.py:
-    - don't flag pc, pi2, pi3 and dragonboard gadgets for manual review
+    - don't flag reference, Canonical and accepted vendor kernel and gadgets
     - adjust error text for check_meta_gui_desktop()
     - don't warn when using 'grade' with 'type: os'
     - only check for presence of Exec= in desktop file since there is no
