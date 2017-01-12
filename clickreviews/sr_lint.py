@@ -67,7 +67,7 @@ class SnapReviewLint(SnapReview):
         # flag for manual review.
         # NOTE: this will eventually move to assertions
         self.redflagged_snap_types_overrides = {
-            'kernel': ['dragonboard-kernel', # Canonical reference kernels
+            'kernel': ['dragonboard-kernel',  # Canonical reference kernels
                        'linux-generic-bbb',
                        'pc-kernel',
                        'pi2-kernel',
