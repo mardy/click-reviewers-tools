@@ -71,13 +71,13 @@ class SnapReviewLint(SnapReview):
                        'linux-generic-bbb',
                        'pc-kernel',
                        'pi2-kernel',
-                       'freescale-ls1043a-kernel', # @canonical.com kernels
+                       'freescale-ls1043a-kernel',  # @canonical.com kernels
                        'joule-linux',
                        'mako-kernel',
                        'marvell-armada3700-kernel',
                        'roseapple-pi-kernel',
                        'roseapple-pi-kernel-ondra',
-                       'artik5-linux', # 3rd party vendor kernels
+                       'artik5-linux',  # 3rd party vendor kernels
                        'artik10-linux',
                        'bubblegum96-kernel',
                        'eragon410-kernel',
@@ -88,14 +88,14 @@ class SnapReviewLint(SnapReview):
             'os': ['core',
                    'ubuntu-core'
                    ],
-            'gadget': ['dragonboard', # Canonical reference gadgets
+            'gadget': ['dragonboard',  # Canonical reference gadgets
                        'pc',
                        'pi2',
                        'pi3',
-                       'hikey-snappy-gadget', # @canonical.com gadgets
+                       'hikey-snappy-gadget',  # @canonical.com gadgets
                        'pi2kyle',
                        'roseapple-pi',
-                       'artik5', # 3rd party vendor gadgets
+                       'artik5',  # 3rd party vendor gadgets
                        'artik10',
                        'bubblegum96-gadget',
                        'eragon410',
