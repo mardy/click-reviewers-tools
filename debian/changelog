@@ -1,11 +1,11 @@
 click-reviewers-tools (0.46) UNRELEASED; urgency=medium
 
   [ Jamie Strandboge ]
-  * add alsa, avahi-observe, classic-dimension, dbus, fwupd, hidraw, i2c, iio,
+  * add alsa, avahi-observe, classic-support, dbus, fwupd, hidraw, i2c, iio,
     io-ports-control, kernel-module-control, libvirt, network-setup-observe,
     ofono, openvswitch, openvswitch-support, physical-memory-control,
     physical-memory-observe, raw-usb, removable-media, screen-inhibit-control,
-    time-control, udisks2, and upower-observe interfaces
+    time-control, udisks2, uhid and upower-observe interfaces
   * sr_lint.py:
     - don't flag reference, Canonical and accepted vendor kernel and gadgets
     - adjust error text for check_meta_gui_desktop()
