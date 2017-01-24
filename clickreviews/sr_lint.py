@@ -75,6 +75,7 @@ class SnapReviewLint(SnapReview):
                        'joule-linux',
                        'mako-kernel',
                        'marvell-armada3700-kernel',
+                       'nxp-ls1043a-kernel',
                        'roseapple-pi-kernel',
                        'roseapple-pi-kernel-ondra',
                        'artik5-linux',  # 3rd party vendor kernels
@@ -93,8 +94,10 @@ class SnapReviewLint(SnapReview):
                        'pi2',
                        'pi3',
                        'hikey-snappy-gadget',  # @canonical.com gadgets
+                       'nxp-ls1043ardb-gadget',
                        'pi2kyle',
                        'roseapple-pi',
+                       'wdl-nextcloud',
                        'artik5',  # 3rd party vendor gadgets
                        'artik10',
                        'bubblegum96-gadget',
