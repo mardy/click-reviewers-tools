@@ -2810,6 +2810,52 @@ slots:
         expected['error'][name] = {"text": "human review required due to 'deny-connection' constraint for 'plug-attributes' from base declaration"}
         self.check_results(r, expected=expected)
 
+    def test_zz_check_declaration_plugs_connection_alternates_bool3(self):
+        '''Test check_declaration - plugs - matching alternate attrib bool/str'''
+        c = SnapReviewDeclaration(self.test_name)
+
+        # Mock up the 'foo' interface
+        c.interfaces_attribs['foo'] = {'bool/plugs': False }
+        base = {
+            'slots': {
+                'foo': {
+                    'allow-installation': { 'slot-snap-type': ['core'] },
+                    'deny-connection': {
+                        'plug-attributes': {'bool': True},
+                    }
+                }
+            }
+        }
+        c._verify_declaration(decl=base, base=True)
+        self._set_base_declaration(c, base)
+
+        decl = {
+            'plugs': {
+                'foo': {
+                    'allow-connection': [
+                        {
+                            'plug-attributes': {'bool': 'true'},
+                        },
+                        {
+                            'plug-attributes': {'bool': True},
+                        },
+                    ]
+                }
+            }
+        }
+        c._verify_declaration(decl=decl)
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'declaration-snap-v2:valid_plugs:foo:allow-connection'
+        expected['info'][name] = {"text": "OK"}
+        self.check_results(r, expected=expected)
+
     def test_check_declaration_slots_connection_alternates_one_denied(self):
         '''Test check_declaration - slots connection alternates - core matching attrib'''
         slots = {'iface': {'interface': 'foo', 'name': 'one'}}
