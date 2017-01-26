@@ -1238,11 +1238,11 @@ class SnapReviewLint(SnapReview):
                 self.snap_yaml['type']
         self._add_result(t, n, s)
 
-        t = 'info'
-        n = self._get_check_name('confinement_classic')
-        s = 'OK'
-        manual_review = False
         if self.snap_yaml['confinement'] == "classic":
+            t = 'info'
+            n = self._get_check_name('confinement_classic')
+            s = 'OK'
+            manual_review = False
             if self.overrides is not None and \
                     'snap_allow_classic' in self.overrides and \
                     self.overrides['snap_allow_classic']:
@@ -1254,7 +1254,28 @@ class SnapReviewLint(SnapReview):
                     self.snap_yaml['confinement']
                 manual_review = True
 
-        self._add_result(t, n, s, manual_review=manual_review)
+            self._add_result(t, n, s, manual_review=manual_review)
+
+            t = 'info'
+            n = self._get_check_name('confinement_classic_with_interfaces')
+            s = 'OK'
+            l = None
+            found = False
+            if 'plugs' in self.snap_yaml or 'slots' in self.snap_yaml:
+                found = True
+            elif 'apps' in self.snap_yaml:
+                for app in self.snap_yaml['apps']:
+                    if 'plugs' in self.snap_yaml['apps'][app] or \
+                            'slots' in self.snap_yaml['apps'][app]:
+                        found = True
+                        break
+            if found:
+                t = 'error'
+                s = "confinement '%s' not allowed with plugs/slots" % \
+                    self.snap_yaml['confinement']
+                l = "https://launchpad.net/bugs/1655369"
+
+            self._add_result(t, n, s, link=l)
 
     def check_grade(self):
         '''Check confinement'''

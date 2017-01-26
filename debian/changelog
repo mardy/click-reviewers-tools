@@ -26,6 +26,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - handle ms, ns and us granularities, integers larger than 60 and fix a
       traceback in stop-timeout error reporting (LP: #1654451)
     - remove unsupported 'daemon: dbus' and add 'daemon: notify'
+    - don't allow specifying interfaces with 'confinement: classic'
+      (LP: 1655369)
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides
@@ -59,7 +61,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 04 Jan 2017 11:26:16 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 26 Jan 2017 09:25:11 -0600
 
 click-reviewers-tools (0.45) yakkety; urgency=medium
 
