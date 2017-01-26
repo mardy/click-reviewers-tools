@@ -72,7 +72,8 @@ class SnapReviewDeclaration(SnapReview):
                 raise SnapDeclarationException(err)
             self._add_result('error', name, err)
 
-        def verify_constraint(cstr, decl, key, iface, index, has_alternates):
+        def verify_constraint(cstr, decl, key, iface, index, allowed,
+                              has_alternates):
             found_errors = False
             if self.is_bool(cstr):
                 if not base:
@@ -319,7 +320,7 @@ class SnapReviewDeclaration(SnapReview):
                     index = 0
                     for alt in alternates:
                         if verify_constraint(alt, decl, key, iface, index,
-                                             (len(alternates) > 1)):
+                                             allowed, (len(alternates) > 1)):
                             found_errors = True
                         index += 1
 
