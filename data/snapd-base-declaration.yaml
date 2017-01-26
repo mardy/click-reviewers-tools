@@ -6,6 +6,10 @@
   classic-support:
     allow-installation: false
     deny-auto-connection: true
+  core-support:
+    allow-installation:
+      plug-snap-type:
+        - core
   docker-support:
     allow-installation: false
     deny-auto-connection: true
@@ -71,6 +75,11 @@
     allow-auto-connection:
       plug-publisher-id:
         - $SLOT_PUBLISHER_ID
+  core-support:
+    allow-installation:
+      slot-snap-type:
+        - core
+    deny-auto-connection: true
   cups-control:
     allow-installation:
       slot-snap-type:
@@ -384,6 +393,23 @@
     allow-installation:
       slot-snap-type:
         - core
+  unity8-calendar:
+    allow-installation:
+      slot-snap-type:
+        - app
+    deny-auto-connection: true
+    deny-connection: true
+  unity8-contacts:
+    allow-installation:
+      slot-snap-type:
+        - app
+    deny-auto-connection: true
+    deny-connection: true
+  ubuntu-download-manager:
+    allow-installation:
+      slot-snap-type:
+        - app
+    deny-connection: true
   upower-observe:
     allow-installation:
       slot-snap-type:
