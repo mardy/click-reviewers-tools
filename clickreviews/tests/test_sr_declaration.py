@@ -2815,11 +2815,11 @@ slots:
         c = SnapReviewDeclaration(self.test_name)
 
         # Mock up the 'foo' interface
-        c.interfaces_attribs['foo'] = {'bool/plugs': False }
+        c.interfaces_attribs['foo'] = {'bool/plugs': False}
         base = {
             'slots': {
                 'foo': {
-                    'allow-installation': { 'slot-snap-type': ['core'] },
+                    'allow-installation': {'slot-snap-type': ['core']},
                     'deny-connection': {
                         'plug-attributes': {'bool': True},
                     }
