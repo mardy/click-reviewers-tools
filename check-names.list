@@ -113,6 +113,8 @@ lint:snappy_type_redflag|https://developer.ubuntu.com/en/snappy/guides/framework
 lint:snappy_type_valid|
 lint:snappy_unknown|
 lint:snappy_version_valid|
+lint-snap-v2:aliases_valid|
+lint-snap-v2:alias_valid|
 lint-snap-v2:app_plugs|
 lint-snap-v2:app_plugs_plug_reference|
 lint-snap-v2:apps|
@@ -127,6 +129,8 @@ lint-snap-v2:architecture_valid|
 lint-snap-v2:assumes_valid|
 lint-snap-v2:command|
 lint-snap-v2:config_hook_executable|
+lint-snap-v2:confinement_classic|
+lint-snap-v2:confinement_classic_with_interfaces|https://launchpad.net/bugs/1655369
 lint-snap-v2:confinement_valid|
 lint-snap-v2:daemon|
 lint-snap-v2:daemon_required|
@@ -149,10 +153,6 @@ lint-snap-v2:icon_absolute_path|
 lint-snap-v2:icon_empty|
 lint-snap-v2:icon_exists|
 lint-snap-v2:icon_present|
-lint-snap-v2:license-agreement|
-lint-snap-v2:license-agreement_present|
-lint-snap-v2:license-version|
-lint-snap-v2:license-version_present|
 lint-snap-v2:listen-stream|
 lint-snap-v2:listen-stream_matches_name|
 lint-snap-v2:meta_gui_desktop|
