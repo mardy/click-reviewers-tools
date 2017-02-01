@@ -50,6 +50,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
       the base declaration
     - add 'dbus' attributes
     - add in progress unity8 interface
+    - adjust _verify_pkgname() for snapd commit 88665e9a
   * add sr_declaration.py:
     - check snap.yaml against base and snap declarations
   * add bin/create-snap-declaration.py
@@ -61,7 +62,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 26 Jan 2017 09:25:11 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Wed, 01 Feb 2017 08:59:44 -0600
 
 click-reviewers-tools (0.45) yakkety; urgency=medium
 

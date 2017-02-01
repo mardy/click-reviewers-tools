@@ -116,6 +116,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_name_toplevel_startswith_number(self):
+        '''Test check_name - toplevel'''
+        self.set_test_snap_yaml("name", "01game")
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
     def test_check_name_flat(self):
         '''Test check_name - obsoleted flat'''
         self.set_test_snap_yaml("name", "foo.bar")
