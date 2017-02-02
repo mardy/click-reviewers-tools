@@ -224,6 +224,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_name_bad8(self):
+        '''Test check_name - bad - all numbers'''
+        self.set_test_snap_yaml("name", "01")
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_name_missing(self):
         '''Test check_name - missing'''
         self.set_test_snap_yaml("name", None)
