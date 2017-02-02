@@ -254,10 +254,13 @@ class SnapReview(Review):
         '''Get unpack directory'''
         return self.unpack_dir
 
-    # From validSnapName in snapd/snap/validate.go
     def _verify_pkgname(self, n):
         '''Verify package name'''
-        pat = re.compile(r'^(?:[a-z0-9]+-?)*[a-z](?:-?[a-z0-9])*$')
+        # From validSnapName in snapd/snap/validate.go:
+        #   "^(?:[a-z0-9]+-?)*[a-z](?:-?[a-z0-9])*$"
+        # but this regex is very inefficient and certain names will make python
+        # work extremely hard. Instead we use
+        pat = re.compile(r'^[a-z0-9](?:-?[a-z0-9])*$')
 
         if pat.search(n):
             return True
