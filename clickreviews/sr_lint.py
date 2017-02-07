@@ -96,6 +96,7 @@ class SnapReviewLint(SnapReview):
                        'pi3',
                        'hikey-snappy-gadget',  # @canonical.com gadgets
                        'nxp-ls1043ardb-gadget',
+                       'pi3-unipi',
                        'pi2kyle',
                        'roseapple-pi',
                        'wdl-nextcloud',
