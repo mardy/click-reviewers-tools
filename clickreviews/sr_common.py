@@ -144,20 +144,12 @@ class SnapReview(Review):
 
     # In progress interfaces are those that are not yet in snapd but for
     # some reason we need them. Normally we will never want to do this, but
-    # for example the unity8 interface is in progress and they want CI
+    # for example the unity8 interface wass in progress and they wanted CI
     # uploads
     inprogress_interfaces = {
         '16': {
             'plugs': {},
-            'slots': {
-                'unity8': {
-                    'allow-installation': {
-                        'slot-snap-type': ['app'],
-                    },
-                    'deny-connection': 'true',
-                    'deny-auto-connection': 'true',
-                }
-            }
+            'slots': {},
         }
     }
 

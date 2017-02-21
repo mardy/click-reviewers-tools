@@ -22,6 +22,8 @@
   snapd-control:
     allow-installation: false
     deny-auto-connection: true
+  unity8:
+    allow-installation: false
  slots:
   account-control:
     allow-installation:
@@ -411,6 +413,11 @@
     deny-auto-connection: true
     deny-connection: true
   ubuntu-download-manager:
+    allow-installation:
+      slot-snap-type:
+        - app
+    deny-connection: true
+  unity8:
     allow-installation:
       slot-snap-type:
         - app
