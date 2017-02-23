@@ -114,6 +114,7 @@ class SnapReviewLint(SnapReview):
 
         self.interface_plug_requires_desktop_file = ['unity7',
                                                      'x11',
+                                                     'unity8'
                                                      ]
 
     def check_architectures(self):

@@ -430,12 +430,26 @@ short
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_squashfs_files_bad_mode_sticky(self):
-        '''Test check_squashfs_files() - bad mode - sticky dir'''
+    def test_check_squashfs_files_mode_sticky_dir(self):
+        '''Test check_squashfs_files() - mode - sticky dir'''
         out = '''Parallel unsquashfs: Using 4 processors
 8 inodes (8 blocks) to write
 
 drwxrwxrwt root/root                38 2016-03-11 12:25 squashfs-root/foo
+'''
+        self.set_test_unsquashfs_lls(out)
+        c = SnapReviewSecurity(self.test_name)
+        c.check_squashfs_files()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+
+    def test_check_squashfs_files_bad_mode_sticky_file(self):
+        '''Test check_squashfs_files() - bad mode - sticky file'''
+        out = '''Parallel unsquashfs: Using 4 processors
+8 inodes (8 blocks) to write
+
+-rwxrwxrwt root/root                38 2016-03-11 12:25 squashfs-root/foo
 '''
         self.set_test_unsquashfs_lls(out)
         c = SnapReviewSecurity(self.test_name)

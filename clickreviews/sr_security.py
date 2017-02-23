@@ -369,7 +369,10 @@ class SnapReviewSecurity(SnapReview):
                                                                    fname))
                 continue
             if ftype == 'd' or ftype == '-':
-                if not _check_allowed_perms(mode, ['r', 'w', 'x', '-']):
+                perms = ['r', 'w', 'x', '-']
+                if ftype == 'd':  # allow sticky directories for stage-packages
+                    perms.append('t')
+                if not _check_allowed_perms(mode, perms):
                     if pkgname not in self.sec_mode_overrides or \
                         fname not in self.sec_mode_overrides[pkgname] or \
                             self.sec_mode_overrides[pkgname][fname] != mode:
