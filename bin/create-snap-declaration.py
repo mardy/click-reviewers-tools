@@ -72,6 +72,14 @@ def _verify_interface(iface):
     return found
 
 
+def bool2str(value):
+    if value is True or value is False:
+        if value:
+            return "true"
+        return "false"
+    return value
+
+
 def add_interface(side, iface, key, value):
     if not _verify_interface(iface):
         raise Exception("Invalid interface '%s'" % iface)
@@ -83,15 +91,42 @@ def add_interface(side, iface, key, value):
         decl[side][iface] = {}
 
     if key not in decl[side][iface]:
-        if value is True or value is False:
-            if value:
-                decl[side][iface][key] = "true"
-            else:
-                decl[side][iface][key] = "false"
-        else:
-            decl[side][iface][key] = value
+        decl[side][iface][key] = bool2str(value)
     else:
         raise Exception("'%s' already specified for '%s'" % (key, iface))
+
+
+def add_missing():
+    for side in ["slots", "plugs"]:
+        if side not in decl:
+            continue
+        if side not in base_decl:
+            raise Exception("Could not find '%s' in base declaration" % side)
+
+        for iface in decl[side]:
+            if iface not in base_decl[side]:
+                continue
+
+            # TODO: support alternate constraints
+            if isinstance(base_decl[side][iface], list):
+                print("INFO: skipping base alternation constraints")
+                continue
+
+            for cstr in ['installation', 'connection', 'auto-connection']:
+                in_base = False
+                cstr_b = ""
+                for perm in ['allow', 'deny']:
+                    cstr_b = '%s-%s' % (perm, cstr)
+                    if cstr_b in base_decl[side][iface]:
+                        in_base = True
+                        break
+
+                cstr_s = "allow-%s" % cstr
+                if in_base and cstr_s not in decl[side][iface]:
+                    print("WARN: adding missing '%s' for '%s' from base decl"
+                          % (cstr, iface))
+                    decl[side][iface][cstr_b] = \
+                        bool2str(base_decl[side][iface][cstr_b])
 
 
 def print_decl():
@@ -165,6 +200,8 @@ def main():
     if args.refresh_control:
         for i in args.refresh_control.split(','):
             add_refresh_control(i)
+
+    add_missing()
 
     print_decl()
 
