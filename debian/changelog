@@ -31,6 +31,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
       (LP: 1655369)
     - add a mechanism to override certain snaps that use a desktop interface
       but don't require a desktop file (LP: #1670162)
+    - allow ints and floats as values for env variables
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides

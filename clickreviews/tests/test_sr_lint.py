@@ -3094,12 +3094,14 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         '''Test check_environment'''
         env = {'ENV1': "value",
                'ENV2': "value2",
+               'ENV3': 1,
+               'ENV4': 1.2,
                }
         self.set_test_snap_yaml("environment", env)
         c = SnapReviewLint(self.test_name)
         c.check_environment()
         r = c.click_report
-        expected_counts = {'info': 5, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 9, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_apps_environment(self):

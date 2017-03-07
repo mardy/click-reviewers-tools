@@ -1352,7 +1352,9 @@ class SnapReviewLint(SnapReview):
             n = self._get_check_name('environment_value_valid', app=app,
                                      extra=key)
             s = 'OK'
-            if not isinstance(env[key], str):
+            if not isinstance(env[key], str) and \
+                    not isinstance(env[key], int) and \
+                    not isinstance(env[key], float):
                 t = 'error'
                 s = "invalid environment value for '%s': %s" % (key, env[key])
             self._add_result(t, n, s)
