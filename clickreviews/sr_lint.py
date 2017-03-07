@@ -116,6 +116,8 @@ class SnapReviewLint(SnapReview):
                                                      'x11',
                                                      'unity8'
                                                      ]
+        self.desktop_file_exception = ['ffscreencast']
+
 
     def check_architectures(self):
         '''Check architectures in snap.yaml is valid'''
@@ -1510,12 +1512,17 @@ class SnapReviewLint(SnapReview):
         n = self._get_check_name('meta_gui_desktop')
         s = 'OK'
         if len(desktop_interfaces_specified) > 0 and not has_desktop_files:
-            t = 'warn'
-            s = "desktop interfaces " + \
-                "(%s) " % ",".join(desktop_interfaces_specified) + \
-                "specified without meta/gui/*.desktop. Please provide a " + \
-                "desktop file via setup/gui/*.desktop if using snapcraft " + \
-                "or meta/gui/*.desktop otherwise. It should reference one " + \
-                "of the 'apps' from your snapcraft/snap.yaml."
+            if self.snap_yaml['name'] in self.desktop_file_exception:
+                t = 'info'
+                s = "OK (overidden)"
+            else:
+                t = 'warn'
+                s = "desktop interfaces " + \
+                    "(%s) " % ",".join(desktop_interfaces_specified) + \
+                    "specified without meta/gui/*.desktop. Please provide " + \
+                    "a desktop file via setup/gui/*.desktop if using " + \
+                    "snapcraft or meta/gui/*.desktop otherwise. It should " + \
+                    "reference one of the 'apps' from your " + \
+                    "snapcraft/snap.yaml."
 
         self._add_result(t, n, s)

@@ -29,6 +29,8 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - remove unsupported 'daemon: dbus' and add 'daemon: notify'
     - don't allow specifying interfaces with 'confinement: classic'
       (LP: 1655369)
+    - add a mechanism to override certain snaps that use a desktop interface
+      but don't require a desktop file (LP: #1670162)
   * sr_security.py:
     - whitelist a few files for Canonical demo snaps
     - add 'core' snap to sec_mode_overrides
@@ -64,7 +66,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Thu, 16 Feb 2017 14:39:03 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Mar 2017 14:44:37 -0600
 
 click-reviewers-tools (0.45) yakkety; urgency=medium
 

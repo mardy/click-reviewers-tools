@@ -3926,6 +3926,42 @@ apps:
         expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
 
+    def test_check_meta_gui_desktop_missing_app_plug_exception(self):
+        '''Test check_meta_gui_desktop() - missing - app plug - exception'''
+        output_dir = self.mkdtemp()
+        path = os.path.join(output_dir, 'snap.yaml')
+        content = '''
+name: ffscreencast
+version: 0.1
+summary: some thing
+description: some desc
+apps:
+  testme:
+    command: bin/foo
+    plugs: [ x11 ]
+'''
+        with open(path, 'w') as f:
+            f.write(content)
+
+        package = utils.make_snap2(output_dir=output_dir,
+                                   extra_files=[
+                                       '%s:meta/snap.yaml' % path,
+                                   ]
+                                   )
+        c = SnapReviewLint(package)
+        c.check_meta_gui_desktop()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:meta_gui_desktop'
+        expected['info'][name] = {"text": "OK (overidden)"}
+        self.check_results(r, expected=expected)
+
     def test_check_meta_gui_desktop_missing_app_plug_reference(self):
         '''Test check_meta_gui_desktop() - missing - app plug'''
         output_dir = self.mkdtemp()
