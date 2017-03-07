@@ -118,7 +118,6 @@ class SnapReviewLint(SnapReview):
                                                      ]
         self.desktop_file_exception = ['ffscreencast']
 
-
     def check_architectures(self):
         '''Check architectures in snap.yaml is valid'''
         if not self.is_snap2:
