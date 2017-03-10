@@ -194,6 +194,25 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
+    def test_check_security_plugs_browser_support_daemon_override(self):
+        ''' Test check_security_plugs() - browser-support w/ daemon override'''
+        apps = {'app1': {'plugs': ['browser-support'],
+                         'daemon': 'simple'}}
+        self.set_test_snap_yaml("apps", apps)
+        c = SnapReviewSecurity(self.test_name)
+        c.sec_browser_support_overrides.append(self.test_snap_yaml["name"])
+        c.check_security_plugs_browser_support_with_daemon()
+        report = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(report, expected_counts)
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'security-snap-v2:daemon_with_browser-support:app1'
+        expected['info'][name] = {"text": "OK (allowing 'daemon' with 'browser-support'"}
+        self.check_results(report, expected=expected)
+
     def test_check_apparmor_profile_name_length(self):
         '''Test check_apparmor_profile_name_length()'''
         apps = {'app1': {'plugs': ['iface-caps']}}

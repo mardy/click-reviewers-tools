@@ -39,6 +39,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
     - remove policy_vendor and policy_version checks since they don't apply
       to declaration checks
     - allow sticky dirs in the squashfs since some stage-packages ship them
+    - allow overriding snaps that can use browser-support with daemon
   * common.py:
     - remove 'application/octet-stream; charset=binary' from
       magic_binary_file_descriptions to reduce false positives in
@@ -67,7 +68,7 @@ click-reviewers-tools (0.46) UNRELEASED; urgency=medium
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 07 Mar 2017 14:44:37 -0600
+ -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 10 Mar 2017 15:38:56 -0600
 
 click-reviewers-tools (0.45) yakkety; urgency=medium
 

@@ -129,6 +129,8 @@ class SnapReviewSecurity(SnapReview):
             },
         }
 
+        self.sec_browser_support_overrides = ['webdemo']
+
     def _unsquashfs_lls(self, snap_pkg):
         '''Run unsquashfs -lls on a snap package'''
         return cmd(['unsquashfs', '-lls', snap_pkg])
@@ -170,10 +172,16 @@ class SnapReviewSecurity(SnapReview):
 
             for plug_ref in plugs:
                 if _plugref_is_interface(plug_ref, "browser-support"):
-                    t = 'warn'
+                    if self.snap_yaml['name'] in \
+                            self.sec_browser_support_overrides:
+                        t = 'info'
+                        s = "OK (allowing 'daemon' with 'browser-support'"
+                    else:
+                        t = 'warn'
+                        s = "(NEEDS REVIEW) 'daemon' should not be used " + \
+                            "with 'browser-support'"
                     n = self._get_check_name('daemon_with_browser-support',
                                              app=app)
-                    s = "(NEEDS REVIEW) 'daemon' should not be used with 'browser-support'"
                     self._add_result(t, n, s, manual_review=True)
 
     def check_apparmor_profile_name_length(self):
