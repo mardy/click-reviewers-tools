@@ -129,7 +129,8 @@ class SnapReviewSecurity(SnapReview):
             },
         }
 
-        self.sec_browser_support_overrides = ['webdemo']
+        self.sec_browser_support_overrides = ['screencloudplayer',
+                                              'webdemo']
 
     def _unsquashfs_lls(self, snap_pkg):
         '''Run unsquashfs -lls on a snap package'''
