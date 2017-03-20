@@ -72,6 +72,7 @@ class SnapReviewLint(SnapReview):
                        'pc-kernel',
                        'pi2-kernel',
                        'freescale-ls1043a-kernel',  # @canonical.com kernels
+                       'hummingboard-kernel',
                        'joule-linux',
                        'mako-kernel',
                        'marvell-armada3700-kernel',
@@ -85,6 +86,7 @@ class SnapReviewLint(SnapReview):
                        'linux-generic-bbb',
                        'rexroth-xm21-kernel',
                        'teal-kernel',
+                       'nitrogen-kernel',
                        'tsimx6-kernel',
                        ],
             'os': ['core',
@@ -106,8 +108,10 @@ class SnapReviewLint(SnapReview):
                        'eragon410',
                        'eragon-sunny',
                        'lemaker-guitar-gadget',
+                       'nitrogen-gadget',
                        'rexroth-xm21',
                        'subutai-pc',
+                       'telig',
                        'tsimx6-gadget',
                        ],
         }
