@@ -98,6 +98,7 @@ class SnapReviewLint(SnapReview):
                        'pi2',
                        'pi3',
                        'hikey-snappy-gadget',  # @canonical.com gadgets
+                       'joule',
                        'nxp-ls1043ardb-gadget',
                        'pi3-unipi',
                        'pi2kyle',
