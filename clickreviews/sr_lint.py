@@ -111,6 +111,7 @@ class SnapReviewLint(SnapReview):
                        'eragon-sunny',
                        'lemaker-guitar-gadget',
                        'nitrogen-gadget',
+                       'pc-turtlebot-kyrofa',
                        'rexroth-xm21',
                        'subutai-pc',
                        'telig',
