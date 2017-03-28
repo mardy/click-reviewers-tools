@@ -49,6 +49,10 @@ class SnapReviewDeclaration(SnapReview):
 
             self._verify_declaration(self.snap_declaration, base=False)
 
+        # List of attributes that always successfully match (ie, so we don't
+        # flag on them)
+        self.iface_attributes_noflag = ['$SLOT(content)']
+
     def is_bool(self, item):
         if isinstance(item, int) and (item is True or item is False):
             return True
@@ -382,7 +386,9 @@ class SnapReviewDeclaration(SnapReview):
                 matches = 0
                 for subsubkey in int_keys:
                     if self._match(d[key][subkey][subsubkey],
-                                   subval[subsubkey]):
+                                   subval[subsubkey]) or \
+                            d[key][subkey][subsubkey] in \
+                            self.iface_attributes_noflag:
                         found = True
                         matches += 1
 

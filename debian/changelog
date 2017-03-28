@@ -59,6 +59,7 @@ click-reviewers-tools (0.46) zesty; urgency=medium
   * bin/click-review:
     - support --plugs and --slots and apply them as snap declaration overrides
     - support --allow-classic and apply it as 'confinement: classic' override
+  * setup.cfg: fix deprecation warnings with pep8
 
   [ Celso Providelo ]
   * sr_lint.py: support 'grade' field in snap-v2 (LP: #1618123)
