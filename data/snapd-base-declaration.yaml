@@ -40,6 +40,11 @@
       slot-snap-type:
         - core
     deny-auto-connection: true
+  autopilot-introspection:
+    allow-installation:
+      slot-snap-type:
+        - core
+    deny-auto-connection: true
   bluetooth-control:
     allow-installation:
       slot-snap-type:
@@ -79,9 +84,14 @@
       slot-snap-type:
         - app
         - gadget
+    allow-connection:
+      plug-attributes:
+        content: $SLOT(content)
     allow-auto-connection:
       plug-publisher-id:
         - $SLOT_PUBLISHER_ID
+      plug-attributes:
+        content: $SLOT(content)
   core-support:
     allow-installation:
       slot-snap-type:
@@ -220,6 +230,12 @@
       slot-snap-type:
         - core
     deny-auto-connection: true
+  maliit:
+    allow-installation:
+      slot-snap-type:
+        - app
+    deny-connection: true
+    deny-auto-connection: true
   mir:
     allow-installation:
       slot-snap-type:
@@ -268,6 +284,11 @@
     deny-connection:
       on-classic: false
   network-observe:
+    allow-installation:
+      slot-snap-type:
+        - core
+    deny-auto-connection: true
+  network-setup-control:
     allow-installation:
       slot-snap-type:
         - core
@@ -370,6 +391,12 @@
       slot-snap-type:
         - core
     deny-auto-connection: true
+  thumbnailer-service:
+    allow-installation:
+      slot-snap-type:
+        - app
+    deny-auto-connection: true
+    deny-connection: true
   time-control:
     allow-installation:
       slot-snap-type:
@@ -405,6 +432,11 @@
     allow-installation:
       slot-snap-type:
         - core
+  unity8:
+    allow-installation:
+      slot-snap-type:
+        - app
+    deny-connection: true
   unity8-calendar:
     allow-installation:
       slot-snap-type:
@@ -418,11 +450,6 @@
     deny-auto-connection: true
     deny-connection: true
   ubuntu-download-manager:
-    allow-installation:
-      slot-snap-type:
-        - app
-    deny-connection: true
-  unity8:
     allow-installation:
       slot-snap-type:
         - app
