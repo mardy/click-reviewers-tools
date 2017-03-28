@@ -107,6 +107,7 @@ class SnapReviewLint(SnapReview):
                        'artik5',  # 3rd party vendor gadgets
                        'artik10',
                        'bubblegum96-gadget',
+                       'dragonboard-turtlebot-kyrofa',
                        'eragon410',
                        'eragon-sunny',
                        'lemaker-guitar-gadget',
