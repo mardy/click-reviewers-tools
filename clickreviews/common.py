@@ -65,6 +65,8 @@ def cleanup_unpack():
     if TMP_DIR is not None and os.path.isdir(TMP_DIR):
         recursive_rm(TMP_DIR)
         TMP_DIR = None
+
+
 atexit.register(cleanup_unpack)
 
 
