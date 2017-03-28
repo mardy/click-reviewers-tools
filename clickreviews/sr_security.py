@@ -242,8 +242,8 @@ class SnapReviewSecurity(SnapReview):
             t = 'info'
             n = self._get_check_name('squashfs_resquash_1555305')
             s = 'cannot reproduce squashfs'
-            l = 'https://launchpad.net/bugs/1555305'
-            self._add_result(t, n, s, link=l)
+            link = 'https://launchpad.net/bugs/1555305'
+            self._add_result(t, n, s, link=link)
             return
         # end LP: #1555305 workaround
 

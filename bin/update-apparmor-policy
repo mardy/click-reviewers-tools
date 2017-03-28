@@ -21,6 +21,7 @@ import sys
 def main(filename=None):
     apparmor_policy.get_policy_file(filename)
 
+
 if __name__ == '__main__':
     try:
         filename = None

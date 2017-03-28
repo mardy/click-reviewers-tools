@@ -318,15 +318,15 @@ class ClickReviewLint(ClickReview):
         t = 'info'
         n = self._get_check_name('control_click_version_up_to_date')
         s = 'OK'
-        l = None
+        link = None
 
         if apt_pkg.version_compare(
                 control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION) < 0:
             t = 'error'
             s = "Click-Version is too old, has '%s', needs '%s' or newer" % (
                 control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION)
-            l = 'http://askubuntu.com/questions/417366/what-does-lint-control-click-version-up-to-date-mean/417367'
-        self._add_result(t, n, s, l)
+            link = 'http://askubuntu.com/questions/417366/what-does-lint-control-click-version-up-to-date-mean/417367'
+        self._add_result(t, n, s, link)
 
         t = 'info'
         n = self._get_check_name('control_installed_size')
@@ -770,7 +770,7 @@ exit 1
         # "state": "obsolete", "policy_vendor": "ubuntu-core",
         # "policy_version": "16.04"}}}'
         n = self._get_check_name('framework')
-        l = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
+        link = "http://askubuntu.com/questions/460512/what-framework-should-i-use-in-my-manifest-file"
         framework_overrides = self.overrides.get('framework', {})
         frameworks = Frameworks(overrides=framework_overrides)
 
@@ -787,13 +787,13 @@ exit 1
                 t = 'error'
                 s = "'%s' is obsolete. Please use a newer framework" % \
                     framework
-                self._add_result(t, n, s, l)
+                self._add_result(t, n, s, link)
                 return
             elif framework in frameworks.DEPRECATED_FRAMEWORKS:
                 t = 'warn'
                 s = "'%s' is deprecated. Please use a newer framework" % \
                     framework
-                self._add_result(t, n, s, l)
+                self._add_result(t, n, s, link)
                 return
             elif framework in frameworks.AVAILABLE_FRAMEWORKS:
                 t = 'info'
@@ -805,7 +805,7 @@ exit 1
                 t = 'error'
                 s = "'%s' is not a supported framework" % \
                     framework
-                self._add_result(t, n, s, l)
+                self._add_result(t, n, s, link)
 
     def check_click_local_extensions(self):
         '''Report any click local extensions'''
@@ -1049,7 +1049,7 @@ exit 1
         t = 'info'
         n = self._get_check_name('snappy_type_redflag')
         s = "OK"
-        l = None
+        link = None
         manual_review = False
         if 'type' not in self.pkg_yaml:
             s = 'OK (skip missing)'
@@ -1058,8 +1058,8 @@ exit 1
             s = "(NEEDS REVIEW) type '%s' not allowed" % self.pkg_yaml['type']
             manual_review = True
             if self.pkg_yaml['type'] == "framework":
-                l = "https://developer.ubuntu.com/en/snappy/guides/frameworks/"
-        self._add_result(t, n, s, link=l, manual_review=manual_review)
+                link = "https://developer.ubuntu.com/en/snappy/guides/frameworks/"
+        self._add_result(t, n, s, link=link, manual_review=manual_review)
 
     def check_snappy_icon(self):
         '''Check icon()'''
@@ -1078,13 +1078,13 @@ exit 1
         t = 'info'
         n = self._get_check_name('snappy_architecture_deprecated')
         s = 'OK'
-        l = None
+        link = None
         if 'architecture' in self.pkg_yaml:
             t = 'warn'
             s = "Found deprecated 'architecture' field in " + \
                 "meta/package.yaml. Use 'architectures' instead"
-            l = 'https://developer.ubuntu.com/en/snappy/guides/package-metadata/'
-        self._add_result(t, n, s, link=l)
+            link = 'https://developer.ubuntu.com/en/snappy/guides/package-metadata/'
+        self._add_result(t, n, s, link=link)
 
     def check_snappy_unknown_entries(self):
         '''Check for any unknown fields'''

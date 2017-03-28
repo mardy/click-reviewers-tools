@@ -317,15 +317,15 @@ class ClickReviewSystemd(ClickReview):
 
             t = 'info'
             n = self._get_check_name('%s_bus-name_format' % test_str, app=app)
-            l = None
+            link = None
             s = 'OK'
             if not re.search(r'^[A-Za-z0-9][A-Za-z0-9_-]*(\.[A-Za-z0-9][A-Za-z0-9_-]*)+$',
                              my_dict[app]['bus-name']):
                 t = 'error'
-                l = 'http://dbus.freedesktop.org/doc/dbus-specification.html'
+                link = 'http://dbus.freedesktop.org/doc/dbus-specification.html'
                 s = "'%s' is not of form '^[A-Za-z0-9][A-Za-z0-9_-]*(\\.[A-Za-z0-9][A-Za-z0-9_-]*)+$'" % \
                     (my_dict[app]['bus-name'])
-            self._add_result(t, n, s, l)
+            self._add_result(t, n, s, link)
 
             t = 'info'
             n = self._get_check_name('%s_bus-name_matches_name' % test_str, app=app)

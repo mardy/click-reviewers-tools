@@ -704,7 +704,7 @@ class SnapReviewLint(SnapReview):
             t = 'info'
             n = self._get_check_name('ports', app=app)
             s = 'OK'
-            l = None
+            link = None
             if not isinstance(self.snap_yaml['apps'][app]['ports'], dict):
                 t = 'error'
                 s = "ports '%s' (not a dict)" % (
@@ -712,7 +712,7 @@ class SnapReviewLint(SnapReview):
             elif len(self.snap_yaml['apps'][app]['ports'].keys()) < 1:
                 t = 'error'
                 s = "'ports' must contain 'internal' and/or 'external'"
-            self._add_result(t, n, s, l)
+            self._add_result(t, n, s, link)
             if t == 'error':
                 continue
 
@@ -1270,7 +1270,7 @@ class SnapReviewLint(SnapReview):
             t = 'info'
             n = self._get_check_name('confinement_classic_with_interfaces')
             s = 'OK'
-            l = None
+            link = None
             found = False
             if 'plugs' in self.snap_yaml or 'slots' in self.snap_yaml:
                 found = True
@@ -1284,9 +1284,9 @@ class SnapReviewLint(SnapReview):
                 t = 'error'
                 s = "confinement '%s' not allowed with plugs/slots" % \
                     self.snap_yaml['confinement']
-                l = "https://launchpad.net/bugs/1655369"
+                link = "https://launchpad.net/bugs/1655369"
 
-            self._add_result(t, n, s, link=l)
+            self._add_result(t, n, s, link=link)
 
     def check_grade(self):
         '''Check confinement'''
@@ -1334,7 +1334,7 @@ class SnapReviewLint(SnapReview):
             n = self._get_check_name('environment_key_valid', app=app,
                                      extra=key)
             s = 'OK'
-            l = None
+            link = None
             invalid_chars = []
             for c in invalid:
                 if c in key:
@@ -1346,12 +1346,12 @@ class SnapReviewLint(SnapReview):
             elif not portable_pat.search(key) and lenient_pat.search(key):
                 t = 'info'
                 s = "'%s' is not shell portable" % key
-                l = "http://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html"
+                link = "http://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html"
             elif not lenient_pat.search(key):
                 t = 'warn'
                 s = "unusual characters in '%s' " % key + \
                     "(should be '^[a-zA-Z0-9_]+$')"
-            self._add_result(t, n, s, link=l)
+            self._add_result(t, n, s, link=link)
 
             # The only limit on the contents of an arg appear to be the length
             # but that is going to be language and system dependent, so don't

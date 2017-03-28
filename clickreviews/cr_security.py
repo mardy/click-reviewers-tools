@@ -401,12 +401,12 @@ class ClickReviewSecurity(ClickReview):
                 'policy_version_is_highest',
                 extra='(%s, %s)' % (str(highest), f))
             s = "OK"
-            l = None
+            link = None
             if float(m['policy_version']) != highest:
                 t = 'info'
-                l = 'http://askubuntu.com/q/562116/94326'
+                link = 'http://askubuntu.com/q/562116/94326'
                 s = '%s != %s' % (str(m['policy_version']), str(highest))
-            self._add_result(t, n, s, l)
+            self._add_result(t, n, s, link)
 
             t = 'info'
             n = self._get_check_name('policy_version_matches_framework', extra=f)
@@ -425,14 +425,14 @@ class ClickReviewSecurity(ClickReview):
                 found_major = True
                 if m['policy_version'] != data['policy_version']:
                     t = 'error'
-                    l = 'http://askubuntu.com/q/686347'
+                    link = 'http://askubuntu.com/q/686347'
                     s = '%s != %s (%s)' % (str(m['policy_version']),
                                            data['policy_version'],
                                            framework)
             if not found_major:
                 t = 'error'
                 s = "Invalid framework '%s'" % framework
-            self._add_result(t, n, s, l)
+            self._add_result(t, n, s, link)
 
     def check_template(self):
         '''Check template'''
@@ -454,7 +454,7 @@ class ClickReviewSecurity(ClickReview):
             t = 'info'
             n = self._get_check_name('template_valid', extra=f)
             s = "OK"
-            l = 'http://askubuntu.com/q/671403'
+            link = 'http://askubuntu.com/q/671403'
             manual_review = False
             if 'template' not in m:
                 # If template not specified, we just use the default
@@ -468,7 +468,7 @@ class ClickReviewSecurity(ClickReview):
                     and m['template'] in self.extraneous_ubuntu_templates:
                 t = 'warn'
                 s = "No need to specify '%s' template" % m['template']
-            self._add_result(t, n, s, l, manual_review=manual_review)
+            self._add_result(t, n, s, link, manual_review=manual_review)
 
             t = 'info'
             n = self._get_check_name('template_exists', extra=f)
@@ -760,7 +760,7 @@ class ClickReviewSecurity(ClickReview):
                     n = self._get_check_name(
                         'policy_groups_safe', app=app, extra=i)
                     s = 'OK'
-                    l = None
+                    link = None
                     manual_review = False
 
                     if framework_found:
@@ -779,7 +779,7 @@ class ClickReviewSecurity(ClickReview):
                         s = "(NEEDS REVIEW) %s policy group " % aa_type + \
                             "'%s': vetted applications only" % (i)
                         if i == "debug":
-                            l = 'http://askubuntu.com/a/562123/94326'
+                            link = 'http://askubuntu.com/a/562123/94326'
                         manual_review = True
                     elif aa_type == 'framework':
                         s = "OK (matches '%s' framework)" % i.split('_')[0]
@@ -787,7 +787,7 @@ class ClickReviewSecurity(ClickReview):
                         t = 'error'
                         s = "policy group '%s' has " % i + \
                             "unknown type '%s'" % (aa_type)
-                    self._add_result(t, n, s, l, manual_review=manual_review)
+                    self._add_result(t, n, s, link, manual_review=manual_review)
 
     def check_ignored(self):
         '''Check ignored fields'''
@@ -1265,9 +1265,9 @@ class ClickReviewSecurity(ClickReview):
                     t = 'error'
                     n = self._get_check_name('yaml_policy_present')
                     s = "(NEEDS REVIEW) 'security-policy' not allowed"
-                    l = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
+                    link = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
                     m = True
-                    self._add_result(t, n, s, link=l, manual_review=m)
+                    self._add_result(t, n, s, link=link, manual_review=m)
 
     def check_security_yaml_combinations(self):
         '''Verify security yaml uses valid combinations'''

@@ -138,14 +138,14 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = self._get_check_name('validates', app=app)
             s = 'OK'
-            l = None
+            link = None
             try:
                 de.validate()
             except Exception as e:
                 t = 'error'
                 s = 'did not validate: (%s)' % str(e)
-                l = 'http://askubuntu.com/questions/417377/what-does-desktop-validates-mean/417378'
-            self._add_result(t, n, s, l)
+                link = 'http://askubuntu.com/questions/417377/what-does-desktop-validates-mean/417378'
+            self._add_result(t, n, s, link)
 
     def check_desktop_required_keys(self):
         '''Check for required keys'''
@@ -207,7 +207,7 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = self._get_check_name('Exec', app=app)
             s = 'OK'
-            l = None
+            link = None
             if not de.hasKey('Exec'):
                 t = 'error'
                 s = "missing key 'Exec'"
@@ -215,7 +215,7 @@ class ClickReviewDesktop(ClickReview):
                 t = 'error'
                 s = "absolute path '%s' for Exec given in .desktop file." % \
                     de.getExec()
-                l = 'http://askubuntu.com/questions/417381/what-does-desktop-exec-mean/417382'
+                link = 'http://askubuntu.com/questions/417381/what-does-desktop-exec-mean/417382'
             elif de.getExec().split()[0] not in self.expected_execs:
                 if self.pkg_arch[0] == "all":  # interpreted file
                     if de.getExec().split()[0] not in self.deprecated_execs:
@@ -231,7 +231,7 @@ class ClickReviewDesktop(ClickReview):
                         "'%s': %s (ok for compiled code)" % \
                         (self.pkg_arch[0], de.getExec().split()[0])
                     t = 'info'
-            self._add_result(t, n, s, l)
+            self._add_result(t, n, s, link)
 
     def check_desktop_exec_webapp_container(self):
         '''Check Exec=webapp-container entry'''
@@ -794,7 +794,7 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = self._get_check_name('Version', app=app)
             s = "OK"
-            l = None
+            link = None
             if not de.hasKey('Version'):
                 s = "OK (not specified)"
             elif de.getVersionString() != "1.0":
@@ -802,8 +802,8 @@ class ClickReviewDesktop(ClickReview):
                 t = 'error'
                 s = "'%s' does not match freedesktop.org version '1.0'" % \
                     de.getVersionString()
-                l = 'http://askubuntu.com/questions/419907/what-does-version-mean-in-the-desktop-file/419908'
-            self._add_result(t, n, s, l)
+                link = 'http://askubuntu.com/questions/419907/what-does-version-mean-in-the-desktop-file/419908'
+            self._add_result(t, n, s, link)
 
     def check_desktop_comment(self):
         '''Check Comment entry'''
@@ -815,13 +815,13 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = self._get_check_name('Comment_boilerplate', app=app)
             s = "OK"
-            l = None
+            link = None
             if de.hasKey('Comment') and \
                     de.getComment() == "My project description":
                 t = 'warn'
                 s = "Comment uses SDK boilerplate '%s'" % de.getComment()
-                l = 'http://askubuntu.com/questions/417359/what-does-desktop-comment-boilerplate-mean/417360'
-            self._add_result(t, n, s, l)
+                link = 'http://askubuntu.com/questions/417359/what-does-desktop-comment-boilerplate-mean/417360'
+            self._add_result(t, n, s, link)
 
     def check_desktop_icon(self):
         '''Check Icon entry'''
@@ -837,16 +837,16 @@ class ClickReviewDesktop(ClickReview):
             t = 'info'
             n = self._get_check_name('Icon', app=app)
             s = 'OK'
-            l = None
+            link = None
             if not de.hasKey('Icon'):
                 t = 'error'
                 s = "missing key 'Icon'"
-                l = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
+                link = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
             elif de.getIcon().startswith('/'):
                 t = 'error'
                 s = "absolute path '%s' for icon given in .desktop file." % \
                     de.getIcon()
-                l = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
+                link = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
             elif not os.path.exists(os.path.join(self.unpack_dir,
                                                  de.getIcon())) and \
                     True not in filter(lambda a:
@@ -858,8 +858,8 @@ class ClickReviewDesktop(ClickReview):
                 s = "'%s' specified as icon in .desktop file for app '%s', " \
                     "which is not available in the click package." % \
                     (de.getIcon(), app)
-                l = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
-            self._add_result(t, n, s, l)
+                link = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
+            self._add_result(t, n, s, link)
 
     def check_desktop_duplicate_entries(self):
         '''Check desktop for duplicate entries'''

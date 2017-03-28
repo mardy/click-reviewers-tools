@@ -50,7 +50,7 @@ class ClickReviewFunctional(ClickReview):
         t = 'info'
         n = self._get_check_name('qml_applicationName_matches_manifest')
         s = "OK"
-        l = None
+        link = None
 
         # find file with MainView in the QML
         mv = '\s*MainView\s*(\s+{)?'
@@ -104,7 +104,7 @@ class ClickReviewFunctional(ClickReview):
         if len(appnames) == 0 or not ok:
             if len(self.pkg_bin_files) == 0:
                 t = "warn"
-                l = 'http://askubuntu.com/questions/417371/what-does-functional-qml-applicationname-matches-manifest-mean/417372'
+                link = 'http://askubuntu.com/questions/417371/what-does-functional-qml-applicationname-matches-manifest-mean/417372'
 
             if len(appnames) == 0:
                 s = "could not find applicationName in: %s" % \
@@ -121,7 +121,7 @@ class ClickReviewFunctional(ClickReview):
             else:
                 s += ". May be ok (detected as compiled application)."
 
-        self._add_result(t, n, s, l)
+        self._add_result(t, n, s, link)
 
     def check_qtwebkit(self):
         '''Check that QML applications don't use QtWebKit'''
@@ -131,7 +131,7 @@ class ClickReviewFunctional(ClickReview):
         t = 'info'
         n = self._get_check_name('qml_application_uses_QtWebKit')
         s = "OK"
-        l = None
+        link = None
 
         qmls = []
         pat_mv = re.compile(r'\n\s*import\s+QtWebKit')
@@ -145,14 +145,14 @@ class ClickReviewFunctional(ClickReview):
             s = "Found files that use unsupported QtWebKit (should use " + \
                 "UbuntuWebview (Ubuntu.Components.Extras.Browser >= " + \
                 "0.2) or Oxide instead): %s" % " ,".join(qmls)
-            l = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
+            link = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
 
-        self._add_result(t, n, s, l)
+        self._add_result(t, n, s, link)
 
         t = 'info'
         n = self._get_check_name('qml_application_uses_UbuntuWebView_0.2')
         s = "OK"
-        l = None
+        link = None
 
         if self.manifest is not None and \
                 self.manifest['framework'] == "ubuntu-sdk-13.10":
@@ -171,9 +171,9 @@ class ClickReviewFunctional(ClickReview):
                     "'Ubuntu.Components.Extras.Browser 0.1' (should use " + \
                     "Ubuntu.Components.Extras.Browser >= 0.2 or " + \
                     "Oxide instead): %s" % " ,".join(qmls)
-                l = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
+                link = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
 
-        self._add_result(t, n, s, l)
+        self._add_result(t, n, s, link)
 
     def check_friends(self):
         '''Check that QML applications don't use deprecated Friends API'''
@@ -183,7 +183,7 @@ class ClickReviewFunctional(ClickReview):
         t = 'info'
         n = self._get_check_name('qml_application_uses_friends')
         s = "OK"
-        l = None
+        link = None
 
         qmls = []
         pat_mv = re.compile(r'\n\s*import\s+Friends')
@@ -195,6 +195,6 @@ class ClickReviewFunctional(ClickReview):
         if len(qmls) > 0:
             t = 'error'
             s = "Found files that use deprecated Friends API: %s" % " ,".join(qmls)
-            l = "http://askubuntu.com/questions/497551/what-does-functional-qml-application-uses-friends-mean"
+            link = "http://askubuntu.com/questions/497551/what-does-functional-qml-application-uses-friends-mean"
 
-        self._add_result(t, n, s, l)
+        self._add_result(t, n, s, link)
