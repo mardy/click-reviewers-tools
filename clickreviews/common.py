@@ -213,7 +213,13 @@ class Review(object):
     def _list_all_compiled_binaries(self):
         '''List all compiled binaries in this click package.'''
         for i in self.pkg_files:
-            res = self.mime.file(i)
+            try:
+                res = self.mime.file(i)
+            except Exception:  # pragma: nocover
+                # workaround for zesty python3-magic
+                debug("could not detemine mime type of '%s'" % i)
+                continue
+
             if res in self.magic_binary_file_descriptions and \
                not self._check_if_message_catalog(i) and \
                i not in self.pkg_bin_files:
