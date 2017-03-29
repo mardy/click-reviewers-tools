@@ -21,6 +21,10 @@ from clickreviews.sr_common import (
 from clickreviews.common import (
     find_external_symlinks,
 )
+from clickreviews.overrides import (
+    redflagged_snap_types_overrides,
+    desktop_file_exception
+)
 import glob
 import os
 import re
@@ -62,70 +66,10 @@ class SnapReviewLint(SnapReview):
                                       'os',
                                       ]
 
-        # to be removed. For now we know that snap names have a 1 to 1 mapping
-        # to publishers so we can whitelist snap names for snap types to not
-        # flag for manual review.
-        # NOTE: this will eventually move to assertions
-        self.redflagged_snap_types_overrides = {
-            'kernel': ['dragonboard-kernel',  # Canonical reference kernels
-                       'linux-generic-bbb',
-                       'pc-kernel',
-                       'pi2-kernel',
-                       'freescale-ls1043a-kernel',  # @canonical.com kernels
-                       'hummingboard-kernel',
-                       'joule-linux',
-                       'mako-kernel',
-                       'marvell-armada3700-kernel',
-                       'nxp-ls1043a-kernel',
-                       'roseapple-pi-kernel',
-                       'roseapple-pi-kernel-ondra',
-                       'artik5-linux',  # 3rd party vendor kernels
-                       'artik10-linux',
-                       'bubblegum96-kernel',
-                       'eragon410-kernel',
-                       'linux-generic-bbb',
-                       'rexroth-xm21-kernel',
-                       'nitrogen-kernel',
-                       'teal-kernel',
-                       'telig-kernel',
-                       'tsimx6-kernel',
-                       ],
-            'os': ['core',
-                   'ubuntu-core'
-                   ],
-            'gadget': ['dragonboard',  # Canonical reference gadgets
-                       'pc',
-                       'pi2',
-                       'pi3',
-                       'hikey-snappy-gadget',  # @canonical.com gadgets
-                       'joule',
-                       'nxp-ls1043ardb-gadget',
-                       'pi3-unipi',
-                       'pi2kyle',
-                       'roseapple-pi',
-                       'wdl-nextcloud',
-                       'wdl-nextcloud-pi2',
-                       'artik5',  # 3rd party vendor gadgets
-                       'artik10',
-                       'bubblegum96-gadget',
-                       'dragonboard-turtlebot-kyrofa',
-                       'eragon410',
-                       'eragon-sunny',
-                       'lemaker-guitar-gadget',
-                       'nitrogen-gadget',
-                       'pc-turtlebot-kyrofa',
-                       'rexroth-xm21',
-                       'subutai-pc',
-                       'telig',
-                       'tsimx6-gadget',
-                       ],
-        }
-
         self.interface_plug_requires_desktop_file = ['unity7',
                                                      'x11',
                                                      'unity8'
                                                      ]
-        self.desktop_file_exception = ['ffscreencast']
 
     def check_architectures(self):
         '''Check architectures in snap.yaml is valid'''
@@ -296,8 +240,8 @@ class SnapReviewLint(SnapReview):
         if self.snap_yaml['type'] in self.redflagged_snap_types:
             pkgname = self.snap_yaml['name']
             snaptype = self.snap_yaml['type']
-            if snaptype in self.redflagged_snap_types_overrides and \
-                    pkgname in self.redflagged_snap_types_overrides[snaptype]:
+            if snaptype in redflagged_snap_types_overrides and \
+                    pkgname in redflagged_snap_types_overrides[snaptype]:
                 s = "OK (override '%s' for 'type: %s')" % (pkgname,
                                                            snaptype)
             else:
@@ -1522,7 +1466,7 @@ class SnapReviewLint(SnapReview):
         n = self._get_check_name('meta_gui_desktop')
         s = 'OK'
         if len(desktop_interfaces_specified) > 0 and not has_desktop_files:
-            if self.snap_yaml['name'] in self.desktop_file_exception:
+            if self.snap_yaml['name'] in desktop_file_exception:
                 t = 'info'
                 s = "OK (overidden)"
             else:

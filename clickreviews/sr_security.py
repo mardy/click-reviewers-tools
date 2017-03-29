@@ -27,6 +27,10 @@ from clickreviews.common import (
     AA_PROFILE_NAME_ADVLEN,
     MKSQUASHFS_OPTS,
 )
+from clickreviews.overrides import (
+    sec_mode_overrides,
+    sec_browser_support_overrides,
+)
 import os
 import re
 
@@ -42,95 +46,6 @@ class SnapReviewSecurity(SnapReview):
         self.sec_skipped_types = ['oem',
                                   'os',
                                   'kernel']  # these don't need security items
-
-        # Let's try to catch weird stuff in the os snap
-        self.sec_mode_overrides = {
-            'core': {
-                './bin/mount': 'rwsr-xr-x',
-                './bin/ping': 'rwsr-xr-x',
-                './bin/ping6': 'rwsr-xr-x',
-                './bin/su': 'rwsr-xr-x',
-                './bin/umount': 'rwsr-xr-x',
-                './etc/chatscripts': 'rwxr-s---',
-                './etc/ppp/peers': 'rwxr-s---',
-                './run/lock': 'rwxrwxrwt',
-                './sbin/pam_extrausers_chkpwd': 'rwxr-sr-x',
-                './sbin/unix_chkpwd': 'rwxr-sr-x',
-                './tmp': 'rwxrwxrwt',
-                './usr/bin/chage': 'rwxr-sr-x',
-                './usr/bin/chfn': 'rwsr-xr-x',
-                './usr/bin/chsh': 'rwsr-xr-x',
-                './usr/bin/crontab': 'rwxr-sr-x',
-                './usr/bin/dotlockfile': 'rwxr-sr-x',
-                './usr/bin/expiry': 'rwxr-sr-x',
-                './usr/bin/gpasswd': 'rwsr-xr-x',
-                './usr/bin/mail-lock': 'rwxr-sr-x',
-                './usr/bin/mail-unlock': 'rwxr-sr-x',
-                './usr/bin/mail-touchlock': 'rwxr-sr-x',
-                './usr/bin/newgrp': 'rwsr-xr-x',
-                './usr/bin/passwd': 'rwsr-xr-x',
-                './usr/bin/ssh-agent': 'rwxr-sr-x',
-                './usr/bin/sudo': 'rwsr-xr-x',
-                './usr/bin/wall': 'rwxr-sr-x',
-                './usr/lib/dbus-1.0/dbus-daemon-launch-helper': 'rwsr-xr--',
-                './usr/lib/openssh/ssh-keysign': 'rwsr-xr-x',
-                './usr/lib/snapd/snap-confine': 'rwsr-xr-x',
-                './usr/local/lib/python3.5': 'rwxrwsr-x',
-                './usr/local/lib/python3.5/dist-packages': 'rwxrwsr-x',
-                './usr/sbin/pppd': 'rwsr-xr--',
-                './var/local': 'rwxrwsr-x',
-                './var/mail': 'rwxrwsr-x',
-                './var/spool/cron/crontabs': 'rwx-wx--T',
-                './var/tmp': 'rwxrwxrwt',
-            },
-            'chrome-test': {  # chrome-test from Canonical
-                './opt/google/chrome/chrome-sandbox': 'rwsr-xr-x',
-            },
-            'openwrt': {  # demo from Canonical
-                './rootfs/tmp': 'rwxrwxrwt',
-            },
-            'ubuntu-core': {
-                './bin/mount': 'rwsr-xr-x',
-                './bin/ping': 'rwsr-xr-x',
-                './bin/ping6': 'rwsr-xr-x',
-                './bin/su': 'rwsr-xr-x',
-                './bin/umount': 'rwsr-xr-x',
-                './etc/chatscripts': 'rwxr-s---',
-                './etc/ppp/peers': 'rwxr-s---',
-                './run/lock': 'rwxrwxrwt',
-                './sbin/pam_extrausers_chkpwd': 'rwxr-sr-x',
-                './sbin/unix_chkpwd': 'rwxr-sr-x',
-                './tmp': 'rwxrwxrwt',
-                './usr/bin/chage': 'rwxr-sr-x',
-                './usr/bin/chfn': 'rwsr-xr-x',
-                './usr/bin/chsh': 'rwsr-xr-x',
-                './usr/bin/crontab': 'rwxr-sr-x',
-                './usr/bin/dotlockfile': 'rwxr-sr-x',
-                './usr/bin/expiry': 'rwxr-sr-x',
-                './usr/bin/gpasswd': 'rwsr-xr-x',
-                './usr/bin/mail-lock': 'rwxr-sr-x',
-                './usr/bin/mail-unlock': 'rwxr-sr-x',
-                './usr/bin/mail-touchlock': 'rwxr-sr-x',
-                './usr/bin/newgrp': 'rwsr-xr-x',
-                './usr/bin/passwd': 'rwsr-xr-x',
-                './usr/bin/ssh-agent': 'rwxr-sr-x',
-                './usr/bin/sudo': 'rwsr-xr-x',
-                './usr/bin/wall': 'rwxr-sr-x',
-                './usr/lib/dbus-1.0/dbus-daemon-launch-helper': 'rwsr-xr--',
-                './usr/lib/openssh/ssh-keysign': 'rwsr-xr-x',
-                './usr/lib/snapd/snap-confine': 'rwsr-xr-x',
-                './usr/local/lib/python3.5': 'rwxrwsr-x',
-                './usr/local/lib/python3.5/dist-packages': 'rwxrwsr-x',
-                './usr/sbin/pppd': 'rwsr-xr--',
-                './var/local': 'rwxrwsr-x',
-                './var/mail': 'rwxrwsr-x',
-                './var/spool/cron/crontabs': 'rwx-wx--T',
-                './var/tmp': 'rwxrwxrwt',
-            },
-        }
-
-        self.sec_browser_support_overrides = ['screencloudplayer',
-                                              'webdemo']
 
     def _unsquashfs_lls(self, snap_pkg):
         '''Run unsquashfs -lls on a snap package'''
@@ -174,7 +89,7 @@ class SnapReviewSecurity(SnapReview):
             for plug_ref in plugs:
                 if _plugref_is_interface(plug_ref, "browser-support"):
                     if self.snap_yaml['name'] in \
-                            self.sec_browser_support_overrides:
+                            sec_browser_support_overrides:
                         t = 'info'
                         s = "OK (allowing 'daemon' with 'browser-support'"
                     else:
@@ -382,9 +297,9 @@ class SnapReviewSecurity(SnapReview):
                 if ftype == 'd':  # allow sticky directories for stage-packages
                     perms.append('t')
                 if not _check_allowed_perms(mode, perms):
-                    if pkgname not in self.sec_mode_overrides or \
-                        fname not in self.sec_mode_overrides[pkgname] or \
-                            self.sec_mode_overrides[pkgname][fname] != mode:
+                    if pkgname not in sec_mode_overrides or \
+                        fname not in sec_mode_overrides[pkgname] or \
+                            sec_mode_overrides[pkgname][fname] != mode:
                         errors.append("unusual mode '%s' for entry '%s'" %
                                       (mode, fname))
                         continue

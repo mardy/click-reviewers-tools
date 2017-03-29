@@ -1,6 +1,7 @@
 click-reviewers-tools (0.47) UNRELEASED; urgency=medium
 
   * cr_lint.py: skip version check in check_control() if apt_pkg import fails.
+  * add overrides.py and refact sr_* to move overrides into this file
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 28 Mar 2017 18:23:35 -0500
 

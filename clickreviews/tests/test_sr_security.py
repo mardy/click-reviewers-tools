@@ -200,8 +200,15 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
                          'daemon': 'simple'}}
         self.set_test_snap_yaml("apps", apps)
         c = SnapReviewSecurity(self.test_name)
-        c.sec_browser_support_overrides.append(self.test_snap_yaml["name"])
+
+        # update the overrides with our snap
+        from clickreviews.overrides import sec_browser_support_overrides
+        sec_browser_support_overrides.append(self.test_snap_yaml["name"])
+        # run the test
         c.check_security_plugs_browser_support_with_daemon()
+        # then cleanup the overrides
+        sec_browser_support_overrides.remove(self.test_snap_yaml["name"])
+
         report = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
