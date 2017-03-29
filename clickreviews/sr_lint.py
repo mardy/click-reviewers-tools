@@ -104,6 +104,7 @@ class SnapReviewLint(SnapReview):
                        'pi2kyle',
                        'roseapple-pi',
                        'wdl-nextcloud',
+                       'wdl-nextcloud-pi2',
                        'artik5',  # 3rd party vendor gadgets
                        'artik10',
                        'bubblegum96-gadget',
