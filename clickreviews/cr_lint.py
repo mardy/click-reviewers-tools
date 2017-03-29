@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
-from apt import apt_pkg
 from debian.deb822 import Deb822
 import glob
 import os
@@ -319,6 +318,13 @@ class ClickReviewLint(ClickReview):
         n = self._get_check_name('control_click_version_up_to_date')
         s = 'OK'
         link = None
+
+        try:
+            from apt import apt_pkg
+        except Exception:
+            s = "SKIPPED (could not import apt_pkg)"
+            self._add_result(t, n, s)
+            return
 
         if apt_pkg.version_compare(
                 control['Click-Version'], MINIMUM_CLICK_FRAMEWORK_VERSION) < 0:
