@@ -59,6 +59,8 @@ class SnapReviewLint(SnapReview):
                           'CVS*',
                           'RCS*'
                           ]
+        self.iffy_files = ['^\..+\.swp$',  # vim
+                           ]
 
         self._list_all_compiled_binaries()
 
@@ -1155,6 +1157,28 @@ class SnapReviewLint(SnapReview):
         if len(found) > 0:
             t = 'warn'
             s = 'found VCS files in package: %s' % ", ".join(found)
+        self._add_result(t, n, s)
+
+    def check_iffy(self):
+        '''Check for iffy files in the package'''
+        if not self.is_snap2:
+            return
+
+        t = 'info'
+        n = self._get_check_name('iffy_files')
+        s = 'OK'
+        found = []
+
+        for f in self.pkg_files:
+            fn = os.path.basename(f)
+            for d in self.iffy_files:
+                if re.search(r'%s' % d, fn):
+                    found.append(os.path.relpath(f, self.unpack_dir))
+
+        if len(found) > 0:
+            t = 'warn'
+            s = 'found potentially sensitive files in package: %s' % \
+                ", ".join(found)
         self._add_result(t, n, s)
 
     def check_epoch(self):

@@ -3608,6 +3608,35 @@ architectures: [ amd64 ]
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_iffy(self):
+        '''Test check_iffy()'''
+        package = utils.make_snap2(output_dir=self.mkdtemp())
+        c = SnapReviewLint(package)
+        c.check_iffy()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_iffy_vimswp(self):
+        '''Test check_iffy() - vim .swp'''
+        package = utils.make_snap2(output_dir=self.mkdtemp(),
+                                   extra_files=['.foo.swp',
+                                                'bar/baz/.norf.swp']
+                                   )
+        c = SnapReviewLint(package)
+        c.check_iffy()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 1, 'error': 0}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:iffy_files'
+        expected['warn'][name] = {"text": "found potentially sensitive files in package: .foo.swp, bar/baz/.norf.swp"}
+        self.check_results(r, expected=expected)
+
     def test_check_plugs_lp1579201(self):
         '''Test check_architecture_all() - amd64'''
         output_dir = self.mkdtemp()
