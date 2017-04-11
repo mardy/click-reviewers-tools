@@ -50,7 +50,8 @@ MKSQUASHFS_OPTS = ['-noappend', '-comp', 'xz', '-all-root', '-no-xattrs']
 # under LXC
 AA_PROFILE_NAME_MAXLEN = 230  # 245 minus a bit for child profiles
 AA_PROFILE_NAME_ADVLEN = 100
-
+# Store enforces this length for snap v2
+STORE_PKGNAME_SNAPV2_MAXLEN = 40
 
 def cleanup_unpack():
     global UNPACK_DIR

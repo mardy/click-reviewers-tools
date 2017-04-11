@@ -1,6 +1,6 @@
 '''test_sr_lint.py: tests for the sr_lint module'''
 #
-# Copyright (C) 2013-2016 Canonical Ltd.
+# Copyright (C) 2013-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.check_results(r, expected_counts)
 
     def test_check_name_toplevel_startswith_number(self):
-        '''Test check_name - toplevel'''
+        '''Test check_name - toplevel starts with number'''
         self.set_test_snap_yaml("name", "01game")
         c = SnapReviewLint(self.test_name)
         c.check_name()
@@ -125,9 +125,35 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_name_toplevel_maxlen_for_store(self):
+        '''Test check_name - toplevel maxlen for store'''
+        self.set_test_snap_yaml("name", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa40chars")
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_name_toplevel_too_long_for_store(self):
+        '''Test check_name - toplevel too long for store'''
+        self.set_test_snap_yaml("name", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa41chars")
+        c = SnapReviewLint(self.test_name)
+        c.check_name()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:name_valid'
+        expected['error'][name] = {"text": "malformed 'name': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa41chars' (length '41' exceeds store limit '40')"}
+        self.check_results(r, expected=expected)
+
     def test_check_name_toplevel_efficient(self):
         '''Test check_name - toplevel'''
-        self.set_test_snap_yaml("name", "u1test-94903713687486543234157734673284536758")
+        self.set_test_snap_yaml("name", "u-94903713687486543234157734673284536758")
         c = SnapReviewLint(self.test_name)
         c.check_name()
         r = c.click_report

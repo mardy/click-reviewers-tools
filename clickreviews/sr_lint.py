@@ -1,6 +1,6 @@
 '''sr_lint.py: lint checks'''
 #
-# Copyright (C) 2013-2016 Canonical Ltd.
+# Copyright (C) 2013-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ from clickreviews.sr_common import (
 )
 from clickreviews.common import (
     find_external_symlinks,
+    STORE_PKGNAME_SNAPV2_MAXLEN,
 )
 from clickreviews.overrides import (
     redflagged_snap_types_overrides,
@@ -180,7 +181,13 @@ class SnapReviewLint(SnapReview):
             s = "malformed 'name': %s (not a str)" % (self.snap_yaml['name'])
         elif not self._verify_pkgname(self.snap_yaml['name']):
             t = 'error'
-            s = "malformed 'name': '%s'" % self.snap_yaml['name']
+            s = "malformed 'name': '%s' " % self.snap_yaml['name'] + \
+                "(may be only lower case, digits and hyphens)"
+        elif len(self.snap_yaml['name']) > STORE_PKGNAME_SNAPV2_MAXLEN:
+            t = 'error'
+            s = "malformed 'name': '%s' " % self.snap_yaml['name'] + \
+                "(length '%d' " % len(self.snap_yaml['name']) + \
+                "exceeds store limit '%d')" % STORE_PKGNAME_SNAPV2_MAXLEN
         self._add_result(t, n, s)
 
     def check_summary(self):
