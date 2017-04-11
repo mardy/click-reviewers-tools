@@ -5,7 +5,7 @@ click-reviewers-tools (0.47) UNRELEASED; urgency=medium
   * add overrides.py and refact sr_* to move overrides into this file
   * sr_lint.py: add check for new store limit on pkgname length
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 28 Mar 2017 18:23:35 -0500
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 11 Apr 2017 08:30:48 -0500
 
 click-reviewers-tools (0.46) zesty; urgency=medium
 

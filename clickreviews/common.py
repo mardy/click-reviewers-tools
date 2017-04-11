@@ -53,6 +53,7 @@ AA_PROFILE_NAME_ADVLEN = 100
 # Store enforces this length for snap v2
 STORE_PKGNAME_SNAPV2_MAXLEN = 40
 
+
 def cleanup_unpack():
     global UNPACK_DIR
     if UNPACK_DIR is not None and os.path.isdir(UNPACK_DIR):

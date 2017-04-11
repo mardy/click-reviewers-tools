@@ -179,15 +179,15 @@ class SnapReviewLint(SnapReview):
         elif not isinstance(self.snap_yaml['name'], str):
             t = 'error'
             s = "malformed 'name': %s (not a str)" % (self.snap_yaml['name'])
-        elif not self._verify_pkgname(self.snap_yaml['name']):
-            t = 'error'
-            s = "malformed 'name': '%s' " % self.snap_yaml['name'] + \
-                "(may be only lower case, digits and hyphens)"
         elif len(self.snap_yaml['name']) > STORE_PKGNAME_SNAPV2_MAXLEN:
             t = 'error'
             s = "malformed 'name': '%s' " % self.snap_yaml['name'] + \
                 "(length '%d' " % len(self.snap_yaml['name']) + \
                 "exceeds store limit '%d')" % STORE_PKGNAME_SNAPV2_MAXLEN
+        elif not self._verify_pkgname(self.snap_yaml['name']):
+            t = 'error'
+            s = "malformed 'name': '%s' " % self.snap_yaml['name'] + \
+                "(may be only lower case, digits and hyphens)"
         self._add_result(t, n, s)
 
     def check_summary(self):
