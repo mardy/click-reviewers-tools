@@ -34,13 +34,19 @@ def _verify_alias(alias):
         raise Exception("'%s' should only be declared once" % alias)
 
 
-def add_alias(alias):
+def add_alias(e):
+    tmp = e.split(':')
+    if len(tmp) != 2:
+        raise Exception("'%s' should be '<alias>:<command>'" % e)
+    alias = tmp[0]
     _verify_alias(alias)
+    command = tmp[1]
+    _verify_alias(command)
 
     if 'auto-aliases' not in decl:
         decl['auto-aliases'] = []
 
-    decl['auto-aliases'].append(alias)
+    decl['auto-aliases'].append({"name": alias, "target": command})
 
 
 def _verify_snap_id(id):
@@ -139,8 +145,16 @@ def print_decl():
         print("plugs:")
         _print_key("plugs")
     if "auto-aliases" in decl:
-        print("auto-aliases:")
+        print("aliases (v2):")
         _print_key("auto-aliases")
+        # compatibility
+        print("auto-aliases (compat):")
+        aliases = []
+        for item in decl['auto-aliases']:
+            aliases.append(item["name"])
+        aliases.sort()
+        print(json.dumps(aliases, sort_keys=True, indent=2))
+
     if "refresh-control" in decl:
         print("refresh-control:")
         _print_key("refresh-control")
@@ -164,7 +178,8 @@ def main():
     parser.add_argument('--plug-auto-connection', type=str,
                         help='list of interfaces to allow auto-connection')
     parser.add_argument('--auto-aliases', type=str,
-                        help='list of aliases to auto-alias')
+                        help='list of auto-aliases '
+                             '(<alias name>:<target command>)')
     parser.add_argument('--refresh-control', type=str,
                         help='list of snap IDs to be gated by this snap')
     args = parser.parse_args()
