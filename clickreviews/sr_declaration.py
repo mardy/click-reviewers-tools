@@ -594,10 +594,10 @@ class SnapReviewDeclaration(SnapReview):
             if attrs is not None:
                 if 'allow-sandbox' in attrs and attrs['allow-sandbox']:
                     s += ". If using a chromium webview, you can disable " + \
-                         "the internal sandbox and remove the " + \
-                         "'allow-sandbox' attribute instead. For Oxide " + \
-                         "webviews, export OXIDE_NO_SANDBOX=1 to disable " + \
-                         "its internal sandbox."
+                         "the internal sandbox (eg, use --no-sandbox) and " + \
+                         "remove the 'allow-sandbox' attribute instead. " + \
+                         "For Oxide webviews, export OXIDE_NO_SANDBOX=1 " + \
+                         "to disable its internal sandbox."
 
             return s
 
