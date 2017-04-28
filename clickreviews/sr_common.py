@@ -156,14 +156,14 @@ class SnapReview(Review):
                            'gpio': {'slots': ['number']},
                            'hidraw': {'slots': ['path',
                                                 'path/usb-vendor/usb-product'],
-                                       },
+                                      },
                            'i2c': {'slots': ['path']},
                            'iio': {'slots': ['path']},
                            'serial-port': {'slots': [
-                                              'path',
-                                              'path/usb-vendor/usb-product'],
+                                           'path',
+                                           'path/usb-vendor/usb-product'],
                                            },
-                          }
+                           }
 
     # In progress interfaces are those that are not yet in snapd but for
     # some reason we need them. Normally we will never want to do this, but
