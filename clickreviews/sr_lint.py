@@ -970,20 +970,28 @@ class SnapReviewLint(SnapReview):
             for req_iface in self.interfaces_required:
                 if req_iface != interface or \
                    iface_type not in self.interfaces_required[interface]:
-                    continue
+                    continue  # pragma: nocover
 
                 has_required = False
                 for req_attrib in self.interfaces_required[interface][iface_type]:
-                    if '/' in req_attrib:
-                        combo = req_attrib.split('/')
-                        count = 0
-                        for r in combo:
-                            if r in spec:
-                                count += 1
-                        if count == len(combo):
-                            has_required = True
-                            break
-                    elif req_attrib in spec:
+                    combo = req_attrib.split('/')
+                    num_combos = 0     # total number of required attribs
+                    found = 0          # required attribs found
+                    found_invalid = 0  # must-not-have attribs found
+
+                    for r in combo:
+                        if not r.startswith('!'):
+                            num_combos += 1
+
+                        if r in spec:
+                            found += 1
+                        elif r.startswith('!') and r[1:] in spec:
+                            found_invalid += 1
+
+                    # if no invalid tokens and we found all the required
+                    # attribs then we have a valid combination of required
+                    # attribs
+                    if found_invalid == 0 and found == num_combos:
                         has_required = True
                         break
 
@@ -991,10 +999,18 @@ class SnapReviewLint(SnapReview):
                 n = self._get_check_name('%s_required_attributes' % iface_type,
                                          app=iface)
                 if not has_required:
+                    # format the combinations for human review
+                    combos = []
+                    for req_attrib in self.interfaces_required[interface][iface_type]:
+                        combo = []
+                        for r in req_attrib.split('/'):
+                            if not r.startswith('!'):
+                                combo.append(r)
+                        combos.append("/".join(combo))
                     t = 'error'
                     s = "missing required %s " % iface_type + \
                         "attributes for interface '%s' " % interface + \
-                        "(%s)" % ", ".join(self.interfaces_required[interface][iface_type])
+                        "(%s)" % ", ".join(combos)
                 self._add_result(t, n, s)
 
     def check_plugs(self):

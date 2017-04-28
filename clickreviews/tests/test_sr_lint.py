@@ -2628,6 +2628,29 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_slots_serial_port_usb_misspelled(self):
+        '''Test check_slots() - serial-port - usb'''
+        slots = {'test': {'interface': 'serial-port',
+                          'usb-vend0r': 0xdeadbeef,
+                          'usb-product': 0x01234567,
+                          'path': 'serial-port-foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 2}
+        self.check_results(r, expected_counts)
+
+        expected = dict()
+        expected['error'] = dict()
+        expected['warn'] = dict()
+        expected['info'] = dict()
+        name = 'lint-snap-v2:slots_required_attributes:test'
+        expected['error'][name] = {"text": "missing required slots attributes for interface 'serial-port' (path, path/usb-vendor/usb-product)"}
+        name = 'lint-snap-v2:slots_attributes:test:usb-vend0r'
+        expected['error'][name] = {"text": "unknown attribute 'usb-vend0r' for interface 'serial-port' (slots)"}
+        self.check_results(r, expected=expected)
+
     def test_check_slots_unknown_interface(self):
         '''Test check_slots() - interface (unknown)'''
         slots = {'iface-unknown': {'interface': 'nonexistent'}}

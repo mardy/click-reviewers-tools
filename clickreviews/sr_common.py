@@ -155,12 +155,13 @@ class SnapReview(Review):
                                     },
                            'gpio': {'slots': ['number']},
                            'hidraw': {'slots': ['path',
+                                                'path/!usb-vendor/!usb-product',
                                                 'path/usb-vendor/usb-product'],
                                       },
                            'i2c': {'slots': ['path']},
                            'iio': {'slots': ['path']},
                            'serial-port': {'slots': [
-                                           'path',
+                                           'path/!usb-vendor/!usb-product',
                                            'path/usb-vendor/usb-product'],
                                            },
                            }
