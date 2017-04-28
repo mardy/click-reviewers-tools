@@ -109,9 +109,9 @@ class SnapReview(Review):
     # have to be added to self.interfaces.
     interfaces = dict()
 
-    # Since apparmor-easyprof-ubuntu.json doesn't allow specifying attributes,
-    # merge this into self.interfaces after reading
-    # apparmor-easyprof-ubuntu.json
+    # interfaces_attribs[iface] contains all known attributes and will be
+    # merged into self.interfaces after reading the base declaration since
+    # the base declaration doesn't declare all the known attributes.
     interfaces_attribs = {'bool-file': {'path/slots': ""},
                           'browser-support': {'allow-sandbox/plugs': False},
                           'content': {'read/slots': [],
@@ -140,6 +140,29 @@ class SnapReview(Review):
                                           'usb-vendor/slots': 0,
                                           'usb-product/slots': 0,
                                           },
+                          }
+
+    # interfaces_required[iface] lists required attributes as combinations.
+    # Eg, ['a', 'b', 'c/d'] means one of 'a', 'b', or 'c and d' is required.
+    # This is to avoid situations like:
+    # https://forum.snapcraft.io/t/broken-snap-breaking-snapd/401/8
+    interfaces_required = {'bool-file': {'slots': ['path']},
+                           'content': {'slots': ['read', 'write'],
+                                       'plugs': ['target'],
+                                       },
+                           'dbus': {'slots': ['name/bus'],
+                                    'plugs': ['name/bus'],
+                                    },
+                           'gpio': {'slots': ['number']},
+                           'hidraw': {'slots': ['path',
+                                                'path/usb-vendor/usb-product'],
+                                       },
+                           'i2c': {'slots': ['path']},
+                           'iio': {'slots': ['path']},
+                           'serial-port': {'slots': [
+                                              'path',
+                                              'path/usb-vendor/usb-product'],
+                                           },
                           }
 
     # In progress interfaces are those that are not yet in snapd but for

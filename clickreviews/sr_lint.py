@@ -966,6 +966,37 @@ class SnapReviewLint(SnapReview):
                          type(self.interfaces[interface][attrib_key]).__name__)
                 self._add_result(t, n, s)
 
+            # Check required interface attributes
+            for req_iface in self.interfaces_required:
+                if req_iface != interface or \
+                   iface_type not in self.interfaces_required[interface]:
+                    continue
+
+                has_required = False
+                for req_attrib in self.interfaces_required[interface][iface_type]:
+                    if '/' in req_attrib:
+                        combo = req_attrib.split('/')
+                        count = 0
+                        for r in combo:
+                            if r in spec:
+                                count += 1
+                        if count == len(combo):
+                            has_required = True
+                            break
+                    elif req_attrib in spec:
+                        has_required = True
+                        break
+
+                t = 'info'
+                n = self._get_check_name('%s_required_attributes' % iface_type,
+                                         app=iface)
+                if not has_required:
+                    t = 'error'
+                    s = "missing required %s " % iface_type + \
+                        "attributes for interface '%s' " % interface + \
+                        "(%s)" % ", ".join(self.interfaces_required[interface][iface_type])
+                self._add_result(t, n, s)
+
     def check_plugs(self):
         '''Check plugs'''
         iface_type = 'plugs'

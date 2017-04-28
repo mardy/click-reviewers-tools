@@ -2257,7 +2257,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 7, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 8, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_bad_interface(self):
@@ -2287,7 +2287,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_plugs()
         r = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_plugs_unknown_interface(self):
@@ -2324,6 +2324,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_plugs_unknown_attrib(self):
         '''Test check_plugs() - unknown attrib'''
         plugs = {'test': {'interface': 'content',
+                          'target': 'foo',
                           'nonexistent': 'abc'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
@@ -2346,6 +2347,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_plugs_wrong_attrib_content(self):
         '''Test check_plugs() - content (used slot attrib with plug)'''
         plugs = {'test': {'interface': 'content',
+                          'target': 'foo',
                           'read': '/path/to/something'}}
         self.set_test_snap_yaml("plugs", plugs)
         c = SnapReviewLint(self.test_name)
@@ -2525,7 +2527,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_slots()
         r = c.click_report
-        expected_counts = {'info': 10, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 13, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_slots_bad_interface(self):
@@ -2555,12 +2557,13 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_slots()
         r = c.click_report
-        expected_counts = {'info': 2, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_slots_wrong_attrib_content(self):
         '''Test check_slots() - content (used plug attrib with slot)'''
         plugs = {'test': {'interface': 'content',
+                          'read': ['lib0'],
                           'target': '/path/to/something'}}
         self.set_test_snap_yaml("slots", plugs)
         c = SnapReviewLint(self.test_name)
@@ -2577,13 +2580,47 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         c = SnapReviewLint(self.test_name)
         c.check_slots()
         r = c.click_report
-        expected_counts = {'info': 3, 'warn': 0, 'error': 0}
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
     def test_check_slots_gpio_bad(self):
         '''Test check_slots() - gpio - bad (string)'''
         slots = {'test': {'interface': 'gpio',
                           'number': 'a4'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_serial_port_path(self):
+        '''Test check_slots() - serial-port - path'''
+        slots = {'test': {'interface': 'serial-port',
+                          'path': '/dev/ttyS0'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': 4, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_serial_port_usb(self):
+        '''Test check_slots() - serial-port - usb'''
+        slots = {'test': {'interface': 'serial-port',
+                          'usb-vendor': 0xdeadbeef,
+                          'usb-product': 0x01234567,
+                          'path': 'serial-port-foo'}}
+        self.set_test_snap_yaml("slots", slots)
+        c = SnapReviewLint(self.test_name)
+        c.check_slots()
+        r = c.click_report
+        expected_counts = {'info': 6, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_slots_serial_port_missing(self):
+        '''Test check_slots() - serial-port - missing'''
+        slots = {'test': {'interface': 'serial-port'}}
         self.set_test_snap_yaml("slots", slots)
         c = SnapReviewLint(self.test_name)
         c.check_slots()
@@ -2625,6 +2662,7 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
     def test_check_slots_unknown_attrib(self):
         '''Test check_slots() - unknown attrib'''
         slots = {'test': {'interface': 'bool-file',
+                          'path': '/path/to/some/where',
                           'nonexistent': 'abc'}}
         self.set_test_snap_yaml("slots", slots)
         c = SnapReviewLint(self.test_name)
