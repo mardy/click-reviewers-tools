@@ -252,6 +252,9 @@ class SnapReview(Review):
             if k not in self.snap_yaml:
                 continue
             for iface in self.snap_yaml[k]:
+                if not isinstance(self.snap_yaml[k], dict):
+                    # eg, top-level "plugs: [ content ]"
+                    error("Invalid top-level '%s' (not a dict)" % k)  # pragma: nocover
                 if self.snap_yaml[k][iface] is None:
                     self.snap_yaml[k][iface] = {}
 

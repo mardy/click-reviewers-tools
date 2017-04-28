@@ -7,6 +7,7 @@ click-reviewers-tools (0.47) UNRELEASED; urgency=medium
     - add check for new store limit on pkgname length
     - add check for required interface attributes
   * sr_declarationl.py: improve the browser-support error message
+  * sr_common.py: don't traceback if toplevel plugs/slots is not dict
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 28 Apr 2017 14:19:18 -0500
 
