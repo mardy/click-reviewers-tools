@@ -59,9 +59,11 @@ redflagged_snap_types_overrides = {
                'pc',
                'pi2',
                'pi3',
-               'hikey-snappy-gadget',  # @canonical.com gadgets
+               'cm3-ondra',  # @canonical.com gadgets
+               'hikey-snappy-gadget',
                'joule',
                'nxp-ls1043ardb-gadget',
+               'pi3-ondra',
                'pi3-unipi',
                'pi2kyle',
                'roseapple-pi',
