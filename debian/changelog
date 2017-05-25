@@ -12,6 +12,7 @@ click-reviewers-tools (0.47) UNRELEASED; urgency=medium
   * sr_common.py:
     - don't traceback if toplevel plugs/slots is not dict
     - add 'completer' (LP: #1689578)
+  * data/snapd-base-declaration.yaml: update for latest snapd releases
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 28 Apr 2017 14:19:18 -0500
 
