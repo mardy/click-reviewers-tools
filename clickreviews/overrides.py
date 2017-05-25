@@ -61,6 +61,7 @@ redflagged_snap_types_overrides = {
                'pi3',
                'cm3-ondra',  # @canonical.com gadgets
                'hikey-snappy-gadget',
+               'hummingboard',
                'joule',
                'nxp-ls1043ardb-gadget',
                'pi3-ondra',
