@@ -1551,8 +1551,8 @@ class SnapReviewLint(SnapReview):
                 t = 'warn'
                 s = "desktop interfaces " + \
                     "(%s) " % ",".join(desktop_interfaces_specified) + \
-                    "specified without meta/gui/*.desktop. If using " + \
-                    "snapcraft, please see " + \
+                    "specified without a corresponding meta/gui/*.desktop " + \
+                    "file. If using snapcraft, please see " + \
                     "https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. " + \
                     "Otherwise, please provide a desktop file in " + \
                     "meta/gui/*.desktop (it should reference one of the " + \
