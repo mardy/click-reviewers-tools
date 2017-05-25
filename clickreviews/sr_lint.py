@@ -1552,7 +1552,7 @@ class SnapReviewLint(SnapReview):
                 s = "desktop interfaces " + \
                     "(%s) " % ",".join(desktop_interfaces_specified) + \
                     "specified without meta/gui/*.desktop. Please provide " + \
-                    "a desktop file via setup/gui/*.desktop if using " + \
+                    "a desktop file via snap/gui/*.desktop if using " + \
                     "snapcraft or meta/gui/*.desktop otherwise. It should " + \
                     "reference one of the 'apps' from your " + \
                     "snapcraft/snap.yaml."

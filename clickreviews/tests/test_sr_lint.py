@@ -4041,7 +4041,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via snap/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_app_plug_exception(self):
@@ -4116,7 +4116,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via snap/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_app_plug_reference2(self):
@@ -4155,7 +4155,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via snap/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_app_plug_reference3(self):
@@ -4193,7 +4193,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via snap/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_top_plug_null(self):
@@ -4230,7 +4230,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via snap/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_top_plug(self):
@@ -4268,7 +4268,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via snap/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_top_plug_ref(self):
@@ -4305,7 +4305,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via setup/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without meta/gui/*.desktop. Please provide a desktop file via snap/gui/*.desktop if using snapcraft or meta/gui/*.desktop otherwise. It should reference one of the 'apps' from your snapcraft/snap.yaml."}
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_exec(self):
