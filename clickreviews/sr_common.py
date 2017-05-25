@@ -63,6 +63,7 @@ class SnapReview(Review):
 
     apps_required = ['command']
     apps_optional = ['aliases',
+                     'completer',
                      'daemon',
                      'environment',
                      'stop-command',

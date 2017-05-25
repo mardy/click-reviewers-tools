@@ -6,8 +6,12 @@ click-reviewers-tools (0.47) UNRELEASED; urgency=medium
   * sr_lint.py:
     - add check for new store limit on pkgname length
     - add check for required interface attributes
+    - update desktop file error output for clarity
+    - add completer checks
   * sr_declarationl.py: improve the browser-support error message
-  * sr_common.py: don't traceback if toplevel plugs/slots is not dict
+  * sr_common.py:
+    - don't traceback if toplevel plugs/slots is not dict
+    - add 'completer' (LP: #1689578)
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Fri, 28 Apr 2017 14:19:18 -0500
 

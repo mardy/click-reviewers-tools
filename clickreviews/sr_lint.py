@@ -602,7 +602,8 @@ class SnapReviewLint(SnapReview):
 
         # Certain options require 'daemon' so list the keys that are shared
         # by services and binaries
-        ok_keys = ['command', 'environment', 'plugs', 'slots', 'aliases']
+        ok_keys = ['command', 'completer', 'environment', 'plugs', 'slots',
+                   'aliases']
 
         for app in self.snap_yaml['apps']:
             needs_daemon = []
@@ -1559,3 +1560,15 @@ class SnapReviewLint(SnapReview):
                     "'apps' from your snapcraft/snap.yaml)."
 
         self._add_result(t, n, s)
+
+    def check_apps_completer(self):
+        '''Check apps - completer'''
+        if not self.is_snap2 or 'apps' not in self.snap_yaml:
+            return
+
+        for app in self.snap_yaml['apps']:
+            key = 'completer'
+            if key not in self.snap_yaml['apps'][app]:
+                continue
+
+            self._verify_value_is_file(app, key)

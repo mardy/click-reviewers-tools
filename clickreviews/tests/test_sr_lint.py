@@ -1264,6 +1264,70 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
+    def test_check_apps_completer(self):
+        '''Test check_apps_completer()'''
+        cmd = "bin/foo"
+        self.set_test_snap_yaml("apps", {"foo": {"completer": cmd},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.pkg_files.append(os.path.join('/fake', cmd))
+        c.check_apps_completer()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_completer_dotslash(self):
+        '''Test check_apps_completer() - starts with ./'''
+        cmd = "bin/foo"
+        self.set_test_snap_yaml("apps", {"foo": {"completer": "./" + cmd},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.pkg_files.append(os.path.join('/fake', cmd))
+        c.check_apps_completer()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_completer_missing(self):
+        '''Test check_apps_completer() - missing'''
+        self.set_test_snap_yaml("apps", {"foo": {}})
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_completer()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_completer_empty(self):
+        '''Test check_apps_completer() - empty'''
+        self.set_test_snap_yaml("apps", {"foo": {"completer": ""},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_completer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_completer_invalid(self):
+        '''Test check_apps_completer() - list'''
+        self.set_test_snap_yaml("apps", {"foo": {"completer": []},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_completer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
+    def test_check_apps_completer_nonexistent(self):
+        '''Test check_apps_completer() - nonexistent'''
+        cmd = "bin/foo"
+        self.set_test_snap_yaml("apps", {"foo": {"completer": cmd},
+                                         })
+        c = SnapReviewLint(self.test_name)
+        c.check_apps_completer()
+        r = c.click_report
+        expected_counts = {'info': None, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_apps_stop_command(self):
         '''Test check_apps_stop_command()'''
         cmd = "bin/foo"
