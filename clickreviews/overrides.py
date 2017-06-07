@@ -68,6 +68,7 @@ redflagged_snap_types_overrides = {
                'pi3-unipi',
                'pi2kyle',
                'roseapple-pi',
+               'sabrelite',
                'wdl-nextcloud',
                'wdl-nextcloud-pi2',
                'artik5',  # 3rd party vendor gadgets
