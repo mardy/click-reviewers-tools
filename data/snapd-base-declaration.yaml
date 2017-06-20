@@ -1,5 +1,5 @@
 # Specification: https://docs.google.com/document/d/1QkglVjSzHC65lPthXV3ZlQcqPpKxuGEBL-FMuGP6ogs/edit
-# Series 16 from: snapd.git/interfaces/builtin/basedeclaration.go
+# Series 16 from: 'snap debug get-base-declaration'
 
 "16":
  plugs:
@@ -11,6 +11,9 @@
       plug-snap-type:
         - core
   docker-support:
+    allow-installation: false
+    deny-auto-connection: true
+  greengrass-support:
     allow-installation: false
     deny-auto-connection: true
   kernel-module-control:
@@ -38,12 +41,12 @@
       slot-snap-type:
         - core
     deny-auto-connection: true
-  avahi-observe:
+  autopilot-introspection:
     allow-installation:
       slot-snap-type:
         - core
     deny-auto-connection: true
-  autopilot-introspection:
+  avahi-observe:
     allow-installation:
       slot-snap-type:
         - core
@@ -154,11 +157,26 @@
         - core
         - gadget
     deny-auto-connection: true
+  greengrass-support:
+    allow-installation:
+      slot-snap-type:
+        - core
+    deny-auto-connection: true
   gsettings:
     allow-installation:
       slot-snap-type:
         - core
   hardware-observe:
+    allow-installation:
+      slot-snap-type:
+        - core
+    deny-auto-connection: true
+  hardware-random-control:
+    allow-installation:
+      slot-snap-type:
+        - core
+    deny-auto-connection: true
+  hardware-random-observe:
     allow-installation:
       slot-snap-type:
         - core
@@ -175,16 +193,6 @@
         - core
     deny-auto-connection:
       on-classic: false
-  hardware-random-observe:
-    allow-installation:
-      slot-snap-type:
-        - core
-    deny-auto-connection: true
-  hardware-random-control:
-    allow-installation:
-      slot-snap-type:
-        - core
-    deny-auto-connection: true
   i2c:
     allow-installation:
       slot-snap-type:
@@ -473,6 +481,11 @@
       slot-snap-type:
         - core
     deny-auto-connection: true
+  ubuntu-download-manager:
+    allow-installation:
+      slot-snap-type:
+        - app
+    deny-connection: true
   udisks2:
     allow-installation:
       slot-snap-type:
@@ -504,11 +517,6 @@
       slot-snap-type:
         - app
     deny-auto-connection: true
-    deny-connection: true
-  ubuntu-download-manager:
-    allow-installation:
-      slot-snap-type:
-        - app
     deny-connection: true
   upower-observe:
     allow-installation:
