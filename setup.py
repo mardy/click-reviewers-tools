@@ -15,6 +15,7 @@ if os.path.exists(changelog):
         version = match.group(1)
 
 scripts = glob.glob('bin/click-*') + glob.glob('bin/snap-*')
+scripts.append('bin/create-snap-declaration')
 scripts.remove('bin/click-check-skeleton')
 scripts.remove('bin/snap-check-skeleton')
 setup(
