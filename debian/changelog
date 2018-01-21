@@ -1,4 +1,4 @@
-click-reviewers-tools (0.47) UNRELEASED; urgency=medium
+click-reviewers-tools (0.47) xenial; urgency=medium
 
   [ Jamie Strandboge ]
   * cr_lint.py: skip version check in check_control() if apt_pkg import fails.
@@ -13,6 +13,9 @@ click-reviewers-tools (0.47) UNRELEASED; urgency=medium
     - don't traceback if toplevel plugs/slots is not dict
     - add 'completer' (LP: #1689578)
   * data/snapd-base-declaration.yaml: update for latest snapd releases
+
+  [ Marius ]
+  * Import to UBports 
 
  -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 20 Jun 2017 15:50:29 -0500
 
