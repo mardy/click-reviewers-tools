@@ -20,7 +20,6 @@ from unittest.mock import patch
 from clickreviews.common import cleanup_unpack
 from clickreviews.cr_lint import ClickReviewLint
 from clickreviews.cr_lint import MINIMUM_CLICK_FRAMEWORK_VERSION
-from clickreviews.frameworks import FRAMEWORKS_DATA_URL, USER_DATA_FILE
 from clickreviews.tests import utils
 import clickreviews.cr_tests as cr_tests
 
@@ -61,12 +60,12 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         def _mock_frameworks(self, overrides=None):
             self.FRAMEWORKS = {
                 'ubuntu-core-15.04': 'available',
-                'ubuntu-sdk-14.10-qml-dev2': 'available',
+                'ubuntu-sdk-15.04': 'available',
                 'ubuntu-sdk-13.10': 'deprecated',
                 'ubuntu-sdk-14.10-qml-dev1': 'obsolete',
             }
             self.AVAILABLE_FRAMEWORKS = ['ubuntu-core-15.04',
-                                         'ubuntu-sdk-14.10-qml-dev2']
+                                         'ubuntu-sdk-15.04']
             self.OBSOLETE_FRAMEWORKS = ['ubuntu-sdk-14.10-qml-dev1']
             self.DEPRECATED_FRAMEWORKS = ['ubuntu-sdk-13.10']
         p = patch('clickreviews.frameworks.Frameworks.__init__',
@@ -658,7 +657,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
     def test_check_framework(self):
         '''Test check_framework()'''
         self.patch_frameworks()
-        self.set_test_manifest("framework", "ubuntu-sdk-14.10-qml-dev2")
+        self.set_test_manifest("framework", "ubuntu-sdk-15.04")
         c = ClickReviewLint(self.test_name)
         c.check_framework()
         r = c.click_report
@@ -669,7 +668,7 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         '''Test check_framework() - click'''
         self.patch_frameworks()
         self.set_test_manifest("framework",
-                               "ubuntu-sdk-14.10-qml-dev2,ubuntu-core-15.04")
+                               "ubuntu-sdk-15.04,ubuntu-core-15.04")
         c = ClickReviewLint(self.test_name)
         c.is_snap1 = False
         c.check_framework()
@@ -681,29 +680,13 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         '''Test check_framework() - snappy'''
         self.patch_frameworks()
         self.set_test_manifest("framework",
-                               "ubuntu-sdk-14.10-qml-dev2,ubuntu-core-15.04")
+                               "ubuntu-sdk-15.04,ubuntu-core-15.04")
         c = ClickReviewLint(self.test_name)
         c.is_snap1 = True
         c.check_framework()
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-
-    @patch('clickreviews.remote.read_cr_file')
-    def test_check_framework_fetches_remote_data(self, mock_read_cr_file):
-        '''Test check_framework()'''
-        mock_read_cr_file.return_value = {
-            'ubuntu-sdk-14.10-qml-dev2': 'available',
-        }
-        self.set_test_manifest("framework", "ubuntu-sdk-14.10-qml-dev2")
-        c = ClickReviewLint(self.test_name)
-        c.check_framework()
-        r = c.click_report
-        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
-        self.check_results(r, expected_counts)
-        # ensure no local fn is provided when reading frameworks
-        mock_read_cr_file.assert_called_once_with(
-            USER_DATA_FILE, FRAMEWORKS_DATA_URL)
 
     def test_check_framework_bad(self):
         '''Test check_framework() - bad'''
@@ -735,12 +718,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    @patch('clickreviews.remote.read_cr_file')
-    def test_check_framework_with_overrides(self, mock_read_cr_file):
+    def test_check_framework_with_overrides(self):
         '''Test check_framework() - using overrides'''
-        mock_read_cr_file.return_value = {
-            'ubuntu-sdk-14.10-qml-dev2': 'available',
-        }
         self.set_test_manifest("framework", "nonexistent")
         overrides = {'framework': {'nonexistent': {'state': 'available'}}}
         c = ClickReviewLint(self.test_name, overrides=overrides)
@@ -749,13 +728,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    @patch('clickreviews.remote.read_cr_file')
-    def test_check_framework_with_overrides_obsolete(self, mock_read_cr_file):
+    def test_check_framework_with_overrides_obsolete(self):
         '''Test check_framework() - using override obsoletes available'''
-        fwk = 'ubuntu-sdk-14.10-qml-dev2'
-        mock_read_cr_file.return_value = {
-            '%s' % fwk: 'available',
-        }
+        fwk = 'ubuntu-sdk-15.04'
         self.set_test_manifest("framework", fwk)
         overrides = {'framework': {'%s' % fwk: {'state': 'obsolete'}}}
         c = ClickReviewLint(self.test_name, overrides=overrides)
@@ -764,13 +739,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 0, 'error': 1}
         self.check_results(r, expected_counts)
 
-    @patch('clickreviews.remote.read_cr_file')
-    def test_check_framework_with_overrides_deprecated(self, mock_read_cr_file):
+    def test_check_framework_with_overrides_deprecated(self):
         '''Test check_framework() - using override deprecates available'''
-        fwk = 'ubuntu-sdk-14.10-qml-dev2'
-        mock_read_cr_file.return_value = {
-            '%s' % fwk: 'available',
-        }
+        fwk = 'ubuntu-sdk-15.04'
         self.set_test_manifest("framework", fwk)
         overrides = {'framework': {'%s' % fwk: {'state': 'deprecated'}}}
         c = ClickReviewLint(self.test_name, overrides=overrides)
@@ -779,12 +750,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         expected_counts = {'info': None, 'warn': 1, 'error': 0}
         self.check_results(r, expected_counts)
 
-    @patch('clickreviews.remote.read_cr_file')
-    def test_check_framework_with_malformed_overrides(self, mock_read_cr_file):
+    def test_check_framework_with_malformed_overrides(self):
         '''Test check_framework() - using overrides'''
-        mock_read_cr_file.return_value = {
-            'ubuntu-sdk-14.10-qml-dev2': 'available',
-        }
         self.set_test_manifest("framework", "nonexistent")
         overrides = {'nonexistent': {'state': 'available'}}
         c = ClickReviewLint(self.test_name, overrides=overrides)
