@@ -71,6 +71,7 @@ FRAMEWORKS = {
     "ubuntu-sdk-15.04.7-papi": "available",
     "ubuntu-sdk-15.04.7-qml": "available",
     "ubuntu-sdk-15.04.7": "available",
+    "ubuntu-sdk-16.04": "available",
 }
 
 
