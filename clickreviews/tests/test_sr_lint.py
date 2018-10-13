@@ -3601,17 +3601,6 @@ architectures: [ amd64 ]
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
-    def test_check_architecture_all_has_binary(self):
-        '''Test check_architecture_all() - has binary'''
-        package = utils.make_snap2(output_dir=self.mkdtemp(),
-                                   extra_files=['/bin/ls:ls']
-                                   )
-        c = SnapReviewLint(package)
-        c.check_architecture_all()
-        r = c.click_report
-        expected_counts = {'info': None, 'warn': 0, 'error': 1}
-        self.check_results(r, expected_counts)
-
     def test_check_architecture_all_skips_pyc(self):
         '''Test check_architecture_all() - skips .pyc'''
         # copy /bin/ls to foo.pyc since ls is a binary
@@ -3648,14 +3637,6 @@ type: gadget
         r = c.click_report
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
-
-        expected = dict()
-        expected['error'] = dict()
-        expected['warn'] = dict()
-        expected['info'] = dict()
-        name = 'lint-snap-v2:valid_contents_for_architecture'
-        expected['info'][name] = {"text": "found binaries for architecture 'all': ls (ok for 'type: gadget')"}
-        self.check_results(r, expected=expected)
 
     def test_check_architecture_specified_needed_has_binary(self):
         '''Test check_architecture_specified_needed() - has binary'''

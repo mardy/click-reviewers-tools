@@ -1,3 +1,15 @@
+click-reviewers-tools (0.49) unstable; urgency=medium
+
+  * Added 16.04 framework
+
+ -- Brian Douglass <bhdouglass@gmail.com>  Wed, 23 May 2018 00:40:00 -0500
+
+click-reviewers-tools (0.48) unstable; urgency=medium
+
+  * Remove reliance on old click store for frameworks
+
+ -- Brian Douglass <bhdouglass@gmail.com>  Thu, 05 Apr 2018 12:43:00 -0500
+
 click-reviewers-tools (0.47) xenial; urgency=medium
 
   [ Jamie Strandboge ]
@@ -766,16 +778,16 @@ click-reviewers-tools (0.10) utopic; urgency=medium
 
   [ Jamie Strandboge ]
   * There is now a special pay-ui hook instead of the payui app reusing the
-    desktop hook. We added a check for manual review for when the 'pay-ui' 
-    hook was implemented in previous commits, but now we should adjust the 
-    cr_desktop.py hook to not error when the pay-ui hook is specified but 
+    desktop hook. We added a check for manual review for when the 'pay-ui'
+    hook was implemented in previous commits, but now we should adjust the
+    cr_desktop.py hook to not error when the pay-ui hook is specified but
     the desktop hook is not.
-  * The accounts policy group is now a common policy group (14.10) and 
-    webapps more fully integrate with accounts these days, so don't flag 
+  * The accounts policy group is now a common policy group (14.10) and
+    webapps more fully integrate with accounts these days, so don't flag
     accounts as unusual any more.
   * Mark checks requiring manual review by using a special key in the json
     data.
-  * Add commented out camera policy group to list of ok policygroups for 
+  * Add commented out camera policy group to list of ok policygroups for
     webapps.
 
   [ Ricardo Kirkner ]
@@ -913,8 +925,8 @@ click-reviewers-tools (0.4) trusty; urgency=medium
 click-reviewers-tools (0.3) trusty; urgency=medium
 
   * d/compat: bump to 9.
-  * d/control: 
-    - bump Standards-Version, 
+  * d/control:
+    - bump Standards-Version,
     - drop X-Python-Version, we have X-Python3-Version,
     - programmatical -> programmatic
   * d/copyright: fix license mistake (GPL-3+ vs. GPL-3)
