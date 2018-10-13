@@ -119,6 +119,7 @@ class ClickReviewLint(ClickReview):
                             'bin-path',  # obsoleted, ignored
                             'content-hub',
                             'desktop',
+                            'language-packs',
                             'pay-ui',
                             'puritine',
                             'push-helper',

@@ -38,7 +38,7 @@ class ClickReviewSecurity(ClickReview):
         peer_hooks[my_hook]['allowed'] = ClickReview.app_allowed_peer_hooks + \
             ClickReview.scope_allowed_peer_hooks + \
             ClickReview.service_allowed_peer_hooks + \
-            ['pay-ui']
+            ['pay-ui', 'language-packs']
         peer_hooks[my_hook]['required'] = []
 
         my_hook2 = 'apparmor-profile'
