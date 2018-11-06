@@ -136,6 +136,9 @@ class ClickReviewSecurity(ClickReview):
                 'policy_vendor': 'ubuntu-core',
                 'policy_version': 15.04,
             },
+            'ubuntu-sdk-16.04': {
+                'policy_version': 16.04,
+            }
         }
         framework_overrides = self.overrides.get('framework', {})
         self._override_framework_policies(framework_overrides)
