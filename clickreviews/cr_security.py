@@ -38,7 +38,7 @@ class ClickReviewSecurity(ClickReview):
         peer_hooks[my_hook]['allowed'] = ClickReview.app_allowed_peer_hooks + \
             ClickReview.scope_allowed_peer_hooks + \
             ClickReview.service_allowed_peer_hooks + \
-            ['pay-ui']
+            ['pay-ui', 'language-packs']
         peer_hooks[my_hook]['required'] = []
 
         my_hook2 = 'apparmor-profile'
@@ -131,6 +131,9 @@ class ClickReviewSecurity(ClickReview):
             },
             'ubuntu-sdk-15.04': {
                 'policy_version': 1.3,
+            },
+            'ubuntu-sdk-16.04': {
+                'policy_version': 16.04,
             },
             'ubuntu-core-15.04': {
                 'policy_vendor': 'ubuntu-core',
