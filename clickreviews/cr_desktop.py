@@ -849,11 +849,11 @@ class ClickReviewDesktop(ClickReview):
                 link = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
             elif not os.path.exists(os.path.join(self.unpack_dir,
                                                  de.getIcon())) and \
-                    True not in filter(lambda a:
-                                       os.path.exists(os.path.join(
-                                                      self.unpack_dir,
-                                                      de.getIcon() + a)),
-                                       ICON_SUFFIXES):
+                    not any(map(lambda a:
+                                os.path.exists(os.path.join(
+                                               self.unpack_dir,
+                                               de.getIcon() + a)),
+                                ICON_SUFFIXES)):
                 t = 'error'
                 s = "'%s' specified as icon in .desktop file for app '%s', " \
                     "which is not available in the click package." % \
