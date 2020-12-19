@@ -77,6 +77,26 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         expected_counts = {'info': 1, 'warn': 0, 'error': 0}
         self.check_results(r, expected_counts)
 
+    def test_check_desktop_latest_version(self):
+        '''Test check_desktop_version()'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Version", "1.5")
+        c.check_desktop_version()
+        r = c.click_report
+        expected_counts = {'info': 1, 'warn': 0, 'error': 0}
+        self.check_results(r, expected_counts)
+
+    def test_check_desktop_unsupported_version(self):
+        '''Test check_desktop_version() - unsupported Version'''
+        c = ClickReviewDesktop(self.test_name)
+        self.set_test_desktop(self.default_appname,
+                              "Version", "2.0")
+        c.check_desktop_version()
+        r = c.click_report
+        expected_counts = {'info': 0, 'warn': 0, 'error': 1}
+        self.check_results(r, expected_counts)
+
     def test_check_desktop_file_valid_empty_name(self):
         '''Test check_desktop_file_valid() - empty Name'''
         c = ClickReviewDesktop(self.test_name)

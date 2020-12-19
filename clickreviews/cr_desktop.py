@@ -28,6 +28,8 @@ from xdg.Exceptions import ParsingError as xdgParsingError
 
 class ClickReviewDesktop(ClickReview):
     '''This class represents click lint reviews'''
+    supported_versions = ("1.0", "1.1", "1.2", "1.3", "1.4", "1.5")
+
     def __init__(self, fn, overrides=None):
         peer_hooks = dict()
         my_hook = 'desktop'
@@ -797,11 +799,11 @@ class ClickReviewDesktop(ClickReview):
             link = None
             if not de.hasKey('Version'):
                 s = "OK (not specified)"
-            elif de.getVersionString() != "1.0":
+            elif de.getVersionString() not in self.supported_versions:
                 # http://standards.freedesktop.org/desktop-entry-spec/latest
                 t = 'error'
-                s = "'%s' does not match freedesktop.org version '1.0'" % \
-                    de.getVersionString()
+                s = "'%s' does not match any freedesktop.org version %s" % \
+                    (de.getVersionString(), self.supported_versions)
                 link = 'http://askubuntu.com/questions/419907/what-does-version-mean-in-the-desktop-file/419908'
             self._add_result(t, n, s, link)
 
