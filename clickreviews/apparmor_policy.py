@@ -21,7 +21,8 @@ USER_DATA_FILE = os.path.join(clickreviews.remote.DATA_DIR,
 
 # XXX: This is a hack and will be gone, as soon as myapps has an API for this.
 AA_POLICY_DATA_URL = \
-    "http://bazaar.launchpad.net/~store-reviewers/click-reviewers-tools/trunk/download/head:/apparmoreasyprofubun-20140711222314-oeohtxzvf9a58fa6-1/apparmor-easyprof-ubuntu.json"
+    "https://github.com/ubports/click-reviewers-tools/" \
+    "raw/xenial/data/apparmor-easyprof-ubuntu.json"
 
 
 def get_policy_file(fn):
