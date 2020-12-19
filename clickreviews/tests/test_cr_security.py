@@ -103,7 +103,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         name = c._get_check_name(
             'policy_version_exists',
             extra=self.default_security_json)
-        expected['error'][name] = {"text": "could not find policy for ubuntu/%s" % str(bad_version)}
+        expected['error'][name] = {
+            "text": "could not find policy for ubuntu/%s" % str(bad_version)
+        }
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_low(self):
@@ -144,7 +146,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['error'] = dict()
         name = c._get_check_name('policy_version_exists',
                                  extra=self.default_security_json)
-        expected['error'][name] = {"text": "could not find policy_version in manifest"}
+        expected['error'][name] = {
+            "text": "could not find policy_version in manifest"
+        }
         self.check_results(report, expected=expected)
 
     def test_check_policy_version_framework(self):
@@ -157,7 +161,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
             policy_version = 0
             for k in tmp.major_framework_policy.keys():
                 if f.startswith(k):
-                    policy_version = tmp.major_framework_policy[k]['policy_version']
+                    policy_version = \
+                        tmp.major_framework_policy[k]['policy_version']
             self.set_test_security_manifest(self.default_appname,
                                             "policy_version",
                                             policy_version)
@@ -347,7 +352,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
                     if 'policy_vendor' not in tmp.major_framework_policy[k]:
                         policy_vendor = 'ubuntu'
                     else:
-                        policy_vendor = tmp.major_framework_policy[k]['policy_vendor']
+                        policy_vendor = \
+                            tmp.major_framework_policy[k]['policy_vendor']
             self.set_test_security_manifest(self.default_appname,
                                             "policy_vendor",
                                             policy_vendor)
@@ -389,7 +395,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         name = c._get_check_name(
             'policy_vendor_matches_framework',
             extra=self.default_security_json)
-        expected['error'][name] = {"text": "ubuntu-snappy != ubuntu (ubuntu-sdk-13.10)"}
+        expected['error'][name] = {
+            "text": "ubuntu-snappy != ubuntu (ubuntu-sdk-13.10)"
+        }
         self.check_results(report, expected=expected)
 
     def test_check_policy_vendor_framework_unmatch2(self):
@@ -473,7 +481,9 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         expected['info'][name] = {"text": "OK"}
         name = c._get_check_name('template_valid',
                                  extra=self.default_security_json)
-        expected['warn'][name] = {"text": "No need to specify 'ubuntu-sdk' template"}
+        expected['warn'][name] = {
+            "text": "No need to specify 'ubuntu-sdk' template"
+        }
         self.check_results(report, expected=expected)
 
     def test_check_template_default(self):
@@ -499,7 +509,8 @@ class TestClickReviewSecurity(cr_tests.TestClickReview):
         self.check_results(report, expected_counts)
 
     def test_check_template_default_with_snappy(self):
-        '''Test check_template() - default specified with ubuntu-snappy vendor'''
+        '''Test check_template() - default specified with ubuntu-snappy
+        vendor'''
         self.set_test_pkgfmt("snap", "15.04")
         c = ClickReviewSecurity(self.test_name)
         self.set_test_security_manifest(self.default_appname,

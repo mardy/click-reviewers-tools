@@ -19,9 +19,6 @@ from clickreviews.sr_common import SnapReview, SnapReviewException
 from clickreviews.overrides import iface_attributes_noflag
 import re
 
-# Specification:
-# https://docs.google.com/document/d/1QkglVjSzHC65lPthXV3ZlQcqPpKxuGEBL-FMuGP6ogs/edit#
-
 
 class SnapDeclarationException(SnapReviewException):
     '''This class represents SnapDeclaration exceptions'''
@@ -115,7 +112,8 @@ class SnapReviewDeclaration(SnapReview):
                             self.str2bool(cstr[cstr_key])
                         if has_alternates:
                             decl[key][iface][constraint][index][cstr_key] = \
-                                self.str2bool(decl[key][iface][constraint][index][cstr_key])
+                                self.str2bool(decl[key][iface][constraint] \
+                                              [index][cstr_key])
                     if not self.is_bool(cstr[cstr_key]):
                         malformed(badn, "'%s' not True or False" % cstr_key,
                                   base)
@@ -163,15 +161,21 @@ class SnapReviewDeclaration(SnapReview):
                                     cstr[cstr_key][attrib] = \
                                         self.str2bool(cstr[cstr_key][attrib])
                                     if has_alternates:
-                                        decl[key][iface][constraint][index][cstr_key][attrib] = \
-                                            self.str2bool(decl[key][iface][constraint][index][cstr_key][attrib])
+                                        decl[key][iface][constraint][index] \
+                                            [cstr_key][attrib] = \
+                                            self.str2bool(decl[key][iface] \
+                                                              [constraint] \
+                                                              [index] \
+                                                              [cstr_key] \
+                                                              [attrib])
 
                                 attr_type = cstr[cstr_key][attrib]
+                                tmp_attr = self.interfaces_attribs[iface][tmp]
 
-                                if not isinstance(attr_type,
-                                                  type(self.interfaces_attribs[iface][tmp])):
+                                if not isinstance(attr_type, type(tmp_attr)):
                                     malformed(bn,
-                                              "wrong type '%s' for attribute '%s'"
+                                              "wrong type '%s' for attribute "
+                                              "'%s'"
                                               % (attr_type, attrib),
                                               base)
                                     found_errors = True
@@ -229,7 +233,8 @@ class SnapReviewDeclaration(SnapReview):
 
         # from snapd.git/assers/ifacedecls.go
         id_pat = re.compile(r'^[a-z0-9A-Z]{32}$')
-        pub_pat = re.compile(r'^(?:[a-z0-9A-Z]{32}|[-a-z0-9]{2,28}|\$[A-Z][A-Z0-9_]*)$')
+        pub_pat = re.compile(r'^(?:[a-z0-9A-Z]{32}|[-a-z0-9]{2,28}|'
+                             r'\$[A-Z][A-Z0-9_]*)$')
 
         if not isinstance(decl, dict):
             malformed(self._get_check_name('valid_dict'), "not a dict", base)
@@ -348,7 +353,8 @@ class SnapReviewDeclaration(SnapReview):
 
         return matched
 
-    def _search(self, d, key, val=None, subkey=None, subval=None, subval_inverted=False):
+    def _search(self, d, key, val=None, subkey=None, subval=None,
+                subval_inverted=False):
         '''Search dictionary 'd' for matching values. Returns true when
            - val == d[key]
            - subval in d[key][subkey]
@@ -573,7 +579,8 @@ class SnapReviewDeclaration(SnapReview):
 
         return (decls, has_alternates)
 
-    def _verify_iface_by_declaration(self, base, snap, name, iface, interface, attribs, side, oside):
+    def _verify_iface_by_declaration(self, base, snap, name, iface, interface,
+                                     attribs, side, oside):
         # 'checked' is used to see if a particular check is made (eg, if
         # 'deny-connection' for this interface was performed).
         #
@@ -725,7 +732,8 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         err(decl_key, decl_subkey, decl_type, attribs),
+                                         err(decl_key, decl_subkey,
+                                             decl_type, attribs),
                                          manual_review=True,
                                          stage=True)
                         denied += 1
@@ -747,7 +755,8 @@ class SnapReviewDeclaration(SnapReview):
                                                               (side, decl_key),
                                                               app=iface,
                                                               extra=interface),
-                                         err(decl_key, decl_subkey, decl_type, attribs),
+                                         err(decl_key, decl_subkey,
+                                             decl_type, attribs),
                                          manual_review=True,
                                          stage=True)
                         denied += 1

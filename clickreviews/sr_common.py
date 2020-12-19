@@ -94,7 +94,7 @@ class SnapReview(Review):
                         'os',
                         ]
 
-    # https://docs.google.com/document/d/1Q5_T00yTq0wobm_nHzCV-KV8R4jdk-PXcrtm80ETTLU/edit#
+    # https://snapcraft.io/docs/interface-management
     # 'plugs':
     #    'interface': name
     #    'attrib-name': <type>
@@ -147,25 +147,33 @@ class SnapReview(Review):
     # Eg, ['a', 'b', 'c/d'] means one of 'a', 'b', or 'c and d' is required.
     # This is to avoid situations like:
     # https://forum.snapcraft.io/t/broken-snap-breaking-snapd/401/8
-    interfaces_required = {'bool-file': {'slots': ['path']},
-                           'content': {'slots': ['read', 'write'],
-                                       'plugs': ['target'],
-                                       },
-                           'dbus': {'slots': ['name/bus'],
-                                    'plugs': ['name/bus'],
-                                    },
-                           'gpio': {'slots': ['number']},
-                           'hidraw': {'slots': ['path',
-                                                'path/!usb-vendor/!usb-product',
-                                                'path/usb-vendor/usb-product'],
-                                      },
-                           'i2c': {'slots': ['path']},
-                           'iio': {'slots': ['path']},
-                           'serial-port': {'slots': [
-                                           'path/!usb-vendor/!usb-product',
-                                           'path/usb-vendor/usb-product'],
-                                           },
-                           }
+    interfaces_required = {
+        'bool-file': {'slots': ['path']},
+        'content': {
+            'slots': ['read', 'write'],
+            'plugs': ['target'],
+        },
+        'dbus': {
+            'slots': ['name/bus'],
+            'plugs': ['name/bus'],
+        },
+        'gpio': {'slots': ['number']},
+        'hidraw': {
+            'slots': [
+                'path',
+                'path/!usb-vendor/!usb-product',
+                'path/usb-vendor/usb-product'
+            ],
+        },
+        'i2c': {'slots': ['path']},
+        'iio': {'slots': ['path']},
+        'serial-port': {
+            'slots': [
+                'path/!usb-vendor/!usb-product',
+                'path/usb-vendor/usb-product'
+            ],
+        },
+    }
 
     # In progress interfaces are those that are not yet in snapd but for
     # some reason we need them. Normally we will never want to do this, but
@@ -221,7 +229,8 @@ class SnapReview(Review):
                             iface in self.base_declaration[oside]:
                         # don't override anything in the base declaration
                         continue
-                    self.base_declaration[side][iface] = self.inprogress_interfaces[rel][side][iface]
+                    self.base_declaration[side][iface] = \
+                        self.inprogress_interfaces[rel][side][iface]
 
         # to simplify checks, gather up all the interfaces into one dict()
         for side in ['plugs', 'slots']:
@@ -255,7 +264,8 @@ class SnapReview(Review):
             for iface in self.snap_yaml[k]:
                 if not isinstance(self.snap_yaml[k], dict):
                     # eg, top-level "plugs: [ content ]"
-                    error("Invalid top-level '%s' (not a dict)" % k)  # pragma: nocover
+                    error("Invalid top-level '%s'"
+                          " (not a dict)" % k)  # pragma: nocover
                 if self.snap_yaml[k][iface] is None:
                     self.snap_yaml[k][iface] = {}
 

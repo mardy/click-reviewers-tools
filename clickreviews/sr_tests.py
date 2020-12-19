@@ -120,8 +120,9 @@ def create_patches():
                    _pkgfmt_type))
 
     # sr_security
-    patches.append(patch("clickreviews.sr_security.SnapReviewSecurity._unsquashfs_lls",
-                   _unsquashfs_lls))
+    patches.append(patch(
+        "clickreviews.sr_security.SnapReviewSecurity._unsquashfs_lls",
+        _unsquashfs_lls))
 
     return patches
 

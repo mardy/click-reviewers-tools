@@ -312,15 +312,15 @@ def create_patches():
         _check_innerpath_executable))
 
     # security overrides
-    patches.append(patch(
-        'clickreviews.cr_security.ClickReviewSecurity._extract_security_manifest',
-        _extract_security_manifest))
+    patches.append(patch('clickreviews.cr_security.ClickReviewSecurity.'
+                         '_extract_security_manifest',
+                         _extract_security_manifest))
     patches.append(patch(
         'clickreviews.cr_security.ClickReviewSecurity._get_security_manifest',
         _get_security_manifest))
-    patches.append(patch(
-        'clickreviews.cr_security.ClickReviewSecurity._extract_security_profile',
-        _extract_security_profile))
+    patches.append(patch('clickreviews.cr_security.ClickReviewSecurity.'
+                         '_extract_security_profile',
+                         _extract_security_profile))
     patches.append(patch(
         'clickreviews.cr_security.ClickReviewSecurity._get_security_profile',
         _get_security_profile))
@@ -337,9 +337,9 @@ def create_patches():
         _extract_webapp_manifests))
 
     # url-dispatcher overrides
-    patches.append(patch(
-        'clickreviews.cr_url_dispatcher.ClickReviewUrlDispatcher._extract_url_dispatcher',
-        _extract_url_dispatcher))
+    patches.append(patch('clickreviews.cr_url_dispatcher.'
+                         'ClickReviewUrlDispatcher._extract_url_dispatcher',
+                         _extract_url_dispatcher))
 
     # scope overrides
     patches.append(patch(
@@ -347,9 +347,9 @@ def create_patches():
         _extract_scopes))
 
     # content-hub overrides
-    patches.append(patch(
-        'clickreviews.cr_content_hub.ClickReviewContentHub._extract_content_hub',
-        _extract_content_hub))
+    patches.append(patch('clickreviews.cr_content_hub.ClickReviewContentHub.'
+                         '_extract_content_hub',
+                         _extract_content_hub))
 
     # online accounts overrides
     patches.append(patch(
@@ -357,28 +357,28 @@ def create_patches():
         _extract_account))
 
     # push-helper overrides
-    patches.append(patch(
-        'clickreviews.cr_push_helper.ClickReviewPushHelper._extract_push_helper',
-        _extract_push_helper))
+    patches.append(patch('clickreviews.cr_push_helper.ClickReviewPushHelper.'
+                         '_extract_push_helper',
+                         _extract_push_helper))
 
     # bin-path overrides
     patches.append(patch(
         'clickreviews.cr_bin_path.ClickReviewBinPath._extract_bin_path',
         _extract_bin_path))
-    patches.append(patch(
-        'clickreviews.cr_bin_path.ClickReviewBinPath._check_bin_path_executable',
-        _check_bin_path_executable))
+    patches.append(patch('clickreviews.cr_bin_path.ClickReviewBinPath.'
+                         '_check_bin_path_executable',
+                         _check_bin_path_executable))
 
     # framework overrides
     patches.append(patch(
         'clickreviews.cr_framework.ClickReviewFramework._extract_framework',
         _extract_framework))
-    patches.append(patch(
-        'clickreviews.cr_framework.ClickReviewFramework._extract_framework_policy',
-        _extract_framework_policy))
-    patches.append(patch(
-        'clickreviews.cr_framework.ClickReviewFramework._has_framework_in_metadir',
-        _has_framework_in_metadir))
+    patches.append(patch('clickreviews.cr_framework.ClickReviewFramework.'
+                         '_extract_framework_policy',
+                         _extract_framework_policy))
+    patches.append(patch('clickreviews.cr_framework.ClickReviewFramework.'
+                         '_has_framework_in_metadir',
+                         _has_framework_in_metadir))
 
     # pkgfmt
     patches.append(patch("clickreviews.common.Review._pkgfmt_type",
@@ -639,7 +639,8 @@ class TestClickReview(TestCase):
         global TEST_ACCOUNTS_APPLICATION
         TEST_ACCOUNTS_APPLICATION = dict()
         for app in self.test_accounts_application.keys():
-            TEST_ACCOUNTS_APPLICATION[app] = self.test_accounts_application[app]
+            TEST_ACCOUNTS_APPLICATION[app] = \
+                self.test_accounts_application[app]
             self.test_manifest["hooks"][app]["account-application"] = \
                 "%s.application" % app
         self._update_test_manifest()

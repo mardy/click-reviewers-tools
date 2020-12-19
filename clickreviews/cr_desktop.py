@@ -146,7 +146,8 @@ class ClickReviewDesktop(ClickReview):
             except Exception as e:
                 t = 'error'
                 s = 'did not validate: (%s)' % str(e)
-                link = 'http://askubuntu.com/questions/417377/what-does-desktop-validates-mean/417378'
+                link = ('http://askubuntu.com/questions/417377/'
+                        'what-does-desktop-validates-mean/417378')
             self._add_result(t, n, s, link)
 
     def check_desktop_required_keys(self):
@@ -217,15 +218,17 @@ class ClickReviewDesktop(ClickReview):
                 t = 'error'
                 s = "absolute path '%s' for Exec given in .desktop file." % \
                     de.getExec()
-                link = 'http://askubuntu.com/questions/417381/what-does-desktop-exec-mean/417382'
+                link = ('http://askubuntu.com/questions/417381/'
+                        'what-does-desktop-exec-mean/417382')
             elif de.getExec().split()[0] not in self.expected_execs:
                 if self.pkg_arch[0] == "all":  # interpreted file
+                    template = "found %s Exec with architecture '%s': %s"
                     if de.getExec().split()[0] not in self.deprecated_execs:
-                        s = "found unexpected Exec with architecture '%s': %s" % \
-                            (self.pkg_arch[0], de.getExec().split()[0])
+                        verb = 'unexpected'
                     else:
-                        s = "found deprecated Exec with architecture '%s': %s" % \
-                            (self.pkg_arch[0], de.getExec().split()[0])
+                        verb = 'deprecated'
+                    s = template % \
+                        (verb, self.pkg_arch[0], de.getExec().split()[0])
                     t = 'warn'
                 else:                        # compiled
                     # TODO: this can be a lot smarter
@@ -352,7 +355,8 @@ class ClickReviewDesktop(ClickReview):
                 continue
 
             t = 'info'
-            n = self._get_check_name('Exec_webapp_args_minimal_chrome', app=app)
+            n = self._get_check_name('Exec_webapp_args_minimal_chrome',
+                                     app=app)
             s = 'OK'
             if '--enable-back-forward' not in de.getExec().split():
                 s = "could not find --enable-back-forward in '%s'" % \
@@ -391,10 +395,10 @@ class ClickReviewDesktop(ClickReview):
             if is_launching_local_app and \
                     (found_url_patterns or found_model_search_path or
                      found_named_webapp):
-                    t = 'error'
-                    s = "should not specify --webappUrlPatterns, " + \
-                        "--webappModelSearchPath or --webapp= when " + \
-                        "running local application"
+                t = 'error'
+                s = "should not specify --webappUrlPatterns, " + \
+                    "--webappModelSearchPath or --webapp= when " + \
+                    "running local application"
             elif not is_launching_local_app:
                 if not found_url_patterns and not found_model_search_path:
                     t = 'error'
@@ -406,7 +410,7 @@ class ClickReviewDesktop(ClickReview):
         pattern_count = 1
         for pattern in patterns:
             urlp_scheme_pat = pattern[:-1].split(':')[0]
-            urlp_p = urlsplit(re.sub('\?', '', pattern[:-1]))
+            urlp_p = urlsplit(re.sub(r'\?', '', pattern[:-1]))
             target = args[-1]
             urlp_t = urlsplit(target)
 
@@ -804,7 +808,8 @@ class ClickReviewDesktop(ClickReview):
                 t = 'error'
                 s = "'%s' does not match any freedesktop.org version %s" % \
                     (de.getVersionString(), self.supported_versions)
-                link = 'http://askubuntu.com/questions/419907/what-does-version-mean-in-the-desktop-file/419908'
+                link = ('http://askubuntu.com/questions/419907/'
+                        'what-does-version-mean-in-the-desktop-file/419908')
             self._add_result(t, n, s, link)
 
     def check_desktop_comment(self):
@@ -822,7 +827,8 @@ class ClickReviewDesktop(ClickReview):
                     de.getComment() == "My project description":
                 t = 'warn'
                 s = "Comment uses SDK boilerplate '%s'" % de.getComment()
-                link = 'http://askubuntu.com/questions/417359/what-does-desktop-comment-boilerplate-mean/417360'
+                link = ('http://askubuntu.com/questions/417359/'
+                        'what-does-desktop-comment-boilerplate-mean/417360')
             self._add_result(t, n, s, link)
 
     def check_desktop_icon(self):
@@ -843,12 +849,14 @@ class ClickReviewDesktop(ClickReview):
             if not de.hasKey('Icon'):
                 t = 'error'
                 s = "missing key 'Icon'"
-                link = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
+                link = ('http://askubuntu.com/questions/417369/'
+                        'what-does-desktop-icon-mean/417370')
             elif de.getIcon().startswith('/'):
                 t = 'error'
                 s = "absolute path '%s' for icon given in .desktop file." % \
                     de.getIcon()
-                link = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
+                link = ('http://askubuntu.com/questions/417369/'
+                        'what-does-desktop-icon-mean/417370')
             elif not os.path.exists(os.path.join(self.unpack_dir,
                                                  de.getIcon())) and \
                     not any(map(lambda a:
@@ -860,7 +868,8 @@ class ClickReviewDesktop(ClickReview):
                 s = "'%s' specified as icon in .desktop file for app '%s', " \
                     "which is not available in the click package." % \
                     (de.getIcon(), app)
-                link = 'http://askubuntu.com/questions/417369/what-does-desktop-icon-mean/417370'
+                link = ('http://askubuntu.com/questions/417369/'
+                        'what-does-desktop-icon-mean/417370')
             self._add_result(t, n, s, link)
 
     def check_desktop_duplicate_entries(self):

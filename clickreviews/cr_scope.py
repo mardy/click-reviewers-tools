@@ -23,7 +23,7 @@ import os
 import re
 
 # Please refer to the config file documentation at:
-# http://bazaar.launchpad.net/~unity-team/unity-scopes-api/trunk/view/head:/CONFIGFILES
+# https://github.com/ubports/unity-scopes-api/blob/xenial/CONFIGFILES
 
 KNOWN_SECTIONS = set(["ScopeConfig", "Appearance"])
 
@@ -157,9 +157,10 @@ class ClickReviewScope(ClickReview):
             unknown = []
             for i in self.scopes[app]["scope_config"]['ScopeConfig'].keys():
                 f = i.lower()
-                if f not in required and f not in optional and f not in internal and \
-                   (f.split("[")[0] not in translated or not
-                       re.search('.*\[[a-z]{2,3}(_[a-z]{2,3})?\]$', f)):
+                if f not in required and f not in optional and \
+                    f not in internal and \
+                    (f.split("[")[0] not in translated or not
+                        re.search(r'.*\[[a-z]{2,3}(_[a-z]{2,3})?\]$', f)):
                     unknown.append(f)
 
             if len(unknown) == 1:

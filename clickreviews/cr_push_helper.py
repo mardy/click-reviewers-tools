@@ -68,7 +68,7 @@ class ClickReviewPushHelper(ClickReview):
         fh = open_file_read(fn)
         contents = ""
         for line in fh.readlines():
-                contents += line
+            contents += line
         fh.close()
 
         try:

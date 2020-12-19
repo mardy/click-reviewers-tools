@@ -25,11 +25,13 @@ class TestClickReviewSystemd(cr_tests.TestClickReview):
         self.set_test_pkgfmt("snap", "15.04")
 
     def _create_ports(self):
-        ports = {'internal': {'int1': {"port": '8081/tcp', "negotiable": True}},
-                 'external': {'ext1': {"port": '80/tcp', "negotiable": False},
-                              'ext2': {"port": '88/udp'}
-                              }
-                 }
+        ports = {
+            'internal': {'int1': {"port": '8081/tcp', "negotiable": True}},
+            'external': {
+                'ext1': {"port": '80/tcp', "negotiable": False},
+                'ext2': {"port": '88/udp'}
+            }
+        }
         return ports
 
     def _set_service(self, entries, name=None):

@@ -124,7 +124,8 @@ class ClickReview(Review):
                 try:
                     self.pkg_yaml = yaml.safe_load(pkg_yaml)
                 except Exception:
-                    error("Could not load package.yaml. Is it properly formatted?")
+                    error("Could not load package.yaml. "
+                          "Is it properly formatted?")
                 self._verify_package_yaml_structure()
             else:
                 error("Could not load package.yaml.")
@@ -141,7 +142,8 @@ class ClickReview(Review):
                 elif isinstance(self.pkg_yaml['architecture'], list):
                     self.pkg_arch = self.pkg_yaml['architecture']
                 else:
-                    error("Could not load package.yaml: invalid 'architecture'")
+                    error("Could not load package.yaml: "
+                          "invalid 'architecture'")
             else:
                 self.pkg_arch = ['all']
 
@@ -167,7 +169,8 @@ class ClickReview(Review):
             try:
                 self.manifest = json.load(manifest_json)
             except Exception:
-                error("Could not load manifest file. Is it properly formatted?")
+                error("Could not load manifest file. "
+                      "Is it properly formatted?")
             self._verify_manifest_structure()
 
             self.valid_frameworks = self._extract_click_frameworks()
@@ -455,8 +458,9 @@ class ClickReview(Review):
         if not self.aa_policy:
             return None
 
-        for t in self.aa_policy[vendor][version]['policy_groups']:
-            if policy_group in self.aa_policy[vendor][version]['policy_groups'][t]:
+        policy_groups = self.aa_policy[vendor][version]['policy_groups']
+        for t in policy_groups:
+            if policy_group in policy_groups[t]:
                 return t
         return None
 

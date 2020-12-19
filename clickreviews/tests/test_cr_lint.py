@@ -831,7 +831,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         name = c._get_check_name(
             'sdk_security_extension', app='test-app')
         expected['info'][name] = {
-            "text": "test-app.json does not end with .apparmor (ok if not using sdk)"}
+            "text": ("test-app.json does not end with .apparmor "
+                     "(ok if not using sdk)")
+        }
         self.check_results(r, expected=expected)
 
     def test_check_hooks_bad_appname(self):
@@ -1765,7 +1767,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
         name = c._get_check_name('file_mode')
         m = r['error'][name]['text']
-        self.assertIn("found errors in hashes.yaml: unusual mode '%s' for entry 'bin/foo'" % "".join(orig_mode), m)
+        self.assertIn("found errors in hashes.yaml: unusual mode '%s' "
+                      "for entry 'bin/foo'" % "".join(orig_mode), m)
 
     def test_check_snappy_hashes_archive_files_mode_world_write(self):
         '''Test check_snappy_hashes() - mode world write'''
@@ -1787,7 +1790,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
         name = c._get_check_name('file_mode')
         m = r['error'][name]['text']
-        self.assertIn("found errors in hashes.yaml: 'bin' is world-writable, mode 'frw-rw-rw-' for 'bin/foo' is world-writable", m)
+        self.assertIn("found errors in hashes.yaml: 'bin' is world-writable, "
+                      "mode 'frw-rw-rw-' for 'bin/foo' is world-writable", m)
 
     def test_check_snappy_hashes_archive_files_mode_mismatch(self):
         '''Test check_snappy_hashes() - mode mismatch'''
@@ -1810,7 +1814,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
         name = c._get_check_name('file_mode')
         m = r['error'][name]['text']
-        self.assertIn("found errors in hashes.yaml: mode '---------' != '%s' for 'bin/foo'" % orig_mode, m)
+        self.assertIn("found errors in hashes.yaml: mode '---------' != '%s' "
+                      "for 'bin/foo'" % orig_mode, m)
 
     def test_check_snappy_hashes_archive_files_mode_bad_symlink(self):
         '''Test check_snappy_hashes() - mode bad symlink'''
@@ -1825,7 +1830,8 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
         name = c._get_check_name('file_mode')
         m = r['error'][name]['text']
-        self.assertIn("found errors in hashes.yaml: unusual mode 'lrwxrwxr-x' for entry 'badlink'", m)
+        self.assertIn("found errors in hashes.yaml: unusual mode 'lrwxrwxr-x' "
+                      "for entry 'badlink'", m)
 
     def test_check_snappy_hashes_archive_files_mode_devices(self):
         '''Test check_snappy_hashes() - mode devices'''
@@ -1841,7 +1847,9 @@ class TestClickReviewLint(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
         name = c._get_check_name('file_mode')
         m = r['error'][name]['text']
-        self.assertIn("found errors in hashes.yaml: illegal file mode 'b': 'brw-rw-r--' for 'badblock', illegal file mode 'c': 'crw-rw-r--' for 'badchar'", m)
+        self.assertIn("found errors in hashes.yaml: "
+                      "illegal file mode 'b': 'brw-rw-r--' for 'badblock', "
+                      "illegal file mode 'c': 'crw-rw-r--' for 'badchar'", m)
 
     def test_check_snappy_hashes_archive_files_missing_size(self):
         '''Test check_snappy_hashes() - missing size'''

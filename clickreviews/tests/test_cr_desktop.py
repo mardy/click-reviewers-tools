@@ -805,7 +805,8 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_local_pattern(self):
-        '''Test test_check_desktop_exec_webbrowser_local_pattern() invalid pattern'''
+        '''Test test_check_desktop_exec_webbrowser_local_pattern() invalid
+        pattern'''
         c = ClickReviewDesktop(self.test_name)
         ex = "webapp-container " + \
              "--webappUrlPatterns=https?://mobile.twitter.com/* " + \
@@ -819,7 +820,8 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_local_webapp(self):
-        '''Test test_check_desktop_exec_webbrowser_local_webapp() invalid webapp cli'''
+        '''Test test_check_desktop_exec_webbrowser_local_webapp() invalid
+        webapp cli'''
         c = ClickReviewDesktop(self.test_name)
         ex = "webapp-container " + \
              "--webapp=DEADBEEF " + \
@@ -833,7 +835,8 @@ class TestClickReviewDesktop(cr_tests.TestClickReview):
         self.check_results(r, expected_counts)
 
     def test_check_desktop_exec_webbrowser_local_model(self):
-        '''Test test_check_desktop_exec_webbrowser_local_model() invalid model'''
+        '''Test test_check_desktop_exec_webbrowser_local_model() invalid
+        model'''
         c = ClickReviewDesktop(self.test_name)
         ex = "webapp-container " + \
              "--webappModelSearchPath=. " + \
