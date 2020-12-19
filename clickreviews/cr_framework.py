@@ -38,7 +38,8 @@ class ClickReviewFramework(ClickReview):
                 if 'framework' not in self.manifest['hooks'][app]:
                     # msg("Skipped missing framework hook for '%s'" % app)
                     continue
-                if not isinstance(self.manifest['hooks'][app]['framework'], str):
+                if not isinstance(self.manifest['hooks'][app]['framework'],
+                                  str):
                     error("manifest malformed: hooks/%s/framework is not str" %
                           app)
                 (full_fn, data) = self._extract_framework(app)
@@ -250,7 +251,7 @@ class ClickReviewFramework(ClickReview):
                     s = "OK"
                     if not re.search(r'^[a-z0-9][a-z0-9+\.-]+$', k):
                         t = 'error'
-                        s = "'%s' should match '^[a-z0-9][a-z0-9+\.-]+$'" % f
+                        s = r"'%s' should match '^[a-z0-9][a-z0-9+\.-]+$'" % f
                     elif k.startswith(self.pkg_yaml['name']):
                         t = 'warn'
                         s = "'%s' should not begin with package name" % f

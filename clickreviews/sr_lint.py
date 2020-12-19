@@ -59,8 +59,9 @@ class SnapReviewLint(SnapReview):
                           'CVS*',
                           'RCS*'
                           ]
-        self.iffy_files = ['^\..+\.swp$',  # vim
-                           ]
+        self.iffy_files = [
+            r'^\..+\.swp$',  # vim
+        ]
 
         self._list_all_compiled_binaries()
 
@@ -456,27 +457,27 @@ class SnapReviewLint(SnapReview):
         self._verify_apps_and_hooks(hook=True)
 
     def _verify_value_is_file(self, app, key):
-            t = 'info'
-            n = self._get_check_name('%s' % key, app=app)
-            s = 'OK'
-            if not isinstance(self.snap_yaml['apps'][app][key], str):
-                t = 'error'
-                s = "%s '%s' (not a str)" % (key,
-                                             self.snap_yaml['apps'][app][key])
-                self._add_result(t, n, s)
-            elif len(self.snap_yaml['apps'][app][key]) < 1:
-                t = 'error'
-                s = "invalid %s (empty)" % (key)
-                self._add_result(t, n, s)
-            else:
-                fn = self._path_join(self._get_unpack_dir(),
-                                     os.path.normpath(
-                                         self.snap_yaml['apps'][app][key]))
-                if fn not in self.pkg_files:
-                    t = 'error'
-                    s = "%s does not exist" % (
-                        self.snap_yaml['apps'][app][key])
+        t = 'info'
+        n = self._get_check_name('%s' % key, app=app)
+        s = 'OK'
+        if not isinstance(self.snap_yaml['apps'][app][key], str):
+            t = 'error'
+            s = "%s '%s' (not a str)" % (key,
+                                         self.snap_yaml['apps'][app][key])
             self._add_result(t, n, s)
+        elif len(self.snap_yaml['apps'][app][key]) < 1:
+            t = 'error'
+            s = "invalid %s (empty)" % (key)
+            self._add_result(t, n, s)
+        else:
+            fn = self._path_join(self._get_unpack_dir(),
+                                 os.path.normpath(
+                                     self.snap_yaml['apps'][app][key]))
+            if fn not in self.pkg_files:
+                t = 'error'
+                s = "%s does not exist" % (
+                    self.snap_yaml['apps'][app][key])
+        self._add_result(t, n, s)
 
     def check_apps_command(self):
         '''Check apps - command'''
@@ -955,12 +956,13 @@ class SnapReviewLint(SnapReview):
                                          app=iface, extra=attrib)
                 s = "OK"
                 attrib_key = "%s/%s" % (attrib, iface_type)
-                if attrib_key not in self.interfaces[interface]:
+                interface_attrs = self.interfaces[interface]
+                if attrib_key not in interface_attrs:
                     t = 'error'
                     s = "unknown attribute '%s' for interface '%s' (%s)" % (
                         attrib, interface, iface_type)
-                elif not isinstance(
-                        spec[attrib], type(self.interfaces[interface][attrib_key])):
+                elif not isinstance(spec[attrib],
+                                    type(interface_attrs[attrib_key])):
                     t = 'error'
                     s = "'%s' is not '%s'" % \
                         (attrib,
@@ -974,7 +976,8 @@ class SnapReviewLint(SnapReview):
                     continue  # pragma: nocover
 
                 has_required = False
-                for req_attrib in self.interfaces_required[interface][iface_type]:
+                for req_attrib in \
+                    self.interfaces_required[interface][iface_type]:
                     combo = req_attrib.split('/')
                     num_combos = 0     # total number of required attribs
                     found = 0          # required attribs found
@@ -1002,7 +1005,8 @@ class SnapReviewLint(SnapReview):
                 if not has_required:
                     # format the combinations for human review
                     combos = []
-                    for req_attrib in self.interfaces_required[interface][iface_type]:
+                    for req_attrib in \
+                        self.interfaces_required[interface][iface_type]:
                         combo = []
                         for r in req_attrib.split('/'):
                             if not r.startswith('!'):
@@ -1157,8 +1161,8 @@ class SnapReviewLint(SnapReview):
                 continue
             x_binaries.append(os.path.relpath(i, self._get_unpack_dir()))
         if len(x_binaries) > 0:
-            # gadget snap is specified with 'all' but has binaries. Don't complain
-            # about that
+            # gadget snap is specified with 'all' but has binaries. Don't
+            # complain about that
             t = 'error'
             ok_text = ''
             if 'type' in self.snap_yaml and self.snap_yaml['type'] == 'gadget':
@@ -1370,7 +1374,8 @@ class SnapReviewLint(SnapReview):
             elif not portable_pat.search(key) and lenient_pat.search(key):
                 t = 'info'
                 s = "'%s' is not shell portable" % key
-                link = "http://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html"
+                link = ("http://pubs.opengroup.org/onlinepubs/000095399/"
+                        "basedefs/xbd_chap08.html")
             elif not lenient_pat.search(key):
                 t = 'warn'
                 s = "unusual characters in '%s' " % key + \
@@ -1550,14 +1555,15 @@ class SnapReviewLint(SnapReview):
                 s = "OK (overidden)"
             else:
                 t = 'warn'
-                s = "desktop interfaces " + \
-                    "(%s) " % ",".join(desktop_interfaces_specified) + \
-                    "specified without a corresponding meta/gui/*.desktop " + \
-                    "file. If using snapcraft, please see " + \
-                    "https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. " + \
-                    "Otherwise, please provide a desktop file in " + \
-                    "meta/gui/*.desktop (it should reference one of the " + \
-                    "'apps' from your snapcraft/snap.yaml)."
+                s = ("desktop interfaces "
+                     "(%s) " % ",".join(desktop_interfaces_specified) +
+                     "specified without a corresponding meta/gui/*.desktop "
+                     "file. If using snapcraft, please see "
+                     "https://snapcraft.io/docs/build-snaps/metadata"
+                     "#fixed-assets. "
+                     "Otherwise, please provide a desktop file in "
+                     "meta/gui/*.desktop (it should reference one of the "
+                     "'apps' from your snapcraft/snap.yaml).")
 
         self._add_result(t, n, s)
 

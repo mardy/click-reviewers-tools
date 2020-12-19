@@ -193,26 +193,27 @@ class ClickReviewSecurity(ClickReview):
         else:
             self.security_manifests = dict()
             self.security_apps = []
-            for app in self.manifest['hooks']:
-                if 'apparmor' not in self.manifest['hooks'][app]:
+            hooks = self.manifest['hooks']
+            for app in hooks:
+                if 'apparmor' not in hooks[app]:
                     #  msg("Skipped missing apparmor hook for '%s'" % app)
                     continue
-                if not isinstance(self.manifest['hooks'][app]['apparmor'], str):
-                    error("manifest malformed: hooks/%s/apparmor is not str" % app)
-                rel_fn = self.manifest['hooks'][app]['apparmor']
+                if not isinstance(hooks[app]['apparmor'], str):
+                    error("manifest malformed: hooks/%s/apparmor "
+                          "is not str" % app)
+                rel_fn = hooks[app]['apparmor']
                 self.security_manifests[rel_fn] = \
                     self._extract_security_manifest(app)
                 self.security_apps.append(app)
 
-            for app in self.manifest['hooks']:
-                if 'apparmor-profile' not in self.manifest['hooks'][app]:
+            for app in hooks:
+                if 'apparmor-profile' not in hooks[app]:
                     #  msg("Skipped missing apparmor hook for '%s'" % app)
                     continue
-                if not isinstance(self.manifest['hooks'][app]['apparmor-profile'],
-                                  str):
-                    error("manifest malformed: hooks/%s/apparmor-profile is not "
-                          "str" % app)
-                rel_fn = self.manifest['hooks'][app]['apparmor-profile']
+                if not isinstance(hooks[app]['apparmor-profile'], str):
+                    error("manifest malformed: hooks/%s/apparmor-profile "
+                          "is not str" % app)
+                rel_fn = hooks[app]['apparmor-profile']
                 self.security_profiles[rel_fn] = \
                     self._extract_security_profile(app)
                 self.security_apps_profiles.append(app)
@@ -344,7 +345,8 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s)
 
             t = 'info'
-            n = self._get_check_name('policy_vendor_matches_framework', extra=f)
+            n = self._get_check_name('policy_vendor_matches_framework',
+                                     extra=f)
             s = "OK"
             if 'policy_vendor' in m:  # policy_vendor is optional
                 found_major = False
@@ -412,7 +414,8 @@ class ClickReviewSecurity(ClickReview):
             self._add_result(t, n, s, link)
 
             t = 'info'
-            n = self._get_check_name('policy_version_matches_framework', extra=f)
+            n = self._get_check_name('policy_version_matches_framework',
+                                     extra=f)
             s = "OK"
             found_major = False
             for name, data in self.major_framework_policy.items():
@@ -690,7 +693,8 @@ class ClickReviewSecurity(ClickReview):
                 vendor = m['policy_vendor']
             version = str(m['policy_version'])
 
-            policy_groups = self._get_policy_groups(version=version, vendor=vendor)
+            policy_groups = self._get_policy_groups(version=version,
+                                                    vendor=vendor)
             if len(policy_groups) < 1:
                 t = 'error'
                 s = 'could not find policy groups'
@@ -700,7 +704,8 @@ class ClickReviewSecurity(ClickReview):
 
             # Check for duplicates
             t = 'info'
-            n = self._get_check_name('policy_groups_duplicates', app=app, extra=f)
+            n = self._get_check_name('policy_groups_duplicates',
+                                     app=app, extra=f)
             s = 'OK'
             tmp = []
             for p in m['policy_groups']:
@@ -727,7 +732,8 @@ class ClickReviewSecurity(ClickReview):
             # If we got here, we can see if valid policy groups were specified
             for i in m['policy_groups']:
                 t = 'info'
-                n = self._get_check_name('policy_groups_valid', app=app, extra=i)
+                n = self._get_check_name('policy_groups_valid',
+                                         app=app, extra=i)
                 s = 'OK'
 
                 # SDK will leave and empty policy group, report but don't
@@ -790,7 +796,8 @@ class ClickReviewSecurity(ClickReview):
                         t = 'error'
                         s = "policy group '%s' has " % i + \
                             "unknown type '%s'" % (aa_type)
-                    self._add_result(t, n, s, link, manual_review=manual_review)
+                    self._add_result(t, n, s, link,
+                                     manual_review=manual_review)
 
     def check_ignored(self):
         '''Check ignored fields'''
@@ -1218,12 +1225,12 @@ class ClickReviewSecurity(ClickReview):
                 else:
                     if 'apparmor' not in item['security-override']:
                         t = 'error'
-                        s = "'apparmor' not specified in 'security-override' " + \
-                            "for '%s'" % app
+                        s = ("'apparmor' not specified in 'security-override' "
+                             "for '%s'" % app)
                     elif 'seccomp' not in item['security-override']:
                         t = 'error'
-                        s = "'seccomp' not specified in 'security-override' " + \
-                            "for '%s'" % app
+                        s = ("'seccomp' not specified in 'security-override' "
+                             "for '%s'" % app)
 
                 self._add_result(t, n, s)
 
@@ -1268,7 +1275,8 @@ class ClickReviewSecurity(ClickReview):
                     t = 'error'
                     n = self._get_check_name('yaml_policy_present')
                     s = "(NEEDS REVIEW) 'security-policy' not allowed"
-                    link = 'https://developer.ubuntu.com/en/snappy/guides/security-policy/'
+                    link = ('https://developer.ubuntu.com/en/snappy/guides/'
+                            'security-policy/')
                     m = True
                     self._add_result(t, n, s, link=link, manual_review=m)
 
@@ -1277,7 +1285,8 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_click and not self.is_snap1:
             return
 
-        if not self.is_snap1 or self.pkg_yaml['type'] in self.sec_skipped_types:
+        if not self.is_snap1 or \
+                self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1317,7 +1326,8 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_click and not self.is_snap1:
             return
 
-        if not self.is_snap1 or self.pkg_yaml['type'] in self.sec_skipped_types:
+        if not self.is_snap1 or \
+                self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1353,7 +1363,8 @@ class ClickReviewSecurity(ClickReview):
 
                 if self.is_snap1:
                     t = 'info'
-                    n = self._get_check_name('yaml_security-template_in_manifest', app=app)
+                    n = self._get_check_name('yaml_security-'
+                                             'template_in_manifest', app=app)
                     s = "OK"
                     if app not in self.manifest['hooks']:
                         t = 'error'
@@ -1363,7 +1374,8 @@ class ClickReviewSecurity(ClickReview):
                     elif 'apparmor' not in self.manifest['hooks'][app] and \
                          'apparmor-profile' not in self.manifest['hooks'][app]:
                         t = 'error'
-                        s = "'apparmor' not found in click manifest for '%s'" % app
+                        s = ("'apparmor' not found in click manifest "
+                             "for '%s'" % app)
                         self._add_result(t, n, s)
                         continue
 
@@ -1374,7 +1386,8 @@ class ClickReviewSecurity(ClickReview):
         if not self.is_click and not self.is_snap1:
             return
 
-        if not self.is_snap1 or self.pkg_yaml['type'] in self.sec_skipped_types:
+        if not self.is_snap1 or \
+                self.pkg_yaml['type'] in self.sec_skipped_types:
             return
 
         for exe_t in ['services', 'binaries']:
@@ -1420,7 +1433,8 @@ class ClickReviewSecurity(ClickReview):
                     elif 'apparmor' not in self.manifest['hooks'][app] and \
                          'apparmor-profile' not in self.manifest['hooks'][app]:
                         t = 'error'
-                        s = "'apparmor' not found in click manifest for '%s'" % app
+                        s = ("'apparmor' not found in click manifest "
+                             "for '%s'" % app)
                         self._add_result(t, n, s)
                         continue
 

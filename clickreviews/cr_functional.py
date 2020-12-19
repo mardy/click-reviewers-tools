@@ -53,7 +53,7 @@ class ClickReviewFunctional(ClickReview):
         link = None
 
         # find file with MainView in the QML
-        mv = '\s*MainView\s*(\s+{)?'
+        mv = r'\s*MainView\s*(\s+{)?'
         pat_mv = re.compile(r'\n%s' % mv)
         qmls = dict()
 
@@ -104,7 +104,9 @@ class ClickReviewFunctional(ClickReview):
         if len(appnames) == 0 or not ok:
             if len(self.pkg_bin_files) == 0:
                 t = "warn"
-                link = 'http://askubuntu.com/questions/417371/what-does-functional-qml-applicationname-matches-manifest-mean/417372'
+                link = ('http://askubuntu.com/questions/417371/'
+                        'what-does-functional-qml-applicationname-matches-'
+                        'manifest-mean/417372')
 
             if len(appnames) == 0:
                 s = "could not find applicationName in: %s" % \
@@ -145,7 +147,8 @@ class ClickReviewFunctional(ClickReview):
             s = "Found files that use unsupported QtWebKit (should use " + \
                 "UbuntuWebview (Ubuntu.Components.Extras.Browser >= " + \
                 "0.2) or Oxide instead): %s" % " ,".join(qmls)
-            link = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
+            link = ("http://askubuntu.com/questions/417342/what-does-"
+                    "functional-qml-application-uses-qtwebkit-mean/417343")
 
         self._add_result(t, n, s, link)
 
@@ -159,7 +162,8 @@ class ClickReviewFunctional(ClickReview):
             s = "SKIPPED (Oxide not available in ubuntu-sdk-13.10)"
         else:
             qmls = []
-            pat_mv = re.compile(r'\n\s*import\s+Ubuntu\.Components\.Extras\.Browser\s+0\.1\s*\n')
+            pat_mv = re.compile(r'\n\s*import\s+Ubuntu\.Components\.Extras\.'
+                                r'Browser\s+0\.1\s*\n')
             for i in self.qml_files:
                 qml = open_file_read(i).read()
                 if pat_mv.search(qml):
@@ -171,7 +175,8 @@ class ClickReviewFunctional(ClickReview):
                     "'Ubuntu.Components.Extras.Browser 0.1' (should use " + \
                     "Ubuntu.Components.Extras.Browser >= 0.2 or " + \
                     "Oxide instead): %s" % " ,".join(qmls)
-                link = "http://askubuntu.com/questions/417342/what-does-functional-qml-application-uses-qtwebkit-mean/417343"
+                link = ("http://askubuntu.com/questions/417342/what-does-"
+                        "functional-qml-application-uses-qtwebkit-mean/417343")
 
         self._add_result(t, n, s, link)
 
@@ -194,7 +199,9 @@ class ClickReviewFunctional(ClickReview):
 
         if len(qmls) > 0:
             t = 'error'
-            s = "Found files that use deprecated Friends API: %s" % " ,".join(qmls)
-            link = "http://askubuntu.com/questions/497551/what-does-functional-qml-application-uses-friends-mean"
+            s = "Found files that use deprecated Friends API: %s" % \
+                " ,".join(qmls)
+            link = ("http://askubuntu.com/questions/497551/what-does-"
+                    "functional-qml-application-uses-friends-mean")
 
         self._add_result(t, n, s, link)

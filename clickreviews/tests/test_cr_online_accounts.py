@@ -76,7 +76,7 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
             service_plugin = etree.SubElement(xml, "plugin")
             service_plugin.text = "generic-oauth"
             service_domains = etree.SubElement(xml, "domains")
-            service_domains.text = ".*\.example\.com"
+            service_domains.text = r".*\.example\.com"
             # More can go here, see /usr/share/accounts/providers/*
         return xml
 
@@ -113,7 +113,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
     def test_check_hooks_versions_deprecated_application(self):
         '''Test check_hooks_versions() - deprecated -application hook'''
         self.set_test_manifest("framework", "ubuntu-sdk-15.10")
-        self.set_test_account(self.default_appname, "account-application", dict())
+        self.set_test_account(self.default_appname,
+                              "account-application", dict())
         c = ClickReviewAccounts(self.test_name)
         c.check_hooks_versions()
         r = c.click_report
@@ -123,7 +124,8 @@ class TestClickReviewAccounts(cr_tests.TestClickReview):
     def test_check_hooks_versions_old_framework(self):
         '''Test check_hooks_versions() - deprecated -application hook'''
         self.set_test_manifest("framework", "ubuntu-sdk-15.04")
-        self.set_test_account(self.default_appname, "account-application", dict())
+        self.set_test_account(self.default_appname,
+                              "account-application", dict())
         self.set_test_account(self.default_appname, "account-service", dict())
         c = ClickReviewAccounts(self.test_name)
         c.check_hooks_versions()

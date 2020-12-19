@@ -67,8 +67,9 @@ def get_remote_data(url):
 
 def get_remote_file_url(url):
     html = get_remote_data(url)
-    # XXX: This is a hack and will be gone, as soon as myapps has an API for this.
-    link = re.findall(b'<a href="(\S+?)">download file</a>', html)
+    # XXX: This is a hack and will be gone, as soon as myapps has an API for
+    # this.
+    link = re.findall(r'<a href="(\S+?)">download file</a>', html)
     if not link:
         abort()
     download_link = '{}://{}/{}'.format(

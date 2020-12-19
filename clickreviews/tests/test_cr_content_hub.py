@@ -69,7 +69,8 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
 
     def test_check_valid_destination(self):
         '''Test check_valid() - destination'''
-        self.set_test_content_hub(self.default_appname, "destination", "pictures")
+        self.set_test_content_hub(self.default_appname,
+                                  "destination", "pictures")
         c = ClickReviewContentHub(self.test_name)
         c.check_valid()
         r = c.click_report
@@ -78,8 +79,10 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
 
     def test_check_valid_all(self):
         '''Test check_valid() - all'''
-        self.set_test_content_hub(self.default_appname, "destination", "pictures")
-        self.set_test_content_hub(self.default_appname, "share", "pictures")
+        self.set_test_content_hub(self.default_appname,
+                                  "destination", "pictures")
+        self.set_test_content_hub(self.default_appname,
+                                  "share", "pictures")
         self.set_test_content_hub(self.default_appname, "source", "pictures")
         c = ClickReviewContentHub(self.test_name)
         c.check_valid()
@@ -107,7 +110,8 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
 
     def test_check_peer_hooks(self):
         '''Test check_peer_hooks()'''
-        self.set_test_content_hub(self.default_appname, "destination", "pictures")
+        self.set_test_content_hub(self.default_appname,
+                                  "destination", "pictures")
         self.set_test_content_hub(self.default_appname, "share", "pictures")
         self.set_test_content_hub(self.default_appname, "source", "pictures")
 
@@ -132,7 +136,8 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
 
     def test_check_peer_hooks_disallowed(self):
         '''Test check_peer_hooks() - disallowed'''
-        self.set_test_content_hub(self.default_appname, "destination", "pictures")
+        self.set_test_content_hub(self.default_appname,
+                                  "destination", "pictures")
         self.set_test_content_hub(self.default_appname, "share", "pictures")
         self.set_test_content_hub(self.default_appname, "source", "pictures")
         c = ClickReviewContentHub(self.test_name)
@@ -159,7 +164,8 @@ class TestClickReviewContentHub(cr_tests.TestClickReview):
     def test_check_valid_snappy_1504(self):
         '''Test check_valid() - snappy 15.04'''
         self.set_test_pkgfmt("snap", "15.04")
-        self.set_test_content_hub(self.default_appname, "destination", "pictures")
+        self.set_test_content_hub(self.default_appname,
+                                  "destination", "pictures")
         self.set_test_content_hub(self.default_appname, "share", "pictures")
         self.set_test_content_hub(self.default_appname, "source", "pictures")
         c = ClickReviewContentHub(self.test_name)

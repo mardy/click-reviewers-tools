@@ -386,7 +386,8 @@ class SnapReviewSecurity(SnapReview):
         if len(malformed) > 0:
             t = 'error'
             n = self._get_check_name('squashfs_files_malformed_line')
-            s = "malformed lines in unsquashfs output: '%s'" % ", ".join(malformed)
+            s = "malformed lines in unsquashfs output: '%s'" % \
+                ", ".join(malformed)
             self._add_result(t, n, s)
 
         t = 'info'

@@ -63,12 +63,14 @@ class ClickReviewAccounts(ClickReview):
         peer_hooks['account-qml-plugin']['allowed'] = \
             peer_hooks['account-qml-plugin']['required']
 
+        link = ("https://wiki.ubuntu.com/SecurityTeam/Specifications/"
+                "OnlineAccountsConfinement")
         ClickReview.__init__(self,
                              fn,
                              "online_accounts",
                              peer_hooks=peer_hooks,
                              overrides=overrides,
-                             peer_hooks_link="https://wiki.ubuntu.com/SecurityTeam/Specifications/OnlineAccountsConfinement")
+                             peer_hooks_link=link)
         if not self.is_click and not self.is_snap1:
             return
 
@@ -181,8 +183,8 @@ class ClickReviewAccounts(ClickReview):
                 for hook in self.accounts[app].keys():
                     if hook == "accounts":
                         n = self._get_check_name('%s_hook' % hook, app=app)
-                        s = "'accounts' hook is not available in '%s' (must be 15.04.1 or later)" % \
-                            (framework)
+                        s = ("'accounts' hook is not available in '%s' "
+                             "(must be 15.04.1 or later)" % (framework))
                         self._add_result(t, n, s)
             return
         hook_state = "disallowed"
@@ -247,7 +249,8 @@ class ClickReviewAccounts(ClickReview):
             return
 
         for (i, obj) in enumerate(obj_list):
-            n = self._get_check_name('accounts_%s' % (obj_type), app=app, extra=str(i))
+            n = self._get_check_name('accounts_%s' % (obj_type), app=app,
+                                     extra=str(i))
             self._check_object(obj_type, obj, n)
 
     def check_manifest(self):
