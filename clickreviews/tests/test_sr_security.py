@@ -116,7 +116,8 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         self.check_results(report, expected_counts)
 
     def test_check_security_plugs_browser_support_with_daemon_top_plugs2(self):
-        ''' Test check_security_plugs() - daemon with toplevel plugs, no interface'''
+        ''' Test check_security_plugs() - daemon with toplevel plugs, no
+        interface'''
         plugs = {'browser-support': {}}
         self.set_test_snap_yaml("plugs", plugs)
         apps = {'app1': {'daemon': 'simple'}}
@@ -128,7 +129,8 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         self.check_results(report, expected_counts)
 
     def test_check_security_plugs_browser_support_no_daemon_top_plugs2(self):
-        ''' Test check_security_plugs() - no daemon with toplevel plugs, no interface'''
+        ''' Test check_security_plugs() - no daemon with toplevel plugs, no
+        interface'''
         plugs = {'browser-support': {}}
         self.set_test_snap_yaml("plugs", plugs)
         apps = {'app1': {}}
@@ -160,7 +162,7 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected_counts = {'info': 0, 'warn': 0, 'error': 0}
         self.check_results(report, expected_counts)
 
-    def test_check_security_plugs_browser_support_with_daemon_no_browser_support(self):
+    def test_check_security_plugs_browser_support_with_daemon_no_browser_support(self):  # nopep8
         ''' Test check_security_plugs() - daemon without browser-support'''
         apps = {'app1': {'plugs': ['network'],
                          'daemon': 'simple'}}
@@ -217,7 +219,9 @@ class TestSnapReviewSecurity(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:daemon_with_browser-support:app1'
-        expected['info'][name] = {"text": "OK (allowing 'daemon' with 'browser-support'"}
+        expected['info'][name] = {
+            "text": "OK (allowing 'daemon' with 'browser-support'"
+        }
         self.check_results(report, expected=expected)
 
     def test_check_apparmor_profile_name_length(self):
@@ -318,7 +322,9 @@ short
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: unknown type ':' for entry './foo'"}
+        expected['error'][name] = {
+            "text": "found errors in file output: unknown type ':' for entry './foo'"  # nopep8
+        }
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_line(self):
@@ -340,7 +346,7 @@ short
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'wrong number of fields in '-rwxrwxr-x root/root                38 2016-03-11''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'wrong number of fields in '-rwxrwxr-x root/root                38 2016-03-11''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_mode_length(self):
@@ -362,7 +368,7 @@ short
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'mode 'rwxrwxr-xx' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'mode 'rwxrwxr-xx' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_mode_suid(self):
@@ -384,7 +390,7 @@ short
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwsrwxr-x' for entry './foo'"}
+        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwsrwxr-x' for entry './foo'"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_mode_suid_ubuntu_core(self):
@@ -407,7 +413,7 @@ short
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwsrwxr-x' for entry './foo'"}
+        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwsrwxr-x' for entry './foo'"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_mode_suid_ubuntu_core_sudo(self):
@@ -489,7 +495,7 @@ drwxrwxrwt root/root                38 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwxrwxrwt' for entry './foo'"}
+        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwxrwxrwt' for entry './foo'"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_mode_symlink(self):
@@ -511,7 +517,7 @@ lrwxrwxrw- root/root                38 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwxrwxrw-' for symlink './foo'"}
+        expected['error'][name] = {"text": "found errors in file output: unusual mode 'rwxrwxrw-' for symlink './foo'"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_type_block_os(self):
@@ -548,7 +554,7 @@ brw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: file type 'b' not allowed (./foo)"}
+        expected['error'][name] = {"text": "found errors in file output: file type 'b' not allowed (./foo)"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_type_char(self):
@@ -570,7 +576,7 @@ crw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: file type 'c' not allowed (./foo)"}
+        expected['error'][name] = {"text": "found errors in file output: file type 'c' not allowed (./foo)"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_type_pipe(self):
@@ -592,7 +598,7 @@ prw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: file type 'p' not allowed (./foo)"}
+        expected['error'][name] = {"text": "found errors in file output: file type 'p' not allowed (./foo)"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_type_socket(self):
@@ -614,7 +620,7 @@ srw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: file type 's' not allowed (./foo)"}
+        expected['error'][name] = {"text": "found errors in file output: file type 's' not allowed (./foo)"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_owner(self):
@@ -636,7 +642,7 @@ srw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'user/group 'bad' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'user/group 'bad' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_user(self):
@@ -658,7 +664,7 @@ srw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: unusual user/group 'bad/root' for './foo'"}
+        expected['error'][name] = {"text": "found errors in file output: unusual user/group 'bad/root' for './foo'"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_group(self):
@@ -680,7 +686,7 @@ srw-rw-rw- root/root                8,  0 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files'
-        expected['error'][name] = {"text": "found errors in file output: unusual user/group 'root/bad' for './foo'"}
+        expected['error'][name] = {"text": "found errors in file output: unusual user/group 'root/bad' for './foo'"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_user_other_os(self):
@@ -718,7 +724,7 @@ crw-rw-rw- root/root                a,  0 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'major 'a' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'major 'a' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_major2(self):
@@ -741,7 +747,7 @@ crw-rw-rw- root/root                a,120 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'major 'a' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'major 'a' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_minor(self):
@@ -764,7 +770,7 @@ brw-rw-rw- root/root                8,  a 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'minor 'a' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'minor 'a' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_minor2(self):
@@ -787,7 +793,7 @@ brw-rw-rw- root/root                8,12a 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'minor '12a' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'minor '12a' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_size(self):
@@ -809,7 +815,7 @@ brw-rw-rw- root/root                8,12a 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'size 'a' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'size 'a' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_date(self):
@@ -831,7 +837,7 @@ brw-rw-rw- root/root                8,12a 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'date '2016-0e-11' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'date '2016-0e-11' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
     def test_check_squashfs_files_bad_time(self):
@@ -853,7 +859,7 @@ brw-rw-rw- root/root                8,12a 2016-03-11 12:25 squashfs-root/foo
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'security-snap-v2:squashfs_files_malformed_line'
-        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'time 'z2:25' malformed for './foo''"}
+        expected['error'][name] = {"text": "malformed lines in unsquashfs output: 'time 'z2:25' malformed for './foo''"}  # nopep8
         self.check_results(report, expected=expected)
 
 

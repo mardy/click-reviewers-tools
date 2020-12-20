@@ -34,11 +34,13 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         self.set_test_pkgfmt("snap", "16.04")
 
     def _create_ports(self):
-        ports = {'internal': {'int1': {"port": '8081/tcp', "negotiable": True}},
-                 'external': {'ext1': {"port": '80/tcp', "negotiable": False},
-                              'ext2': {"port": '88/udp'}
-                              }
-                 }
+        ports = {
+            'internal': {'int1': {"port": '8081/tcp', "negotiable": True}},
+            'external': {
+                'ext1': {"port": '80/tcp', "negotiable": False},
+                'ext2': {"port": '88/udp'}
+            }
+        }
         return ports
 
     def _create_top_plugs(self):
@@ -127,7 +129,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_name_toplevel_maxlen_for_store(self):
         '''Test check_name - toplevel maxlen for store'''
-        self.set_test_snap_yaml("name", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa40chars")
+        self.set_test_snap_yaml("name",
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa40chars")
         c = SnapReviewLint(self.test_name)
         c.check_name()
         r = c.click_report
@@ -136,7 +139,8 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_name_toplevel_too_long_for_store(self):
         '''Test check_name - toplevel too long for store'''
-        self.set_test_snap_yaml("name", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa41chars")
+        self.set_test_snap_yaml("name",
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa41chars")
         c = SnapReviewLint(self.test_name)
         c.check_name()
         r = c.click_report
@@ -148,12 +152,15 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:name_valid'
-        expected['error'][name] = {"text": "malformed 'name': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa41chars' (length '41' exceeds store limit '40')"}
+        expected['error'][name] = {
+            "text": "malformed 'name': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa41chars' (length '41' exceeds store limit '40')"  # nopep8
+        }
         self.check_results(r, expected=expected)
 
     def test_check_name_toplevel_efficient(self):
         '''Test check_name - toplevel'''
-        self.set_test_snap_yaml("name", "u-94903713687486543234157734673284536758")
+        self.set_test_snap_yaml("name",
+                                "u-94903713687486543234157734673284536758")
         c = SnapReviewLint(self.test_name)
         c.check_name()
         r = c.click_report
@@ -460,7 +467,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:snap_type_redflag'
-        expected['info'][name] = {"text": "OK (override 'core' for 'type: os')"}
+        expected['info'][name] = {
+            "text": "OK (override 'core' for 'type: os')"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_type_redflagged_os_whitelisted_ubuntu_core(self):
@@ -478,7 +487,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:snap_type_redflag'
-        expected['info'][name] = {"text": "OK (override 'ubuntu-core' for 'type: os')"}
+        expected['info'][name] = {
+            "text": "OK (override 'ubuntu-core' for 'type: os')"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_type_redflagged_kernel_whitelisted(self):
@@ -496,7 +507,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:snap_type_redflag'
-        expected['info'][name] = {"text": "OK (override 'pc-kernel' for 'type: kernel')"}
+        expected['info'][name] = {
+            "text": "OK (override 'pc-kernel' for 'type: kernel')"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_type_redflagged_gadget_whitelisted(self):
@@ -514,7 +527,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:snap_type_redflag'
-        expected['info'][name] = {"text": "OK (override 'pc' for 'type: gadget')"}
+        expected['info'][name] = {
+            "text": "OK (override 'pc' for 'type: gadget')"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_type_unknown(self):
@@ -1574,8 +1589,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
 
     def test_check_apps_nondaemon_post_stop_command(self):
         '''Test check_apps_nondaemon() - post-stop-command'''
-        self.set_test_snap_yaml("apps", {"foo": {"command": "bin/bar",
-                                                 "post-stop-command": "bin/bar"}})
+        self.set_test_snap_yaml("apps", {
+            "foo": {"command": "bin/bar", "post-stop-command": "bin/bar"}
+        })
         c = SnapReviewLint(self.test_name)
         c.check_apps_nondaemon()
         r = c.click_report
@@ -2710,9 +2726,11 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:slots_required_attributes:test'
-        expected['error'][name] = {"text": "missing required slots attributes for interface 'serial-port' (path, path/usb-vendor/usb-product)"}
+        expected['error'][name] = {
+            "text": "missing required slots attributes for interface 'serial-port' (path, path/usb-vendor/usb-product)"  # nopep8
+        }
         name = 'lint-snap-v2:slots_attributes:test:usb-vend0r'
-        expected['error'][name] = {"text": "unknown attribute 'usb-vend0r' for interface 'serial-port' (slots)"}
+        expected['error'][name] = {"text": "unknown attribute 'usb-vend0r' for interface 'serial-port' (slots)"}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_slots_unknown_interface(self):
@@ -2935,7 +2953,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:confinement_classic'
-        expected['error'][name] = {"text": "(NEEDS REVIEW) confinement 'classic' not allowed"}
+        expected['error'][name] = {
+            "text": "(NEEDS REVIEW) confinement 'classic' not allowed"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_confinement_classic_allowed(self):
@@ -2978,7 +2998,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:confinement_classic_with_interfaces'
-        expected['error'][name] = {"text": "confinement 'classic' not allowed with plugs/slots"}
+        expected['error'][name] = {
+            "text": "confinement 'classic' not allowed with plugs/slots"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_confinement_classic_with_slots(self):
@@ -3000,7 +3022,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:confinement_classic_with_interfaces'
-        expected['error'][name] = {"text": "confinement 'classic' not allowed with plugs/slots"}
+        expected['error'][name] = {
+            "text": "confinement 'classic' not allowed with plugs/slots"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_confinement_classic_with_app_plugs(self):
@@ -3024,7 +3048,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:confinement_classic_with_interfaces'
-        expected['error'][name] = {"text": "confinement 'classic' not allowed with plugs/slots"}
+        expected['error'][name] = {
+            "text": "confinement 'classic' not allowed with plugs/slots"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_confinement_os(self):
@@ -3042,7 +3068,9 @@ class TestSnapReviewLint(sr_tests.TestSnapReview):
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:confinement_valid'
-        expected['info'][name] = {"text": "'confinement' should not be used with 'type: os'"}
+        expected['info'][name] = {
+            "text": "'confinement' should not be used with 'type: os'"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_confinement_kernel(self):
@@ -3455,9 +3483,10 @@ class TestSnapReviewLintNoMock(TestCase):
 
     def test_check_external_symlinks_has_symlink_libc6(self):
         '''Test check_external_symlinks() - has symlink for libc6'''
-        package = utils.make_snap2(output_dir=self.mkdtemp(),
-                                   extra_files=['/usr/lib/x86_64-linux-gnu/libmvec.so,libmvec.so']
-                                   )
+        package = utils.make_snap2(
+            output_dir=self.mkdtemp(),
+            extra_files=['/usr/lib/x86_64-linux-gnu/libmvec.so,libmvec.so']
+        )
         c = SnapReviewLint(package)
         c.check_external_symlinks()
         r = c.click_report
@@ -3466,9 +3495,10 @@ class TestSnapReviewLintNoMock(TestCase):
 
     def test_check_external_symlinks_has_symlink_libc6_ld_linux(self):
         '''Test check_external_symlinks() - ld-linux-x86-64.so.2'''
-        package = utils.make_snap2(output_dir=self.mkdtemp(),
-                                   extra_files=['/lib64/ld-linux-x86-64.so.2,ld-linux-x86-64.so.2']
-                                   )
+        package = utils.make_snap2(
+            output_dir=self.mkdtemp(),
+            extra_files=['/lib64/ld-linux-x86-64.so.2,ld-linux-x86-64.so.2']
+        )
         c = SnapReviewLint(package)
         c.check_external_symlinks()
         r = c.click_report
@@ -3477,9 +3507,10 @@ class TestSnapReviewLintNoMock(TestCase):
 
     def test_check_external_symlinks_has_symlink_to_snap(self):
         '''Test check_external_symlinks() - /snap/<pkgname>/...'''
-        package = utils.make_snap2(output_dir=self.mkdtemp(),
-                                   extra_files=['/snap/test/current/foo,/snap/test/current/foo']
-                                   )
+        package = utils.make_snap2(
+            output_dir=self.mkdtemp(),
+            extra_files=['/snap/test/current/foo,/snap/test/current/foo']
+        )
         c = SnapReviewLint(package)
         c.check_external_symlinks()
         r = c.click_report
@@ -3488,9 +3519,10 @@ class TestSnapReviewLintNoMock(TestCase):
 
     def test_check_external_symlinks_has_symlink_to_snap_data(self):
         '''Test check_external_symlinks() - /var/snap/<pkgname>/...'''
-        package = utils.make_snap2(output_dir=self.mkdtemp(),
-                                   extra_files=['/var/snap/test/current/foo,/var/snap/test/current/foo']
-                                   )
+        package = utils.make_snap2(
+            output_dir=self.mkdtemp(),
+            extra_files=['/var/snap/test/current/foo,/var/snap/test/current/foo']  # nopep8
+        )
         c = SnapReviewLint(package)
         c.check_external_symlinks()
         r = c.click_report
@@ -3691,7 +3723,9 @@ architectures: [ amd64 ]
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:architecture_specified_needed:amd64'
-        expected['info'][name] = {"text": "Could not find compiled binaries for architecture 'amd64'"}
+        expected['info'][name] = {
+            "text": "Could not find compiled binaries for architecture 'amd64'"
+        }
         self.check_results(r, expected=expected)
 
     def test_check_vcs(self):
@@ -3740,7 +3774,7 @@ architectures: [ amd64 ]
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:iffy_files'
-        expected['warn'][name] = {"text": "found potentially sensitive files in package: .foo.swp, bar/baz/.norf.swp"}
+        expected['warn'][name] = {"text": "found potentially sensitive files in package: .foo.swp, bar/baz/.norf.swp"}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_plugs_lp1579201(self):
@@ -4086,7 +4120,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_app_plug_exception(self):
@@ -4161,7 +4195,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_app_plug_reference2(self):
@@ -4200,7 +4234,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_app_plug_reference3(self):
@@ -4238,7 +4272,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_top_plug_null(self):
@@ -4275,7 +4309,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_top_plug(self):
@@ -4313,7 +4347,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_top_plug_ref(self):
@@ -4350,7 +4384,7 @@ apps:
         expected['warn'] = dict()
         expected['info'] = dict()
         name = 'lint-snap-v2:meta_gui_desktop'
-        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}
+        expected['warn'][name] = {"text": "desktop interfaces (unity7) specified without a corresponding meta/gui/*.desktop file. If using snapcraft, please see https://snapcraft.io/docs/build-snaps/metadata#fixed-assets. Otherwise, please provide a desktop file in meta/gui/*.desktop (it should reference one of the 'apps' from your snapcraft/snap.yaml)."}  # nopep8
         self.check_results(r, expected=expected)
 
     def test_check_meta_gui_desktop_missing_exec(self):

@@ -112,8 +112,7 @@ class SnapReviewDeclaration(SnapReview):
                             self.str2bool(cstr[cstr_key])
                         if has_alternates:
                             decl[key][iface][constraint][index][cstr_key] = \
-                                self.str2bool(decl[key][iface][constraint] \
-                                              [index][cstr_key])
+                                self.str2bool(decl[key][iface][constraint][index][cstr_key])  # nopep8
                     if not self.is_bool(cstr[cstr_key]):
                         malformed(badn, "'%s' not True or False" % cstr_key,
                                   base)
@@ -161,13 +160,7 @@ class SnapReviewDeclaration(SnapReview):
                                     cstr[cstr_key][attrib] = \
                                         self.str2bool(cstr[cstr_key][attrib])
                                     if has_alternates:
-                                        decl[key][iface][constraint][index] \
-                                            [cstr_key][attrib] = \
-                                            self.str2bool(decl[key][iface] \
-                                                              [constraint] \
-                                                              [index] \
-                                                              [cstr_key] \
-                                                              [attrib])
+                                        decl[key][iface][constraint][index][cstr_key][attrib] = self.str2bool(decl[key][iface][constraint][index][cstr_key][attrib])  # nopep8
 
                                 attr_type = cstr[cstr_key][attrib]
                                 tmp_attr = self.interfaces_attribs[iface][tmp]

@@ -8,8 +8,9 @@ for i in ./clickreviews/*py \
          ./bin/click-check-* \
          ./bin/click-show-files \
          ./bin/click-review ; do
-    if [ "$i" = "./clickreviews/tests/test_sr_declaration.py" ]; then
-        # This file is hopelessly formatted against PEP8
+    if [ "$i" = "./clickreviews/tests/test_sr_declaration.py" -o \
+         "$i" = "./clickreviews/tests/test_sr_security.py" ]; then
+        # These file is hopelessly formatted against PEP8
         continue
     fi
     echo "Checking $i"

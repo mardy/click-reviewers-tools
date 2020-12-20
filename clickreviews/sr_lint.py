@@ -977,7 +977,7 @@ class SnapReviewLint(SnapReview):
 
                 has_required = False
                 for req_attrib in \
-                    self.interfaces_required[interface][iface_type]:
+                        self.interfaces_required[interface][iface_type]:
                     combo = req_attrib.split('/')
                     num_combos = 0     # total number of required attribs
                     found = 0          # required attribs found
@@ -1006,7 +1006,7 @@ class SnapReviewLint(SnapReview):
                     # format the combinations for human review
                     combos = []
                     for req_attrib in \
-                        self.interfaces_required[interface][iface_type]:
+                            self.interfaces_required[interface][iface_type]:
                         combo = []
                         for r in req_attrib.split('/'):
                             if not r.startswith('!'):
